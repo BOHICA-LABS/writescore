@@ -1,0 +1,124 @@
+{
+  "_metadata": {
+    "version": "1.0.0",
+    "created": "2025-01-24",
+    "story": "2.4.1",
+    "description": "Dimension score normalization statistics (mean, stdev) computed from validation set",
+    "validation_set_size": 0,
+    "note": "Placeholder values - will be computed from actual validation set in Task 8"
+  },
+  "dimensions": {
+    "perplexity": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "burstiness": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "structure": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "formatting": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "voice": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "readability": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "lexical": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "sentiment": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "syntactic": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "predictability": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "advanced_lexical": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "transition_marker": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "pragmatic_markers": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "figurative_language": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "semantic_coherence": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    },
+    "ai_vocabulary": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
+    }
+  }
+}
