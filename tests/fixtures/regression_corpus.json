@@ -1,0 +1,182 @@
+{
+  "version": "1.0",
+  "created": "2025-11-06",
+  "description": "Test corpus for scoring regression validation. Contains 25 samples: 10 AI-generated, 10 human-written, 5 edge cases.",
+  "samples": [
+    {
+      "id": "ai_sample_01",
+      "text": "Furthermore, it is important to note that delving into holistic approaches can facilitate seamless optimization across organizational touchpoints. Moreover, harnessing innovative paradigms provides a comprehensive framework for transformation — enabling enterprises to streamline mission-critical processes effectively.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "High AI markers: furthermore, moreover, facilitate, holistic, seamless, comprehensive framework"
+    },
+    {
+      "id": "ai_sample_02",
+      "text": "The implementation of this robust solution facilitates several key advantages that organizations can leverage: streamline critical business processes systematically, optimize existing workflows and procedures holistically, facilitate desired outcomes through strategic alignment, and leverage cross-functional synergies effectively.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "Repetitive AI patterns: facilitate, leverage, holistically, strategically"
+    },
+    {
+      "id": "ai_sample_03",
+      "text": "Moreover, the strategic implementation of these comprehensive solutions requires careful consideration of various interconnected factors. It is important to delve into the nuances of each approach — ensuring that every aspect is thoroughly optimized for maximum effectiveness.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "Typical AI hedging: moreover, it is important, careful consideration, thoroughly"
+    },
+    {
+      "id": "ai_sample_04",
+      "text": "Furthermore, successful implementation hinges on several critical factors: comprehensive stakeholder engagement across all levels, robust change management frameworks, seamless integration with existing systems, and continuous optimization of key processes.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "AI list pattern with buzzwords: comprehensive, robust, seamless, continuous"
+    },
+    {
+      "id": "ai_sample_05",
+      "text": "Moreover, it is essential to recognize that sustainable transformation requires ongoing assessment. Organizations must delve into performance metrics regularly — ensuring that optimization efforts remain aligned with strategic objectives.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "AI emphasis markers: moreover, essential, must, ensuring"
+    },
+    {
+      "id": "ai_sample_06",
+      "text": "The comprehensive framework facilitates measurement across multiple dimensions: operational efficiency streamlines processes to reduce cycle time, strategic alignment ensures initiatives leverage core competencies, value delivery optimizes outcomes through data-driven decisions, and innovation capacity facilitates continuous improvement culture.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "Long sentence with multiple AI markers: comprehensive, facilitates, streamlines, optimizes"
+    },
+    {
+      "id": "ai_sample_07",
+      "text": "In conclusion, leveraging these comprehensive strategies facilitates optimal outcomes across organizational ecosystems. Furthermore, the holistic nature of this approach ensures robust implementation — ultimately driving transformative results across all organizational levels.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "Conclusion pattern with AI markers: leveraging, comprehensive, facilitates, holistic, robust"
+    },
+    {
+      "id": "ai_sample_08",
+      "text": "Moreover, by delving into these methodologies systematically, organizations can harness the full potential of digital transformation initiatives. The robust nature of this comprehensive approach ensures seamless integration across all touchpoints.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "High density AI vocabulary: moreover, delving, systematically, harness, robust, comprehensive, seamless"
+    },
+    {
+      "id": "ai_sample_09",
+      "text": "Furthermore, it is essential to delve into the holistic framework that facilitates optimal outcomes across organizational touchpoints. Moreover, leveraging robust methodologies ensures seamless integration across all enterprise systems — providing comprehensive solutions for complex digital transformation challenges.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "Multiple transition markers and AI buzzwords combined"
+    },
+    {
+      "id": "ai_sample_10",
+      "text": "Furthermore, successful enterprise transformation requires both systematic methodologies and practical adaptation. Organizations must leverage comprehensive frameworks while remaining agile enough to facilitate rapid iteration based on real-world feedback.",
+      "category": "ai_generated",
+      "expected_ai_probability": "high",
+      "notes": "AI hedging with balance: both...and, must, while remaining, comprehensive frameworks"
+    },
+    {
+      "id": "human_sample_01",
+      "text": "I've spent five years working on product launches. You'll find the solution surprisingly simple once you get past the corporate nonsense.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Conversational tone, contractions, direct address, informal language"
+    },
+    {
+      "id": "human_sample_02",
+      "text": "Some sections here are longer. Others? Not so much. We made tons of mistakes before finding our groove.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Fragment sentences, rhetorical question, informal voice"
+    },
+    {
+      "id": "human_sample_03",
+      "text": "The first attempt was a disaster. Seriously, we wasted three months on a feature nobody wanted. But you learn more from failures than wins, right?",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Short punchy sentences, tag question, conversational filler (seriously)"
+    },
+    {
+      "id": "human_sample_04",
+      "text": "You know what? The technical stuff wasn't even that hard. The real pain? Convincing executives to try something different.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Rhetorical questions, contractions, conversational setup"
+    },
+    {
+      "id": "human_sample_05",
+      "text": "I remember this meeting in March. Pure chaos. Everyone wanted their pet feature included. Sarah from design finally stood up and said we're building for users, not ourselves. Game changer.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Specific details (March, Sarah), fragment sentences, storytelling voice"
+    },
+    {
+      "id": "human_sample_06",
+      "text": "Short story: They didn't. Not at first.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Very short, conversational setup, fragment"
+    },
+    {
+      "id": "human_sample_07",
+      "text": "We ran an experiment. Built three versions of the landing page. A/B/C tested them for two weeks. The results? Totally unexpected.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Short declarative sentences, specific details, rhetorical pause"
+    },
+    {
+      "id": "human_sample_08",
+      "text": "That ugly Version C prototype crushed everything. Why? It was honest. No marketing speak. Just told people what the product did.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Rhetorical question, short punchy style, direct language"
+    },
+    {
+      "id": "human_sample_09",
+      "text": "Daily active users went from 200 to 2,400 in six weeks. Not because of some framework or methodology. We just started listening. Some days showed 30% growth. Others? We'd lose users. That's reality.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Specific numbers, contractions, realistic expectations, fragment"
+    },
+    {
+      "id": "human_sample_10",
+      "text": "Don't overcomplicate this. Build something. Show it to people. Listen to what they say. Repeat. That's it. No ten-step process. No comprehensive framework. Just ship and iterate.",
+      "category": "human_written",
+      "expected_ai_probability": "low",
+      "notes": "Imperative commands, short sentences, direct advice, rejection of AI-style frameworks"
+    },
+    {
+      "id": "mixed_sample_01",
+      "text": "But here's the real story: that framework above? Total disaster when we tried it. Week 1: Consultants showed up with 200-slide deck. Week 2: Everyone confused. Week 3: Half the team quit. Week 4: I got called into a very uncomfortable meeting.",
+      "category": "mixed",
+      "expected_ai_probability": "medium",
+      "notes": "Starts conversational, but structured timeline shows some formality"
+    },
+    {
+      "id": "mixed_sample_02",
+      "text": "We threw out the framework. Started over. Here's what worked: morning standup (15 min, no slides), pick THREE priorities max, let teams make decisions, ship something every Friday. Some Fridays we shipped bugs. Some Fridays we shipped gold.",
+      "category": "mixed",
+      "expected_ai_probability": "medium",
+      "notes": "Mix of conversational and list structure, specific details with casual voice"
+    },
+    {
+      "id": "mixed_sample_03",
+      "text": "Moreover, while comprehensive frameworks facilitate theoretical understanding, practical implementation requires flexibility. It is important to recognize that seamless integration of enterprise systems demands both robust methodologies and authentic human-centered approaches.",
+      "category": "mixed",
+      "expected_ai_probability": "medium-high",
+      "notes": "AI-style opening transitioning to more balanced perspective"
+    },
+    {
+      "id": "edge_case_01",
+      "text": "This is an extremely long sentence that just keeps going and going without any real purpose other than to test how the analyzer handles sentences that are unnecessarily verbose and contain way too many words and clauses and phrases that really should have been broken up into multiple shorter sentences for better readability but instead continue to ramble on and on making the reader wonder when it will ever end.",
+      "category": "edge_case",
+      "expected_ai_probability": "low",
+      "notes": "Single very long run-on sentence"
+    },
+    {
+      "id": "edge_case_02",
+      "text": "Hello 世界 🌍 🚀 Привет мир مرحبا",
+      "category": "edge_case",
+      "expected_ai_probability": "low",
+      "notes": "Unicode and emoji characters, multilingual"
+    }
+  ]
+}
