@@ -1,0 +1,21 @@
+pattern,category,subcategory,example,source_reference,in_current_impl,domain_general
+may,hedge_cue,modal,"This may indicate",BioScope Corpus,yes,yes
+might,hedge_cue,modal,"This might suggest",BioScope Corpus,yes,yes
+could,hedge_cue,modal,"This could explain",BioScope Corpus,yes,yes
+would,hedge_cue,modal,"This would imply",BioScope Corpus,no,yes
+can,hedge_cue,modal,"This can be interpreted",BioScope Corpus,no,yes
+suggest,hedge_cue,verb,"Results suggest",BioScope Corpus,yes,yes
+indicate,hedge_cue,verb,"Data indicate",BioScope Corpus,yes,yes
+appear,hedge_cue,verb,"Findings appear to",BioScope Corpus,no,yes
+seem,hedge_cue,verb,"Results seem to",BioScope Corpus,no,yes
+likely,hedge_cue,adjective,"It is likely that",BioScope Corpus,yes,yes
+probable,hedge_cue,adjective,"It is probable that",BioScope Corpus,no,yes
+possible,hedge_cue,adjective,"It is possible that",BioScope Corpus,no,yes
+unclear,hedge_cue,adjective,"It remains unclear",BioScope Corpus,no,yes
+uncertain,hedge_cue,adjective,"This is uncertain",BioScope Corpus,no,yes
+whether,hedge_cue,conjunction,"Whether this applies",BioScope Corpus,no,yes
+if,hedge_cue,conjunction,"If this holds true",BioScope Corpus,no,no
+or,hedge_cue,disjunction,"This or that explanation",BioScope Corpus,no,no
+either,hedge_cue,disjunction,"Either interpretation",BioScope Corpus,no,no
+putative,hedge_cue,adjective,"The putative mechanism",BioScope Corpus,no,no
+hypothetical,hedge_cue,adjective,"A hypothetical scenario",BioScope Corpus,no,yes

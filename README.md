@@ -1,5 +1,10 @@
 # WriteScore - Writing Quality Scoring Tool
 
+[![CI](https://github.com/jmagady/writescore/actions/workflows/ci.yml/badge.svg)](https://github.com/jmagady/writescore/actions/workflows/ci.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-6.3.0-green.svg)](https://github.com/jmagady/writescore/releases)
+
 **Formerly known as AI Pattern Analyzer**
 
 This package provides a comprehensive writing quality scoring tool with AI pattern detection capabilities. Refactored from the monolithic `analyze_ai_patterns.py` file (7,079 lines) into a modular architecture.
@@ -67,6 +72,39 @@ pip install -e .
 ```
 
 This installs the `writescore` command-line tool.
+
+### Development Setup
+
+For development, install with dev dependencies:
+
+```bash
+pip install -e ".[dev]"
+```
+
+#### Local CI Testing with act
+
+To test GitHub Actions workflows locally, install [act](https://github.com/nektos/act):
+
+```bash
+# macOS (via Homebrew)
+brew install act
+
+# Or use Brewfile
+brew bundle
+```
+
+Run workflows locally:
+
+```bash
+# List available workflows
+act -l
+
+# Test lint job
+act push --job lint --container-architecture linux/amd64
+
+# Test full CI (requires significant disk space for PyTorch/CUDA)
+act push --container-architecture linux/amd64
+```
 
 ## Analysis Modes
 

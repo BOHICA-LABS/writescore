@@ -1,0 +1,75 @@
+pattern,target_dict,regex_pattern,sources,priority,rationale
+would,EPISTEMIC_HEDGES,\bwould\b,"Hyland,BioScope",high,Modal hedge - common epistemic use
+should,EPISTEMIC_HEDGES,\bshould\b,Hyland,medium,Modal hedge - epistemic/deontic ambiguity
+seem,EPISTEMIC_HEDGES,\bseems?\b,Hyland,high,Lexical verb hedge - very common
+appear,EPISTEMIC_HEDGES,\bappears?\b,"Hyland,BioScope",high,Lexical verb hedge - very common
+believe,EPISTEMIC_HEDGES,\bbelieves?\b,Hyland,high,Epistemic verb - personal stance
+think,EPISTEMIC_HEDGES,\bthinks?\b,Hyland,high,Epistemic verb - personal stance
+suspect,EPISTEMIC_HEDGES,\bsuspects?\b,Hyland,medium,Epistemic verb - uncertainty
+suppose,EPISTEMIC_HEDGES,\bsupposes?\b,Hyland,medium,Epistemic verb - hypothesis
+possible,EPISTEMIC_HEDGES,\bpossible\b,"Hyland,BioScope",high,Adjective hedge - very common
+probable,EPISTEMIC_HEDGES,\bprobable\b,"Hyland,BioScope",high,Adjective hedge - epistemic
+unlikely,EPISTEMIC_HEDGES,\bunlikely\b,Hyland,high,Adjective hedge - negative probability
+uncertain,EPISTEMIC_HEDGES,\buncertain\b,"Hyland,BioScope",high,Adjective hedge - explicit uncertainty
+unclear,EPISTEMIC_HEDGES,\bunclear\b,BioScope,high,Adjective hedge - explicit uncertainty
+nearly,EPISTEMIC_HEDGES,\bnearly\b,Hyland,medium,Approximator - quantity hedge
+essentially,EPISTEMIC_HEDGES,\bessentially\b,Hyland,medium,Approximator - degree hedge
+relatively,EPISTEMIC_HEDGES,\brelatively\b,Hyland,medium,Approximator - comparison hedge
+somewhat,EPISTEMIC_HEDGES,\bsomewhat\b,Hyland,high,Approximator - degree hedge
+fairly,EPISTEMIC_HEDGES,\bfairly\b,Hyland,medium,Approximator - degree hedge
+quite,EPISTEMIC_HEDGES,\bquite\b,Hyland,medium,Approximator - degree hedge (British)
+typically,EPISTEMIC_HEDGES,\btypically\b,Hyland,high,Frequency approximator
+usually,EPISTEMIC_HEDGES,\busually\b,Hyland,high,Frequency approximator
+to_some_extent,EPISTEMIC_HEDGES,\bto\s+some\s+extent\b,Hyland,medium,Multi-word approximator
+in_general,EPISTEMIC_HEDGES,\bin\s+general\b,Hyland,medium,Multi-word approximator
+always,STRONG_CERTAINTY,\balways\b,"LIWC,Biber",high,Absolute certainty marker
+never,STRONG_CERTAINTY,\bnever\b,"LIWC,Biber",high,Absolute certainty marker
+completely,STRONG_CERTAINTY,\bcompletely\b,LIWC,medium,Emphatic certainty
+totally,STRONG_CERTAINTY,\btotally\b,LIWC,medium,Emphatic certainty (informal)
+entirely,STRONG_CERTAINTY,\bentirely\b,LIWC,medium,Emphatic certainty
+surely,STRONG_CERTAINTY,\bsurely\b,"LIWC,Biber",high,Epistemic certainty adverb
+truly,STRONG_CERTAINTY,\btruly\b,LIWC,medium,Emphatic certainty
+indeed,STRONG_CERTAINTY,\bindeed\b,Hyland,high,Confirmatory booster
+in_fact,STRONG_CERTAINTY,\bin\s+fact\b,Hyland,high,Confirmatory booster
+of_course,STRONG_CERTAINTY,\bof\s+course\b,Hyland,medium,Presuppositional booster
+unquestionably,STRONG_CERTAINTY,\bunquestionably\b,Hyland,medium,Strong certainty adverb
+undeniably,STRONG_CERTAINTY,\bundeniably\b,Hyland,medium,Strong certainty adverb
+we_know,SUBJECTIVE_CERTAINTY,\b[Ww]e\s+know\b,Hyland,high,First-person certainty
+i_am_certain,SUBJECTIVE_CERTAINTY,\bI\s+am\s+certain\b,Hyland,medium,Personal certainty expression
+we_are_confident,SUBJECTIVE_CERTAINTY,\b[Ww]e\s+are\s+confident\b,Hyland,medium,Personal certainty expression
+it_is_clear,SUBJECTIVE_CERTAINTY,\b[Ii]t\s+is\s+clear\b,Hyland,high,Impersonal certainty
+demonstrate,ASSERTION_ACTS,\bdemonstrates?\b,Hyland,high,Strong assertion verb
+show,ASSERTION_ACTS,\bshows?\b,Hyland,high,Evidence assertion verb
+prove,ASSERTION_ACTS,\bproves?\b,Hyland,medium,Strong assertion verb
+establish,ASSERTION_ACTS,\bestablish(?:es)?\b,Hyland,medium,Formal assertion verb
+confirm,ASSERTION_ACTS,\bconfirms?\b,Hyland,high,Verification assertion verb
+find,ASSERTION_ACTS,\bfinds?\b,Hyland,high,Discovery assertion verb
+surprisingly,ATTITUDE_MARKERS,\bsurprisingly\b,Hyland,high,Evaluative attitude - unexpected
+unfortunately,ATTITUDE_MARKERS,\bunfortunately\b,Hyland,high,Evaluative attitude - negative
+fortunately,ATTITUDE_MARKERS,\bfortunately\b,Hyland,high,Evaluative attitude - positive
+hopefully,ATTITUDE_MARKERS,\bhopefully\b,Hyland,high,Evaluative attitude - desiderative
+interestingly,ATTITUDE_MARKERS,\binterestingly\b,Hyland,high,Evaluative attitude - notable
+importantly,ATTITUDE_MARKERS,\bimportantly\b,Hyland,high,Evaluative attitude - significance
+remarkably,ATTITUDE_MARKERS,\bremarkably\b,Hyland,medium,Evaluative attitude - notable
+significantly,ATTITUDE_MARKERS,\bsignificantly\b,Hyland,high,Evaluative attitude - importance
+unexpectedly,ATTITUDE_MARKERS,\bunexpectedly\b,Hyland,medium,Evaluative attitude - surprise
+curiously,ATTITUDE_MARKERS,\bcuriously\b,Hyland,low,Evaluative attitude - puzzlement
+strangely,ATTITUDE_MARKERS,\bstrangely\b,Hyland,low,Evaluative attitude - oddness
+oddly,ATTITUDE_MARKERS,\boddly\b,Hyland,low,Evaluative attitude - oddness
+regrettably,ATTITUDE_MARKERS,\bregrettably\b,Hyland,medium,Evaluative attitude - negative
+admittedly,ATTITUDE_MARKERS,\badmittedly\b,Hyland,medium,Concessive attitude
+notably,ATTITUDE_MARKERS,\bnotably\b,Hyland,medium,Evaluative attitude - salience
+predictably,ATTITUDE_MARKERS,\bpredictably\b,Biber,medium,Evaluative attitude - expected
+inevitably,ATTITUDE_MARKERS,\binevitably\b,Biber,medium,Evaluative attitude - necessity
+understandably,ATTITUDE_MARKERS,\bunderstandably\b,Biber,medium,Evaluative attitude - comprehension
+probably,LIKELIHOOD_ADVERBIALS,\bprobably\b,"Hyland,Biber,LIWC",high,Core likelihood adverb
+conceivably,LIKELIHOOD_ADVERBIALS,\bconceivably\b,Hyland,medium,Possibility adverb
+arguably,LIKELIHOOD_ADVERBIALS,\barguably\b,Biber,high,Debatable likelihood
+apparently,LIKELIHOOD_ADVERBIALS,\bapparently\b,Biber,high,Evidential likelihood
+evidently,LIKELIHOOD_ADVERBIALS,\bevidently\b,Biber,medium,Evidential likelihood
+seemingly,LIKELIHOOD_ADVERBIALS,\bseemingly\b,Biber,high,Appearance-based likelihood
+ostensibly,LIKELIHOOD_ADVERBIALS,\bostensibly\b,Biber,low,Surface appearance
+supposedly,LIKELIHOOD_ADVERBIALS,\bsupposedly\b,Biber,medium,Reported likelihood
+reportedly,LIKELIHOOD_ADVERBIALS,\breportedly\b,Biber,medium,Evidential - reported
+allegedly,LIKELIHOOD_ADVERBIALS,\ballegedly\b,Biber,medium,Evidential - claimed
+plausibly,LIKELIHOOD_ADVERBIALS,\bplausibly\b,Hyland,medium,Reasonableness likelihood

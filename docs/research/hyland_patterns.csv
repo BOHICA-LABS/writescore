@@ -1,0 +1,70 @@
+pattern,category,subcategory,example,source_reference,in_current_impl
+might,hedge,modal,"The results might indicate a correlation",Hyland 2005 Ch.3,yes
+may,hedge,modal,"This may suggest an alternative explanation",Hyland 2005 Ch.3,yes
+could,hedge,modal,"The findings could be interpreted differently",Hyland 2005 Ch.3,yes
+would,hedge,modal,"One would expect similar outcomes",Hyland 2005 Ch.3,no
+should,hedge,modal,"This should be considered tentative",Hyland 2005 Ch.3,no
+seem,hedge,lexical_verb,"The data seem to support this view",Hyland 2005 Ch.3,no
+appear,hedge,lexical_verb,"Results appear to confirm the hypothesis",Hyland 2005 Ch.3,no
+suggest,hedge,lexical_verb,"These findings suggest a relationship",Hyland 2005 Ch.3,yes
+indicate,hedge,lexical_verb,"The evidence indicates a trend",Hyland 2005 Ch.3,yes
+tend,hedge,lexical_verb,"Participants tend to prefer option A",Hyland 2005 Ch.3,yes
+believe,hedge,lexical_verb,"We believe this interpretation is valid",Hyland 2005 Ch.3,no
+assume,hedge,lexical_verb,"We assume normal distribution",Hyland 2005 Ch.3,yes
+think,hedge,lexical_verb,"I think this merits further study",Hyland 2005 Ch.3,no
+speculate,hedge,lexical_verb,"One might speculate about causes",Hyland 2005 Ch.3,yes
+suspect,hedge,lexical_verb,"We suspect confounding variables",Hyland 2005 Ch.3,no
+suppose,hedge,lexical_verb,"Let us suppose this holds true",Hyland 2005 Ch.3,no
+possible,hedge,adjective,"It is possible that other factors exist",Hyland 2005 Ch.3,no
+probable,hedge,adjective,"It is probable that this effect persists",Hyland 2005 Ch.3,no
+likely,hedge,adjective,"It is likely that results vary",Hyland 2005 Ch.3,yes
+unlikely,hedge,adjective,"It is unlikely this is coincidental",Hyland 2005 Ch.3,no
+uncertain,hedge,adjective,"The outcome remains uncertain",Hyland 2005 Ch.3,no
+about,hedge,approximator,"About 50% of participants agreed",Hyland 2005 Ch.3,yes
+around,hedge,approximator,"Around three quarters responded",Hyland 2005 Ch.3,yes
+approximately,hedge,approximator,"Approximately 100 samples were tested",Hyland 2005 Ch.3,yes
+roughly,hedge,approximator,"Roughly half the cases showed improvement",Hyland 2005 Ch.3,yes
+nearly,hedge,approximator,"Nearly all subjects completed the task",Hyland 2005 Ch.3,no
+almost,hedge,approximator,"Almost every participant improved",Hyland 2005 Ch.3,yes
+essentially,hedge,approximator,"The groups were essentially equivalent",Hyland 2005 Ch.3,no
+relatively,hedge,approximator,"This is relatively uncommon",Hyland 2005 Ch.3,no
+somewhat,hedge,approximator,"Results were somewhat unexpected",Hyland 2005 Ch.3,no
+fairly,hedge,approximator,"The correlation was fairly strong",Hyland 2005 Ch.3,no
+quite,hedge,approximator,"The effect was quite significant",Hyland 2005 Ch.3,no
+to_some_extent,hedge,approximator,"This applies to some extent",Hyland 2005 Ch.3,no
+in_general,hedge,approximator,"In general the findings support this",Hyland 2005 Ch.3,no
+typically,hedge,approximator,"Typically we observe this pattern",Hyland 2005 Ch.3,no
+usually,hedge,approximator,"This usually occurs in such cases",Hyland 2005 Ch.3,no
+clearly,booster,adverb,"The results clearly demonstrate",Hyland 2005 Ch.3,yes
+obviously,booster,adverb,"This is obviously significant",Hyland 2005 Ch.3,yes
+definitely,booster,adverb,"This definitely confirms our hypothesis",Hyland 2005 Ch.3,yes
+certainly,booster,adverb,"This certainly warrants attention",Hyland 2005 Ch.3,yes
+undoubtedly,booster,adverb,"This undoubtedly affects outcomes",Hyland 2005 Ch.3,yes
+undeniably,booster,adverb,"The impact is undeniably significant",Hyland 2005 Ch.3,no
+unquestionably,booster,adverb,"This is unquestionably important",Hyland 2005 Ch.3,no
+indeed,booster,adverb,"The data indeed support this claim",Hyland 2005 Ch.3,no
+in_fact,booster,adverb,"In fact the effect was stronger",Hyland 2005 Ch.3,no
+of_course,booster,adverb,"Of course this requires validation",Hyland 2005 Ch.3,no
+always,booster,adverb,"This always produces consistent results",Hyland 2005 Ch.3,no
+never,booster,adverb,"This never occurred in controls",Hyland 2005 Ch.3,no
+demonstrate,booster,verb,"The findings demonstrate a clear link",Hyland 2005 Ch.3,no
+show,booster,verb,"Our data show conclusively",Hyland 2005 Ch.3,no
+prove,booster,verb,"This proves the hypothesis",Hyland 2005 Ch.3,no
+establish,booster,verb,"We establish a causal relationship",Hyland 2005 Ch.3,no
+confirm,booster,verb,"Results confirm our predictions",Hyland 2005 Ch.3,no
+find,booster,verb,"We find strong evidence",Hyland 2005 Ch.3,no
+surprisingly,attitude,evaluative,"Surprisingly the effect was minimal",Hyland 2005 Ch.4,no
+unfortunately,attitude,evaluative,"Unfortunately data were limited",Hyland 2005 Ch.4,no
+fortunately,attitude,evaluative,"Fortunately the sample was adequate",Hyland 2005 Ch.4,no
+hopefully,attitude,evaluative,"Hopefully future studies will clarify",Hyland 2005 Ch.4,no
+interestingly,attitude,evaluative,"Interestingly no difference emerged",Hyland 2005 Ch.4,no
+importantly,attitude,evaluative,"Importantly this suggests a mechanism",Hyland 2005 Ch.4,no
+remarkably,attitude,evaluative,"Remarkably all subjects improved",Hyland 2005 Ch.4,no
+significantly,attitude,evaluative,"Significantly the trend reversed",Hyland 2005 Ch.4,no
+unexpectedly,attitude,evaluative,"Unexpectedly the correlation was negative",Hyland 2005 Ch.4,no
+curiously,attitude,evaluative,"Curiously only one group showed effects",Hyland 2005 Ch.4,no
+strangely,attitude,evaluative,"Strangely the pattern did not repeat",Hyland 2005 Ch.4,no
+oddly,attitude,evaluative,"Oddly no participants reported this",Hyland 2005 Ch.4,no
+regrettably,attitude,evaluative,"Regrettably the study was underpowered",Hyland 2005 Ch.4,no
+admittedly,attitude,evaluative,"Admittedly limitations exist",Hyland 2005 Ch.4,no
+appropriately,attitude,evaluative,"Appropriately we adjusted for covariates",Hyland 2005 Ch.4,no
