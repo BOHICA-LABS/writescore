@@ -5,6 +5,68 @@ All notable changes to WriteScore (formerly AI Pattern Analyzer) will be documen
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.0] - 2025-11-25
+
+### CI/CD Release Automation (Story 4.3)
+
+**Added GitHub Actions workflows for continuous integration and automated releases**
+
+#### Added
+
+**GitHub Actions Workflows**:
+- **`.github/workflows/ci.yml`**: Continuous integration workflow
+  - Triggers on push to main and pull requests
+  - Lint job: ruff check on Python 3.12
+  - Test job: Matrix testing on Python 3.8, 3.10, 3.12
+  - Coverage upload to Codecov (Python 3.12 only)
+  - Runs unit and integration tests
+
+- **`.github/workflows/release.yml`**: Automated release workflow
+  - Triggers on version tags (v*)
+  - Builds wheel and source distributions
+  - Creates GitHub releases with auto-generated notes
+  - Attaches build artifacts (.whl, .tar.gz)
+  - PyPI publishing ready (commented, requires PYPI_API_TOKEN secret)
+
+**Ruff Linting Configuration**:
+- Added `[tool.ruff]` section to pyproject.toml
+- Line length: 100 characters
+- Target version: Python 3.8
+- Rules enabled: E, F, W, I, UP, B, C4, SIM
+- Sensible ignores for style preferences (E501, B008, SIM108)
+- Per-file ignores for tests (S101, PLR2004)
+- isort integration with first-party package recognition
+
+#### Changed
+
+**Code Quality Improvements** (all files pass ruff check):
+- Fixed import ordering across all modules (I001)
+- Added proper exception chaining with `from e` (B904)
+- Renamed unused loop variables to `_` prefix (B007)
+- Combined nested if statements where appropriate (SIM102)
+- Fixed ambiguous variable names `l` → `level`/`item` (E741)
+- Used context managers for file operations (SIM115)
+- Applied contextlib.suppress for try-except-pass patterns (SIM105)
+- Fixed function binding in loops (B023)
+
+#### Technical Details
+
+- **Python Support**: 3.8, 3.10, 3.12 (matrix tested)
+- **Linting**: Zero ruff errors (all 17+ files cleaned)
+- **Test Results**: 1968 passed, 9 pre-existing failures, 16 skipped
+- **Workflow Permissions**: Minimal (contents: write for releases only)
+
+#### Files Added
+- `.github/workflows/ci.yml` (45 lines)
+- `.github/workflows/release.yml` (36 lines)
+
+#### Files Modified
+- `pyproject.toml` (added ruff configuration)
+- 20+ source files (code style fixes)
+- 4 test files (code style fixes)
+
+---
+
 ## [6.2.0] - 2025-11-24
 
 ### Expanded Pragmatic Markers Lexicon (Story 2.6)

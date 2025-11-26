@@ -1,0 +1,23 @@
+pattern,category,subcategory,example,source_reference,in_current_impl
+probably,stance_adverbial,epistemic,"This is probably due to",Biber 1999 Ch.10,no
+possibly,stance_adverbial,epistemic,"This is possibly related",Biber 1999 Ch.10,yes
+certainly,stance_adverbial,epistemic,"This is certainly relevant",Biber 1999 Ch.10,yes
+surely,stance_adverbial,epistemic,"This is surely significant",Biber 1999 Ch.10,no
+apparently,stance_adverbial,epistemic,"Apparently this occurs",Biber 1999 Ch.10,no
+evidently,stance_adverbial,epistemic,"Evidently this matters",Biber 1999 Ch.10,no
+presumably,stance_adverbial,epistemic,"Presumably this applies",Biber 1999 Ch.10,yes
+supposedly,stance_adverbial,epistemic,"Supposedly this works",Biber 1999 Ch.10,no
+arguably,stance_adverbial,epistemic,"This is arguably important",Biber 1999 Ch.10,no
+seemingly,stance_adverbial,epistemic,"This is seemingly correct",Biber 1999 Ch.10,no
+ostensibly,stance_adverbial,epistemic,"Ostensibly this helps",Biber 1999 Ch.10,no
+reportedly,stance_adverbial,evidential,"Reportedly this occurred",Biber 1999 Ch.10,no
+allegedly,stance_adverbial,evidential,"This was allegedly caused",Biber 1999 Ch.10,no
+according_to,stance_adverbial,evidential,"According to the data",Biber 1999 Ch.10,no
+thankfully,stance_adverbial,attitudinal,"Thankfully this resolved",Biber 1999 Ch.10,no
+sadly,stance_adverbial,attitudinal,"Sadly this persisted",Biber 1999 Ch.10,no
+happily,stance_adverbial,attitudinal,"Happily the outcome improved",Biber 1999 Ch.10,no
+wisely,stance_adverbial,attitudinal,"Wisely they adjusted",Biber 1999 Ch.10,no
+rightly,stance_adverbial,attitudinal,"Rightly they concluded",Biber 1999 Ch.10,no
+understandably,stance_adverbial,attitudinal,"Understandably this caused concern",Biber 1999 Ch.10,no
+predictably,stance_adverbial,attitudinal,"Predictably results varied",Biber 1999 Ch.10,no
+inevitably,stance_adverbial,attitudinal,"Inevitably this occurred",Biber 1999 Ch.10,no

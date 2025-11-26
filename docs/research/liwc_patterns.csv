@@ -1,0 +1,21 @@
+pattern,category,subcategory,example,source_reference,in_current_impl
+always,certainty,absolute,"This always occurs",LIWC2015 Manual (sample),no
+never,certainty,absolute,"This never happens",LIWC2015 Manual (sample),no
+completely,certainty,absolute,"We completely agree",LIWC2015 Manual (sample),no
+totally,certainty,absolute,"This is totally correct",LIWC2015 Manual (sample),no
+entirely,certainty,absolute,"We entirely support this",LIWC2015 Manual (sample),no
+absolutely,certainty,emphatic,"This is absolutely critical",LIWC2015 Manual (sample),yes
+surely,certainty,emphatic,"This surely indicates",LIWC2015 Manual (sample),no
+truly,certainty,emphatic,"This is truly significant",LIWC2015 Manual (sample),no
+really,certainty,emphatic,"This is really important",LIWC2015 Manual (sample),no
+actually,certainty,emphatic,"This actually shows",LIWC2015 Manual (sample),no
+maybe,tentative,probability,"Maybe this explains",LIWC2015 Manual (sample),no
+perhaps,tentative,probability,"Perhaps we should consider",LIWC2015 Manual (sample),yes
+guess,tentative,verb,"I guess this could work",LIWC2015 Manual (sample),no
+probably,tentative,probability,"This probably indicates",LIWC2015 Manual (sample),no
+possibly,tentative,probability,"This could possibly explain",LIWC2015 Manual (sample),yes
+conceivably,tentative,probability,"Conceivably this matters",LIWC2015 Manual (sample),yes
+presumably,tentative,probability,"Presumably this applies",LIWC2015 Manual (sample),yes
+tentatively,tentative,manner,"We tentatively conclude",LIWC2015 Manual (sample),no
+questionable,tentative,adjective,"This is questionable",LIWC2015 Manual (sample),no
+doubtful,tentative,adjective,"It is doubtful that",LIWC2015 Manual (sample),no
