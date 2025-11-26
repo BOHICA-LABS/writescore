@@ -5,9 +5,9 @@ for controlling how documents are analyzed, enabling speed/accuracy tradeoffs
 for different use cases (short snippets vs. book chapters).
 """
 
-from enum import Enum
 from dataclasses import dataclass, field
-from typing import Optional, Dict, Any, List, Tuple
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
 
 
 class AnalysisMode(str, Enum):

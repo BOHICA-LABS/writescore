@@ -6,13 +6,10 @@ to ensure consistent interface across the analysis system.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 # Required AST parsing support
-import marko
 from marko import Markdown
-from marko.block import Quote, Heading, List as MarkoList, Paragraph, FencedCode
-from marko.inline import Link, CodeSpan
 
 
 class DimensionAnalyzer(ABC):

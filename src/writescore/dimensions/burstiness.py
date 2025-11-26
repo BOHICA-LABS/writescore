@@ -9,13 +9,14 @@ Refactored in Story 1.4 to use DimensionStrategy pattern with self-registration.
 
 import re
 import statistics
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional, Tuple
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import SentenceBurstinessIssue
-from writescore.utils.text_processing import safe_ratio
+from writescore.dimensions.base_strategy import DimensionStrategy
 from writescore.scoring.dual_score import THRESHOLDS
+from writescore.utils.text_processing import safe_ratio
 
 
 class BurstinessDimension(DimensionStrategy):
@@ -94,7 +95,7 @@ class BurstinessDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 sentence_burst = self._analyze_sentence_burstiness(sample_text)
                 paragraph_var = self._analyze_paragraph_variation(sample_text)
                 paragraph_cv = self._calculate_paragraph_cv(sample_text)
@@ -451,7 +452,6 @@ class BurstinessDimension(DimensionStrategy):
 
         # Split into paragraphs
         current_para = []
-        para_start_line = 1
 
         for line_num, line in enumerate(lines, start=1):
             stripped = line.strip()
@@ -467,7 +467,7 @@ class BurstinessDimension(DimensionStrategy):
             else:
                 # End of paragraph - analyze it
                 if len(current_para) >= 3:
-                    para_text = ' '.join([l[1] for l in current_para])
+                    para_text = ' '.join([item[1] for item in current_para])
                     sent_pattern = re.compile(r'(?<=[.!?])\s+')
                     sentences = [s.strip() for s in sent_pattern.split(para_text) if s.strip()]
 
@@ -500,7 +500,7 @@ class BurstinessDimension(DimensionStrategy):
                                 ))
 
                 current_para = []
-                para_start_line = line_num + 1
+                line_num + 1
 
         return issues
 

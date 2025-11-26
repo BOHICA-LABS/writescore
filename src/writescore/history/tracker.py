@@ -10,10 +10,10 @@ Version History:
 - v2.0: Comprehensive tracking with dimension scores, tier scores, and raw metrics
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 import json
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -357,7 +357,7 @@ class ScoreHistory:
         if not recent_scores[0].dimensions:
             return []
 
-        for dim_name in recent_scores[0].dimensions.keys():
+        for dim_name in recent_scores[0].dimensions:
             # Check if dimension exists in all recent scores
             if not all(dim_name in score.dimensions for score in recent_scores):
                 continue
@@ -471,7 +471,7 @@ def load_score_history(file_path: str) -> ScoreHistory:
         return ScoreHistory(file_path=file_path)
 
     try:
-        with open(history_file, 'r', encoding='utf-8') as f:
+        with open(history_file, encoding='utf-8') as f:
             data = json.load(f)
             return ScoreHistory.from_dict(data)
     except (json.JSONDecodeError, KeyError) as e:

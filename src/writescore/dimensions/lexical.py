@@ -16,15 +16,16 @@ Refactored in Story 1.4 to use DimensionStrategy pattern with self-registration.
 
 import re
 import sys
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.scoring.dual_score import THRESHOLDS
+from typing import Any, Dict, List, Optional, Tuple
+
+from nltk.stem import PorterStemmer
 
 # Required imports
 from nltk.tokenize import word_tokenize
-from nltk.stem import PorterStemmer
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
 
 
 class LexicalDimension(DimensionStrategy):
@@ -103,7 +104,7 @@ class LexicalDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 lexical = self._analyze_lexical_diversity(sample_text)
                 nltk_metrics = self._analyze_nltk_lexical(sample_text)
                 lexical.update(nltk_metrics)

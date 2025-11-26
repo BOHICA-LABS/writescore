@@ -28,15 +28,17 @@ Refactored in Story 1.4 to use DimensionStrategy pattern with self-registration.
 import math
 import sys
 import threading
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
-from writescore.core.dimension_registry import DimensionRegistry
+from typing import Any, Dict, List, Optional, Tuple
 
 # Required imports
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import logging as transformers_logging
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
+
 transformers_logging.set_verbosity_error()
 
 
@@ -151,7 +153,7 @@ class PerplexityDimension(DimensionStrategy):
                 # Double-check after acquiring lock
                 if _perplexity_model is None:
                     device = cls._get_device()
-                    print(f"Loading GPT-2 model for perplexity calculation (one-time setup)...", file=sys.stderr)
+                    print("Loading GPT-2 model for perplexity calculation (one-time setup)...", file=sys.stderr)
                     print(f"Using device: {device}", file=sys.stderr)
 
                     _perplexity_model = AutoModelForCausalLM.from_pretrained("gpt2")

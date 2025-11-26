@@ -15,11 +15,12 @@ Refactored in Story 1.4 to use DimensionStrategy pattern with self-registration.
 
 import re
 import statistics
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional, Tuple
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import EmDashInstance, FormattingIssue
+from writescore.dimensions.base_strategy import DimensionStrategy
 from writescore.scoring.dual_score import THRESHOLDS
 from writescore.utils.text_processing import count_words
 
@@ -101,7 +102,7 @@ class FormattingDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 formatting = self._analyze_formatting(sample_text)
                 bold_italic = self._analyze_bold_italic_patterns(sample_text)
                 list_usage = self._analyze_list_usage(sample_text)
@@ -591,7 +592,7 @@ class FormattingDimension(DimensionStrategy):
         # Calculate cascading score (correlation between position and frequency)
         # Negative correlation = cascading pattern (AI marker)
         if len(em_dash_positions) > 3:
-            para_nums = list(range(len(em_dash_positions)))
+            list(range(len(em_dash_positions)))
             # Count dashes per paragraph position
             dash_per_para = [em_dash_positions.count(i) for i in range(len(paragraphs))]
             # Calculate if early paragraphs have more dashes (AI pattern)

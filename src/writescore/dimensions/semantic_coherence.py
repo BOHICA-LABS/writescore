@@ -36,12 +36,14 @@ Version History:
 """
 
 import re
-import numpy as np
-from typing import Dict, List, Any, Optional, Tuple
 from functools import lru_cache
-from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional, Tuple
+
+import numpy as np
+
+from writescore.core.analysis_config import AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
 
 
 class SemanticCoherenceDimension(DimensionStrategy):
@@ -232,10 +234,10 @@ class SemanticCoherenceDimension(DimensionStrategy):
             return cls._model_available
 
         try:
-            import sentence_transformers
-            cls._model_available = True
-            return True
-        except ImportError:
+            import importlib.util
+            cls._model_available = importlib.util.find_spec("sentence_transformers") is not None
+            return cls._model_available
+        except (ImportError, ModuleNotFoundError):
             cls._model_available = False
             return False
 
@@ -595,7 +597,6 @@ class SemanticCoherenceDimension(DimensionStrategy):
         # Collect low cohesion paragraphs (paragraph_cohesion < 0.60)
         if paragraph_cohesion < 0.60:
             # Calculate per-paragraph cohesion scores
-            sentence_embeddings_needed = paragraph_cohesion < 0.60
             # For simplicity, just collect first few paragraphs as examples
             # In production, would calculate individual paragraph cohesion scores
             for i, para in enumerate(paragraphs[:10]):

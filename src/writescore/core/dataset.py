@@ -7,14 +7,14 @@ for parameter calibration and recalibration.
 Created in Story 2.5 Task 2.
 """
 
-import json
 import hashlib
-from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+import json
+import logging
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
-from collections import Counter
-import logging
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -280,7 +280,7 @@ class DatasetLoader:
             created=datetime.now().isoformat()
         )
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, encoding='utf-8') as f:
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
@@ -316,7 +316,7 @@ class DatasetLoader:
         created = datetime.now().isoformat()
 
         if metadata_file.exists():
-            with open(metadata_file, 'r') as f:
+            with open(metadata_file) as f:
                 metadata = json.load(f)
                 version = metadata.get('version', version)
                 created = metadata.get('created', created)
@@ -328,7 +328,7 @@ class DatasetLoader:
         )
 
         # Load documents
-        with open(docs_file, 'r', encoding='utf-8') as f:
+        with open(docs_file, encoding='utf-8') as f:
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:

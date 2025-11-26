@@ -8,11 +8,12 @@ for each dimension based on the empirical distribution shape.
 Created in Story 2.5.1 (Shapiro-Wilk Enhancement).
 """
 
+import logging
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Dict, Any
+from typing import Any, Dict, List, Tuple
+
 import numpy as np
 from scipy import stats
-import logging
 
 logger = logging.getLogger(__name__)
 

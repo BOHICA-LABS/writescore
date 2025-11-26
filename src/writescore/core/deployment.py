@@ -10,26 +10,23 @@ Provides infrastructure for:
 Created in Story 2.5 Task 8: Configuration and Deployment Tools.
 """
 
-import json
-import yaml
-import shutil
 import logging
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, Optional, List, Tuple
+import shutil
 from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
+import yaml
+
+from writescore.core.parameter_loader import ParameterLoader
 from writescore.core.parameters import (
-    PercentileParameters,
     DimensionParameters,
     GaussianParameters,
     MonotonicParameters,
+    PercentileParameters,
     ThresholdParameters,
-    ParameterValue,
-    ScoringType,
 )
-from writescore.core.parameter_loader import ParameterLoader
-from writescore.core.exceptions import ParameterLoadError
 
 logger = logging.getLogger(__name__)
 
@@ -202,7 +199,7 @@ class ParameterVersionManager:
         # Check params directory for version files
         for yaml_file in sorted(self.params_dir.glob("*.yaml")):
             try:
-                with open(yaml_file, 'r') as f:
+                with open(yaml_file) as f:
                     data = yaml.safe_load(f)
 
                 versions.append({
@@ -218,7 +215,7 @@ class ParameterVersionManager:
         # Check archive directory
         for yaml_file in sorted(self.archive_dir.glob("*.yaml")):
             try:
-                with open(yaml_file, 'r') as f:
+                with open(yaml_file) as f:
                     data = yaml.safe_load(f)
 
                 versions.append({
@@ -243,7 +240,7 @@ class ParameterVersionManager:
             return None
 
         try:
-            with open(self.active_file, 'r') as f:
+            with open(self.active_file) as f:
                 data = yaml.safe_load(f)
             return data.get("version")
         except Exception as e:
@@ -263,7 +260,7 @@ class ParameterVersionManager:
         # Check params directory first
         for yaml_file in self.params_dir.glob("*.yaml"):
             try:
-                with open(yaml_file, 'r') as f:
+                with open(yaml_file) as f:
                     data = yaml.safe_load(f)
                 if data.get("version") == version:
                     return yaml_file
@@ -273,7 +270,7 @@ class ParameterVersionManager:
         # Check archive directory
         for yaml_file in self.archive_dir.glob("*.yaml"):
             try:
-                with open(yaml_file, 'r') as f:
+                with open(yaml_file) as f:
                     data = yaml.safe_load(f)
                 if data.get("version") == version:
                     return yaml_file
@@ -639,8 +636,8 @@ def generate_deployment_checklist(
         "-" * 40,
         "[ ] Parameters validated against schema",
         "[ ] Score shift analysis completed",
-        f"    - Mean shift < 5 points",
-        f"    - Max shift < 15 points",
+        "    - Mean shift < 5 points",
+        "    - Max shift < 15 points",
         "[ ] Validation dataset version confirmed",
         "[ ] Backup of current parameters created",
         "",

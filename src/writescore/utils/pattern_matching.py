@@ -6,8 +6,7 @@ AI-generated content markers.
 """
 
 import re
-from typing import List, Optional, Dict
-
+from typing import Dict, List, Optional
 
 # ============================================================================
 # AI VOCABULARY PATTERNS

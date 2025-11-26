@@ -32,11 +32,12 @@ Version History:
 """
 
 import re
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional, Tuple
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import TransitionInstance
+from writescore.dimensions.base_strategy import DimensionStrategy
 from writescore.utils.pattern_matching import FORMULAIC_TRANSITIONS
 
 
@@ -149,7 +150,7 @@ class TransitionMarkerDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 transition_analysis = self._analyze_transitions(sample_text, **kwargs)
                 sample_results.append(transition_analysis)
 
@@ -329,7 +330,7 @@ class TransitionMarkerDimension(DimensionStrategy):
         # Positive feedback
         if score >= 90:
             recommendations.append(
-                f"Excellent transition marker usage. Text shows natural, human-like transition patterns."
+                "Excellent transition marker usage. Text shows natural, human-like transition patterns."
             )
 
         return recommendations
@@ -369,7 +370,7 @@ class TransitionMarkerDimension(DimensionStrategy):
             - total_transitions_per_1k: Combined metric
         """
         # Calculate word count once (used by both methods)
-        total_words = kwargs.get('word_count', None)
+        total_words = kwargs.get('word_count')
         if total_words is None:
             total_words = len(re.findall(r'\b\w+\b', text))
 
@@ -409,7 +410,7 @@ class TransitionMarkerDimension(DimensionStrategy):
 
         # Calculate per 1k words
         # Use pre-calculated word_count if provided, otherwise calculate
-        total_words = kwargs.get('word_count', None)
+        total_words = kwargs.get('word_count')
         if total_words is None:
             total_words = len(re.findall(r'\b\w+\b', text))
 
@@ -455,7 +456,7 @@ class TransitionMarkerDimension(DimensionStrategy):
             transitions_found.extend([m.group() for m in matches])
 
         # Calculate per 1k words
-        total_words = kwargs.get('word_count', None)
+        total_words = kwargs.get('word_count')
         if total_words is None:
             total_words = len(re.findall(r'\b\w+\b', text))
 
@@ -477,7 +478,7 @@ class TransitionMarkerDimension(DimensionStrategy):
 
         # Count total words for frequency calculation
         total_words = sum(len(re.findall(r'\b\w+\b', line)) for line in lines)
-        words_in_thousands = total_words / 1000 if total_words > 0 else 1
+        total_words / 1000 if total_words > 0 else 1
 
         for line_num, line in enumerate(lines, start=1):
             stripped = line.strip()
@@ -490,7 +491,7 @@ class TransitionMarkerDimension(DimensionStrategy):
 
             # Check for "however" (AI: 5-10 per 1k, Human: 1-3 per 1k)
             however_matches = list(however_pattern.finditer(line))
-            for match in however_matches:
+            for _match in however_matches:
                 context = line.strip()
                 issues.append(TransitionInstance(
                     line_number=line_num,
@@ -501,7 +502,7 @@ class TransitionMarkerDimension(DimensionStrategy):
 
             # Check for "moreover" (AI: 3-7 per 1k, Human: 0-1 per 1k)
             moreover_matches = list(moreover_pattern.finditer(line))
-            for match in moreover_matches:
+            for _match in moreover_matches:
                 context = line.strip()
                 issues.append(TransitionInstance(
                     line_number=line_num,

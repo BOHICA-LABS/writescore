@@ -7,21 +7,20 @@ based on validation dataset analysis.
 Created in Story 2.5 Task 5.
 """
 
+import json
 import logging
 import shutil
-from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
-import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
-from writescore.core.dataset import ValidationDataset, DatasetLoader
-from writescore.core.distribution_analyzer import DistributionAnalyzer, DistributionAnalysis
-from writescore.core.parameter_derivation import (
-    ParameterDeriver,
-    DimensionParameters,
-    ScoringMethod
-)
+from writescore.core.dataset import DatasetLoader, ValidationDataset
+from writescore.core.distribution_analyzer import DistributionAnalysis, DistributionAnalyzer
 from writescore.core.normality import NormalityResult, format_normality_report
+from writescore.core.parameter_derivation import (
+    DimensionParameters,
+    ParameterDeriver,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -59,14 +58,14 @@ class ParameterChange:
         new_dict = self.new_params.parameters.to_dict()
 
         changes = {}
-        for key in new_dict.keys():
+        for key in new_dict:
             if key not in old_dict:
                 changes[key] = {'old': None, 'new': new_dict[key]}
             elif old_dict[key] != new_dict[key]:
                 if isinstance(new_dict[key], dict):
                     # Handle nested dicts (e.g., boundaries)
                     nested_changes = {}
-                    for nested_key in new_dict[key].keys():
+                    for nested_key in new_dict[key]:
                         if nested_key not in old_dict[key] or old_dict[key][nested_key] != new_dict[key][nested_key]:
                             nested_changes[nested_key] = {
                                 'old': old_dict[key].get(nested_key),

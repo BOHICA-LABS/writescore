@@ -9,10 +9,9 @@ This module provides tools for:
 Created in Story 2.5 Task 7 to enhance user understanding of scores.
 """
 
-from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, field
-import math
 import logging
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -433,7 +432,7 @@ class DistributionVisualizer:
 
         # Percentile labels (compact)
         p_labels = []
-        for p_pos, pname in sorted(markers):
+        for _p_pos, pname in sorted(markers):
             pval = percentiles[pname]
             p_labels.append(f"{pname}={pval:.2f}")
         lines.append("Percentiles: " + ", ".join(p_labels))

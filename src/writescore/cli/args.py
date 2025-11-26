@@ -5,8 +5,8 @@ This module handles all CLI argument definitions and parsing.
 """
 
 import argparse
-import sys
 import os
+import sys
 
 
 def show_mode_help():
@@ -129,9 +129,8 @@ def validate_mode_arguments(args):
         raise ValueError(f"Invalid sample size: {args.sample_size} (must be between 500-10000)")
 
     # Warning: sampling args with fast mode
-    if hasattr(args, 'mode') and args.mode == 'fast':
-        if args.samples != 5 or args.sample_size != 2000:
-            print("Warning: --samples and --sample-size are ignored in 'fast' mode", file=sys.stderr)
+    if hasattr(args, 'mode') and args.mode == 'fast' and (args.samples != 5 or args.sample_size != 2000):
+        print("Warning: --samples and --sample-size are ignored in 'fast' mode", file=sys.stderr)
 
     # Warning: FULL mode with large files
     if hasattr(args, 'mode') and args.mode == 'full' and args.file and os.path.exists(args.file):
@@ -139,7 +138,7 @@ def validate_mode_arguments(args):
         if file_size > 500000:  # >500k chars (~250 pages)
             pages = file_size / 2000
             print(f"\n⚠ Warning: FULL mode with {pages:.0f}-page document may take 20+ minutes.", file=sys.stderr)
-            print(f"           Consider using --mode adaptive for faster results (30-240s).\n", file=sys.stderr)
+            print("           Consider using --mode adaptive for faster results (30-240s).\n", file=sys.stderr)
 
             # Interactive confirmation (skip if --quiet or in batch or dry-run)
             if not hasattr(args, 'quiet') or (not args.quiet and not args.batch and not args.dry_run):

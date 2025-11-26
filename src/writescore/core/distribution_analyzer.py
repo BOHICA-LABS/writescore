@@ -7,18 +7,19 @@ distributions, percentiles, and statistics for parameter derivation.
 Created in Story 2.5 Task 3.
 """
 
-import numpy as np
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from collections import defaultdict
+import json
 import logging
+from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
-import json
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from writescore.core.dataset import ValidationDataset, Document
-from writescore.core.dimension_registry import DimensionRegistry
+import numpy as np
+
+from writescore.core.dataset import ValidationDataset
 from writescore.core.dimension_loader import DimensionLoader
+from writescore.core.dimension_registry import DimensionRegistry
 
 logger = logging.getLogger(__name__)
 
@@ -171,7 +172,7 @@ class DistributionAnalysis:
     @classmethod
     def load_json(cls, input_path: Path) -> "DistributionAnalysis":
         """Load analysis from JSON file."""
-        with open(input_path, 'r') as f:
+        with open(input_path) as f:
             data = json.load(f)
 
         analysis = cls(
@@ -430,7 +431,7 @@ class DistributionAnalyzer:
                 lines.append(f"    Mean: {stats.mean:.4f}, Stdev: {stats.stdev:.4f}")
                 lines.append(f"    Median (p50): {stats.median:.4f}")
                 lines.append(f"    IQR: {stats.iqr:.4f} (p75 - p25)")
-                lines.append(f"    Percentiles:")
+                lines.append("    Percentiles:")
                 for p, val in sorted(stats.percentiles.items()):
                     lines.append(f"      {p}: {val:.4f}")
                 lines.append(f"    Range: [{stats.min_val:.4f}, {stats.max_val:.4f}]")

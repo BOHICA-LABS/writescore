@@ -8,24 +8,24 @@ when configuration is unavailable.
 Created in Story 2.5 for automatic recalibration infrastructure.
 """
 
-import yaml
-import os
-from pathlib import Path
-from typing import Dict, Any, Optional
 import logging
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, Optional
 
+import yaml
+
+from writescore.core.exceptions import ParameterLoadError
 from writescore.core.parameters import (
-    PercentileParameters,
     DimensionParameters,
     GaussianParameters,
     MonotonicParameters,
-    ThresholdParameters,
     ParameterValue,
+    PercentileParameters,
+    PercentileSource,
     ScoringType,
-    PercentileSource
+    ThresholdParameters,
 )
-from writescore.core.exceptions import ParameterLoadError
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ class ParameterLoader:
             return cls._load_fallback_parameters()
         except Exception as e:
             logger.error(f"Failed to load parameters from {config_path}: {e}")
-            raise ParameterLoadError(f"Cannot load parameter configuration: {e}")
+            raise ParameterLoadError(f"Cannot load parameter configuration: {e}") from e
 
     @classmethod
     def _load_from_file(cls, config_path: Path) -> PercentileParameters:
@@ -84,7 +84,7 @@ class ParameterLoader:
         if not config_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
-        with open(config_path, 'r') as f:
+        with open(config_path) as f:
             config_data = yaml.safe_load(f)
 
         if not config_data:
@@ -124,7 +124,7 @@ class ParameterLoader:
                 params.add_dimension(dim_params)
             except Exception as e:
                 logger.error(f"Failed to parse dimension '{dim_name}': {e}")
-                raise ParameterLoadError(f"Invalid configuration for dimension '{dim_name}': {e}")
+                raise ParameterLoadError(f"Invalid configuration for dimension '{dim_name}': {e}") from e
 
         # Validate complete parameter set
         params.validate()
@@ -141,11 +141,11 @@ class ParameterLoader:
 
         try:
             scoring_type_enum = ScoringType(scoring_type)
-        except ValueError:
+        except ValueError as e:
             raise ValueError(
                 f"Invalid scoring_type '{scoring_type}' for dimension '{dim_name}'. "
                 f"Must be one of: {[t.value for t in ScoringType]}"
-            )
+            ) from e
 
         # Parse parameters based on scoring type
         if scoring_type_enum == ScoringType.GAUSSIAN:
@@ -183,10 +183,10 @@ class ParameterLoader:
 
         try:
             source_enum = PercentileSource(source)
-        except ValueError:
+        except ValueError as e:
             raise ValueError(
                 f"Invalid source '{source}'. Must be one of: {[s.value for s in PercentileSource]}"
-            )
+            ) from e
 
         return ParameterValue(
             value=float(value),

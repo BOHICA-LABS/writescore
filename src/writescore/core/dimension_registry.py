@@ -6,17 +6,17 @@ and management without requiring core algorithm modifications when adding
 new dimensions.
 """
 
-from typing import Dict, List
-import threading
 import logging
+import threading
+from typing import Dict, List
 
-from writescore.dimensions.base_strategy import DimensionStrategy
 from writescore.core.exceptions import (
     DimensionNotFoundError,
     DuplicateDimensionError,
     InvalidTierError,
-    InvalidWeightError
+    InvalidWeightError,
 )
+from writescore.dimensions.base_strategy import DimensionStrategy
 
 logger = logging.getLogger(__name__)
 

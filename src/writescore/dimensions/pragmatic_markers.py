@@ -36,10 +36,11 @@ Version History:
 """
 
 import re
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional, Tuple
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
 
 
 class PragmaticMarkersDimension(DimensionStrategy):
@@ -404,7 +405,7 @@ class PragmaticMarkersDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 pragmatic_analysis = self._analyze_pragmatic_markers(sample_text, **kwargs)
                 sample_results.append(pragmatic_analysis)
 
@@ -641,12 +642,12 @@ class PragmaticMarkersDimension(DimensionStrategy):
 
         if score >= 75:
             recommendations.append(
-                f"Good pragmatic marker balance. Text shows natural epistemic stance patterns."
+                "Good pragmatic marker balance. Text shows natural epistemic stance patterns."
             )
         elif score >= 45 and len(recommendations) == 0:
             # Provide neutral feedback for acceptable scores when no specific issues found
             recommendations.append(
-                f"Acceptable pragmatic marker usage. Consider varying epistemic stance patterns for more natural flow."
+                "Acceptable pragmatic marker usage. Consider varying epistemic stance patterns for more natural flow."
             )
 
         return recommendations
@@ -692,7 +693,7 @@ class PragmaticMarkersDimension(DimensionStrategy):
             - pragmatic_balance: Composite metric
         """
         # Calculate word count once (used by all methods)
-        total_words = kwargs.get('word_count', None)
+        total_words = kwargs.get('word_count')
         if total_words is None:
             total_words = len(re.findall(r'\b\w+\b', text))
 
@@ -1066,9 +1067,6 @@ class PragmaticMarkersDimension(DimensionStrategy):
             Balance score 0-1 (1 = perfect balance)
         """
         # Target ranges (human-like)
-        hedge_target = self.PRAGMATIC_HEDGE_TARGET
-        certainty_target = self.PRAGMATIC_CERTAINTY_TARGET
-        speech_target = self.PRAGMATIC_SPEECH_TARGET
 
         # Calculate deviation from targets
         total_markers = hedging_per_1k + certainty_per_1k + speech_acts_per_1k

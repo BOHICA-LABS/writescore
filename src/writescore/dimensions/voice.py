@@ -13,10 +13,11 @@ Refactored in Story 1.4 to use DimensionStrategy pattern with self-registration.
 """
 
 import re
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional, Tuple
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
 from writescore.scoring.dual_score import THRESHOLDS
 
 
@@ -106,7 +107,7 @@ class VoiceDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 voice = self._analyze_voice(sample_text)
                 technical = self._analyze_technical_depth(sample_text)
                 sample_results.append({

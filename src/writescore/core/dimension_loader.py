@@ -10,10 +10,10 @@ Created for Story 1.4.11: Migrate Analyzer to Registry-Based Dimension Discovery
 
 import importlib
 import sys
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List
 
+from writescore.core.analysis_config import AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-
 
 # Mapping of dimension names to their module paths
 DIMENSION_MODULE_MAP = {
@@ -197,7 +197,7 @@ class DimensionLoader:
         print(f"Loading dimensions from profile '{profile_name}': {dimensions}", file=sys.stderr)
         return self.load_dimensions(dimensions)
 
-    def load_from_config(self, config: 'AnalysisConfig') -> Dict[str, Any]:
+    def load_from_config(self, config: AnalysisConfig) -> Dict[str, Any]:
         """
         Load dimensions based on AnalysisConfig.
 

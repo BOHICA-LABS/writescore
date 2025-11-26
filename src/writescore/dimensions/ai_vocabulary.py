@@ -17,14 +17,13 @@ Tier: CORE
 """
 
 import re
-from typing import Dict, List, Any, Optional
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import VocabInstance
-from writescore.utils.pattern_matching import AI_VOCABULARY
+from writescore.dimensions.base_strategy import DimensionStrategy
 from writescore.utils.text_processing import count_words
-
 
 # Tier 1 - Extremely High AI Association (14 patterns, 3× weight)
 TIER_1_PATTERNS = [
@@ -167,7 +166,7 @@ class AiVocabularyDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 tier_metrics = self._analyze_ai_vocabulary_tiered(sample_text)
                 sample_results.append(tier_metrics)
 
@@ -529,7 +528,7 @@ class AiVocabularyDimension(DimensionStrategy):
                 continue
 
             # Check all tiers
-            for tier_num, tier_patterns in enumerate([TIER_1_PATTERNS, TIER_2_PATTERNS, TIER_3_PATTERNS], 1):
+            for _tier_num, tier_patterns in enumerate([TIER_1_PATTERNS, TIER_2_PATTERNS, TIER_3_PATTERNS], 1):
                 for word in tier_patterns:
                     pattern = rf'\b{word}(?:s|es|ed|ing)?\b'
                     for match in re.finditer(pattern, line, re.IGNORECASE):

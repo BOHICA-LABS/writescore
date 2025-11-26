@@ -33,21 +33,21 @@ Tier: SUPPORTING
 Refactored in Story 2.1 to use DimensionStrategy pattern with self-registration.
 """
 
-import re
 import os
+import re
 import sys
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
-from writescore.core.dimension_registry import DimensionRegistry
+from typing import Any, Dict, List, Optional, Tuple
 
 # Required NLP imports
 import nltk
-from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import wordnet as wn
+from nltk.tokenize import sent_tokenize, word_tokenize
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
 
 # Technical literals - words that function metaphorically in general discourse
 # but literally in technical contexts (AC: 4)
@@ -226,7 +226,6 @@ class FigurativeLanguageDimension(DimensionStrategy):
             No exceptions - prints warnings and continues if downloads fail.
             Metaphor detection will be degraded but other features work.
         """
-        import nltk
 
         try:
             # Test if WordNet is accessible
@@ -310,7 +309,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 fig_lang = self._analyze_figurative_patterns(sample_text)
                 sample_results.append({'figurative_language': fig_lang})
 
@@ -741,7 +740,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
             # Sum of absolute differences from optimal
             deviation = sum(
                 abs(percentages[sentiment] - optimal_profile[sentiment])
-                for sentiment in sentiment_counts.keys()
+                for sentiment in sentiment_counts
             )
 
         return {
@@ -839,14 +838,14 @@ class FigurativeLanguageDimension(DimensionStrategy):
         if os.path.exists(idiom_json):
             try:
                 import json
-                with open(idiom_json, 'r', encoding='utf-8') as f:
+                with open(idiom_json, encoding='utf-8') as f:
                     lexicon_data = json.load(f)
 
                 # Store metadata for confidence-weighted detection
                 self.idiom_metadata = {}
                 idioms = []
 
-                for key, data in lexicon_data.items():
+                for _key, data in lexicon_data.items():
                     idiom = data['idiom']
                     idioms.append(idiom)
 
@@ -882,13 +881,13 @@ class FigurativeLanguageDimension(DimensionStrategy):
 
             except Exception as e:
                 print(f"Warning: Failed to load JSON idiom lexicon from {idiom_json}: {e}", file=sys.stderr)
-                print(f"Falling back to text format...", file=sys.stderr)
+                print("Falling back to text format...", file=sys.stderr)
 
         # Try text format (legacy)
         idiom_txt = os.path.join(data_dir, 'data', 'idiom_lexicon.txt')
         if os.path.exists(idiom_txt):
             try:
-                with open(idiom_txt, 'r', encoding='utf-8') as f:
+                with open(idiom_txt, encoding='utf-8') as f:
                     idioms = [line.strip() for line in f if line.strip()]
 
                 # Initialize basic metadata for text-format idioms
@@ -909,7 +908,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
                 print(f"Falling back to {len(DEFAULT_IDIOMS)} default idioms", file=sys.stderr)
         else:
             # File doesn't exist - inform user we're using defaults
-            print(f"Info: Idiom lexicon file not found", file=sys.stderr)
+            print("Info: Idiom lexicon file not found", file=sys.stderr)
             print(f"Using {len(DEFAULT_IDIOMS)} default idioms (feature will work normally)", file=sys.stderr)
 
         # Ultimate fallback to DEFAULT_IDIOMS

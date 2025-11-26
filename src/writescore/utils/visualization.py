@@ -5,8 +5,8 @@ This module contains functions for creating sparklines, progress bars,
 and other ASCII-based visualizations for terminal output.
 """
 
-from typing import List, Optional
 import shutil
+from typing import List, Optional
 
 
 def generate_sparkline(values: List[float], width: int = 20, min_val: Optional[float] = None, max_val: Optional[float] = None) -> str:

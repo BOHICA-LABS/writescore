@@ -8,43 +8,42 @@ Extracted from monolithic analyze_ai_patterns.py (7,079 lines) as part of
 modularization effort (Phase 3).
 """
 
-import re
 import json
-import sys
+import re
 import statistics
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime
+import sys
 from dataclasses import asdict
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-# Core results
-from writescore.core.results import (
-    AnalysisResults, DetailedAnalysis,
-    VocabInstance, HeadingIssue, UniformParagraph,
-    EmDashInstance, TransitionInstance
-)
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+# Required dependencies
+from marko import Markdown
 
-# Scoring and history
-from writescore.scoring.dual_score import (
-    DualScore, ScoreCategory, ScoreDimension,
-    ImprovementAction, THRESHOLDS
-)
-from writescore.history.tracker import ScoreHistory, HistoricalScore
-from writescore.utils.text_processing import safe_divide, safe_ratio
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_loader import DimensionLoader
 
 # Registry-based dimension loading (Story 1.4.11)
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.dimension_loader import DimensionLoader
+
+# Core results
+from writescore.core.results import (
+    AnalysisResults,
+    DetailedAnalysis,
+    EmDashInstance,
+    HeadingIssue,
+    TransitionInstance,
+    UniformParagraph,
+    VocabInstance,
+)
+from writescore.history.tracker import ScoreHistory
+
+# Scoring and history
+from writescore.scoring.dual_score import (
+    DualScore,
+)
 
 # Dual score calculator
 from writescore.scoring.dual_score_calculator import calculate_dual_score as _calculate_dual_score
-
-# Required dependencies
-import marko
-from marko import Markdown
-from marko.block import Quote, Heading, List as MarkoList, Paragraph, FencedCode
-from marko.inline import Link, CodeSpan
 
 
 class AIPatternAnalyzer:
@@ -205,7 +204,7 @@ class AIPatternAnalyzer:
             return ast
         except Exception as e:
             import warnings
-            warnings.warn(f"Markdown parsing failed: {e}. Falling back to regex analysis.", UserWarning)
+            warnings.warn(f"Markdown parsing failed: {e}. Falling back to regex analysis.", UserWarning, stacklevel=2)
             return None
 
     def _walk_ast(self, node, node_type=None):
@@ -249,9 +248,7 @@ class AIPatternAnalyzer:
         if '<!--' in line and '-->' in line:
             return True
         # Line is start or middle of comment
-        if '<!--' in line or '-->' in line:
-            return True
-        return False
+        return bool('<!--' in line or '-->' in line)
 
     # ========================================================================
     # MAIN ANALYSIS METHOD
@@ -285,7 +282,7 @@ class AIPatternAnalyzer:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding='utf-8') as f:
             text = f.read()
 
         # Strip HTML comments (metadata blocks) before analysis
@@ -331,10 +328,10 @@ class AIPatternAnalyzer:
         lexical_results = dimension_results.get('lexical', {})
 
         # New dimensions from Story 1.4.5
-        predictability_results = dimension_results.get('predictability', {})
+        dimension_results.get('predictability', {})
         readability_results = dimension_results.get('readability', {})
-        advanced_lexical_results = dimension_results.get('advanced_lexical', {})
-        transition_marker_results = dimension_results.get('transition_marker', {})
+        dimension_results.get('advanced_lexical', {})
+        dimension_results.get('transition_marker', {})
 
         # Story 2.1: Figurative language dimension
         figurative_language_results = dimension_results.get('figurative_language', {})
@@ -774,10 +771,9 @@ class AIPatternAnalyzer:
                     if isinstance(metrics, dict) and 'overall_score' in metrics:
                         return float(metrics['overall_score'])
 
-            elif dim_name == 'structure':
+            elif dim_name == 'structure' and 'structural_score' in raw_output:
                 # Structure might have structural_score
-                if 'structural_score' in raw_output:
-                    return float(raw_output['structural_score'])
+                return float(raw_output['structural_score'])
 
             # Add other dimension-specific extractions as needed
             # For dimensions following standard format, this section can be minimal
@@ -1127,7 +1123,7 @@ class AIPatternAnalyzer:
             return ScoreHistory(file_path=file_path, scores=[])
 
         try:
-            with open(history_file, 'r', encoding='utf-8') as f:
+            with open(history_file, encoding='utf-8') as f:
                 data = json.load(f)
 
             # Reconstruct ScoreHistory from JSON using from_dict() to properly restore DimensionScore objects
@@ -1178,7 +1174,7 @@ class AIPatternAnalyzer:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(path, encoding='utf-8') as f:
             text = f.read()
             self.lines = text.splitlines()
 
@@ -1300,26 +1296,22 @@ class AIPatternAnalyzer:
 
             # Check for issues
             issue_type = None
-            problem = None
             suggestion = None
 
             # Verbose headings (>8 words)
             if word_count > 8:
                 issue_type = 'verbose'
-                problem = f'Heading too long ({word_count} words, typical: 3-6 words)'
                 suggestion = 'Shorten to key concept: focus on 3-6 impactful words'
 
             # Deep hierarchy (H5, H6)
             elif level >= 5:
                 issue_type = 'deep_hierarchy'
-                problem = f'Deep hierarchy (H{level}, max recommended: H4)'
                 suggestion = 'Restructure content to use H1-H4 only'
 
             # Parallel structure detection (all starting with same word at this level)
             # This is simplified - full implementation would track all headings at each level
             elif text.split()[0] in ['How', 'What', 'Why', 'Understanding', 'Exploring', 'Introduction']:
                 issue_type = 'parallel'
-                problem = 'Potentially mechanical parallel structure'
                 suggestion = 'Vary heading styles: mix questions, statements, and imperatives'
 
             if issue_type:

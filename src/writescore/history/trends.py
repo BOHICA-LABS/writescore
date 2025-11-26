@@ -5,9 +5,9 @@ This module provides comprehensive trend analysis, comparison reports,
 sparkline visualization, and historical journey reporting.
 """
 
-from typing import List, Tuple, Optional, Dict
-from writescore.history.tracker import ScoreHistory, HistoricalScore
+from typing import List, Optional
 
+from writescore.history.tracker import HistoricalScore, ScoreHistory
 
 # ============================================================================
 # SPARKLINE VISUALIZATION
@@ -110,7 +110,7 @@ def generate_dimension_trend_report(history: ScoreHistory, top_n: int = 5) -> st
 
     # Calculate changes for all dimensions
     dimension_changes = []
-    for dim_name in first.dimensions.keys():
+    for dim_name in first.dimensions:
         if dim_name not in last.dimensions:
             continue
 
@@ -330,7 +330,7 @@ def generate_comparison_report(history: ScoreHistory, idx1: int, idx2: int) -> s
 
         # Significant dimension changes (> 2pts)
         significant_changes = []
-        for dim_name in score1.dimensions.keys():
+        for dim_name in score1.dimensions:
             if dim_name not in score2.dimensions:
                 continue
 
@@ -425,7 +425,7 @@ def _generate_comparison_insights(score1: HistoricalScore, score2: HistoricalSco
         improvements = []
         declines = []
 
-        for dim_name in score1.dimensions.keys():
+        for dim_name in score1.dimensions:
             if dim_name not in score2.dimensions:
                 continue
 
@@ -522,7 +522,7 @@ def generate_full_history_report(history: ScoreHistory) -> str:
                         f"Detection {_format_score_change(det_change)} pts")
 
         if score.history_version == '2.0' and score.dimensions:
-            output.append(f"Version:       v2.0 (comprehensive tracking)")
+            output.append("Version:       v2.0 (comprehensive tracking)")
             output.append(f"Tiers:         T1={score.tier1_score:.1f}/70  T2={score.tier2_score:.1f}/74  " +
                         f"T3={score.tier3_score:.1f}/46  T4={score.tier4_score:.1f}/10")
 
@@ -555,10 +555,10 @@ def generate_full_history_report(history: ScoreHistory) -> str:
             output.append("")
             # Show sparklines for top changing dimensions
             first_v2 = v2_scores[0]
-            last_v2 = v2_scores[-1]
+            v2_scores[-1]
 
             dim_changes = []
-            for dim_name in first_v2.dimensions.keys():
+            for dim_name in first_v2.dimensions:
                 if all(dim_name in s.dimensions for s in v2_scores):
                     values = [s.dimensions[dim_name].score for s in v2_scores]
                     change = values[-1] - values[0]

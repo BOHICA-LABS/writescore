@@ -22,14 +22,14 @@ Refactored in Story 1.4.5 - Split from StylometricDimension for single responsib
 
 import re
 import sys
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional, Tuple
 
 # Required imports
 import textstat
-import nltk
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
 
 
 class ReadabilityDimension(DimensionStrategy):
@@ -120,7 +120,7 @@ class ReadabilityDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 readability = self._analyze_readability_patterns(sample_text)
                 sample_results.append(readability)
 

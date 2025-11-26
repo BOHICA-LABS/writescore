@@ -27,20 +27,22 @@ Refactored in Story 1.4.5 - Split from AdvancedDimension for single responsibili
 """
 
 import re
-import sys
 import statistics
+import sys
 import threading
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.results import HighPredictabilitySegment
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
-from writescore.utils.text_processing import safe_ratio
+from typing import Any, Dict, List, Optional, Tuple
 
 # Required imports
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from transformers.utils import logging as transformers_logging
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.results import HighPredictabilitySegment
+from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.utils.text_processing import safe_ratio
+
 transformers_logging.set_verbosity_error()
 
 

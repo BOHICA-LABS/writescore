@@ -17,21 +17,21 @@ Research: +8% accuracy improvement over basic TTR/MTLD metrics
 Refactored in Story 1.4.5 - Split from AdvancedDimension for single responsibility.
 """
 
+import math
 import re
 import sys
-import math
-from typing import Dict, List, Any, Optional, Tuple
 from collections import Counter
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG, AnalysisMode
+from typing import Any, Dict, List, Optional, Tuple
 
-# Required imports
-from scipy.stats import hypergeom
 import spacy
-nlp_spacy = spacy.load('en_core_web_sm')
-import textacy
+from scipy.stats import hypergeom
 from textacy.text_stats import diversity
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
+
+nlp_spacy = spacy.load('en_core_web_sm')
 
 
 class AdvancedLexicalDimension(DimensionStrategy):
@@ -137,7 +137,7 @@ class AdvancedLexicalDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 advanced_lexical = self._calculate_advanced_lexical_diversity(sample_text)
                 textacy_metrics = self._calculate_textacy_lexical_diversity(sample_text)
                 sample_results.append({**advanced_lexical, **textacy_metrics})
@@ -333,11 +333,11 @@ class AdvancedLexicalDimension(DimensionStrategy):
             # HDD = (sum of P(word drawn at least once in 42-token sample))
             # More robust than TTR because it's sample-size independent
             sample_size = 42  # Standard HDD sample size
-            if N < sample_size:
+            if sample_size > N:
                 hdd_score = None
             else:
                 hdd_sum = 0.0
-                for word, count in word_freq.items():
+                for _word, count in word_freq.items():
                     # Probability word is NOT drawn in sample
                     # P(not drawn) = hypergeom.pmf(0, N, count, sample_size)
                     prob_not_drawn = hypergeom.pmf(0, N, count, sample_size)
@@ -437,7 +437,7 @@ class AdvancedLexicalDimension(DimensionStrategy):
             # Calculate RTTR
             # Count only alphabetic tokens for consistency
             tokens = [token for token in doc if token.is_alpha and not token.is_stop]
-            types = set([token.text.lower() for token in tokens])
+            types = {token.text.lower() for token in tokens}
             n_tokens = len(tokens)
             n_types = len(types)
 

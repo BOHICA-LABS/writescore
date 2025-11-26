@@ -8,10 +8,10 @@ that automatically adapt to empirical distributions.
 Created in Story 2.5 to enable automatic recalibration when new AI models emerge.
 """
 
-from typing import Dict, Any, Optional, List
-from enum import Enum
-from dataclasses import dataclass, field
 import logging
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class ParameterValue:
     def validate(self) -> None:
         """Validate parameter value constraints."""
         if self.source == PercentileSource.PERCENTILE and not self.percentile:
-            raise ValueError(f"Percentile source requires percentile attribute")
+            raise ValueError("Percentile source requires percentile attribute")
 
         # Additional validation can be added here
         if not isinstance(self.value, (int, float)):
@@ -198,12 +198,11 @@ class DimensionParameters:
                     f"Monotonic scoring requires MonotonicParameters, "
                     f"got {type(self.parameters)}"
                 )
-        elif self.scoring_type == ScoringType.THRESHOLD:
-            if not isinstance(self.parameters, ThresholdParameters):
-                raise ValueError(
-                    f"Threshold scoring requires ThresholdParameters, "
-                    f"got {type(self.parameters)}"
-                )
+        elif self.scoring_type == ScoringType.THRESHOLD and not isinstance(self.parameters, ThresholdParameters):
+            raise ValueError(
+                f"Threshold scoring requires ThresholdParameters, "
+                f"got {type(self.parameters)}"
+            )
 
         # Validate the actual parameters
         self.parameters.validate()
@@ -246,7 +245,7 @@ class PercentileParameters:
             try:
                 dim_params.validate()
             except ValueError as e:
-                raise ValueError(f"Validation failed for dimension '{dim_name}': {e}")
+                raise ValueError(f"Validation failed for dimension '{dim_name}': {e}") from e
 
         logger.info(f"Validated {len(self.dimensions)} dimension parameter sets")
 

@@ -1,11 +1,12 @@
 # core/dynamic_reporter.py
 
 import json
-from typing import Dict, List, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.dimension_loader import DIMENSION_MODULE_MAP
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.results import AnalysisResults
 
 # Constants
 NORMALIZATION_THRESHOLD = 0.01  # Threshold for detecting if weights need normalization
@@ -50,7 +51,7 @@ class DynamicReporter:
 
     def generate_comprehensive_report(
         self,
-        results: 'AnalysisResults',
+        results: AnalysisResults,
         file_path: Optional[str] = None
     ) -> Dict[str, Any]:
         """
@@ -89,7 +90,7 @@ class DynamicReporter:
 
     def _generate_metadata(
         self,
-        results: 'AnalysisResults',
+        results: AnalysisResults,
         file_path: Optional[str]
     ) -> Dict[str, Any]:
         """
@@ -128,7 +129,7 @@ class DynamicReporter:
 
     def _generate_overall_summary(
         self,
-        results: 'AnalysisResults'
+        results: AnalysisResults
     ) -> Dict[str, Any]:
         """Generate overall summary with score, assessment, and grade."""
         return {
@@ -139,7 +140,7 @@ class DynamicReporter:
 
     def generate_tier_summary(
         self,
-        results: 'AnalysisResults'
+        results: AnalysisResults
     ) -> Dict[str, Dict[str, Any]]:
         """
         Generate tier-based summary of dimensions.
@@ -213,7 +214,7 @@ class DynamicReporter:
 
     def generate_prioritized_recommendations(
         self,
-        results: 'AnalysisResults'
+        results: AnalysisResults
     ) -> List[Dict[str, Any]]:
         """
         Generate prioritized recommendations across all dimensions.
@@ -331,7 +332,7 @@ class DynamicReporter:
             'total_weight_before_normalization': total_weight  # NEW: Original weight sum
         }
 
-    def format_as_markdown(self, results: 'AnalysisResults') -> str:
+    def format_as_markdown(self, results: AnalysisResults) -> str:
         """
         Format analysis results as markdown.
 
@@ -464,7 +465,7 @@ class DynamicReporter:
 
         return "\n".join(lines)
 
-    def format_as_json(self, results: 'AnalysisResults') -> str:
+    def format_as_json(self, results: AnalysisResults) -> str:
         """
         Format analysis results as JSON.
 
@@ -484,7 +485,7 @@ class DynamicReporter:
             # Re-raise with more context for debugging
             raise TypeError(f"Failed to serialize report to JSON: {e}") from e
 
-    def format_as_text(self, results: 'AnalysisResults', file_path: Optional[str] = None) -> str:
+    def format_as_text(self, results: AnalysisResults, file_path: Optional[str] = None) -> str:
         """
         Format analysis results as plain text (CLI compatible).
 

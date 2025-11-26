@@ -8,15 +8,15 @@ Created in Story 2.5 Task 4.
 Enhanced with Shapiro-Wilk normality testing in Story 2.5.1.
 """
 
-from enum import Enum
-from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List
-from pathlib import Path
-import logging
 import json
+import logging
+from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from writescore.core.distribution_analyzer import DistributionAnalysis, DimensionStatistics
-from writescore.core.normality import NormalityTester, NormalityResult
+from writescore.core.distribution_analyzer import DimensionStatistics, DistributionAnalysis
+from writescore.core.normality import NormalityResult, NormalityTester
 
 logger = logging.getLogger(__name__)
 
@@ -503,7 +503,7 @@ class ParameterDeriver:
         Returns:
             Dictionary of DimensionParameters
         """
-        with open(input_path, 'r') as f:
+        with open(input_path) as f:
             data = json.load(f)
 
         parameters = {}

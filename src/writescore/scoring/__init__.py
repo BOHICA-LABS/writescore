@@ -3,11 +3,11 @@ Scoring system module.
 """
 
 from writescore.scoring.dual_score import (
+    THRESHOLDS,
     DualScore,
+    ImprovementAction,
     ScoreCategory,
     ScoreDimension,
-    ImprovementAction,
-    THRESHOLDS
 )
 from writescore.scoring.dual_score_calculator import calculate_dual_score
 

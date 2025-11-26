@@ -1,54 +1,49 @@
 """
-AI Pattern Analyzer - Modular implementation
+WriteScore - Writing quality scoring tool with AI pattern detection
 
 Main exports for backward compatibility with the original monolithic version.
 
 This package provides a modular architecture for AI pattern analysis while
 maintaining backward compatibility with code that imported from the original
 analyze_ai_patterns.py file.
-
-Version: 5.0.0 (Breaking Changes - Deprecated Dimension Removal)
 """
+from importlib.metadata import version as _get_version
 
 # Core analyzer and result classes
+# CLI formatters
+from writescore.cli.formatters import (
+    format_detailed_report,
+    format_dual_score_report,
+    format_report,
+)
 from writescore.core.analyzer import AIPatternAnalyzer
 from writescore.core.results import (
     AnalysisResults,
     DetailedAnalysis,
-    # Optional: individual issue types for detailed analysis
-    VocabInstance,
-    HeadingIssue,
-    UniformParagraph,
     EmDashInstance,
-    TransitionInstance,
+    FormattingIssue,
+    HeadingIssue,
+    HighPredictabilitySegment,
     SentenceBurstinessIssue,
     SyntacticIssue,
-    FormattingIssue,
-    HighPredictabilitySegment
+    TransitionInstance,
+    UniformParagraph,
+    # Optional: individual issue types for detailed analysis
+    VocabInstance,
 )
+
+# History tracking
+from writescore.history.tracker import HistoricalScore, ScoreHistory
 
 # Scoring system
 from writescore.scoring.dual_score import (
+    THRESHOLDS,
     DualScore,
+    ImprovementAction,
     ScoreCategory,
     ScoreDimension,
-    ImprovementAction,
-    THRESHOLDS
 )
 from writescore.scoring.dual_score_calculator import calculate_dual_score
-
-# History tracking
-from writescore.history.tracker import (
-    HistoricalScore,
-    ScoreHistory
-)
-
-# CLI formatters
-from writescore.cli.formatters import (
-    format_report,
-    format_detailed_report,
-    format_dual_score_report
-)
 
 __all__ = [
     # Core
@@ -81,4 +76,7 @@ __all__ = [
     'format_dual_score_report',
 ]
 
-__version__ = '5.0.0'  # Major version bump - BREAKING CHANGES (Story 2.0)
+try:
+    __version__ = _get_version("writescore")
+except Exception:
+    __version__ = "0.0.0"  # Fallback for development installs

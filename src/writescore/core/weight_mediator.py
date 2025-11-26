@@ -13,10 +13,10 @@ Version 2.0 Enhancements:
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Any, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
-from writescore.core.exceptions import AIPatternAnalyzerError
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.exceptions import AIPatternAnalyzerError
 
 
 @dataclass

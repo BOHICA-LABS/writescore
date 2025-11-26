@@ -15,8 +15,8 @@ Research sources:
 """
 
 from dataclasses import dataclass
-from typing import Dict, Tuple
 from enum import Enum
+from typing import Dict, Tuple
 
 
 class DocumentDomain(Enum):

@@ -15,20 +15,19 @@ Refactored in Story 1.4 to use DimensionStrategy pattern with self-registration.
 
 import re
 import statistics
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.results import HeadingIssue
-from writescore.scoring.dual_score import THRESHOLDS
-from writescore.scoring.domain_thresholds import (
-    DocumentDomain,
-    calculate_combined_structure_score
-)
+from typing import Any, Dict, List, Optional, Tuple
 
 # Required marko types for AST-based analysis
-from marko.block import Quote, Heading, List as MarkoList, Paragraph, FencedCode
+from marko.block import FencedCode, Heading, Paragraph, Quote
+from marko.block import List as MarkoList
 from marko.inline import Link
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.results import HeadingIssue
+from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.scoring.domain_thresholds import DocumentDomain, calculate_combined_structure_score
+from writescore.scoring.dual_score import THRESHOLDS
 
 
 class StructureDimension(DimensionStrategy):
@@ -117,7 +116,7 @@ class StructureDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 # Phase 1-2: Basic structure analysis
                 structure = self._analyze_structure(sample_text)
                 headings = self._analyze_headings(sample_text)
@@ -505,7 +504,7 @@ class StructureDimension(DimensionStrategy):
 
         # Check each level for parallelism
         parallelism_scores = []
-        for level, texts in by_level.items():
+        for _level, texts in by_level.items():
             if len(texts) < 3:
                 continue  # Need at least 3 headings to detect pattern
 
@@ -749,7 +748,7 @@ class StructureDimension(DimensionStrategy):
                     level=level,
                     text=text,
                     issue_type='depth',
-                    suggestion=f'Flatten to H3 or convert to bold body text'
+                    suggestion='Flatten to H3 or convert to bold body text'
                 ))
 
             # Check verbose headings (>8 words)
@@ -905,7 +904,7 @@ class StructureDimension(DimensionStrategy):
         current_h2_subsections = 0
         in_h2_section = False
 
-        for i, heading in enumerate(headings):
+        for _i, heading in enumerate(headings):
             if heading['level'] == 2:  # H2
                 if in_h2_section:
                     subsection_counts.append(current_h2_subsections)
@@ -1116,16 +1115,14 @@ class StructureDimension(DimensionStrategy):
             transitions[transition] = transitions.get(transition, 0) + 1
 
         # Analyze pattern
-        has_lateral = any(f"H{l}→H{l}" in transitions for l in range(1, 7))
-        has_jumps = any(f"H{l}→H{j}" in transitions for l in range(2, 7) for j in range(1, l-1))
+        has_lateral = any(f"H{level}→H{level}" in transitions for level in range(1, 7))
+        has_jumps = any(f"H{level}→H{j}" in transitions for level in range(2, 7) for j in range(1, level-1))
         only_sequential = len(transitions) <= 4 and not has_lateral and not has_jumps
 
         # Scoring (6 points max)
         if has_lateral and has_jumps:
             pattern, score, assessment = 'VARIED', 6.0, 'EXCELLENT'
-        elif has_lateral or has_jumps:
-            pattern, score, assessment = 'SEQUENTIAL', 4.0, 'GOOD'
-        elif max_depth <= 3:
+        elif has_lateral or has_jumps or max_depth <= 3:
             pattern, score, assessment = 'SEQUENTIAL', 4.0, 'GOOD'
         elif only_sequential and max_depth >= 4:
             pattern, score, assessment = 'RIGID', 2.0, 'FAIR'
@@ -1159,7 +1156,7 @@ class StructureDimension(DimensionStrategy):
 
         # Comment density in code blocks
         comment_densities = []
-        for lang, code in code_blocks:
+        for _lang, code in code_blocks:
             lines = code.strip().split('\n')
             if len(lines) == 0:
                 continue
@@ -1416,7 +1413,7 @@ class StructureDimension(DimensionStrategy):
         generic_count = 0
         generic_examples = []
 
-        for anchor, url in matches:
+        for anchor, _url in matches:
             is_generic = any(re.search(pattern, anchor, re.IGNORECASE)
                            for pattern in generic_patterns)
             if is_generic:

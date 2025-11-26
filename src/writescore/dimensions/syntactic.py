@@ -16,17 +16,18 @@ Refactored in Story 1.4 to use DimensionStrategy pattern with self-registration.
 """
 
 import re
-import sys
 import statistics
-from typing import Dict, List, Any, Tuple, Optional
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.results import SyntacticIssue
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
-from writescore.scoring.dual_score import THRESHOLDS
+import sys
+from typing import Any, Dict, List, Optional, Tuple
 
 # Required imports
 import spacy
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.results import SyntacticIssue
+from writescore.dimensions.base_strategy import DimensionStrategy
+
 nlp_spacy = spacy.load('en_core_web_sm')
 
 
@@ -125,7 +126,7 @@ class SyntacticDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 syntactic_metrics = self._analyze_syntactic_patterns(sample_text)
                 sample_results.append(syntactic_metrics)
 

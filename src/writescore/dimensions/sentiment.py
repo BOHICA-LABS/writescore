@@ -13,10 +13,11 @@ Refactored in Story 1.4 to use DimensionStrategy pattern with self-registration.
 """
 
 import statistics
-from typing import Dict, List, Any, Optional, Tuple
-from writescore.dimensions.base_strategy import DimensionStrategy
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from typing import Any, Dict, List, Optional, Tuple
+
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.base_strategy import DimensionStrategy
 
 # Lazy load transformers
 _sentiment_pipeline = None
@@ -115,7 +116,7 @@ class SentimentDimension(DimensionStrategy):
             samples = prepared
             sample_results = []
 
-            for position, sample_text in samples:
+            for _position, sample_text in samples:
                 sentiment_results = self._analyze_sentiment_variance(sample_text)
                 sample_results.append({'sentiment': sentiment_results})
 
@@ -293,15 +294,15 @@ class SentimentDimension(DimensionStrategy):
     def _analyze_sentiment_variance(self, text: str) -> Dict:
         """
         Analyze sentiment variance across text chunks.
-        
+
         AI writing shows emotional flatness (low variance).
         Human writing shows natural emotional range (high variance).
         """
         pipeline = get_sentiment_pipeline()
-        
+
         # Split into paragraphs (more meaningful than sentences)
         paragraphs = [p.strip() for p in text.split('nn') if len(p.strip()) > 20]
-        
+
         if len(paragraphs) < 3:
             # Fallback to sentences if too few paragraphs
             import re
@@ -309,7 +310,7 @@ class SentimentDimension(DimensionStrategy):
             chunks = sentences[:50]  # Limit for performance
         else:
             chunks = paragraphs[:30]  # Limit for performance
-        
+
         if len(chunks) < 3:
             # Not enough text to analyze variance
             return {
@@ -318,7 +319,7 @@ class SentimentDimension(DimensionStrategy):
                 'count': len(chunks),
                 'emotionally_flat': True
             }
-        
+
         # Analyze sentiment for each chunk
         # Pipeline returns: [{'label': 'POSITIVE', 'score': 0.9998}]
         sentiments = []
@@ -327,17 +328,17 @@ class SentimentDimension(DimensionStrategy):
                 # Truncate long chunks to avoid token limit
                 chunk_text = chunk[:512]
                 result = pipeline(chunk_text)[0]
-                
+
                 # Convert to numeric: POSITIVE = +score, NEGATIVE = -score
                 score = result['score']
                 if result['label'] == 'NEGATIVE':
                     score = -score
-                
+
                 sentiments.append(score)
             except Exception:
                 # Skip problematic chunks
                 continue
-        
+
         if len(sentiments) < 3:
             return {
                 'variance': 0.0,
@@ -345,11 +346,11 @@ class SentimentDimension(DimensionStrategy):
                 'count': len(sentiments),
                 'emotionally_flat': True
             }
-        
+
         # Calculate variance and mean
         variance = statistics.variance(sentiments)
         mean = statistics.mean(sentiments)
-        
+
         # Determine if emotionally flat (AI signature)
         emotionally_flat = variance < 0.10
 

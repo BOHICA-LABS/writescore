@@ -19,17 +19,19 @@ Research Sources:
 - MIT/Northeastern research on syntactic templates
 """
 
-from datetime import datetime
-from typing import List, Dict, Tuple, Optional, Any
 import logging
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
 
-from writescore.core.results import AnalysisResults
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.results import AnalysisResults
 from writescore.core.weight_mediator import WeightMediator
 from writescore.dimensions.base_strategy import DimensionTier
 from writescore.scoring.dual_score import (
-    DualScore, ScoreCategory, ScoreDimension,
-    ImprovementAction
+    DualScore,
+    ImprovementAction,
+    ScoreCategory,
+    ScoreDimension,
 )
 from writescore.scoring.score_normalization import get_normalizer
 
@@ -179,7 +181,8 @@ def _build_dimension_scores(results: AnalysisResults, config: Optional[Any] = No
         effective_weight = effective_weights.get(dim_name, dim.weight)
 
         # Handle selective loading (dimension not loaded)
-        if not metrics or metrics.get('available') == False:
+        # Note: Using `== False` intentionally - None means "not set" (available), False means explicitly unavailable
+        if not metrics or metrics.get('available') == False:  # noqa: E712
             # Create placeholder ScoreDimension with 0 contribution
             score_dim = ScoreDimension(
                 name=dim.description,
@@ -511,13 +514,6 @@ def _estimate_effort(dimension_name: str, gap: float) -> str:
         "Heading Depth Navigation", "Paragraph Length Variance",
         "H2 Section Length Variance", "H3/H4 Subsection Asymmetry"
     ]
-    hard_fixes = [
-        "GLTR Token Ranking", "Advanced Lexical (HDD/Yule's K)",
-        "Syntactic Complexity", "MATTR (Lexical Richness)",
-        "RTTR (Global Diversity)", "AI Detection Ensemble",
-        "Multi-Model Perplexity Consensus", "Lexical Diversity (Basic)",
-        "MTLD (Vocabulary Variation)", "Syntactic Repetition"
-    ]
 
     if dimension_name in easy_fixes:
         return "LOW" if gap < 3 else "MEDIUM"
@@ -606,7 +602,7 @@ def _extract_primary_metric(metrics: Dict[str, Any], dimension_name: str) -> Opt
         return metrics[primary_key]
 
     # Fallback: return first numeric metric
-    for key, value in metrics.items():
+    for _key, value in metrics.items():
         if isinstance(value, (int, float)):
             return value
 

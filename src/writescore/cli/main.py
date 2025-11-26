@@ -14,35 +14,33 @@ Extension Points:
     - BREAKING CHANGE: Users must now use 'analyze' subcommand
 """
 
-import sys
+import contextlib
 import os
+import sys
 from pathlib import Path
+
 import click
 
 # Suppress tokenizers parallelism warning when forking
 # (common with pytest, multiprocessing, or CLI usage)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-from writescore.core.analyzer import AIPatternAnalyzer
-from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
 from writescore.cli.formatters import (
-    format_report,
     format_detailed_report,
-    format_dual_score_report
+    format_report,
+)
+from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
+from writescore.core.analyzer import AIPatternAnalyzer
+from writescore.core.deployment import (
+    ParameterComparator,
+    ParameterVersionManager,
+    format_version_list,
+    generate_deployment_checklist,
 )
 from writescore.core.interpretability import (
-    ScoreInterpreter,
     ScoreInterpretation,
-    PercentileContext,
-    DistributionVisualizer,
-    format_percentile_report
-)
-from writescore.core.deployment import (
-    ParameterVersionManager,
-    ParameterComparator,
-    ParameterDiff,
-    format_version_list,
-    generate_deployment_checklist
+    ScoreInterpreter,
+    format_percentile_report,
 )
 
 
@@ -160,16 +158,14 @@ def generate_percentile_interpretation(result, dual_score=None):
         for dim_name, dim_result in result.dimension_results.items():
             # Get raw metric value
             raw_value = None
-            if hasattr(dim_result, 'raw_metrics') and dim_result.raw_metrics:
-                # Use primary metric
-                if isinstance(dim_result.raw_metrics, dict):
-                    # Get first metric or specific known metric
-                    for key in ['variance', 'ratio', 'score', 'value', 'density']:
-                        if key in dim_result.raw_metrics:
-                            raw_value = dim_result.raw_metrics[key]
-                            break
-                    if raw_value is None and dim_result.raw_metrics:
-                        raw_value = list(dim_result.raw_metrics.values())[0]
+            if hasattr(dim_result, 'raw_metrics') and dim_result.raw_metrics and isinstance(dim_result.raw_metrics, dict):
+                # Get first metric or specific known metric
+                for key in ['variance', 'ratio', 'score', 'value', 'density']:
+                    if key in dim_result.raw_metrics:
+                        raw_value = dim_result.raw_metrics[key]
+                        break
+                if raw_value is None and dim_result.raw_metrics:
+                    raw_value = list(dim_result.raw_metrics.values())[0]
 
             if raw_value is not None and dim_name in baseline_human_stats:
                 context = interpreter.interpret_dimension(dim_name, raw_value)
@@ -395,7 +391,7 @@ def show_coverage_stats(result, config: AnalysisConfig, file_path: str):
             est_coverage = min(2000 * 12 / file_size * 100, 100)  # 12 dimensions × 2000 chars
             print(f"Mode: FAST (estimated ~{est_coverage:.1f}% coverage)")
         elif config.mode == AnalysisMode.FULL:
-            print(f"Mode: FULL (100% coverage)")
+            print("Mode: FULL (100% coverage)")
         elif config.mode in [AnalysisMode.SAMPLING, AnalysisMode.ADAPTIVE]:
             total = config.sampling_sections * config.sampling_chars_per_section
             est_coverage = min(total / file_size * 100, 100)
@@ -425,10 +421,10 @@ def handle_history_commands(file, show_history_full, compare_history,
         Exit code (0 for success)
     """
     from writescore.history.trends import (
-        generate_full_history_report,
         generate_comparison_report,
         generate_dimension_trend_report,
-        generate_raw_metric_trends
+        generate_full_history_report,
+        generate_raw_metric_trends,
     )
 
     analyzer = AIPatternAnalyzer()
@@ -464,7 +460,7 @@ def handle_history_commands(file, show_history_full, compare_history,
                         raise ValueError(f"Iteration {idx} out of range (0-{history_len-1})")
                     return idx
                 except ValueError as e:
-                    raise ValueError(f"Invalid iteration specifier: {spec}")
+                    raise ValueError(f"Invalid iteration specifier: {spec}") from e
 
         try:
             idx1 = parse_iteration(parts[0], len(history.scores))
@@ -616,12 +612,12 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
 
     # Dry run for batch
     if dry_run:
-        print(f"\nBatch Analysis Configuration (DRY RUN)")
+        print("\nBatch Analysis Configuration (DRY RUN)")
         print(f"Directory: {batch_dir}")
         print(f"Mode: {config.mode.value.upper()}")
         if config.mode in [AnalysisMode.SAMPLING, AnalysisMode.ADAPTIVE]:
             print(f"Sampling: {config.sampling_sections} × {config.sampling_chars_per_section} chars ({config.sampling_strategy})")
-        print(f"\nMode will be applied to all .md files in directory")
+        print("\nMode will be applied to all .md files in directory")
         return [], None
 
     batch_path = Path(batch_dir)
@@ -659,7 +655,7 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
 
 
 # Click group for multiple commands
-@click.group(context_settings=dict(help_option_names=['-h', '--help']))
+@click.group(context_settings={"help_option_names": ['-h', '--help']})
 def cli():
     """WriteScore - AI Pattern Analysis and Parameter Calibration.
 
@@ -797,7 +793,7 @@ def analyze_command(file, batch, detailed, format, domain_terms, output, show_sc
         if file_size > 500000:  # >500k chars (~250 pages)
             pages = file_size / 2000
             click.echo(f"\n⚠ Warning: FULL mode with {pages:.0f}-page document may take 20+ minutes.", err=True)
-            click.echo(f"           Consider using --mode adaptive for faster results (30-240s).\n", err=True)
+            click.echo("           Consider using --mode adaptive for faster results (30-240s).\n", err=True)
 
             # Interactive confirmation (skip if in batch or dry-run)
             if not batch and not dry_run:
@@ -947,6 +943,7 @@ def recalibrate_command(dataset, output, existing, report, text_report, dimensio
         --auto-select-method --normality-report reports/normality.txt
     """
     import logging
+
     from writescore.core.recalibration import RecalibrationWorkflow
 
     # Setup logging
@@ -956,7 +953,7 @@ def recalibrate_command(dataset, output, existing, report, text_report, dimensio
         format='%(levelname)s - %(name)s - %(message)s',
         stream=sys.stdout
     )
-    logger = logging.getLogger(__name__)
+    logging.getLogger(__name__)
 
     try:
         # Convert paths
@@ -1200,10 +1197,9 @@ def rollback_command(target_version, params_dir, archive_dir, active_file, dry_r
         sys.exit(0)
 
     # Confirm unless --yes
-    if not yes:
-        if not click.confirm(f"Roll back from {current or 'none'} to {target_version}?"):
-            click.echo("Rollback cancelled.", err=True)
-            sys.exit(0)
+    if not yes and not click.confirm(f"Roll back from {current or 'none'} to {target_version}?"):
+        click.echo("Rollback cancelled.", err=True)
+        sys.exit(0)
 
     # Execute rollback
     try:
@@ -1327,10 +1323,8 @@ def deploy_command(params_file, params_dir, archive_dir, active_file, no_backup,
     current_params = None
     current_version = manager.get_current_version()
     if current_version:
-        try:
+        with contextlib.suppress(Exception):
             current_params = ParameterLoader.load(Path(active_file))
-        except Exception:
-            pass  # OK if current params don't exist
 
     # Dry-run: show checklist
     if dry_run:
@@ -1361,10 +1355,9 @@ def deploy_command(params_file, params_dir, archive_dir, active_file, no_backup,
         click.echo()
 
     # Confirm unless --yes
-    if not yes:
-        if not click.confirm(f"Deploy version {new_params.version}?"):
-            click.echo("Deployment cancelled.", err=True)
-            sys.exit(0)
+    if not yes and not click.confirm(f"Deploy version {new_params.version}?"):
+        click.echo("Deployment cancelled.", err=True)
+        sys.exit(0)
 
     # Execute deployment
     try:

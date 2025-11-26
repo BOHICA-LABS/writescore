@@ -11,7 +11,6 @@ It also includes scoring thresholds and improvement action tracking.
 from dataclasses import dataclass, field
 from typing import List, Optional
 
-
 # ============================================================================
 # SCORING THRESHOLDS - Research-backed constants for AI pattern detection
 # ============================================================================

@@ -16,17 +16,15 @@ import sys
 from dataclasses import asdict
 from typing import Optional
 
+# Required dependency
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.dynamic_reporter import DynamicReporter
 from writescore.core.results import (
     AnalysisResults,
     DetailedAnalysis,
 )
-from writescore.core.dynamic_reporter import DynamicReporter
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.scoring.dual_score import DualScore
 from writescore.history.tracker import ScoreHistory
-
-# Required dependency
-import textstat
+from writescore.scoring.dual_score import DualScore
 
 
 def format_dual_score_report(dual_score: DualScore, history: Optional[ScoreHistory] = None,
@@ -290,7 +288,7 @@ HEADING STRUCTURE ISSUES ({len(analysis.heading_issues)} total)
 
 """
             if depth_issues:
-                report += f"""DEPTH VIOLATIONS (H4+ headings):
+                report += """DEPTH VIOLATIONS (H4+ headings):
 """
                 for h in depth_issues[:5]:
                     report += f"""  Line {h.line_number}: {'#' * h.level} {h.text}
@@ -299,7 +297,7 @@ HEADING STRUCTURE ISSUES ({len(analysis.heading_issues)} total)
 """
 
             if parallel_issues:
-                report += f"""
+                report += """
 MECHANICAL PARALLELISM (identical structures):
 """
                 # Show first 3 examples only
@@ -316,7 +314,7 @@ MECHANICAL PARALLELISM (identical structures):
 """
 
             if verbose_issues:
-                report += f"""
+                report += """
 VERBOSE HEADINGS (>8 words):
 """
                 for h in verbose_issues[:5]:
@@ -347,7 +345,7 @@ SENTENCE UNIFORMITY ISSUES ({len(analysis.uniform_paragraphs)} paragraphs)
 
   Sample sentences:
 """
-                for line_num, text, word_count in para.sentences:
+                for _line_num, text, word_count in para.sentences:
                     report += f"""    "{text}..." ({word_count} words)
 """
                 report += f"""
@@ -382,7 +380,7 @@ TARGET: ≤2 per page
 
                 if estimated_page != current_page:
                     if em_count_on_page > 0:
-                        report += f"""
+                        report += """
 """
                     current_page = estimated_page
                     em_count_on_page = 0
@@ -616,7 +614,7 @@ RECOMMENDED ACTIONS (Priority Order)
                 report += f"""[{priority:8s}] {action}
 """
         else:
-            report += f"""✓ No major issues detected - content appears naturally written
+            report += """✓ No major issues detected - content appears naturally written
 
 """
 
@@ -849,7 +847,7 @@ List Nesting Depth:      Max {r.list_max_depth} levels {list_icon} {r.list_depth
                     report += """
   → ACTION: Flatten deep lists, break into separate sections"""
             else:
-                report += f"""
+                report += """
 
 List Nesting Depth:      No lists detected"""
 

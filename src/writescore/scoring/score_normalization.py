@@ -26,10 +26,10 @@ Story: 2.4.1 (Dimension Scoring Optimization)
 """
 
 import json
+import logging
 import statistics
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
-import logging
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ class ScoreNormalizer:
             )
 
         try:
-            with open(stats_path, 'r') as f:
+            with open(stats_path) as f:
                 data = json.load(f)
 
             # Validate structure
@@ -99,7 +99,7 @@ class ScoreNormalizer:
             logger.info(f"Loaded statistics for {len(self.stats)} dimensions from {stats_path}")
 
         except json.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON in stats file: {e}")
+            raise ValueError(f"Invalid JSON in stats file: {e}") from e
 
     def normalize_score(self, raw_score: float, dimension_name: str) -> float:
         """

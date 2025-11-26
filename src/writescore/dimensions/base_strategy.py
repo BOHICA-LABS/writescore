@@ -11,17 +11,15 @@ core code modifications.
 """
 
 from abc import ABC, abstractmethod
-from enum import Enum
-from typing import Dict, List, Tuple, Any, Optional, Union
 from collections import Counter
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Required AST parsing support
 from marko import Markdown
-from marko.block import Quote, Heading, List as MarkoList, Paragraph, FencedCode
-from marko.inline import Link, CodeSpan
 
 # Configuration support
-from writescore.core.analysis_config import AnalysisConfig, DEFAULT_CONFIG
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 
 
 class DimensionTier(str, Enum):
