@@ -65,6 +65,9 @@ venv.bak/
 *.swo
 *~
 
+# Claude Code
+.mcp.json
+
 # Jupyter
 .ipynb_checkpoints/
 
