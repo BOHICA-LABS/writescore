@@ -6,9 +6,10 @@ Story 1.4.8: Optimize Heavy Dimensions for Full Documents
 """
 
 import pytest
-from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
+
 from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
 
 
 @pytest.fixture

@@ -11,19 +11,19 @@ Tests cover:
 - Mode display in comparison report
 """
 
-import pytest
 import json
 import tempfile
 from pathlib import Path
 
-from writescore.history.tracker import (
-    DimensionScore, HistoricalScore, ScoreHistory,
-    load_score_history, save_score_history
-)
-from writescore.history.trends import (
-    generate_full_history_report, generate_comparison_report
-)
+import pytest
 
+from writescore.history.tracker import (
+    HistoricalScore,
+    ScoreHistory,
+    load_score_history,
+    save_score_history,
+)
+from writescore.history.trends import generate_comparison_report, generate_full_history_report
 
 # ============================================================================
 # Test Fixtures
@@ -189,7 +189,7 @@ def test_mode_saved_in_history_file(sample_historical_score_with_mode):
         save_score_history(history)
 
         # Load raw JSON to verify mode fields are present
-        with open(history_file, 'r') as f:
+        with open(history_file) as f:
             data = json.load(f)
 
         assert len(data['scores']) == 1
@@ -201,7 +201,7 @@ def test_mode_loaded_from_history_file(sample_historical_score_with_mode):
     """Test that mode data is loaded from history JSON file."""
     with tempfile.TemporaryDirectory() as tmpdir:
         test_file = Path(tmpdir) / "test.md"
-        history_file = Path(tmpdir) / ".test.md.history.json"
+        Path(tmpdir) / ".test.md.history.json"
 
         # Create and save history
         history = ScoreHistory(file_path=str(test_file))

@@ -4,20 +4,19 @@ Unit tests for distribution analysis infrastructure.
 Tests Story 2.5 Task 3: Distribution analysis, statistics computation, and reporting.
 """
 
-import pytest
 import tempfile
-import numpy as np
 from pathlib import Path
-from datetime import datetime
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock
 
+import pytest
+
+from writescore.core.dataset import Document, ValidationDataset
+from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.distribution_analyzer import (
     DimensionStatistics,
     DistributionAnalysis,
-    DistributionAnalyzer
+    DistributionAnalyzer,
 )
-from writescore.core.dataset import ValidationDataset, Document
-from writescore.core.dimension_registry import DimensionRegistry
 from writescore.dimensions.base_strategy import DimensionTier
 
 
@@ -403,10 +402,10 @@ class TestDistributionAnalyzer:
             stats.compute()
             analysis.add_dimension_stats("test", "human", stats)
 
-            report = analyzer.generate_summary_report(analysis, output_path)
+            analyzer.generate_summary_report(analysis, output_path)
 
             assert output_path.exists()
-            with open(output_path, 'r') as f:
+            with open(output_path) as f:
                 content = f.read()
                 assert "DISTRIBUTION ANALYSIS SUMMARY" in content
 

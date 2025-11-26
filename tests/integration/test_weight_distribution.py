@@ -9,26 +9,26 @@ Total weight: 100%
 """
 
 import pytest
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
+from writescore.dimensions.ai_vocabulary import AiVocabularyDimension
+from writescore.dimensions.burstiness import BurstinessDimension
+from writescore.dimensions.figurative_language import FigurativeLanguageDimension
+from writescore.dimensions.formatting import FormattingDimension
+from writescore.dimensions.lexical import LexicalDimension
 
 # Import all 16 dimensions
 from writescore.dimensions.perplexity import PerplexityDimension
-from writescore.dimensions.burstiness import BurstinessDimension
-from writescore.dimensions.structure import StructureDimension
-from writescore.dimensions.formatting import FormattingDimension
-from writescore.dimensions.lexical import LexicalDimension
-from writescore.dimensions.voice import VoiceDimension
-from writescore.dimensions.syntactic import SyntacticDimension
-from writescore.dimensions.sentiment import SentimentDimension
-from writescore.dimensions.predictability import PredictabilityDimension
-from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
-from writescore.dimensions.readability import ReadabilityDimension
-from writescore.dimensions.transition_marker import TransitionMarkerDimension
-from writescore.dimensions.figurative_language import FigurativeLanguageDimension
 from writescore.dimensions.pragmatic_markers import PragmaticMarkersDimension
+from writescore.dimensions.predictability import PredictabilityDimension
+from writescore.dimensions.readability import ReadabilityDimension
 from writescore.dimensions.semantic_coherence import SemanticCoherenceDimension
-from writescore.dimensions.ai_vocabulary import AiVocabularyDimension
-
+from writescore.dimensions.sentiment import SentimentDimension
+from writescore.dimensions.structure import StructureDimension
+from writescore.dimensions.syntactic import SyntacticDimension
+from writescore.dimensions.transition_marker import TransitionMarkerDimension
+from writescore.dimensions.voice import VoiceDimension
 
 # Expected weights after rebalancing (16 dimensions = 100%)
 EXPECTED_WEIGHTS = {

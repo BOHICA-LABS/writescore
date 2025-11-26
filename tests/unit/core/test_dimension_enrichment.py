@@ -11,10 +11,8 @@ Tests cover:
 - Input validation and security (AC11)
 """
 
-import pytest
-from unittest.mock import Mock, patch
-from writescore.core.analyzer import AIPatternAnalyzer
 from writescore.core.analysis_config import DEFAULT_CONFIG
+from writescore.core.analyzer import AIPatternAnalyzer
 from writescore.core.dimension_registry import DimensionRegistry
 
 

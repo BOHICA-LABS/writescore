@@ -15,17 +15,12 @@ Test Coverage:
 - Sampling parameters
 """
 
+
 import pytest
-import subprocess
-import sys
-import json
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock, PropertyMock
 from click.testing import CliRunner
 
-from writescore.cli.main import cli, create_analysis_config, show_dry_run_config
-from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
+from writescore.cli.main import cli, create_analysis_config
+from writescore.core.analysis_config import AnalysisMode
 
 
 # Test fixtures

@@ -3,10 +3,12 @@ Tests for AdvancedLexicalDimension - HDD, Yule's K, MATTR, RTTR analysis.
 Story 1.4.5 - New dimension split from AdvancedDimension.
 """
 
-import pytest
 from unittest.mock import Mock, patch
-from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
+
+import pytest
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
 
 
 @pytest.fixture

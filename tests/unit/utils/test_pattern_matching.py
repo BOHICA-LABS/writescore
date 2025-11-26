@@ -4,14 +4,14 @@ Tests for pattern_matching utilities.
 Tests cover pattern compilation, matching, and AI vocabulary detection.
 """
 
-import pytest
 import re
+
 from writescore.utils.pattern_matching import (
-    PatternMatcher,
+    AI_VOCAB_REPLACEMENTS,
     AI_VOCABULARY,
-    FORMULAIC_TRANSITIONS,
     DOMAIN_TERMS_DEFAULT,
-    AI_VOCAB_REPLACEMENTS
+    FORMULAIC_TRANSITIONS,
+    PatternMatcher,
 )
 
 
@@ -448,7 +448,7 @@ I think **you** should use your code with _italic_ emphasis—it's comprehensive
 
         # Test AI vocabulary detection
         ai_matches = []
-        for pattern_str, pattern in matcher.get_ai_vocab_patterns().items():
+        for _pattern_str, pattern in matcher.get_ai_vocab_patterns().items():
             matches = pattern.findall(text)
             ai_matches.extend(matches)
 

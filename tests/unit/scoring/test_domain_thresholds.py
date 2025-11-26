@@ -4,19 +4,17 @@ Tests for domain_thresholds module (domain-specific structural analysis).
 Phase 3 enhancement: Multi-level combined scoring with research-backed thresholds.
 """
 
-import pytest
 from writescore.scoring.domain_thresholds import (
+    ACADEMIC_CONFIG,
+    BUSINESS_CONFIG,
+    GENERAL_CONFIG,
+    TECHNICAL_CONFIG,
+    TUTORIAL_CONFIG,
     DocumentDomain,
     HierarchyThresholds,
-    DomainConfig,
-    get_domain_config,
-    calculate_cv_score,
     calculate_combined_structure_score,
-    ACADEMIC_CONFIG,
-    TECHNICAL_CONFIG,
-    BUSINESS_CONFIG,
-    TUTORIAL_CONFIG,
-    GENERAL_CONFIG
+    calculate_cv_score,
+    get_domain_config,
 )
 
 

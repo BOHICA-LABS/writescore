@@ -12,19 +12,17 @@ Tests cover:
 """
 
 import pytest
-from writescore.history.trends import (
-    generate_sparkline,
-    generate_dimension_trend_report,
-    generate_aggregate_trend_report,
-    generate_tier_trend_report,
-    generate_comparison_report,
-    generate_full_history_report,
-    generate_raw_metric_trends
-)
-from writescore.history.tracker import (
-    ScoreHistory, HistoricalScore, DimensionScore
-)
 
+from writescore.history.tracker import DimensionScore, HistoricalScore, ScoreHistory
+from writescore.history.trends import (
+    generate_aggregate_trend_report,
+    generate_comparison_report,
+    generate_dimension_trend_report,
+    generate_full_history_report,
+    generate_raw_metric_trends,
+    generate_sparkline,
+    generate_tier_trend_report,
+)
 
 # ============================================================================
 # Test Fixtures

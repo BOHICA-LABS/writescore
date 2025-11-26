@@ -8,24 +8,24 @@ Run: pytest tests/integration/test_scoring_regression.py -v
 """
 
 import json
-import pytest
 from pathlib import Path
 from typing import Dict, List
 
-from writescore.dimensions.predictability import PredictabilityDimension
-from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
-from writescore.dimensions.readability import ReadabilityDimension
-from writescore.dimensions.transition_marker import TransitionMarkerDimension
-from writescore.dimensions.perplexity import PerplexityDimension
-from writescore.dimensions.burstiness import BurstinessDimension
-from writescore.dimensions.structure import StructureDimension
-from writescore.dimensions.formatting import FormattingDimension
-from writescore.dimensions.voice import VoiceDimension
-from writescore.dimensions.lexical import LexicalDimension
-from writescore.dimensions.sentiment import SentimentDimension
-from writescore.dimensions.syntactic import SyntacticDimension
-from writescore.dimensions.figurative_language import FigurativeLanguageDimension
+import pytest
 
+from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
+from writescore.dimensions.burstiness import BurstinessDimension
+from writescore.dimensions.figurative_language import FigurativeLanguageDimension
+from writescore.dimensions.formatting import FormattingDimension
+from writescore.dimensions.lexical import LexicalDimension
+from writescore.dimensions.perplexity import PerplexityDimension
+from writescore.dimensions.predictability import PredictabilityDimension
+from writescore.dimensions.readability import ReadabilityDimension
+from writescore.dimensions.sentiment import SentimentDimension
+from writescore.dimensions.structure import StructureDimension
+from writescore.dimensions.syntactic import SyntacticDimension
+from writescore.dimensions.transition_marker import TransitionMarkerDimension
+from writescore.dimensions.voice import VoiceDimension
 
 # Variance threshold (5%)
 VARIANCE_THRESHOLD = 5.0

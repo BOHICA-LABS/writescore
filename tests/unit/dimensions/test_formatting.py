@@ -13,10 +13,9 @@ Em-dash analysis is the STRONGEST AI signal (95% accuracy).
 """
 
 import pytest
-from writescore.dimensions.formatting import FormattingAnalyzer
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.results import EmDashInstance, FormattingIssue
 
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.formatting import FormattingAnalyzer
 
 # ============================================================================
 # Fixtures

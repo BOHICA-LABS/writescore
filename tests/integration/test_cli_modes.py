@@ -8,13 +8,12 @@ Note: After migration to src-layout, CLI is invoked via the installed
 'writescore' entry point, not the legacy analyze_ai_patterns.py script.
 """
 
-import pytest
+import json
 import subprocess
 import tempfile
-import json
-import os
 from pathlib import Path
 
+import pytest
 
 # CLI command - using installed entry point from src-layout
 CLI_CMD = ['writescore']

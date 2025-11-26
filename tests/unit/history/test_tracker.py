@@ -8,8 +8,9 @@ Tests cover:
 - get_trend() method with various scenarios
 """
 
+
 import pytest
-from datetime import datetime
+
 from writescore.history.tracker import HistoricalScore, ScoreHistory
 from writescore.scoring.dual_score import DualScore
 

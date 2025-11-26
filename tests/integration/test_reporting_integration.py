@@ -5,14 +5,15 @@ Tests end-to-end reporting with real AnalysisResults from the analyzer.
 Addresses MEDIUM issue TEST-001: Missing integration tests.
 """
 
-import pytest
 import json
 import tempfile
 from pathlib import Path
 
+import pytest
+
+from writescore.core.analysis_config import AnalysisConfig
 from writescore.core.analyzer import AIPatternAnalyzer
 from writescore.core.dynamic_reporter import DynamicReporter
-from writescore.core.analysis_config import AnalysisConfig
 
 
 @pytest.fixture
@@ -250,7 +251,7 @@ class TestReportingIntegration:
                     assert 'score' in dim_data
                     assert 'weight' in dim_data
             elif isinstance(dimensions, dict):
-                for dim_name, dim_data in dimensions.items():
+                for _dim_name, dim_data in dimensions.items():
                     assert 'score' in dim_data
                     assert 'weight' in dim_data
 
@@ -302,7 +303,7 @@ class TestReportingIntegration:
         tier_weights = weight_dist['by_tier']
         assert isinstance(tier_weights, dict)
         # All tier weights should be >= 0
-        for tier_name, weight in tier_weights.items():
+        for _tier_name, weight in tier_weights.items():
             assert weight >= 0
 
     def test_json_serialization_no_errors(self, temp_text_file):

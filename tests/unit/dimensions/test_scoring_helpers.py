@@ -10,10 +10,11 @@ Tests cover:
 Coverage target: >= 95%
 """
 
-import pytest
 import math
-from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
+import pytest
+
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 # ========================================================================
 # MOCK DIMENSION FOR TESTING

@@ -28,12 +28,12 @@ Created: 2025-01-24
 Story: 2.4.1 (Dimension Scoring Optimization)
 """
 
-import pytest
 import json
-import statistics
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple
-from dataclasses import dataclass
+
+import pytest
 
 # Skip all tests if validation dataset not available
 VALIDATION_DIR = Path(__file__).parent.parent / "fixtures" / "validation_corpus"
@@ -80,7 +80,7 @@ class ValidationCorpusLoader:
 
     def _load_labels(self):
         """Load ground truth labels from validation_labels.json."""
-        with open(self.labels_file, 'r') as f:
+        with open(self.labels_file) as f:
             data = json.load(f)
 
         self.labels = data.get('documents', {})

@@ -5,19 +5,18 @@ Tests cover all helper functions for text analysis, word counting,
 and text manipulation.
 """
 
-import pytest
 from writescore.utils.text_processing import (
-    safe_divide,
-    safe_ratio,
-    count_words,
+    calculate_word_frequency,
     clean_text,
-    extract_sentences,
+    count_words,
+    extract_heading_info,
     extract_paragraphs,
+    extract_sentences,
+    get_line_context,
     is_code_block_line,
     is_list_item,
-    extract_heading_info,
-    calculate_word_frequency,
-    get_line_context
+    safe_divide,
+    safe_ratio,
 )
 
 

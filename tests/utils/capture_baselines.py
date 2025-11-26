@@ -12,23 +12,23 @@ Output:
 """
 
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
-import sys
 
-from writescore.dimensions.predictability import PredictabilityDimension
 from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
-from writescore.dimensions.readability import ReadabilityDimension
-from writescore.dimensions.transition_marker import TransitionMarkerDimension
-from writescore.dimensions.perplexity import PerplexityDimension
 from writescore.dimensions.burstiness import BurstinessDimension
-from writescore.dimensions.structure import StructureDimension
-from writescore.dimensions.formatting import FormattingDimension
-from writescore.dimensions.voice import VoiceDimension
-from writescore.dimensions.lexical import LexicalDimension
-from writescore.dimensions.sentiment import SentimentDimension
-from writescore.dimensions.syntactic import SyntacticDimension
 from writescore.dimensions.figurative_language import FigurativeLanguageDimension
+from writescore.dimensions.formatting import FormattingDimension
+from writescore.dimensions.lexical import LexicalDimension
+from writescore.dimensions.perplexity import PerplexityDimension
+from writescore.dimensions.predictability import PredictabilityDimension
+from writescore.dimensions.readability import ReadabilityDimension
+from writescore.dimensions.sentiment import SentimentDimension
+from writescore.dimensions.structure import StructureDimension
+from writescore.dimensions.syntactic import SyntacticDimension
+from writescore.dimensions.transition_marker import TransitionMarkerDimension
+from writescore.dimensions.voice import VoiceDimension
 
 
 def get_package_version():

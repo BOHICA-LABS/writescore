@@ -3,11 +3,13 @@ Tests for SemanticCoherenceDimension - semantic coherence analysis for AI detect
 Story 2.3 - Semantic coherence dimension with optional sentence-transformers dependency.
 """
 
-import pytest
+from unittest.mock import patch
+
 import numpy as np
-from unittest.mock import Mock, patch, MagicMock
-from writescore.dimensions.semantic_coherence import SemanticCoherenceDimension
+import pytest
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.semantic_coherence import SemanticCoherenceDimension
 
 
 @pytest.fixture
@@ -252,7 +254,7 @@ class TestFallbackAnalysis:
         result = dimension._analyze_basic_coherence(text)
 
         assert result['method'] == 'basic'
-        assert result['available'] == False
+        assert not result['available']
 
     def test_fallback_handles_insufficient_paragraphs(self, dimension):
         """Test fallback handles single paragraph gracefully."""
@@ -283,7 +285,7 @@ class TestFallbackAnalysis:
             result = dimension.analyze(text)
 
             assert result['method'] == 'basic'
-            assert result['available'] == False
+            assert not result['available']
 
 
 # ============================================================================
@@ -303,7 +305,7 @@ class TestSemanticAnalysis:
         result = dimension.analyze(text_high_coherence)
 
         assert result['method'] == 'semantic'
-        assert result['available'] == True
+        assert result['available']
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
@@ -378,7 +380,7 @@ class TestSemanticAnalysis:
 
         assert 'sampled' in result
         # Should be True since >500 sentences
-        assert result['sampled'] == True
+        assert result['sampled']
 
 
 # ============================================================================
@@ -881,7 +883,7 @@ class TestTierDefinitions:
         """Test tier ranges are valid tuples."""
         tiers = dimension.get_tiers()
 
-        for tier_name, tier_range in tiers.items():
+        for _tier_name, tier_range in tiers.items():
             assert isinstance(tier_range, tuple)
             assert len(tier_range) == 2
             min_score, max_score = tier_range
@@ -1025,8 +1027,9 @@ class TestPerformance:
     def test_memory_usage_inference(self, dimension):
         """Test memory usage during model load and inference."""
         try:
-            import psutil
             import os
+
+            import psutil
         except ImportError:
             pytest.skip("psutil not installed - cannot measure memory")
 
@@ -1045,7 +1048,7 @@ class TestPerformance:
 
         # Run inference
         text = "Test paragraph one with semantic content.\n\nTest paragraph two with related content."
-        result = dimension.analyze(text)
+        dimension.analyze(text)
 
         # Measure memory after inference
         after_inference_mb = process.memory_info().rss / 1024 / 1024
@@ -1081,7 +1084,7 @@ class TestPerformance:
         sampled_time = time.time() - start
 
         # Verify sampling was used
-        assert result.get('sampled', False) == True, "Sampling should be triggered for >500 sentences"
+        assert result.get('sampled', False), "Sampling should be triggered for >500 sentences"
 
         # Create shorter document that doesn't trigger sampling
         short_paragraphs = []
@@ -1097,7 +1100,7 @@ class TestPerformance:
         unsampled_time = time.time() - start
 
         # Verify no sampling
-        assert short_result.get('sampled', True) == False, "Sampling should not trigger for <500 sentences"
+        assert not short_result.get('sampled', True), "Sampling should not trigger for <500 sentences"
 
         # Sampling should result in faster processing per sentence
         # (Not necessarily faster absolute time since long doc has more sentences,

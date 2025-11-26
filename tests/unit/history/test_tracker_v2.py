@@ -12,21 +12,20 @@ Tests cover:
 - JSON serialization/deserialization
 """
 
-import pytest
-import json
 import csv
 import tempfile
 from pathlib import Path
-from datetime import datetime
+
+import pytest
 
 from writescore.history.tracker import (
-    DimensionScore, HistoricalScore, ScoreHistory,
-    load_score_history, save_score_history
+    DimensionScore,
+    HistoricalScore,
+    ScoreHistory,
+    load_score_history,
+    save_score_history,
 )
-from writescore.scoring.dual_score import (
-    DualScore, ScoreCategory, ScoreDimension
-)
-
+from writescore.scoring.dual_score import DualScore, ScoreCategory, ScoreDimension
 
 # ============================================================================
 # Test Fixtures
@@ -485,7 +484,7 @@ class TestCSVExport:
             history.export_to_csv(output_path)
 
             # Read back and verify
-            with open(output_path, 'r', encoding='utf-8') as f:
+            with open(output_path, encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
 
@@ -518,7 +517,7 @@ class TestCSVExport:
             history.export_to_csv(output_path)
 
             # Read back and verify
-            with open(output_path, 'r', encoding='utf-8') as f:
+            with open(output_path, encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 rows = list(reader)
 
@@ -635,7 +634,7 @@ class TestIntegrationV2:
             history.export_to_csv(output_path)
 
             # Verify file structure
-            with open(output_path, 'r', encoding='utf-8') as f:
+            with open(output_path, encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 headers = reader.fieldnames
 

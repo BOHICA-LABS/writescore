@@ -3,8 +3,9 @@ Tests for BurstinessAnalyzer - sentence and paragraph length variation detection
 """
 
 import pytest
-from writescore.dimensions.burstiness import BurstinessAnalyzer
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.burstiness import BurstinessAnalyzer
 
 
 @pytest.fixture
@@ -355,7 +356,7 @@ class TestGaussianScoring:
             }
         }
         score = analyzer.calculate_score(metrics)
-        
+
         # Should be 100.0 (or very close due to floating point)
         assert score >= 99.0
         assert score <= 100.0
@@ -364,7 +365,7 @@ class TestGaussianScoring:
         """Test scoring within 1σ of optimal returns high score."""
         # μ=15.0, σ=5.0, so 1σ range is [10.0, 20.0]
         # At μ±1σ, Gaussian function returns exp(-0.5) ≈ 0.606
-        
+
         metrics_low = {
             'sentence_burstiness': {
                 'total_sentences': 10,
@@ -374,7 +375,7 @@ class TestGaussianScoring:
         score_low = analyzer.calculate_score(metrics_low)
         assert score_low >= 55.0  # exp(-0.5) * 100 ≈ 60.6
         assert score_low <= 65.0
-        
+
         metrics_high = {
             'sentence_burstiness': {
                 'total_sentences': 10,
@@ -394,7 +395,7 @@ class TestGaussianScoring:
             }
         }
         score = analyzer.calculate_score(metrics)
-        
+
         # 3.0 is 2.4σ below optimal, should return low score
         # Gaussian at 2.4σ: exp(-0.5 * (2.4)²) ≈ exp(-2.88) ≈ 0.056
         assert score < 10.0
@@ -408,7 +409,7 @@ class TestGaussianScoring:
             }
         }
         score = analyzer.calculate_score(metrics)
-        
+
         # 30.0 is 3σ above optimal, should return low score
         # Gaussian at 3σ: exp(-0.5 * 9) ≈ 0.011
         assert score < 5.0
@@ -422,7 +423,7 @@ class TestGaussianScoring:
             }
         }
         score = analyzer.calculate_score(metrics)
-        
+
         # Should return neutral 50.0 for insufficient data
         assert score == 50.0
 
@@ -437,7 +438,7 @@ class TestGaussianScoring:
                 }
             }
             scores.append(analyzer.calculate_score(metrics))
-        
+
         # Scores should increase as we approach optimal (15.0)
         for i in range(len(scores) - 1):
             assert scores[i] < scores[i+1], f"Score should increase: {scores[i]} < {scores[i+1]}"
@@ -453,7 +454,7 @@ class TestGaussianScoring:
                 }
             }
             scores.append(analyzer.calculate_score(metrics))
-        
+
         # Scores should decrease as we move away from optimal (15.0)
         for i in range(len(scores) - 1):
             assert scores[i] > scores[i+1], f"Score should decrease: {scores[i]} > {scores[i+1]}"

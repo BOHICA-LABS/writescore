@@ -10,11 +10,13 @@ Tests ensure that adding config infrastructure doesn't break existing behavior:
 Created: Story 1.4.6 - Analysis Configuration Infrastructure
 """
 
-import pytest
 import time
 from pathlib import Path
-from writescore.core.analyzer import AIPatternAnalyzer
+
+import pytest
+
 from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
+from writescore.core.analyzer import AIPatternAnalyzer
 from writescore.core.dimension_registry import DimensionRegistry
 
 # Fixtures directory path (relative to this test file)
@@ -112,7 +114,7 @@ class TestBackwardCompatibility:
         # Assert <5% overhead
         overhead_pct = ((with_config - baseline) / baseline) * 100
 
-        print(f"\nPerformance Results:")
+        print("\nPerformance Results:")
         print(f"  Baseline (no config): {baseline:.2f}s")
         print(f"  With config=None: {with_config:.2f}s")
         print(f"  Overhead: {overhead_pct:.2f}%")

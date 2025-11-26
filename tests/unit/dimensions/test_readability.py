@@ -3,10 +3,12 @@ Tests for ReadabilityDimension - Flesch-Kincaid and readability metrics.
 Story 1.4.5 - New dimension split from StylometricDimension.
 """
 
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import Mock, patch
-from writescore.dimensions.readability import ReadabilityDimension
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.readability import ReadabilityDimension
 
 
 @pytest.fixture
@@ -430,7 +432,7 @@ class TestGaussianScoring:
             'flesch_kincaid_grade': 9.0  # Optimal target
         }
         score = dimension.calculate_score(metrics)
-        
+
         # Should be 100.0 (or very close)
         assert score >= 99.0
         assert score <= 100.0
@@ -439,7 +441,7 @@ class TestGaussianScoring:
         """Test scoring within 1σ of optimal returns high score."""
         # μ=9.0, σ=2.5, so 1σ range is [6.5, 11.5]
         # At μ±1σ, Gaussian function returns exp(-0.5) ≈ 0.606
-        
+
         metrics_low = {
             'available': True,
             'flesch_kincaid_grade': 6.5  # μ - 1σ
@@ -447,7 +449,7 @@ class TestGaussianScoring:
         score_low = dimension.calculate_score(metrics_low)
         assert score_low >= 55.0
         assert score_low <= 65.0
-        
+
         metrics_high = {
             'available': True,
             'flesch_kincaid_grade': 11.5  # μ + 1σ
@@ -463,7 +465,7 @@ class TestGaussianScoring:
             'flesch_kincaid_grade': 3.0  # Very simple (elementary school)
         }
         score = dimension.calculate_score(metrics)
-        
+
         # 3.0 is 2.4σ below optimal, should return low score
         assert score < 10.0
 
@@ -474,7 +476,7 @@ class TestGaussianScoring:
             'flesch_kincaid_grade': 18.0  # Very complex (graduate level)
         }
         score = dimension.calculate_score(metrics)
-        
+
         # 18.0 is 3.6σ above optimal, should return low score
         assert score < 5.0
 
@@ -484,7 +486,7 @@ class TestGaussianScoring:
             'available': False
         }
         score = dimension.calculate_score(metrics)
-        
+
         # Should return neutral 50.0
         assert score == 50.0
 
@@ -496,7 +498,7 @@ class TestGaussianScoring:
             'flesch_kincaid_grade': 12.0  # Academic writing
         }
         score = dimension.calculate_score(metrics)
-        
+
         # 12.0 is 1.2σ above optimal, should still score moderately
         # exp(-0.5 * (1.2)²) ≈ exp(-0.72) ≈ 0.487
         assert score >= 40.0
@@ -511,7 +513,7 @@ class TestGaussianScoring:
                 'flesch_kincaid_grade': grade
             }
             scores.append(dimension.calculate_score(metrics))
-        
+
         # Scores should increase as we approach optimal (9.0)
         for i in range(len(scores) - 1):
             assert scores[i] < scores[i+1], f"Score should increase: {scores[i]} < {scores[i+1]}"

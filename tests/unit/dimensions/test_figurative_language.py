@@ -12,10 +12,12 @@ Covers:
 - Performance benchmarks (AC: 5 - target < 15s for 10k words)
 """
 
-import pytest
 import time
-from writescore.dimensions.figurative_language import FigurativeLanguageDimension
+
+import pytest
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.figurative_language import FigurativeLanguageDimension
 
 
 @pytest.fixture
@@ -465,7 +467,7 @@ class TestTiers:
         assert 'poor' in tiers
 
         # Check ranges are valid
-        for tier_name, (min_score, max_score) in tiers.items():
+        for _tier_name, (min_score, max_score) in tiers.items():
             assert 0.0 <= min_score <= 100.0
             assert 0.0 <= max_score <= 100.0
             assert min_score < max_score
@@ -573,7 +575,7 @@ class TestPerformance:
         base_text = "The quick brown fox jumps over the lazy dog. " * 125  # ~1k words
 
         start_time = time.time()
-        result = dimension.analyze(base_text)
+        dimension.analyze(base_text)
         elapsed = time.time() - start_time
 
         # Should be faster for smaller text

@@ -4,31 +4,27 @@ Unit tests for recalibration workflow infrastructure.
 Tests Story 2.5 Task 5: Parameter recalibration workflow, change tracking, and reporting.
 """
 
-import pytest
-import tempfile
 import json
-import shutil
-from pathlib import Path
+import tempfile
 from datetime import datetime
-from unittest.mock import Mock, patch
+from pathlib import Path
+from unittest.mock import patch
 
-from writescore.core.recalibration import (
-    ParameterChange,
-    RecalibrationReport,
-    RecalibrationWorkflow
-)
+import pytest
+
+from writescore.core.dataset import DatasetLoader, Document, ValidationDataset
+from writescore.core.distribution_analyzer import DistributionAnalysis
 from writescore.core.parameter_derivation import (
     DimensionParameters,
     GaussianParameters,
-    MonotonicParameters,
+    ScoringMethod,
     ThresholdParameters,
-    ScoringMethod
 )
-from writescore.core.distribution_analyzer import (
-    DistributionAnalysis,
-    DimensionStatistics
+from writescore.core.recalibration import (
+    ParameterChange,
+    RecalibrationReport,
+    RecalibrationWorkflow,
 )
-from writescore.core.dataset import ValidationDataset, Document, DatasetLoader
 
 
 class TestParameterChange:
@@ -272,7 +268,7 @@ class TestRecalibrationReport:
 
             assert output_path.exists()
 
-            with open(output_path, 'r') as f:
+            with open(output_path) as f:
                 data = json.load(f)
 
             assert data['summary']['dataset_version'] == 'v1.0'
@@ -496,7 +492,7 @@ class TestRecalibrationWorkflow:
 
             assert output_path.exists()
 
-            with open(output_path, 'r') as f:
+            with open(output_path) as f:
                 data = json.load(f)
 
             assert 'parameters' in data
@@ -528,12 +524,12 @@ class TestRecalibrationWorkflow:
             assert len(backup_files) == 1
 
             # Check backup has old data
-            with open(backup_files[0], 'r') as f:
+            with open(backup_files[0]) as f:
                 backup_data = json.load(f)
             assert backup_data['old'] == 'data'
 
             # Check new file has new data
-            with open(output_path, 'r') as f:
+            with open(output_path) as f:
                 new_data = json.load(f)
             assert 'parameters' in new_data
             assert 'burstiness' in new_data['parameters']

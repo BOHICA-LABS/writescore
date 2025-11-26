@@ -3,8 +3,9 @@ Tests for SyntacticAnalyzer - syntactic complexity and structure patterns.
 """
 
 import pytest
-from writescore.dimensions.syntactic import SyntacticAnalyzer
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.syntactic import SyntacticAnalyzer
 
 # All dependencies are now required
 HAS_SPACY = True
@@ -218,12 +219,13 @@ class TestAnalyzeSyntacticIssuesDetailed:
     def test_syntactic_issues_html_comment_checker(self, analyzer):
         """Test HTML comment checking."""
         lines = [
-            "<!-- This comment has passive voice that was written -->",
-            "This sentence was written with passive voice."
+            "<!-- This is a comment -->",
+            "This sentence was written with passive voice.",
+            "<!-- Another comment -->"
         ]
 
-    def is_in_comment(line):
-        return line.strip().startswith('<!--')
+        def is_in_comment(line):
+            return line.strip().startswith('<!--')
 
         issues = analyzer._analyze_syntactic_issues_detailed(lines, is_in_comment)
 

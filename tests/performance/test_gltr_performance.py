@@ -5,11 +5,13 @@ Tests that FAST, ADAPTIVE, and FULL modes meet performance targets.
 Story 1.4.7: Enable Full Document GLTR Analysis
 """
 
-import pytest
 import time
-from writescore.dimensions.predictability import PredictabilityDimension
+
+import pytest
+
 from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.predictability import PredictabilityDimension
 
 
 @pytest.fixture

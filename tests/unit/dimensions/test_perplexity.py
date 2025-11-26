@@ -4,11 +4,12 @@ Tests for PerplexityDimension - true perplexity calculation (Story 2.4.0.7).
 Tests mathematical perplexity calculation using GPT-2 language model.
 """
 
-import pytest
 import time
-import torch
-from writescore.dimensions.perplexity import PerplexityDimension
+
+import pytest
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.perplexity import PerplexityDimension
 
 
 @pytest.fixture
@@ -578,7 +579,7 @@ class TestIntegration:
     def test_dimension_self_registers(self):
         """Test that dimension self-registers."""
         DimensionRegistry.clear()
-        dimension = PerplexityDimension()
+        PerplexityDimension()
 
         registered = DimensionRegistry.get("perplexity")
         assert registered is not None

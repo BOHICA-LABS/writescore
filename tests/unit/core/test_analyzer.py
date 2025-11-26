@@ -13,13 +13,14 @@ Tests cover:
 - Overall assessment
 """
 
-import pytest
-import tempfile
 from pathlib import Path
+
+import pytest
+
 from writescore.core.analyzer import AIPatternAnalyzer
 from writescore.core.results import AnalysisResults, DetailedAnalysis
-from writescore.scoring.dual_score import DualScore
 from writescore.history.tracker import ScoreHistory
+from writescore.scoring.dual_score import DualScore
 
 
 @pytest.fixture
@@ -496,7 +497,7 @@ class TestFlattenOptionalMetrics:
     def test_flatten_with_syntactic_metrics(self, analyzer, sample_markdown_file):
         """Test flattening when syntactic metrics are present - Line 390."""
         # Analyze file to get base results
-        results = analyzer.analyze_file(sample_markdown_file)
+        analyzer.analyze_file(sample_markdown_file)
 
         # Create syntactic results with data
         syntactic_results = {
@@ -646,7 +647,7 @@ class TestExceptionHandling:
 
         # Mock json.dump to raise an exception
         def mock_dump(*args, **kwargs):
-            raise IOError("Mock write error")
+            raise OSError("Mock write error")
 
         monkeypatch.setattr(json, 'dump', mock_dump)
 

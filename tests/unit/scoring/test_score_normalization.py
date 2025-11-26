@@ -2,13 +2,13 @@
 Tests for score_normalization module (Story 2.4.1, AC7).
 """
 
-import pytest
 import json
 import tempfile
 from pathlib import Path
-from writescore.scoring.score_normalization import (
-    ScoreNormalizer, get_normalizer, normalize_score
-)
+
+import pytest
+
+from writescore.scoring.score_normalization import ScoreNormalizer, get_normalizer, normalize_score
 
 
 @pytest.fixture
@@ -232,13 +232,13 @@ class TestComputeDimensionStatistics:
             temp_path = Path(f.name)
 
         try:
-            stats = normalizer.compute_dimension_statistics(scores, output_path=temp_path)
+            normalizer.compute_dimension_statistics(scores, output_path=temp_path)
 
             # Check file was created
             assert temp_path.exists()
 
             # Check file contents
-            with open(temp_path, 'r') as f:
+            with open(temp_path) as f:
                 data = json.load(f)
 
             assert 'dimensions' in data
