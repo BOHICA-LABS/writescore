@@ -10,25 +10,12 @@ These tests validate:
 - Performance benchmarks (recalibration time, memory usage)
 """
 
-import pytest
-import numpy as np
-import tempfile
-import json
 import time
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Any
 from dataclasses import dataclass
+from typing import Dict, List
 
-from writescore.core.parameters import (
-    PercentileParameters,
-    DimensionParameters,
-    GaussianParameters,
-    MonotonicParameters,
-    ParameterValue,
-    ScoringType,
-    PercentileSource
-)
+import numpy as np
+import pytest
 
 
 @dataclass
@@ -177,7 +164,7 @@ class TestAIModelShiftSimulation:
     def _derive_params_from_distributions(self, human: Dict, ai: Dict) -> Dict:
         """Helper to derive parameters from distribution data."""
         params = {}
-        for dim in human.keys():
+        for dim in human:
             human_vals = human[dim]["values"]
             ai_vals = ai[dim]["values"]
 
@@ -196,7 +183,7 @@ class TestAIModelShiftSimulation:
     def _combine_distributions(self, distributions: List[Dict]) -> Dict:
         """Combine multiple AI distributions (equal weight)."""
         combined = {}
-        for dim in distributions[0].keys():
+        for dim in distributions[0]:
             all_values = np.concatenate([d[dim]["values"] for d in distributions])
             combined[dim] = {
                 "values": all_values,
@@ -415,7 +402,7 @@ class TestPerformanceBenchmarks:
         ai_values = np.array([d["word_count"] for d in ai_docs])
 
         # Compute statistics
-        stats = {
+        {
             "human": {
                 "mean": np.mean(human_values),
                 "stdev": np.std(human_values),
@@ -483,7 +470,7 @@ class TestPerformanceBenchmarks:
         import sys
 
         # Get baseline memory
-        baseline_size = sys.getsizeof(large_dataset)
+        sys.getsizeof(large_dataset)
 
         # Simulate loading and processing
         human_docs = [d for d in large_dataset if d["label"] == "human"]
@@ -555,7 +542,7 @@ class TestAccuracyMaintenance:
         # False positives (AI classified as human)
         fp = np.sum(ai_predictions)
         # True negatives (AI correctly classified as AI)
-        tn = n_test - fp
+        n_test - fp
 
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0

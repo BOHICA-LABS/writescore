@@ -11,9 +11,10 @@ Run with: pytest tests/performance/test_story_2_6_validation.py -v
 """
 
 import json
-import time
 import statistics
+import time
 from pathlib import Path
+
 import pytest
 
 from writescore.dimensions.pragmatic_markers import PragmaticMarkersDimension
@@ -58,7 +59,7 @@ class TestStory26PerformanceValidation:
 
         # Run analysis and measure time
         start_time = time.perf_counter()
-        result = dimension.analyze(combined_text)
+        dimension.analyze(combined_text)
         end_time = time.perf_counter()
 
         elapsed_time = end_time - start_time
@@ -81,7 +82,7 @@ class TestStory26PerformanceValidation:
             word_counts.append(word_count)
 
             start_time = time.perf_counter()
-            result = dimension.analyze(text)
+            dimension.analyze(text)
             end_time = time.perf_counter()
 
             times.append(end_time - start_time)
@@ -130,7 +131,7 @@ class TestStory26PerformanceValidation:
         # With expanded lexicon, we expect better separation
         assert human_mean > ai_mean, f"Human mean ({human_mean:.1f}) should exceed AI mean ({ai_mean:.1f})"
 
-        print(f"\n✓ AI/Human Score Separation Analysis")
+        print("\n✓ AI/Human Score Separation Analysis")
         print(f"  AI samples (n={len(ai_scores)}): mean={ai_mean:.1f}, std={statistics.stdev(ai_scores):.1f}")
         print(f"  Human samples (n={len(human_scores)}): mean={human_mean:.1f}, std={statistics.stdev(human_scores):.1f}")
         print(f"  Separation: {separation:.1f} points")
@@ -146,7 +147,7 @@ class TestStory26PerformanceValidation:
         # Human document should score higher (more human-like)
         assert human_score > ai_score, f"Human ({human_score:.1f}) should exceed AI ({ai_score:.1f})"
 
-        print(f"\n✓ Full Document Score Comparison")
+        print("\n✓ Full Document Score Comparison")
         print(f"  Human document: {human_score:.1f}")
         print(f"  AI document: {ai_score:.1f}")
         print(f"  Separation: {human_score - ai_score:.1f} points")
@@ -171,7 +172,7 @@ class TestStory26PerformanceValidation:
 
         assert total_patterns == 126, f"Expected 126 patterns, found {total_patterns}"
 
-        print(f"\n✓ Pattern Count Validation")
+        print("\n✓ Pattern Count Validation")
         print(f"  EPISTEMIC_HEDGES: {len(dimension.EPISTEMIC_HEDGES)}")
         print(f"  FREQUENCY_HEDGES: {len(dimension.FREQUENCY_HEDGES)}")
         print(f"  EPISTEMIC_VERBS: {len(dimension.EPISTEMIC_VERBS)}")
@@ -206,7 +207,7 @@ class TestStory26PerformanceValidation:
         assert attitude['total_count'] >= 3, f"Expected 3+ attitude markers, found {attitude['total_count']}"
         assert likelihood['total_count'] >= 4, f"Expected 4+ likelihood adverbials, found {likelihood['total_count']}"
 
-        print(f"\n✓ New Category Detection")
+        print("\n✓ New Category Detection")
         print(f"  Attitude markers: {attitude['total_count']} detected")
         print(f"  Likelihood adverbials: {likelihood['total_count']} detected")
 
@@ -240,7 +241,7 @@ class TestStory26PerformanceValidation:
         assert counts.get('typically', 0) >= 1, "Approximator 'typically' not detected"
         assert counts.get('usually', 0) >= 1, "Approximator 'usually' not detected"
 
-        print(f"\n✓ Expanded Hedging Pattern Detection")
+        print("\n✓ Expanded Hedging Pattern Detection")
         print(f"  Total hedge count: {hedging['total_count']}")
         print(f"  Per 1k words: {hedging['per_1k']:.2f}")
         print(f"  Variety score: {hedging['variety_score']:.3f}")

@@ -6,12 +6,13 @@ and comprehensive validation reporting.
 """
 
 import pytest
+
+from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.weight_mediator import (
+    ValidationErrorDetail,
     WeightMediator,
     WeightValidationError,
-    ValidationErrorDetail
 )
-from writescore.core.dimension_registry import DimensionRegistry
 from writescore.dimensions.base_strategy import DimensionStrategy
 
 
@@ -94,9 +95,9 @@ class TestWeightMediator:
         MockDimension(name='dim2', weight=50.0)
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == True
+        assert mediator.validate_weights()
         assert len(mediator.validation_errors) == 0
-        assert mediator.is_valid == True
+        assert mediator.is_valid
 
     def test_valid_weights_within_tolerance_high(self):
         """Test valid weights at upper tolerance boundary (100.1)."""
@@ -105,7 +106,7 @@ class TestWeightMediator:
         # Total: 100.1 (within default tolerance 0.1)
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == True
+        assert mediator.validate_weights()
 
     def test_valid_weights_within_tolerance_low(self):
         """Test valid weights at lower tolerance boundary (99.9)."""
@@ -114,7 +115,7 @@ class TestWeightMediator:
         # Total: 99.9 (within default tolerance 0.1)
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == True
+        assert mediator.validate_weights()
 
     def test_tolerance_boundary_invalid_low(self):
         """Test invalid weights below tolerance (99.89)."""
@@ -123,7 +124,7 @@ class TestWeightMediator:
         # Total: 99.89 (outside tolerance)
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
         assert any(e.error_type == 'invalid_total' for e in mediator.validation_errors)
 
     def test_tolerance_boundary_invalid_high(self):
@@ -133,7 +134,7 @@ class TestWeightMediator:
         # Total: 100.11 (outside tolerance)
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
         assert any(e.error_type == 'invalid_total' for e in mediator.validation_errors)
 
     # ===== Custom Tolerance Tests =====
@@ -146,11 +147,11 @@ class TestWeightMediator:
 
         # Should fail with default tolerance
         mediator_default = WeightMediator(tolerance=0.1)
-        assert mediator_default.validate_weights() == False
+        assert not mediator_default.validate_weights()
 
         # Should pass with custom tolerance
         mediator_custom = WeightMediator(tolerance=1.0)
-        assert mediator_custom.validate_weights() == True
+        assert mediator_custom.validate_weights()
 
     def test_tolerance_validation(self):
         """Test tolerance parameter validation."""
@@ -174,7 +175,7 @@ class TestWeightMediator:
         # Total: 110.0
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
 
         # Check structured error
         errors = [e for e in mediator.validation_errors if e.error_type == 'invalid_total']
@@ -190,7 +191,7 @@ class TestWeightMediator:
         # Total: 80.0
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
 
         errors = [e for e in mediator.validation_errors if e.error_type == 'invalid_total']
         assert len(errors) == 1
@@ -202,7 +203,7 @@ class TestWeightMediator:
         MockDimension(name='dim2', weight=105.0, skip_validation=True)
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
 
         # Check structured error
         errors = [e for e in mediator.validation_errors if e.error_type == 'negative_weight']
@@ -216,7 +217,7 @@ class TestWeightMediator:
         MockDimension(name='dim1', weight=150.0, skip_validation=True)
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
 
         errors = [e for e in mediator.validation_errors if e.error_type == 'excessive_weight']
         assert len(errors) == 1
@@ -231,7 +232,7 @@ class TestWeightMediator:
 
         mediator = WeightMediator()
         # Should fail due to zero weight error
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
 
         # Check error
         errors = [e for e in mediator.validation_errors if e.error_type == 'zero_weight']
@@ -246,7 +247,7 @@ class TestWeightMediator:
         """Test error when no dimensions registered."""
         # Registry is empty
         mediator = WeightMediator()
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
 
         errors = [e for e in mediator.validation_errors if e.error_type == 'no_dimensions']
         assert len(errors) == 1
@@ -348,7 +349,7 @@ class TestWeightMediator:
         assert 'warnings' in report
 
         # Check values
-        assert report['is_valid'] == True
+        assert report['is_valid']
         assert report['total_weight'] == 100.0
         assert report['dimension_count'] == 2
         assert len(report['dimension_weights']) == 2
@@ -361,7 +362,7 @@ class TestWeightMediator:
         mediator = WeightMediator()
         report = mediator.get_validation_report()
 
-        assert report['is_valid'] == False
+        assert not report['is_valid']
         assert 'suggested_rebalancing' in report
         assert report['suggested_rebalancing']['dim1'] == 50.0
         assert report['suggested_rebalancing']['dim2'] == 50.0
@@ -570,7 +571,7 @@ class TestWeightMediator:
         MockDimension(name='zero', weight=0.0)
 
         mediator = WeightMediator()
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
 
         # Should have at least 4 errors: negative, excessive, zero, invalid_total
         assert len(mediator.validation_errors) >= 4
@@ -608,7 +609,7 @@ class TestWeightMediator:
         mediator = WeightMediator()
 
         # Should be valid
-        assert mediator.is_valid == True
+        assert mediator.is_valid
 
         # Clear registry and add invalid weights
         DimensionRegistry.clear()
@@ -616,4 +617,4 @@ class TestWeightMediator:
         MockDimension(name='dim2', weight=60.0)
 
         mediator2 = WeightMediator()
-        assert mediator2.is_valid == False
+        assert not mediator2.is_valid

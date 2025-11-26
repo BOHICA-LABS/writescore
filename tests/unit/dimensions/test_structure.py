@@ -12,12 +12,11 @@ StructureAnalyzer is the most complex analyzer with 1210 lines and 18+ methods,
 including 9 Phase 3 AST-based methods for advanced structural analysis.
 """
 
-import pytest
-from unittest.mock import Mock, MagicMock, patch
-from writescore.dimensions.structure import StructureAnalyzer
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.results import HeadingIssue
 
+import pytest
+
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.structure import StructureAnalyzer
 
 # ============================================================================
 # Fixtures

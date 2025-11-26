@@ -4,15 +4,10 @@ Unit tests for normality module.
 Tests Shapiro-Wilk normality testing and scoring method auto-selection.
 """
 
-import pytest
 import numpy as np
 from scipy import stats
 
-from writescore.core.normality import (
-    NormalityResult,
-    NormalityTester,
-    format_normality_report
-)
+from writescore.core.normality import NormalityResult, NormalityTester, format_normality_report
 
 
 class TestNormalityResult:
@@ -344,8 +339,8 @@ class TestParameterDeriverAutoSelect:
 
     def test_deriver_stores_normality_results(self):
         """Test that deriver stores normality results when auto_select enabled."""
-        from writescore.core.parameter_derivation import ParameterDeriver
         from writescore.core.distribution_analyzer import DimensionStatistics, DistributionAnalysis
+        from writescore.core.parameter_derivation import ParameterDeriver
 
         np.random.seed(42)
 

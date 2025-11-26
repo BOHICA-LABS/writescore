@@ -12,8 +12,9 @@ These tests target the advanced AST-based methods added in Phase 3:
 """
 
 import pytest
-from writescore.dimensions.structure import StructureAnalyzer
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.structure import StructureAnalyzer
 
 
 @pytest.fixture

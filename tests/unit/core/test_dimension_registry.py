@@ -12,21 +12,23 @@ Tests cover:
 - Performance with 100+ dimensions
 """
 
-import pytest
 import threading
 import time
+
+import pytest
+
 from writescore.core.dimension_registry import (
     DimensionRegistry,
-    register_dimension,
     get_dimension,
-    list_dimensions
+    list_dimensions,
+    register_dimension,
 )
 from writescore.core.exceptions import (
     AIPatternAnalyzerError,
     DimensionNotFoundError,
     DuplicateDimensionError,
     InvalidTierError,
-    InvalidWeightError
+    InvalidWeightError,
 )
 
 

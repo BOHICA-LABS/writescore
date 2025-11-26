@@ -4,23 +4,24 @@ Unit tests for percentile-anchored parameter infrastructure.
 Tests Story 2.5 Task 1: PercentileParameters class and ParameterLoader.
 """
 
-import pytest
 import tempfile
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
+import pytest
+
+from writescore.core.exceptions import ParameterLoadError
+from writescore.core.parameter_loader import ParameterLoader
 from writescore.core.parameters import (
-    PercentileParameters,
     DimensionParameters,
     GaussianParameters,
     MonotonicParameters,
-    ThresholdParameters,
     ParameterValue,
+    PercentileParameters,
+    PercentileSource,
     ScoringType,
-    PercentileSource
+    ThresholdParameters,
 )
-from writescore.core.parameter_loader import ParameterLoader
-from writescore.core.exceptions import ParameterLoadError
 
 
 class TestParameterValue:

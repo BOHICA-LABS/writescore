@@ -4,30 +4,27 @@ Unit tests for parameter validation and score shift analysis.
 Tests Story 2.5 Task 6: Validation and Backward Compatibility.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
-from datetime import datetime
 
-from writescore.core.validation import (
-    DocumentScoreShift,
-    ScoreShiftReport,
-    ParameterValidator,
-    ScoreShiftAnalyzer,
-    validate_parameter_update,
-    SHIFT_WARNING_THRESHOLD,
-    SHIFT_ERROR_THRESHOLD,
-    MAX_ACCEPTABLE_MEAN_SHIFT
-)
 from writescore.core.parameters import (
-    PercentileParameters,
     DimensionParameters,
     GaussianParameters,
     MonotonicParameters,
-    ThresholdParameters,
     ParameterValue,
+    PercentileParameters,
+    PercentileSource,
     ScoringType,
-    PercentileSource
+)
+from writescore.core.validation import (
+    MAX_ACCEPTABLE_MEAN_SHIFT,
+    SHIFT_ERROR_THRESHOLD,
+    SHIFT_WARNING_THRESHOLD,
+    DocumentScoreShift,
+    ParameterValidator,
+    ScoreShiftAnalyzer,
+    ScoreShiftReport,
+    validate_parameter_update,
 )
 
 

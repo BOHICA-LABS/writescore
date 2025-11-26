@@ -9,15 +9,16 @@ This test suite validates:
 - Performance characteristics
 """
 
-import pytest
-import time
 import tempfile
+import time
 from pathlib import Path
 
-from writescore.core.dimension_registry import DimensionRegistry
-from writescore.core.dimension_loader import DimensionLoader, BUILTIN_DIMENSION_PROFILES
+import pytest
+
 from writescore.core.analysis_config import AnalysisConfig
 from writescore.core.analyzer import AIPatternAnalyzer
+from writescore.core.dimension_loader import BUILTIN_DIMENSION_PROFILES, DimensionLoader
+from writescore.core.dimension_registry import DimensionRegistry
 
 
 class TestDimensionLoaderBasics:
@@ -141,10 +142,9 @@ metrics for vocabulary richness assessment.
 """ * 2
 
         # Create temp file
-        self.temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False)
-        self.temp_file.write(self.test_content)
-        self.temp_file.flush()
-        self.temp_file_path = self.temp_file.name
+        self.temp_file_path = tempfile.mktemp(suffix='.md')
+        with open(self.temp_file_path, 'w') as f:
+            f.write(self.test_content)
 
     def teardown_method(self):
         """Clean up test file."""
@@ -235,10 +235,9 @@ However, we need to ensure that fast mode completes quickly while full mode
 provides comprehensive analysis.
 """ * 5
 
-        self.temp_file = tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False)
-        self.temp_file.write(self.test_content)
-        self.temp_file.flush()
-        self.temp_file_path = self.temp_file.name
+        self.temp_file_path = tempfile.mktemp(suffix='.md')
+        with open(self.temp_file_path, 'w') as f:
+            f.write(self.test_content)
 
     def teardown_method(self):
         """Clean up test file."""
@@ -250,7 +249,7 @@ provides comprehensive analysis.
 
         start = time.time()
         analyzer = AIPatternAnalyzer(config=config)
-        results = analyzer.analyze_file(self.temp_file_path)
+        analyzer.analyze_file(self.temp_file_path)
         elapsed = time.time() - start
 
         # Fast profile should complete in < 1 second
@@ -266,13 +265,13 @@ provides comprehensive analysis.
         # Test balanced
         start_bal = time.time()
         analyzer_bal = AIPatternAnalyzer(config=config_balanced)
-        results_bal = analyzer_bal.analyze_file(self.temp_file_path)
+        analyzer_bal.analyze_file(self.temp_file_path)
         time_bal = time.time() - start_bal
 
         # Test full
         start_full = time.time()
         analyzer_full = AIPatternAnalyzer(config=config_full)
-        results_full = analyzer_full.analyze_file(self.temp_file_path)
+        analyzer_full.analyze_file(self.temp_file_path)
         time_full = time.time() - start_full
 
         # Balanced should be faster (or at least not significantly slower)

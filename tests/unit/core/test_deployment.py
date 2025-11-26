@@ -4,31 +4,30 @@ Unit tests for parameter deployment, versioning, and rollback tools.
 Tests Story 2.5 Task 8: Configuration and Deployment Tools.
 """
 
-import pytest
 import tempfile
-import yaml
-import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 from writescore.core.deployment import (
     ParameterChange,
+    ParameterComparator,
     ParameterDiff,
     ParameterVersionManager,
-    ParameterComparator,
+    format_version_list,
     generate_deployment_checklist,
-    format_version_list
 )
+from writescore.core.parameter_loader import ParameterLoader
 from writescore.core.parameters import (
-    PercentileParameters,
     DimensionParameters,
     GaussianParameters,
     MonotonicParameters,
     ParameterValue,
+    PercentileParameters,
+    PercentileSource,
     ScoringType,
-    PercentileSource
 )
-from writescore.core.parameter_loader import ParameterLoader
 
 
 class TestParameterChange:
@@ -392,7 +391,7 @@ class TestParameterComparator:
             validation_dataset_version="test_v2"
         )
         # Copy existing dimensions
-        for name, dim in base_params.dimensions.items():
+        for _name, dim in base_params.dimensions.items():
             new_params.add_dimension(dim)
 
         # Add new dimension
@@ -577,7 +576,7 @@ class TestEdgeCases:
             assert not archive_dir.exists()
 
             # Creating manager should create them
-            manager = ParameterVersionManager(params_dir, archive_dir)
+            ParameterVersionManager(params_dir, archive_dir)
 
             assert params_dir.exists()
             assert archive_dir.exists()

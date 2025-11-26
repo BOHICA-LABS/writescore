@@ -3,11 +3,12 @@ Tests for SentimentDimension - Sentiment variance analysis.
 Story 1.4.6 - Adding missing test file for sentiment dimension.
 """
 
+
 import pytest
-from unittest.mock import Mock, patch
-from writescore.dimensions.sentiment import SentimentDimension
-from writescore.core.dimension_registry import DimensionRegistry
+
 from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
+from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.sentiment import SentimentDimension
 
 
 @pytest.fixture
@@ -285,7 +286,7 @@ class TestGetTiersMethod:
         """Test tier ranges don't overlap and cover 0-100."""
         tiers = dimension.get_tiers()
 
-        for tier_name, (min_score, max_score) in tiers.items():
+        for _tier_name, (min_score, max_score) in tiers.items():
             assert 0.0 <= min_score <= 100.0
             assert 0.0 <= max_score <= 100.0
             assert min_score <= max_score
@@ -325,7 +326,7 @@ class TestGaussianScoring:
             }
         }
         score = dimension.calculate_score(metrics)
-        
+
         # Should be 100.0 (or very close)
         assert score >= 99.0
         assert score <= 100.0
@@ -334,7 +335,7 @@ class TestGaussianScoring:
         """Test scoring within 1σ of optimal returns high score."""
         # μ=0.0, σ=0.3, so 1σ range is [-0.3, +0.3]
         # At μ±1σ, Gaussian function returns exp(-0.5) ≈ 0.606
-        
+
         metrics_negative = {
             'sentiment': {
                 'mean': -0.3,  # μ - 1σ
@@ -344,7 +345,7 @@ class TestGaussianScoring:
         score_negative = dimension.calculate_score(metrics_negative)
         assert score_negative >= 55.0
         assert score_negative <= 65.0
-        
+
         metrics_positive = {
             'sentiment': {
                 'mean': 0.3,  # μ + 1σ
@@ -365,7 +366,7 @@ class TestGaussianScoring:
             }
         }
         score = dimension.calculate_score(metrics)
-        
+
         # 0.15 is 0.5σ from optimal, should return moderate-high score
         # exp(-0.5 * (0.5)²) ≈ exp(-0.125) ≈ 0.882
         assert score >= 80.0
@@ -380,7 +381,7 @@ class TestGaussianScoring:
             }
         }
         score = dimension.calculate_score(metrics)
-        
+
         # 0.6 is 2σ from optimal, should return low score
         # exp(-0.5 * 4) ≈ 0.135
         assert score < 20.0
@@ -394,7 +395,7 @@ class TestGaussianScoring:
             }
         }
         score = dimension.calculate_score(metrics)
-        
+
         # -0.6 is 2σ from optimal, should return low score
         assert score < 20.0
 
@@ -407,7 +408,7 @@ class TestGaussianScoring:
             }
         }
         score_pos = dimension.calculate_score(metrics_pos)
-        
+
         metrics_neg = {
             'sentiment': {
                 'mean': -0.2,
@@ -415,7 +416,7 @@ class TestGaussianScoring:
             }
         }
         score_neg = dimension.calculate_score(metrics_neg)
-        
+
         # Gaussian is symmetric, so both should score identically
         assert abs(score_pos - score_neg) < 1.0
 
@@ -430,7 +431,7 @@ class TestGaussianScoring:
                 }
             }
             scores.append(dimension.calculate_score(metrics))
-        
+
         # Scores should decrease as we move away from neutral (0.0)
         for i in range(len(scores) - 1):
             assert scores[i] > scores[i+1], f"Score should decrease: {scores[i]} > {scores[i+1]}"

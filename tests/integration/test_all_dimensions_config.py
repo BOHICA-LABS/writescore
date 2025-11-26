@@ -6,22 +6,23 @@ Story 1.4.8: Optimize Heavy Dimensions for Full Documents
 """
 
 import pytest
+
 from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
+from writescore.dimensions.burstiness import BurstinessDimension
+from writescore.dimensions.formatting import FormattingDimension
+from writescore.dimensions.lexical import LexicalDimension
+from writescore.dimensions.perplexity import PerplexityDimension
 
 # Import all dimensions
 from writescore.dimensions.predictability import PredictabilityDimension
-from writescore.dimensions.syntactic import SyntacticDimension
-from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
 from writescore.dimensions.readability import ReadabilityDimension
-from writescore.dimensions.burstiness import BurstinessDimension
-from writescore.dimensions.perplexity import PerplexityDimension
-from writescore.dimensions.voice import VoiceDimension
-from writescore.dimensions.lexical import LexicalDimension
-from writescore.dimensions.formatting import FormattingDimension
-from writescore.dimensions.structure import StructureDimension
 from writescore.dimensions.sentiment import SentimentDimension
+from writescore.dimensions.structure import StructureDimension
+from writescore.dimensions.syntactic import SyntacticDimension
 from writescore.dimensions.transition_marker import TransitionMarkerDimension
+from writescore.dimensions.voice import VoiceDimension
 
 
 @pytest.fixture

@@ -4,21 +4,17 @@ Unit tests for parameter derivation infrastructure.
 Tests Story 2.5 Task 4: Parameter derivation from distribution analysis.
 """
 
-import pytest
 import tempfile
 from pathlib import Path
 
+from writescore.core.distribution_analyzer import DimensionStatistics, DistributionAnalysis
 from writescore.core.parameter_derivation import (
-    ScoringMethod,
+    DimensionParameters,
     GaussianParameters,
     MonotonicParameters,
+    ParameterDeriver,
+    ScoringMethod,
     ThresholdParameters,
-    DimensionParameters,
-    ParameterDeriver
-)
-from writescore.core.distribution_analyzer import (
-    DimensionStatistics,
-    DistributionAnalysis
 )
 
 

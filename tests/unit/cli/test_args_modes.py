@@ -5,10 +5,12 @@ Tests all mode argument parsing, validation logic, and configuration creation.
 Minimum 25 tests as per AC-21.
 """
 
-import pytest
 import sys
-from unittest.mock import patch, MagicMock
-from writescore.cli.args import parse_arguments, validate_mode_arguments, show_mode_help
+from unittest.mock import MagicMock, patch
+
+import pytest
+
+from writescore.cli.args import parse_arguments, validate_mode_arguments
 
 
 class TestModeArgumentParsing:
@@ -52,9 +54,8 @@ class TestModeArgumentParsing:
 
     def test_invalid_mode_raises_error(self):
         """Test that invalid mode raises error."""
-        with patch.object(sys, 'argv', ['prog', 'test.md', '--mode', 'invalid']):
-            with pytest.raises(SystemExit):
-                parse_arguments()
+        with patch.object(sys, 'argv', ['prog', 'test.md', '--mode', 'invalid']), pytest.raises(SystemExit):
+            parse_arguments()
 
 
 class TestSamplingArguments:
@@ -104,9 +105,8 @@ class TestSamplingArguments:
 
     def test_invalid_sample_strategy_raises_error(self):
         """Test that invalid sample-strategy raises error."""
-        with patch.object(sys, 'argv', ['prog', 'test.md', '--sample-strategy', 'invalid']):
-            with pytest.raises(SystemExit):
-                parse_arguments()
+        with patch.object(sys, 'argv', ['prog', 'test.md', '--sample-strategy', 'invalid']), pytest.raises(SystemExit):
+            parse_arguments()
 
 
 class TestUtilityFlags:
@@ -126,12 +126,13 @@ class TestUtilityFlags:
 
     def test_help_modes_exits(self):
         """Test that --help-modes exits with code 0."""
-        with patch.object(sys, 'argv', ['prog', '--help-modes']):
+        # Nested with required for Python 3.8 compatibility (no parenthesized context managers)
+        with patch.object(sys, 'argv', ['prog', '--help-modes']):  # noqa: SIM117
             with patch('writescore.cli.args.show_mode_help') as mock_help:
                 with pytest.raises(SystemExit) as exc:
                     parse_arguments()
-                assert exc.value.code == 0
-                mock_help.assert_called_once()
+        assert exc.value.code == 0
+        mock_help.assert_called_once()
 
 
 class TestValidationLogic:

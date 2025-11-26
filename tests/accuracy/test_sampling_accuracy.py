@@ -6,9 +6,10 @@ Story 1.4.7: Enable Full Document GLTR Analysis
 """
 
 import pytest
-from writescore.dimensions.predictability import PredictabilityDimension
+
 from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.predictability import PredictabilityDimension
 
 
 @pytest.fixture

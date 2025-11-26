@@ -15,14 +15,12 @@ Covers:
 - _map_score_to_tier() with various scores
 """
 
-import pytest
-from typing import Dict, List, Tuple, Any
-from writescore.dimensions.base_strategy import (
-    DimensionStrategy,
-    DimensionTier
-)
-from marko.block import Quote, Heading, FencedCode
+from typing import Any, Dict, List, Tuple
 
+import pytest
+from marko.block import FencedCode, Heading, Quote
+
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 # ============================================================================
 # Test Fixtures - Concrete Implementations
@@ -251,12 +249,15 @@ def test_tier_validation_with_valid_values(dimension):
 
 def test_tier_validation_with_all_valid_tier_types():
     """Test all DimensionTier enum values are valid."""
-    for tier_value in DimensionTier:
+    def make_dim_class(tier_val):
         class TestDim(CompleteDimension):
             @property
             def tier(self):
-                return tier_value
+                return tier_val
+        return TestDim
 
+    for tier_value in DimensionTier:
+        TestDim = make_dim_class(tier_value)
         dim = TestDim()
         dim._validate_tier()  # Should not raise
 

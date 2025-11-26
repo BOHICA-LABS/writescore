@@ -3,8 +3,9 @@ Tests for DimensionAnalyzer base class.
 """
 
 import pytest
+from marko.block import FencedCode, Heading, Quote
+
 from writescore.dimensions.base import DimensionAnalyzer
-from marko.block import Quote, Heading, FencedCode
 
 # All dependencies are now required
 HAS_MARKO = True

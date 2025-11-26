@@ -6,16 +6,16 @@ improvement action generation, and edge cases.
 """
 
 import pytest
+
+from writescore.core.dimension_loader import DimensionLoader
+from writescore.core.results import AnalysisResults
 from writescore.scoring.dual_score_calculator import (
-    calculate_dual_score,
     _calculate_impact,
     _estimate_effort,
+    _interpret_detection,
     _interpret_quality,
-    _interpret_detection
+    calculate_dual_score,
 )
-from writescore.core.results import AnalysisResults
-from writescore.core.dimension_loader import DimensionLoader
-
 
 # ============================================================================
 # Fixtures and Helper Functions

@@ -5,8 +5,9 @@ Tests validation and reporting with multi-tier dimension configurations.
 """
 
 import pytest
-from writescore.core.weight_mediator import WeightMediator, WeightValidationError
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.weight_mediator import WeightMediator, WeightValidationError
 from writescore.dimensions.base_strategy import DimensionStrategy
 
 
@@ -78,8 +79,8 @@ class TestWeightValidationIntegration:
         mediator = WeightMediator()
 
         # Should be valid (total = 100.0)
-        assert mediator.validate_weights() == True
-        assert mediator.is_valid == True
+        assert mediator.validate_weights()
+        assert mediator.is_valid
         assert len(mediator.validation_errors) == 0
 
         # Verify total weight
@@ -128,7 +129,7 @@ class TestWeightValidationIntegration:
         report = mediator.get_validation_report()
 
         # Verify report structure
-        assert report['is_valid'] == True
+        assert report['is_valid']
         assert report['dimension_count'] == 5
         assert report['total_weight'] == 100.0
         assert report['tolerance'] == 0.1
@@ -208,7 +209,7 @@ class TestWeightValidationIntegration:
         report = mediator.get_validation_report()
 
         # Should be invalid
-        assert report['is_valid'] == False
+        assert not report['is_valid']
         assert report['total_weight'] == 140.0
 
         # Should include rebalancing suggestions
@@ -225,11 +226,11 @@ class TestWeightValidationIntegration:
 
         # Should fail with default tolerance (0.1%)
         mediator_default = WeightMediator(tolerance=0.1)
-        assert mediator_default.validate_weights() == False
+        assert not mediator_default.validate_weights()
 
         # Should pass with custom tolerance (1.0%)
         mediator_custom = WeightMediator(tolerance=1.0)
-        assert mediator_custom.validate_weights() == True
+        assert mediator_custom.validate_weights()
 
     def test_empty_registry_validation(self):
         """Test validation behavior with empty registry."""
@@ -237,7 +238,7 @@ class TestWeightValidationIntegration:
         mediator = WeightMediator()
 
         # Should be invalid
-        assert mediator.validate_weights() == False
+        assert not mediator.validate_weights()
 
         # Should have no_dimensions error
         errors = [e for e in mediator.validation_errors if e.error_type == 'no_dimensions']
@@ -252,7 +253,7 @@ class TestWeightValidationIntegration:
 
         # Test with default (None) registry
         mediator = WeightMediator(registry=None)
-        assert mediator.validate_weights() == True
+        assert mediator.validate_weights()
 
     def test_validation_with_ten_dimensions(self):
         """Test validation with 10 dimensions (simulating full analyzer)."""
@@ -266,7 +267,7 @@ class TestWeightValidationIntegration:
         mediator = WeightMediator()
 
         # Should be valid
-        assert mediator.validate_weights() == True
+        assert mediator.validate_weights()
         assert mediator.get_total_weight() == 100.0
 
         # Verify tier distribution

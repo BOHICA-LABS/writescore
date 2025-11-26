@@ -10,12 +10,8 @@ Tests cover:
 """
 
 import pytest
-from writescore.core.analysis_config import (
-    AnalysisMode,
-    AnalysisConfig,
-    DEFAULT_CONFIG
-)
 
+from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig, AnalysisMode
 
 # ============================================================================
 # Fixtures

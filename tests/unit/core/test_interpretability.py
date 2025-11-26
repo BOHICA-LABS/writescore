@@ -5,13 +5,14 @@ Tests Story 2.5 Task 7: Interpretability Features.
 """
 
 import pytest
+
 from writescore.core.interpretability import (
+    DistributionVisualizer,
+    PercentileCalculator,
     PercentileContext,
     ScoreInterpretation,
-    PercentileCalculator,
     ScoreInterpreter,
-    DistributionVisualizer,
-    format_percentile_report
+    format_percentile_report,
 )
 
 

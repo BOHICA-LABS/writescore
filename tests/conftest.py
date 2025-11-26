@@ -7,11 +7,8 @@ This module provides:
 - Utility fixtures for testing
 """
 
-import pytest
-import sys
-from pathlib import Path
-from unittest.mock import Mock, MagicMock
 
+import pytest
 
 # ============================================================================
 # Sample Document Fixtures
@@ -311,11 +308,11 @@ def sample_analysis_result():
     """
     from writescore.core.results import (
         AnalysisResult,
-        PerplexityResult,
         BurstinessResult,
         FormattingResult,
+        PerplexityResult,
         StructureResult,
-        VoiceResult
+        VoiceResult,
     )
 
     return AnalysisResult(

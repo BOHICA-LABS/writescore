@@ -8,15 +8,13 @@ Tests that both base classes can coexist during the transition period:
 - No namespace conflicts between the two base classes
 """
 
-import pytest
 from abc import ABC
-from typing import Dict, List, Tuple, Any
-from writescore.dimensions.base import DimensionAnalyzer
-from writescore.dimensions.base_strategy import (
-    DimensionStrategy,
-    DimensionTier
-)
+from typing import Any, Dict, List, Tuple
 
+import pytest
+
+from writescore.dimensions.base import DimensionAnalyzer
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 # ============================================================================
 # Legacy Dimension (DimensionAnalyzer)
@@ -167,11 +165,7 @@ def test_both_bases_cannot_be_instantiated():
 def test_no_namespace_conflicts():
     """Verify no namespace conflicts between the two base classes."""
     # Import both from dimensions module
-    from writescore.dimensions import (
-        DimensionAnalyzer,
-        DimensionStrategy,
-        DimensionTier
-    )
+    from writescore.dimensions import DimensionAnalyzer, DimensionStrategy, DimensionTier
 
     assert DimensionAnalyzer is not None
     assert DimensionStrategy is not None
@@ -370,15 +364,15 @@ def test_multiple_legacy_and_new_dimensions_coexist():
 
 def test_dimension_instances_do_not_share_state(sample_text):
     """Verify dimension instances maintain independent state."""
-    lines = sample_text.split('\n')
+    sample_text.split('\n')
 
     # Create two new dimensions
     dim1 = NewDimension()
     dim2 = NewDimension()
 
     # Parse AST with different cache keys
-    ast1 = dim1._parse_to_ast(sample_text, cache_key='dim1')
-    ast2 = dim2._parse_to_ast(sample_text, cache_key='dim2')
+    dim1._parse_to_ast(sample_text, cache_key='dim1')
+    dim2._parse_to_ast(sample_text, cache_key='dim2')
 
     # Each should have its own cache
     assert 'dim1' in dim1._ast_cache

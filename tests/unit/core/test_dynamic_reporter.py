@@ -15,10 +15,10 @@ Tests cover:
 - Selective loading scenarios (AC8, AC9, AC10)
 """
 
-import pytest
 import json
-from writescore.core.dynamic_reporter import DynamicReporter
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.core.dynamic_reporter import DynamicReporter
 from writescore.core.results import AnalysisResults
 
 

@@ -8,13 +8,9 @@ Tests cover:
 """
 
 import pytest
-from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
-from writescore.core.analysis_config import (
-    AnalysisMode,
-    AnalysisConfig,
-    DEFAULT_CONFIG
-)
 
+from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 # ============================================================================
 # Test Dimension Implementation
@@ -179,7 +175,7 @@ def test_prepare_text_sampling_mode_custom_sections(test_dimension, long_text):
     assert isinstance(result, list)
     assert len(result) == 7
     # Check sample sizes
-    for pos, text in result:
+    for _pos, text in result:
         assert len(text) <= 1500
 
 

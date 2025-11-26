@@ -3,8 +3,9 @@ Tests for LexicalAnalyzer - vocabulary diversity and richness detection.
 """
 
 import pytest
-from writescore.dimensions.lexical import LexicalAnalyzer
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.lexical import LexicalAnalyzer
 
 
 @pytest.fixture

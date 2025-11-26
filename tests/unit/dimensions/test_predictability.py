@@ -3,10 +3,12 @@ Tests for PredictabilityDimension - GLTR token predictability analysis.
 Story 1.4.5 - New dimension split from AdvancedDimension.
 """
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-from writescore.dimensions.predictability import PredictabilityDimension
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.predictability import PredictabilityDimension
 
 
 @pytest.fixture
@@ -456,8 +458,9 @@ class TestModelCaching:
 
     def test_model_loading_is_thread_safe(self, dimension):
         """Test model loading uses lock for thread safety."""
-        import writescore.dimensions.predictability as pred_module
         import threading
+
+        import writescore.dimensions.predictability as pred_module
 
         # Verify lock exists
         assert hasattr(pred_module, '_model_lock')
@@ -468,7 +471,6 @@ class TestModelCaching:
     @patch('writescore.dimensions.predictability.AutoTokenizer')
     def test_model_loads_only_once(self, mock_tokenizer_class, mock_model_class, dimension):
         """Test model is loaded only once and reused."""
-        import writescore.dimensions.predictability as pred_module
 
         # Clear cache first
         PredictabilityDimension.clear_model_cache()

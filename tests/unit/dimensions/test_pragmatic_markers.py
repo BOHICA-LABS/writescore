@@ -4,10 +4,11 @@ Story 2.4.0.5 - Extracted from transition_marker.py.
 Story 2.6 - Expanded from 52 to 126 patterns with new categories.
 """
 
+
 import pytest
-from unittest.mock import Mock
-from writescore.dimensions.pragmatic_markers import PragmaticMarkersDimension
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.pragmatic_markers import PragmaticMarkersDimension
 
 
 @pytest.fixture
@@ -423,7 +424,7 @@ class TestPatternCounts:
         ]
 
         for category in categories:
-            for pattern_name in category.keys():
+            for pattern_name in category:
                 assert pattern_name not in all_patterns, f"Duplicate pattern: {pattern_name}"
                 all_patterns.add(pattern_name)
 
@@ -441,7 +442,7 @@ class TestTiers:
         assert 'poor' in tiers
 
         # Verify ranges
-        for tier_name, (min_score, max_score) in tiers.items():
+        for _tier_name, (min_score, max_score) in tiers.items():
             assert 0.0 <= min_score <= 100.0
             assert 0.0 <= max_score <= 100.0
             assert min_score <= max_score

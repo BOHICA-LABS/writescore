@@ -3,8 +3,9 @@ Tests for VoiceAnalyzer - voice and authenticity markers detection.
 """
 
 import pytest
-from writescore.dimensions.voice import VoiceAnalyzer
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.voice import VoiceAnalyzer
 
 
 @pytest.fixture

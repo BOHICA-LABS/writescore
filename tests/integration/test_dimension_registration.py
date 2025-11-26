@@ -5,10 +5,9 @@ Tests that dimensions can self-register with the DimensionRegistry
 and that weights are correctly assigned.
 """
 
-import pytest
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.perplexity import PerplexityDimension
 from writescore.dimensions.burstiness import BurstinessDimension
+from writescore.dimensions.perplexity import PerplexityDimension
 
 
 class TestDimensionRegistration:
@@ -81,8 +80,8 @@ class TestDimensionRegistration:
 
     def test_backward_compatibility_alias(self):
         """Test that backward compatibility aliases work."""
-        from writescore.dimensions.perplexity import PerplexityAnalyzer
         from writescore.dimensions.burstiness import BurstinessAnalyzer
+        from writescore.dimensions.perplexity import PerplexityAnalyzer
 
         # Aliases should point to the same class (check name and module)
         # Using name/module comparison instead of 'is' to avoid test isolation issues

@@ -5,13 +5,14 @@ Created in Story 2.4.0.6 - extracted from perplexity.py.
 """
 
 import pytest
+
+from writescore.core.dimension_registry import DimensionRegistry
 from writescore.dimensions.ai_vocabulary import (
-    AiVocabularyDimension,
     TIER_1_PATTERNS,
     TIER_2_PATTERNS,
-    TIER_3_PATTERNS
+    TIER_3_PATTERNS,
+    AiVocabularyDimension,
 )
-from writescore.core.dimension_registry import DimensionRegistry
 
 
 @pytest.fixture
@@ -472,7 +473,7 @@ class TestIntegration:
     def test_dimension_self_registers(self):
         """Test that dimension self-registers on instantiation."""
         DimensionRegistry.clear()
-        dimension = AiVocabularyDimension()
+        AiVocabularyDimension()
 
         registered = DimensionRegistry.get("ai_vocabulary")
         assert registered is not None

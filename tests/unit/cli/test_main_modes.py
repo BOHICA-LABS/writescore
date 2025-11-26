@@ -5,18 +5,15 @@ Tests configuration creation, dry-run display, and mode integration
 in single file and batch analysis functions.
 """
 
-import pytest
-import sys
-from unittest.mock import patch, MagicMock, mock_open
-from io import StringIO
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 from writescore.cli.main import (
     create_analysis_config,
-    show_dry_run_config,
-    show_coverage_stats,
+    run_batch_analysis,
     run_single_file_analysis,
-    run_batch_analysis
+    show_coverage_stats,
+    show_dry_run_config,
 )
 from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
 

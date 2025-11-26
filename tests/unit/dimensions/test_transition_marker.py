@@ -5,10 +5,11 @@ Story 1.4.5 - New dimension split from StylometricDimension.
 Story 2.4.0.5 - v2.0.0 refactor: basic + formulaic transitions, weight 6.0%.
 """
 
+
 import pytest
-from unittest.mock import Mock
-from writescore.dimensions.transition_marker import TransitionMarkerDimension
+
 from writescore.core.dimension_registry import DimensionRegistry
+from writescore.dimensions.transition_marker import TransitionMarkerDimension
 
 
 @pytest.fixture
