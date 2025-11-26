@@ -41,6 +41,7 @@ dev = [
     "pytest-timeout>=2.2.0",
     "psutil>=5.9.0",
     "ruff>=0.1.0",
+    "sentence-transformers>=2.0.0",  # Required for figurative_language tests
 ]
 semantic = [
     "sentence-transformers>=2.0.0",
