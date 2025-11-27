@@ -134,18 +134,18 @@ datasets>=2.14.0
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         CLI Layer                                │
-│                    (cli/main.py, formatters.py)                  │
+│                         CLI Layer                               │
+│                    (cli/main.py, formatters.py)                 │
 ├─────────────────────────────────────────────────────────────────┤
-│                      Orchestration Layer                         │
-│                    (core/analyzer.py)                            │
+│                      Orchestration Layer                        │
+│                    (core/analyzer.py)                           │
 ├──────────────────┬──────────────────┬───────────────────────────┤
 │   Dimension      │    Scoring       │      History              │
 │   System         │    System        │      System               │
 │  (dimensions/)   │   (scoring/)     │    (history/)             │
 ├──────────────────┴──────────────────┴───────────────────────────┤
-│                     Core Infrastructure                          │
-│        (registry, loader, config, results, exceptions)           │
+│                     Core Infrastructure                         │
+│        (registry, loader, config, results, exceptions)          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -542,11 +542,11 @@ def clear_dimension_registry():
                       │ JSON-RPC over stdio/HTTP
 ┌─────────────────────▼───────────────────────────┐
 │              MCP Server Layer                   │
-│  ┌─────────────┐  ┌──────────────┐             │
-│  │   Tools     │  │  Resources   │             │
-│  │ - analyze   │  │ - config     │             │
-│  │ - score     │  │ - dimensions │             │
-│  └─────────────┘  └──────────────┘             │
+│  ┌─────────────┐  ┌──────────────┐              │
+│  │   Tools     │  │  Resources   │              │
+│  │ - analyze   │  │ - config     │              │
+│  │ - score     │  │ - dimensions │              │
+│  └─────────────┘  └──────────────┘              │
 ├─────────────────────────────────────────────────┤
 │              Service Layer (NEW)                │
 ├─────────────────────────────────────────────────┤
