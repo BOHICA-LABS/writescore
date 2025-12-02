@@ -1,0 +1,775 @@
+{
+  "file_path": "tests/fixtures/sample_human_text.md",
+  "scores": [
+    {
+      "timestamp": "2025-11-26T22:14:33.898391",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 34.3,
+      "quality_score": 65.7,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 34.29148111813745,
+      "tier3_score": 28.303650414425597,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 1.8173990596998573,
+          "max_score": 11.48,
+          "percentage": 15.831002262193877,
+          "raw_value": 15.831002262193877,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.460871505166184,
+          "max_score": 9.6,
+          "percentage": 98.55074484548108,
+          "raw_value": 98.55074484548108,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 9.503210553271407,
+          "max_score": 19.21,
+          "percentage": 49.470122609429495,
+          "raw_value": 66.74622802041972,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.781563755194162,
+          "max_score": 5.85,
+          "percentage": 98.83014966143867,
+          "raw_value": 98.83014966143867,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 22.522086659231434,
+          "max_score": 32.57,
+          "percentage": 69.14979017264794,
+          "raw_value": 69.14979017264794,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T22:20:29.201042",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T22:20:48.259165",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T22:21:46.066158",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T22:24:45.264886",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T22:30:06.567382",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T22:42:28.497414",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T22:56:21.018622",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T22:58:41.282857",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    },
+    {
+      "timestamp": "2025-11-26T23:00:12.412374",
+      "total_words": 350,
+      "total_sentences": 0,
+      "total_paragraphs": 0,
+      "notes": "",
+      "history_version": "2.0",
+      "analysis_mode": "adaptive",
+      "analysis_time_seconds": 0.0,
+      "detection_risk": 37.9,
+      "quality_score": 62.1,
+      "detection_interpretation": "MEDIUM - May be flagged",
+      "quality_interpretation": "MIXED - Needs moderate work",
+      "tier1_score": 3.100580110613515,
+      "tier2_score": 36.29650430441866,
+      "tier3_score": 22.750749250694366,
+      "tier4_score": 0.0,
+      "dimensions": {
+        "Mathematical perplexity calculation using language model (29.5% discrimination, 24.6 point score difference)": {
+          "score": 3.100580110613515,
+          "max_score": 5.85,
+          "percentage": 53.001369412196844,
+          "raw_value": 53.001369412196844,
+          "interpretation": "MEDIUM"
+        },
+        "Analyzes sentence and paragraph length variation (GPTZero burstiness metric)": {
+          "score": 2.1123612357894244,
+          "max_score": 11.48,
+          "percentage": 18.40035919677199,
+          "raw_value": 18.40035919677199,
+          "interpretation": "HIGH"
+        },
+        "Analyzes heading structure, section organization, and list patterns": {
+          "score": 7.72,
+          "max_score": 7.72,
+          "percentage": 100.0,
+          "raw_value": 100.0,
+          "interpretation": "NONE"
+        },
+        "Analyzes em-dash overuse, bold/italic patterns, and formatting consistency": {
+          "score": 5.79,
+          "max_score": 7.72,
+          "percentage": 75.0,
+          "raw_value": 75.0,
+          "interpretation": "LOW"
+        },
+        "Analyzes personal voice, conversational tone, and domain expertise": {
+          "score": 9.398116893715514,
+          "max_score": 9.6,
+          "percentage": 97.89705097620327,
+          "raw_value": 97.89705097620327,
+          "interpretation": "NONE"
+        },
+        "Analyzes text readability using Flesch-Kincaid and related metrics": {
+          "score": 11.276026174913724,
+          "max_score": 19.21,
+          "percentage": 58.69873073874922,
+          "raw_value": 65.12096139107112,
+          "interpretation": "HIGH"
+        },
+        "Analyzes vocabulary diversity using TTR, MTLD, and stemmed diversity": {
+          "score": 5.787171890357176,
+          "max_score": 5.85,
+          "percentage": 98.9260152197808,
+          "raw_value": 98.9260152197808,
+          "interpretation": "NONE"
+        },
+        "Analyzes emotional variation patterns and sentiment flatness detection": {
+          "score": 16.96357736033719,
+          "max_score": 32.57,
+          "percentage": 52.083442923970495,
+          "raw_value": 52.083442923970495,
+          "interpretation": "HIGH"
+        }
+      },
+      "raw_metrics": {}
+    }
+  ]
+}
