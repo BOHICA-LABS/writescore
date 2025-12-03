@@ -164,4 +164,160 @@ When creating git commits, do NOT include:
 - The "Co-Authored-By: Claude" line
 - Any other AI attribution in commit messages
 
-Keep commit messages clean and focused on the changes being made.
+### Conventional Commits Format
+
+All commits MUST follow https://www.conventionalcommits.org/:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Required: Type
+
+| Type     | Purpose                      |
+|----------|------------------------------|
+| feat     | New feature (MINOR version)  |
+| fix      | Bug fix (PATCH version)      |
+| docs     | Documentation only           |
+| style    | Code style (no logic change) |
+| refactor | Neither fix nor feature      |
+| perf     | Performance improvement      |
+| test     | Adding/fixing tests          |
+| build    | Build system/dependencies    |
+| ci       | CI configuration             |
+| chore    | Other non-src/test changes   |
+
+### Required: Description
+
+- Use imperative, present tense ("add" not "added")
+- Do NOT capitalize the first letter
+- Do NOT end with a period
+
+### Optional: Scope
+
+Enclose in parentheses after type: `feat(api): add endpoint`
+
+Common scopes: `cli`, `core`, `dimensions`, `scoring`, `docs`
+
+### Optional: Body
+
+- Separate from description with a blank line
+- Explain motivation and contrast with previous behavior
+
+### Optional: Footer
+
+- `Refs: #123` - Issue references
+- `Closes: #123` - Issues closed by commit
+- `BREAKING CHANGE:` - Breaking change description
+
+### Breaking Changes
+
+Indicate with either:
+1. `!` after type/scope: `feat(api)!: remove endpoint`
+2. Footer: `BREAKING CHANGE: endpoint removed and replaced with accounts`
+
+## Pre-commit Hooks
+
+This project uses pre-commit hooks for code quality. Install them:
+
+```bash
+# Using uv
+uv run pre-commit install && uv run pre-commit install --hook-type commit-msg
+
+# Or using pip
+pip install pre-commit && pre-commit install && pre-commit install --hook-type commit-msg
+```
+
+**Hooks installed:**
+- **ruff** - Linting and formatting
+- **mypy** - Type checking
+- **ggshield** - Secret scanning
+- **nbstripout** - Notebook output stripping
+- **conventional-pre-commit** - Commit message validation
+- **pre-commit-hooks** - Trailing whitespace, YAML/JSON checks, large file checks
+- **no-commit-to-branch** - Prevents direct commits to `main`
+
+## Git Workflow (Git Flow)
+
+This project uses **Git Flow** branching strategy. Follow these rules:
+
+### Branch Structure
+
+| Branch | Purpose | Create from |
+|--------|---------|-------------|
+| `main` | Production releases only | - |
+| `develop` | Integration branch (default working branch) | `main` |
+| `feature/*` | New features | `develop` |
+| `fix/*` | Bug fixes | `develop` |
+| `spike/*` | Research spikes | `develop` |
+| `hotfix/*` | Emergency production fixes | `main` |
+| `release/*` | Release preparation | `develop` |
+
+### Rules
+
+1. **NEVER commit directly to `main`** - blocked by pre-commit hook
+2. **Always branch from `develop`** for new work
+3. **Use conventional commits** - enforced by pre-commit hook
+
+### Branch Naming
+
+```
+feature/story-X.X-short-description
+fix/issue-123-short-description
+spike/XXX-topic
+hotfix/issue-456-critical-fix
+release/vX.X.X
+```
+
+### Creating a Branch
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/story-1.2-config-registry
+```
+
+### After Work is Complete
+
+Create a PR to merge into `develop` (not `main`).
+
+## Secret Scanning (ggshield)
+
+The repo uses GitGuardian's ggshield for secret detection via pre-commit hook.
+
+### Scan the Entire Repo
+
+```bash
+uvx ggshield secret scan repo .
+```
+
+### Configuration
+
+- `.gitguardian.yaml` - ignore rules for false positives and docs
+- Runs automatically on every commit via pre-commit hook
+
+### Managing Incidents via API
+
+The ggshield CLI cannot manage dashboard incidents. Use the API directly:
+
+```bash
+# Ignore an incident (mark as false positive)
+curl -X POST "https://api.gitguardian.com/v1/incidents/secrets/{incident_id}/ignore" \
+  -H "Authorization: Token ${GITGUARDIAN_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{"ignore_reason": "test_credential"}'
+
+# Resolve an incident (secret was revoked)
+curl -X POST "https://api.gitguardian.com/v1/incidents/secrets/{incident_id}/resolve" \
+  -H "Authorization: Token ${GITGUARDIAN_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d '{"secret_revoked": true}'
+```
+
+Ignore reasons: `test_credential`, `false_positive`, `low_risk`
+
+Requires API key with `incidents:read` and `incidents:write` scopes.

@@ -67,6 +67,7 @@ venv.bak/
 
 # Claude Code
 .mcp.json
+.ai-analysis-history/
 
 # Jupyter
 .ipynb_checkpoints/
