@@ -359,3 +359,45 @@
 8. All links verified working
 
 ---
+
+## 5.6 Epic 6: Tech Debt & Code Quality
+
+**Goal:** Address accumulated technical debt and improve code quality tooling to ensure long-term maintainability and developer experience.
+
+### Story 6.1: Mypy Type Safety Improvements
+
+**As a** maintainer,
+**I want** full mypy type checking enabled with all error codes,
+**so that** type errors are caught early and code is more maintainable.
+
+**Acceptance Criteria:**
+1. Re-enable disabled mypy error codes incrementally:
+   - Phase 1: `override`, `attr-defined` (dimension tier signatures)
+   - Phase 2: `assignment`, `return-value` (type consistency)
+   - Phase 3: `arg-type`, `call-arg` (function signatures)
+   - Phase 4: `var-annotated` (full type annotations)
+2. Fix all dimension `tier` properties to return `DimensionTier` enum instead of `str`
+3. Add type annotations to all public APIs
+4. Achieve 0 mypy errors with strict mode
+5. Document typing conventions in CONTRIBUTING.md
+
+**Technical Context:**
+- Current state: 12 mypy error codes disabled in pyproject.toml
+- Root causes: Legacy code without type hints, dimension tier type mismatches
+- See: `pyproject.toml` [tool.mypy] section for disabled codes
+
+---
+
+### Story 6.2: Environment Isolation
+
+**As a** developer,
+**I want** clean Python environment isolation,
+**so that** system packages don't pollute the project environment.
+
+**Acceptance Criteria:**
+1. Document uv as preferred environment manager
+2. Remove anaconda path pollution from development setup
+3. Add `.python-version` file for pyenv/uv compatibility
+4. Update CONTRIBUTING.md with environment setup instructions
+
+---
