@@ -1,0 +1,62 @@
+# Pre-commit hooks for WriteScore
+# Install: uv run pre-commit install && uv run pre-commit install --hook-type commit-msg
+# Or: pip install pre-commit && pre-commit install && pre-commit install --hook-type commit-msg
+
+repos:
+  # Ruff linting and formatting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Type checking with MyPy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        pass_filenames: false
+        require_serial: true
+        args: [src/]
+        additional_dependencies:
+          - click>=8.0.0
+          - numpy>=1.24.0
+          - types-click
+
+  # Secret scanning
+  - repo: https://github.com/gitguardian/ggshield
+    rev: v1.34.0
+    hooks:
+      - id: ggshield
+        language_version: python3
+        stages: [pre-commit]
+
+  # Notebook output stripping
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.8.1
+    hooks:
+      - id: nbstripout
+        files: ".ipynb"
+
+  # Conventional commit message validation
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      # Git Flow: Prevent direct commits to main (must use PR)
+      - id: no-commit-to-branch
+        args: ['--branch', 'main']
