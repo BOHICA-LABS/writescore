@@ -78,103 +78,103 @@ class SemanticCoherenceDimension(DimensionStrategy):
     # Coherence thresholds (literature-based, pending empirical validation)
     # These are working defaults; adjust based on domain-specific validation
     THRESHOLDS = {
-        'general': {
-            'paragraph_cohesion': {
-                'excellent': 0.78,  # High within-paragraph similarity
-                'good': 0.70,
-                'acceptable': 0.60,
+        "general": {
+            "paragraph_cohesion": {
+                "excellent": 0.78,  # High within-paragraph similarity
+                "good": 0.70,
+                "acceptable": 0.60,
             },
-            'topic_consistency': {
-                'excellent': 0.72,
-                'good': 0.65,
-                'acceptable': 0.55,
+            "topic_consistency": {
+                "excellent": 0.72,
+                "good": 0.65,
+                "acceptable": 0.55,
             },
-            'discourse_flow': {
-                'ideal_min': 0.60,  # Ideal transition range
-                'ideal_max': 0.75,
-                'excellent': 0.75,
-                'good': 0.65,
-                'acceptable': 0.50,
+            "discourse_flow": {
+                "ideal_min": 0.60,  # Ideal transition range
+                "ideal_max": 0.75,
+                "excellent": 0.75,
+                "good": 0.65,
+                "acceptable": 0.50,
             },
-            'conceptual_depth': {
-                'excellent': 0.68,
-                'good': 0.60,
-                'acceptable': 0.50,
+            "conceptual_depth": {
+                "excellent": 0.68,
+                "good": 0.60,
+                "acceptable": 0.50,
             },
         },
-        'technical': {
+        "technical": {
             # Technical writing: More lenient (technical terms may reduce similarity)
-            'paragraph_cohesion': {
-                'excellent': 0.72,  # Lower threshold for technical content
-                'good': 0.64,
-                'acceptable': 0.54,
+            "paragraph_cohesion": {
+                "excellent": 0.72,  # Lower threshold for technical content
+                "good": 0.64,
+                "acceptable": 0.54,
             },
-            'topic_consistency': {
-                'excellent': 0.68,
-                'good': 0.60,
-                'acceptable': 0.50,
+            "topic_consistency": {
+                "excellent": 0.68,
+                "good": 0.60,
+                "acceptable": 0.50,
             },
-            'discourse_flow': {
-                'ideal_min': 0.55,
-                'ideal_max': 0.70,
-                'excellent': 0.70,
-                'good': 0.60,
-                'acceptable': 0.45,
+            "discourse_flow": {
+                "ideal_min": 0.55,
+                "ideal_max": 0.70,
+                "excellent": 0.70,
+                "good": 0.60,
+                "acceptable": 0.45,
             },
-            'conceptual_depth': {
-                'excellent': 0.64,
-                'good': 0.56,
-                'acceptable': 0.46,
+            "conceptual_depth": {
+                "excellent": 0.64,
+                "good": 0.56,
+                "acceptable": 0.46,
             },
         },
-        'creative': {
+        "creative": {
             # Creative writing: Stricter (expect higher coherence variation)
-            'paragraph_cohesion': {
-                'excellent': 0.75,
-                'good': 0.67,
-                'acceptable': 0.57,
+            "paragraph_cohesion": {
+                "excellent": 0.75,
+                "good": 0.67,
+                "acceptable": 0.57,
             },
-            'topic_consistency': {
-                'excellent': 0.70,
-                'good': 0.62,
-                'acceptable': 0.52,
+            "topic_consistency": {
+                "excellent": 0.70,
+                "good": 0.62,
+                "acceptable": 0.52,
             },
-            'discourse_flow': {
-                'ideal_min': 0.58,
-                'ideal_max': 0.73,
-                'excellent': 0.73,
-                'good': 0.63,
-                'acceptable': 0.48,
+            "discourse_flow": {
+                "ideal_min": 0.58,
+                "ideal_max": 0.73,
+                "excellent": 0.73,
+                "good": 0.63,
+                "acceptable": 0.48,
             },
-            'conceptual_depth': {
-                'excellent': 0.66,
-                'good': 0.58,
-                'acceptable': 0.48,
+            "conceptual_depth": {
+                "excellent": 0.66,
+                "good": 0.58,
+                "acceptable": 0.48,
             },
         },
-        'academic': {
+        "academic": {
             # Academic writing: Similar to general with slight adjustments
-            'paragraph_cohesion': {
-                'excellent': 0.76,
-                'good': 0.68,
-                'acceptable': 0.58,
+            "paragraph_cohesion": {
+                "excellent": 0.76,
+                "good": 0.68,
+                "acceptable": 0.58,
             },
-            'topic_consistency': {
-                'excellent': 0.73,
-                'good': 0.66,
-                'acceptable': 0.56,
+            "topic_consistency": {
+                "excellent": 0.73,
+                "good": 0.66,
+                "acceptable": 0.56,
             },
-            'discourse_flow': {
-                'ideal_min': 0.60,
-                'ideal_max': 0.75,
-                'excellent': 0.75,
-                'good': 0.66,
-                'acceptable': 0.51,
+            "discourse_flow": {
+                "ideal_min": 0.60,
+                "ideal_max": 0.75,
+                "excellent": 0.75,
+                "good": 0.66,
+                "acceptable": 0.51,
             },
-            'conceptual_depth': {
-                'excellent': 0.69,
-                'good': 0.61,
-                'acceptable': 0.51,
+            "conceptual_depth": {
+                "excellent": 0.69,
+                "good": 0.61,
+                "acceptable": 0.51,
             },
         },
     }
@@ -235,6 +235,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
         try:
             import importlib.util
+
             cls._model_available = importlib.util.find_spec("sentence_transformers") is not None
             return cls._model_available
         except (ImportError, ModuleNotFoundError):
@@ -255,8 +256,9 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
         try:
             from sentence_transformers import SentenceTransformer
+
             # Use validated model from Story 2.3.0 research
-            model = SentenceTransformer('all-MiniLM-L6-v2')
+            model = SentenceTransformer("all-MiniLM-L6-v2")
             cls._model = model
             return model
         except Exception:
@@ -278,7 +280,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
             List of paragraph strings (non-empty)
         """
         # Split on double newlines, strip whitespace, filter empty
-        paragraphs = [p.strip() for p in re.split(r'\n\s*\n', text)]
+        paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text)]
         return [p for p in paragraphs if p]
 
     def _split_sentences(self, text: str) -> List[str]:
@@ -293,7 +295,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         """
         # Simple sentence splitting on [.!?]+ with whitespace
         # More sophisticated: Use nltk.sent_tokenize if available
-        sentences = re.split(r'[.!?]+\s+', text)
+        sentences = re.split(r"[.!?]+\s+", text)
         sentences = [s.strip() for s in sentences if s.strip()]
         return sentences
 
@@ -336,11 +338,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
         if len(paragraphs) < 2:
             return {
-                'method': 'basic',
-                'available': False,
-                'lexical_overlap': 0.0,
-                'paragraph_count': len(paragraphs),
-                'note': 'Insufficient paragraphs for coherence analysis',
+                "method": "basic",
+                "available": False,
+                "lexical_overlap": 0.0,
+                "paragraph_count": len(paragraphs),
+                "note": "Insufficient paragraphs for coherence analysis",
             }
 
         # Calculate word overlap between adjacent paragraphs
@@ -356,11 +358,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
         avg_overlap = float(np.mean(overlap_scores)) if overlap_scores else 0.0
 
         return {
-            'method': 'basic',
-            'available': False,
-            'lexical_overlap': avg_overlap,
-            'paragraph_count': len(paragraphs),
-            'transitions_analyzed': len(overlap_scores),
+            "method": "basic",
+            "available": False,
+            "lexical_overlap": avg_overlap,
+            "paragraph_count": len(paragraphs),
+            "transitions_analyzed": len(overlap_scores),
         }
 
     # ========================================================================
@@ -368,9 +370,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
     # ========================================================================
 
     def _generate_embeddings(
-        self,
-        texts: List[str],
-        batch_size: int = None
+        self, texts: List[str], batch_size: int = None
     ) -> Optional[np.ndarray]:
         """
         Generate embeddings for text list using batch processing.
@@ -392,10 +392,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         try:
             # Batch encode for performance (5-10× speedup)
             embeddings = model.encode(
-                texts,
-                batch_size=batch_size,
-                show_progress_bar=False,
-                convert_to_numpy=True
+                texts, batch_size=batch_size, show_progress_bar=False, convert_to_numpy=True
             )
             return embeddings
         except Exception:
@@ -407,9 +404,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
     # ========================================================================
 
     def _calculate_paragraph_cohesion(
-        self,
-        paragraph_embeddings: np.ndarray,
-        sentences_per_paragraph: List[int]
+        self, paragraph_embeddings: np.ndarray, sentences_per_paragraph: List[int]
     ) -> float:
         """
         Calculate paragraph cohesion (sentence-level similarity within paragraphs).
@@ -430,7 +425,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
                 continue
 
             # Get embeddings for this paragraph
-            para_embeddings = paragraph_embeddings[offset:offset + count]
+            para_embeddings = paragraph_embeddings[offset : offset + count]
 
             # Calculate pairwise cosine similarities
             similarities = []
@@ -449,10 +444,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
         return float(np.mean(cohesion_scores)) if cohesion_scores else 0.0
 
-    def _calculate_topic_consistency(
-        self,
-        paragraph_embeddings: List[np.ndarray]
-    ) -> float:
+    def _calculate_topic_consistency(self, paragraph_embeddings: List[np.ndarray]) -> float:
         """
         Calculate topic consistency (paragraph-to-paragraph similarity).
 
@@ -486,10 +478,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         score = (mean_sim * 0.7) + (smoothness * 0.3)
         return float(score)
 
-    def _calculate_discourse_flow(
-        self,
-        paragraph_embeddings: List[np.ndarray]
-    ) -> float:
+    def _calculate_discourse_flow(self, paragraph_embeddings: List[np.ndarray]) -> float:
         """
         Calculate discourse flow (transitions in ideal similarity range).
 
@@ -503,8 +492,8 @@ class SemanticCoherenceDimension(DimensionStrategy):
             return 0.0
 
         # Use general domain thresholds for metric calculation
-        ideal_min = self.THRESHOLDS['general']['discourse_flow']['ideal_min']
-        ideal_max = self.THRESHOLDS['general']['discourse_flow']['ideal_max']
+        ideal_min = self.THRESHOLDS["general"]["discourse_flow"]["ideal_min"]
+        ideal_max = self.THRESHOLDS["general"]["discourse_flow"]["ideal_max"]
 
         # Calculate transition similarities
         similarities = []
@@ -521,9 +510,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         return float(proportion_in_range)
 
     def _calculate_conceptual_depth(
-        self,
-        paragraph_embeddings: List[np.ndarray],
-        document_embedding: np.ndarray
+        self, paragraph_embeddings: List[np.ndarray], document_embedding: np.ndarray
     ) -> float:
         """
         Calculate conceptual depth (paragraph-to-document alignment).
@@ -571,7 +558,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         paragraph_cohesion: float,
         topic_consistency: float,
         discourse_flow: float,
-        conceptual_depth: float
+        conceptual_depth: float,
     ) -> Dict[str, List[str]]:
         """
         Collect evidence for low-scoring coherence areas.
@@ -588,11 +575,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         Returns:
             Dict with evidence lists (limited to first 10 examples each)
         """
-        evidence = {
-            'low_cohesion_paragraphs': [],
-            'topic_shifts': [],
-            'weak_transitions': []
-        }
+        evidence = {"low_cohesion_paragraphs": [], "topic_shifts": [], "weak_transitions": []}
 
         # Collect low cohesion paragraphs (paragraph_cohesion < 0.60)
         if paragraph_cohesion < 0.60:
@@ -603,8 +586,8 @@ class SemanticCoherenceDimension(DimensionStrategy):
                 if sentences_per_paragraph[i] >= 2:
                     # Truncate long paragraphs
                     preview = para[:100] + "..." if len(para) > 100 else para
-                    evidence['low_cohesion_paragraphs'].append(f"Para {i+1}: {preview}")
-                if len(evidence['low_cohesion_paragraphs']) >= 5:
+                    evidence["low_cohesion_paragraphs"].append(f"Para {i+1}: {preview}")
+                if len(evidence["low_cohesion_paragraphs"]) >= 5:
                     break
 
         # Collect topic shifts (adjacent paragraphs with low similarity)
@@ -616,18 +599,24 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
                 # Identify significant topic shifts (similarity < 0.45)
                 if sim < 0.45:
-                    para_preview = paragraphs[i][:80] + "..." if len(paragraphs[i]) > 80 else paragraphs[i]
-                    next_preview = paragraphs[i+1][:80] + "..." if len(paragraphs[i+1]) > 80 else paragraphs[i+1]
-                    evidence['topic_shifts'].append(
+                    para_preview = (
+                        paragraphs[i][:80] + "..." if len(paragraphs[i]) > 80 else paragraphs[i]
+                    )
+                    next_preview = (
+                        paragraphs[i + 1][:80] + "..."
+                        if len(paragraphs[i + 1]) > 80
+                        else paragraphs[i + 1]
+                    )
+                    evidence["topic_shifts"].append(
                         f"Para {i+1}->{i+2} (sim={sim:.2f}): '{para_preview}' -> '{next_preview}'"
                     )
-                if len(evidence['topic_shifts']) >= 5:
+                if len(evidence["topic_shifts"]) >= 5:
                     break
 
         # Collect weak transitions (flow outside ideal range)
         if discourse_flow < 0.50 and len(paragraph_embeddings) >= 2:
-            ideal_min = self.THRESHOLDS['general']['discourse_flow']['ideal_min']
-            ideal_max = self.THRESHOLDS['general']['discourse_flow']['ideal_max']
+            ideal_min = self.THRESHOLDS["general"]["discourse_flow"]["ideal_min"]
+            ideal_max = self.THRESHOLDS["general"]["discourse_flow"]["ideal_max"]
 
             for i in range(min(len(paragraph_embeddings) - 1, 10)):
                 vec_a = paragraph_embeddings[i]
@@ -637,10 +626,10 @@ class SemanticCoherenceDimension(DimensionStrategy):
                 # Identify transitions outside ideal range
                 if sim < ideal_min or sim > ideal_max:
                     issue_type = "too disconnected" if sim < ideal_min else "too repetitive"
-                    evidence['weak_transitions'].append(
+                    evidence["weak_transitions"].append(
                         f"Para {i+1}->{i+2} ({issue_type}, sim={sim:.2f})"
                     )
-                if len(evidence['weak_transitions']) >= 5:
+                if len(evidence["weak_transitions"]) >= 5:
                     break
 
         return evidence
@@ -663,10 +652,10 @@ class SemanticCoherenceDimension(DimensionStrategy):
         paragraphs = self._split_paragraphs(text)
         if len(paragraphs) < 2:
             return {
-                'method': 'semantic',
-                'available': True,
-                'error': 'Insufficient paragraphs',
-                'paragraph_count': len(paragraphs),
+                "method": "semantic",
+                "available": True,
+                "error": "Insufficient paragraphs",
+                "paragraph_count": len(paragraphs),
             }
 
         # Split into sentences and track paragraph structure
@@ -698,30 +687,28 @@ class SemanticCoherenceDimension(DimensionStrategy):
             if count == 0:
                 continue
             # Mean pooling of sentence embeddings for this paragraph
-            para_emb = np.mean(sentence_embeddings[offset:offset + count], axis=0)
+            para_emb = np.mean(sentence_embeddings[offset : offset + count], axis=0)
             paragraph_embeddings.append(para_emb)
             offset += count
 
         # Generate document embedding (mean of all paragraph embeddings)
         if not paragraph_embeddings:
             return {
-                'method': 'semantic',
-                'available': True,
-                'error': 'No valid paragraph embeddings generated',
-                'paragraph_count': len(paragraphs),
+                "method": "semantic",
+                "available": True,
+                "error": "No valid paragraph embeddings generated",
+                "paragraph_count": len(paragraphs),
             }
         document_embedding = np.mean(paragraph_embeddings, axis=0)
 
         # Calculate all 4 metrics
         paragraph_cohesion = self._calculate_paragraph_cohesion(
-            sentence_embeddings,
-            sentences_per_paragraph
+            sentence_embeddings, sentences_per_paragraph
         )
         topic_consistency = self._calculate_topic_consistency(paragraph_embeddings)
         discourse_flow = self._calculate_discourse_flow(paragraph_embeddings)
         conceptual_depth = self._calculate_conceptual_depth(
-            paragraph_embeddings,
-            document_embedding
+            paragraph_embeddings, document_embedding
         )
 
         # Collect evidence for low-scoring areas
@@ -732,33 +719,29 @@ class SemanticCoherenceDimension(DimensionStrategy):
             paragraph_cohesion,
             topic_consistency,
             discourse_flow,
-            conceptual_depth
+            conceptual_depth,
         )
 
         return {
-            'method': 'semantic',
-            'available': True,
-            'paragraph_count': len(paragraphs),
-            'sentence_count': original_sentence_count,
-            'sampled': was_sampled,
-            'metrics': {
-                'paragraph_cohesion': paragraph_cohesion,
-                'topic_consistency': topic_consistency,
-                'discourse_flow': discourse_flow,
-                'conceptual_depth': conceptual_depth,
+            "method": "semantic",
+            "available": True,
+            "paragraph_count": len(paragraphs),
+            "sentence_count": original_sentence_count,
+            "sampled": was_sampled,
+            "metrics": {
+                "paragraph_cohesion": paragraph_cohesion,
+                "topic_consistency": topic_consistency,
+                "discourse_flow": discourse_flow,
+                "conceptual_depth": conceptual_depth,
             },
             # Evidence for detailed reporting
-            'low_cohesion_paragraphs': evidence['low_cohesion_paragraphs'],
-            'topic_shifts': evidence['topic_shifts'],
-            'weak_transitions': evidence['weak_transitions'],
+            "low_cohesion_paragraphs": evidence["low_cohesion_paragraphs"],
+            "topic_shifts": evidence["topic_shifts"],
+            "weak_transitions": evidence["weak_transitions"],
         }
 
     def analyze(
-        self,
-        text: str,
-        lines: List[str] = None,
-        config: Optional[AnalysisConfig] = None,
-        **kwargs
+        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
     ) -> Dict[str, Any]:
         """
         Analyze text for semantic coherence patterns.
@@ -791,13 +774,13 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
         # Calculate score
         score = self.calculate_score(result)
-        result['score'] = score
+        result["score"] = score
 
         # Always include standard dimension metadata for consistent API contract
-        result['tier'] = self.tier
-        result['weight'] = self.weight
-        result['tier_mapping'] = self._get_tier_mapping(score)
-        result['recommendations'] = self.get_recommendations(score, result)
+        result["tier"] = self.tier
+        result["weight"] = self.weight
+        result["tier_mapping"] = self._get_tier_mapping(score)
+        result["recommendations"] = self.get_recommendations(score, result)
 
         return result
 
@@ -807,7 +790,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         for tier_name, (min_score, max_score) in tiers.items():
             if min_score <= score <= max_score:
                 return tier_name
-        return 'unknown'
+        return "unknown"
 
     # ========================================================================
     # SCORING
@@ -843,52 +826,54 @@ class SemanticCoherenceDimension(DimensionStrategy):
         Returns:
             float: Score 0-100 (100 = most human-like)
         """
-        method = metrics.get('method', 'basic')
+        method = metrics.get("method", "basic")
 
         # Handle fallback mode (return neutral score)
-        if method == 'basic' or not metrics.get('available', False):
+        if method == "basic" or not metrics.get("available", False):
             score = 50.0  # Neutral score when analysis unavailable
             self._validate_score(score)
             return score
 
         # Handle errors
-        if 'error' in metrics:
+        if "error" in metrics:
             score = 50.0
             self._validate_score(score)
             return score
 
         # Detect content type for domain-aware scoring
-        content_type = metrics.get('content_type', 'general')
+        content_type = metrics.get("content_type", "general")
         if content_type not in self.THRESHOLDS:
-            content_type = 'general'  # Fallback to general if unknown type
+            content_type = "general"  # Fallback to general if unknown type
 
         # Get domain-specific thresholds
         domain_thresholds = self.THRESHOLDS[content_type]
 
         # Extract metrics
-        coherence_metrics = metrics.get('metrics', {})
-        paragraph_cohesion = coherence_metrics.get('paragraph_cohesion', 0.0)
-        topic_consistency = coherence_metrics.get('topic_consistency', 0.0)
-        discourse_flow = coherence_metrics.get('discourse_flow', 0.0)
-        conceptual_depth = coherence_metrics.get('conceptual_depth', 0.0)
+        coherence_metrics = metrics.get("metrics", {})
+        paragraph_cohesion = coherence_metrics.get("paragraph_cohesion", 0.0)
+        topic_consistency = coherence_metrics.get("topic_consistency", 0.0)
+        discourse_flow = coherence_metrics.get("discourse_flow", 0.0)
+        conceptual_depth = coherence_metrics.get("conceptual_depth", 0.0)
 
         # Calculate average coherence score
-        avg_coherence = (paragraph_cohesion + topic_consistency + discourse_flow + conceptual_depth) / 4.0
+        avg_coherence = (
+            paragraph_cohesion + topic_consistency + discourse_flow + conceptual_depth
+        ) / 4.0
 
         # Domain-specific thresholds (using 'acceptable' and 'excellent' from domain config)
         # Average the thresholds across the 4 metrics for simplicity
         threshold_low = (
-            domain_thresholds['paragraph_cohesion']['acceptable'] +
-            domain_thresholds['topic_consistency']['acceptable'] +
-            domain_thresholds['discourse_flow']['acceptable'] +
-            domain_thresholds['conceptual_depth']['acceptable']
+            domain_thresholds["paragraph_cohesion"]["acceptable"]
+            + domain_thresholds["topic_consistency"]["acceptable"]
+            + domain_thresholds["discourse_flow"]["acceptable"]
+            + domain_thresholds["conceptual_depth"]["acceptable"]
         ) / 4.0
 
         threshold_high = (
-            domain_thresholds['paragraph_cohesion']['excellent'] +
-            domain_thresholds['topic_consistency']['excellent'] +
-            domain_thresholds['discourse_flow']['excellent'] +
-            domain_thresholds['conceptual_depth']['excellent']
+            domain_thresholds["paragraph_cohesion"]["excellent"]
+            + domain_thresholds["topic_consistency"]["excellent"]
+            + domain_thresholds["discourse_flow"]["excellent"]
+            + domain_thresholds["conceptual_depth"]["excellent"]
         ) / 4.0
 
         # Apply monotonic increasing scoring
@@ -896,7 +881,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
             value=avg_coherence,
             threshold_low=threshold_low,
             threshold_high=threshold_high,
-            increasing=True
+            increasing=True,
         )
 
         self._validate_score(score)
@@ -906,9 +891,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
     # RECOMMENDATIONS
     # ========================================================================
 
-    def get_recommendations(
-        self, score: float, metrics: Dict[str, Any]
-    ) -> List[str]:
+    def get_recommendations(self, score: float, metrics: Dict[str, Any]) -> List[str]:
         """
         Generate recommendations based on coherence analysis.
 
@@ -920,10 +903,10 @@ class SemanticCoherenceDimension(DimensionStrategy):
             List of recommendation strings
         """
         recommendations = []
-        method = metrics.get('method', 'basic')
+        method = metrics.get("method", "basic")
 
         # No recommendations for fallback mode
-        if method == 'basic' or not metrics.get('available', False):
+        if method == "basic" or not metrics.get("available", False):
             recommendations.append(
                 "Install sentence-transformers for detailed semantic coherence analysis: "
                 "pip install ai-pattern-analyzer[semantic]"
@@ -931,27 +914,27 @@ class SemanticCoherenceDimension(DimensionStrategy):
             return recommendations
 
         # Provide metric-specific recommendations
-        coherence_metrics = metrics.get('metrics', {})
+        coherence_metrics = metrics.get("metrics", {})
 
-        if coherence_metrics.get('paragraph_cohesion', 1.0) < 0.60:
+        if coherence_metrics.get("paragraph_cohesion", 1.0) < 0.60:
             recommendations.append(
                 "Improve paragraph cohesion: Ensure sentences within each paragraph "
                 "relate to a single topic or theme"
             )
 
-        if coherence_metrics.get('topic_consistency', 1.0) < 0.55:
+        if coherence_metrics.get("topic_consistency", 1.0) < 0.55:
             recommendations.append(
                 "Enhance topic consistency: Reduce abrupt topic changes between paragraphs, "
                 "use transitional phrases to connect ideas"
             )
 
-        if coherence_metrics.get('discourse_flow', 1.0) < 0.50:
+        if coherence_metrics.get("discourse_flow", 1.0) < 0.50:
             recommendations.append(
                 "Strengthen discourse flow: Balance paragraph transitions - avoid both "
                 "too-similar (repetitive) and too-different (disconnected) adjacent paragraphs"
             )
 
-        if coherence_metrics.get('conceptual_depth', 1.0) < 0.50:
+        if coherence_metrics.get("conceptual_depth", 1.0) < 0.50:
             recommendations.append(
                 "Increase conceptual depth: Ensure paragraphs relate meaningfully to "
                 "the document's central theme rather than introducing tangential topics"
@@ -964,9 +947,9 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
     def format_display(self, metrics: Dict[str, Any]) -> str:
         """Format semantic coherence display for reports."""
-        coherence_metrics = metrics.get('metrics', {})
-        cohesion = coherence_metrics.get('paragraph_cohesion')
-        consistency = coherence_metrics.get('topic_consistency')
+        coherence_metrics = metrics.get("metrics", {})
+        cohesion = coherence_metrics.get("paragraph_cohesion")
+        consistency = coherence_metrics.get("topic_consistency")
 
         if cohesion is not None and consistency is not None:
             return f"(Cohesion: {cohesion:.2f}, Consistency: {consistency:.2f})"
@@ -984,10 +967,10 @@ class SemanticCoherenceDimension(DimensionStrategy):
             Dict mapping tier names to (min, max) score ranges
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (60.0, 74.9),
-            'poor': (0.0, 59.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (60.0, 74.9),
+            "poor": (0.0, 59.9),
         }
 
 

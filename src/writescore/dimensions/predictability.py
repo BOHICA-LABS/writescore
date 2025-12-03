@@ -109,11 +109,7 @@ class PredictabilityDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self,
-        text: str,
-        lines: List[str] = None,
-        config: Optional[AnalysisConfig] = None,
-        **kwargs
+        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
     ) -> Dict[str, Any]:
         """
         Analyze GLTR token predictability with configurable modes.
@@ -173,32 +169,38 @@ class PredictabilityDimension(DimensionStrategy):
         # Handle timeout/failure gracefully (aggregated may be None)
         if aggregated is None:
             return {
-                'available': False,
-                'error': 'GLTR analysis timed out or failed',
-                'analysis_mode': config.mode.value,
-                'samples_analyzed': samples_analyzed,
-                'total_text_length': total_text_length,
-                'analyzed_text_length': analyzed_length,
-                'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+                "available": False,
+                "error": "GLTR analysis timed out or failed",
+                "analysis_mode": config.mode.value,
+                "samples_analyzed": samples_analyzed,
+                "total_text_length": total_text_length,
+                "analyzed_text_length": analyzed_length,
+                "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+                if total_text_length > 0
+                else 0.0,
             }
 
         # Add consistent metadata
         return {
-            'gltr_top10_percentage': aggregated.get('gltr_top10_percentage', 0.55),
-            'gltr_top100_percentage': aggregated.get('gltr_top100_percentage', 0.85),
-            'gltr_top1000_percentage': aggregated.get('gltr_top1000_percentage', 0.95),
-            'gltr_mean_rank': aggregated.get('gltr_mean_rank', 50.0),
-            'gltr_rank_variance': aggregated.get('gltr_rank_variance', 100.0),
-            'gltr_likelihood': aggregated.get('gltr_likelihood', 0.5),
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "gltr_top10_percentage": aggregated.get("gltr_top10_percentage", 0.55),
+            "gltr_top100_percentage": aggregated.get("gltr_top100_percentage", 0.85),
+            "gltr_top1000_percentage": aggregated.get("gltr_top1000_percentage", 0.95),
+            "gltr_mean_rank": aggregated.get("gltr_mean_rank", 50.0),
+            "gltr_rank_variance": aggregated.get("gltr_rank_variance", 100.0),
+            "gltr_likelihood": aggregated.get("gltr_likelihood", 0.5),
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
-    def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> List[HighPredictabilitySegment]:
+    def analyze_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[HighPredictabilitySegment]:
         """
         Detailed analysis with line numbers and suggestions.
         Identifies high-predictability text segments.
@@ -249,11 +251,11 @@ class PredictabilityDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             return 50.0  # Neutral score for unavailable data
 
         # Get GLTR top-10 percentage (primary GLTR indicator)
-        gltr_top10 = metrics.get('gltr_top10_percentage', 0.55)
+        gltr_top10 = metrics.get("gltr_top10_percentage", 0.55)
 
         # Monotonic decreasing scoring: lower values = higher scores
         # We use increasing=True but invert the value since we want decreasing behavior
@@ -262,7 +264,7 @@ class PredictabilityDimension(DimensionStrategy):
             value=1.0 - gltr_top10,  # Invert: 0.55 becomes 0.45, 0.70 becomes 0.30
             threshold_low=1.0 - 0.70,  # 0.30
             threshold_high=1.0 - 0.55,  # 0.45
-            increasing=True  # Now higher inverted value = higher score
+            increasing=True,  # Now higher inverted value = higher score
         )
 
         self._validate_score(score)
@@ -281,13 +283,13 @@ class PredictabilityDimension(DimensionStrategy):
         """
         recommendations = []
 
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             recommendations.append(
                 "GLTR analysis unavailable. Install required dependencies: transformers, torch."
             )
             return recommendations
 
-        gltr_top10 = metrics.get('gltr_top10_percentage', 0.55)
+        gltr_top10 = metrics.get("gltr_top10_percentage", 0.55)
 
         if gltr_top10 >= 0.70:
             recommendations.append(
@@ -318,10 +320,10 @@ class PredictabilityDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (70.0, 89.9),
-            'acceptable': (50.0, 69.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (70.0, 89.9),
+            "acceptable": (50.0, 69.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -329,9 +331,7 @@ class PredictabilityDimension(DimensionStrategy):
     # ========================================================================
 
     def _calculate_gltr_metrics_with_timeout(
-        self,
-        text: str,
-        timeout: int = 120
+        self, text: str, timeout: int = 120
     ) -> Optional[Dict[str, Any]]:
         """
         Calculate GLTR metrics with timeout protection (Story 1.4.14).
@@ -427,21 +427,21 @@ class PredictabilityDimension(DimensionStrategy):
             return sample_metrics[0]
 
         # Extract values for each metric
-        top10_values = [m.get('gltr_top10_percentage', 0) for m in sample_metrics]
-        top100_values = [m.get('gltr_top100_percentage', 0) for m in sample_metrics]
-        top1000_values = [m.get('gltr_top1000_percentage', 0) for m in sample_metrics]
-        mean_rank_values = [m.get('gltr_mean_rank', 0) for m in sample_metrics]
-        variance_values = [m.get('gltr_rank_variance', 0) for m in sample_metrics]
-        likelihood_values = [m.get('gltr_likelihood', 0) for m in sample_metrics]
+        top10_values = [m.get("gltr_top10_percentage", 0) for m in sample_metrics]
+        top100_values = [m.get("gltr_top100_percentage", 0) for m in sample_metrics]
+        top1000_values = [m.get("gltr_top1000_percentage", 0) for m in sample_metrics]
+        mean_rank_values = [m.get("gltr_mean_rank", 0) for m in sample_metrics]
+        variance_values = [m.get("gltr_rank_variance", 0) for m in sample_metrics]
+        likelihood_values = [m.get("gltr_likelihood", 0) for m in sample_metrics]
 
         # Calculate means
         return {
-            'gltr_top10_percentage': sum(top10_values) / len(top10_values),
-            'gltr_top100_percentage': sum(top100_values) / len(top100_values),
-            'gltr_top1000_percentage': sum(top1000_values) / len(top1000_values),
-            'gltr_mean_rank': sum(mean_rank_values) / len(mean_rank_values),
-            'gltr_rank_variance': sum(variance_values) / len(variance_values),
-            'gltr_likelihood': sum(likelihood_values) / len(likelihood_values),
+            "gltr_top10_percentage": sum(top10_values) / len(top10_values),
+            "gltr_top100_percentage": sum(top100_values) / len(top100_values),
+            "gltr_top1000_percentage": sum(top1000_values) / len(top1000_values),
+            "gltr_mean_rank": sum(mean_rank_values) / len(mean_rank_values),
+            "gltr_rank_variance": sum(variance_values) / len(variance_values),
+            "gltr_likelihood": sum(likelihood_values) / len(likelihood_values),
         }
 
     def _calculate_gltr_metrics(self, text: str) -> Dict:
@@ -483,13 +483,16 @@ class PredictabilityDimension(DimensionStrategy):
                 with _model_lock:
                     # Double-check after acquiring lock (another thread may have loaded it)
                     if _perplexity_model is None:
-                        print("Loading DistilGPT-2 model for GLTR analysis (one-time setup)...", file=sys.stderr)
-                        _perplexity_model = AutoModelForCausalLM.from_pretrained('distilgpt2')
-                        _perplexity_tokenizer = AutoTokenizer.from_pretrained('distilgpt2')
+                        print(
+                            "Loading DistilGPT-2 model for GLTR analysis (one-time setup)...",
+                            file=sys.stderr,
+                        )
+                        _perplexity_model = AutoModelForCausalLM.from_pretrained("distilgpt2")
+                        _perplexity_tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
                         _perplexity_model.eval()
 
             # Remove code blocks
-            text = re.sub(r'```[\s\S]*?```', '', text)
+            text = re.sub(r"```[\s\S]*?```", "", text)
 
             # Tokenize
             tokens = _perplexity_tokenizer.encode(text)
@@ -542,18 +545,20 @@ class PredictabilityDimension(DimensionStrategy):
                 ai_likelihood = 0.50
 
             return {
-                'gltr_top10_percentage': round(top10_percentage, 3),
-                'gltr_top100_percentage': round(top100_percentage, 3),
-                'gltr_top1000_percentage': round(top1000_percentage, 3),
-                'gltr_mean_rank': round(mean_rank, 2),
-                'gltr_rank_variance': round(rank_variance, 2),
-                'gltr_likelihood': round(ai_likelihood, 2)
+                "gltr_top10_percentage": round(top10_percentage, 3),
+                "gltr_top100_percentage": round(top100_percentage, 3),
+                "gltr_top1000_percentage": round(top1000_percentage, 3),
+                "gltr_mean_rank": round(mean_rank, 2),
+                "gltr_rank_variance": round(rank_variance, 2),
+                "gltr_likelihood": round(ai_likelihood, 2),
             }
         except Exception as e:
             print(f"Warning: GLTR analysis failed: {e}", file=sys.stderr)
             return {}
 
-    def _analyze_high_predictability_segments_detailed(self, lines: List[str], html_comment_checker=None) -> List[HighPredictabilitySegment]:
+    def _analyze_high_predictability_segments_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[HighPredictabilitySegment]:
         """Identify text segments with high GLTR scores (AI-like predictability)."""
         issues = []
 
@@ -575,20 +580,22 @@ class PredictabilityDimension(DimensionStrategy):
                 # Skip HTML comments (metadata), headings, and code blocks
                 if html_comment_checker and html_comment_checker(line):
                     continue
-                if stripped.startswith('#') or stripped.startswith('```'):
+                if stripped.startswith("#") or stripped.startswith("```"):
                     continue
 
                 if stripped:
-                    words = re.findall(r'\b\w+\b', stripped)
+                    words = re.findall(r"\b\w+\b", stripped)
                     current_chunk.extend(words)
 
                     if len(current_chunk) >= chunk_size:
                         # Analyze this chunk
-                        chunk_text = ' '.join(current_chunk)
+                        chunk_text = " ".join(current_chunk)
 
                         # Calculate GLTR for chunk
                         try:
-                            tokens = _perplexity_tokenizer.encode(chunk_text, add_special_tokens=True)
+                            tokens = _perplexity_tokenizer.encode(
+                                chunk_text, add_special_tokens=True
+                            )
                             if len(tokens) < 10:
                                 current_chunk = []
                                 chunk_start_line = line_num + 1
@@ -603,7 +610,11 @@ class PredictabilityDimension(DimensionStrategy):
                                     probs = torch.softmax(logits, dim=-1)
                                     sorted_indices = torch.argsort(probs, descending=True)
                                     actual_token = tokens[i]
-                                    rank = (sorted_indices == actual_token).nonzero(as_tuple=True)[0].item()
+                                    rank = (
+                                        (sorted_indices == actual_token)
+                                        .nonzero(as_tuple=True)[0]
+                                        .item()
+                                    )
                                     ranks.append(rank)
 
                             if ranks:
@@ -611,15 +622,21 @@ class PredictabilityDimension(DimensionStrategy):
 
                                 # High predictability: >70% in top-10
                                 if top10_pct > 0.70:
-                                    preview = chunk_text[:150] + '...' if len(chunk_text) > 150 else chunk_text
-                                    issues.append(HighPredictabilitySegment(
-                                        start_line=chunk_start_line,
-                                        end_line=line_num,
-                                        segment_preview=preview,
-                                        gltr_score=top10_pct,
-                                        problem=f'High predictability (GLTR={top10_pct:.2f}, AI threshold >0.70)',
-                                        suggestion='Rewrite with less common word choices, vary sentence structure, add unexpected turns'
-                                    ))
+                                    preview = (
+                                        chunk_text[:150] + "..."
+                                        if len(chunk_text) > 150
+                                        else chunk_text
+                                    )
+                                    issues.append(
+                                        HighPredictabilitySegment(
+                                            start_line=chunk_start_line,
+                                            end_line=line_num,
+                                            segment_preview=preview,
+                                            gltr_score=top10_pct,
+                                            problem=f"High predictability (GLTR={top10_pct:.2f}, AI threshold >0.70)",
+                                            suggestion="Rewrite with less common word choices, vary sentence structure, add unexpected turns",
+                                        )
+                                    )
 
                         except Exception as e:
                             print(f"Warning: GLTR chunk analysis failed: {e}", file=sys.stderr)

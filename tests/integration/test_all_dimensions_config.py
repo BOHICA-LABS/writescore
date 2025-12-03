@@ -41,7 +41,7 @@ def all_dimensions():
         FormattingDimension(),
         StructureDimension(),
         SentimentDimension(),
-        TransitionMarkerDimension()
+        TransitionMarkerDimension(),
     ]
 
 
@@ -58,8 +58,8 @@ class TestAllDimensionsConfig:
 
             # Should not crash and should return a dict
             assert isinstance(result, dict), f"{dim.dimension_name} should return dict"
-            assert 'analysis_mode' in result, f"{dim.dimension_name} missing analysis_mode"
-            assert result['analysis_mode'] == 'fast', f"{dim.dimension_name} wrong mode"
+            assert "analysis_mode" in result, f"{dim.dimension_name} missing analysis_mode"
+            assert result["analysis_mode"] == "fast", f"{dim.dimension_name} wrong mode"
 
     def test_all_dimensions_accept_adaptive_mode(self, all_dimensions):
         """Test all dimensions accept ADAPTIVE mode config."""
@@ -70,8 +70,8 @@ class TestAllDimensionsConfig:
             result = dim.analyze(text, config=config)
 
             assert isinstance(result, dict), f"{dim.dimension_name} should return dict"
-            assert 'analysis_mode' in result, f"{dim.dimension_name} missing analysis_mode"
-            assert result['analysis_mode'] == 'adaptive', f"{dim.dimension_name} wrong mode"
+            assert "analysis_mode" in result, f"{dim.dimension_name} missing analysis_mode"
+            assert result["analysis_mode"] == "adaptive", f"{dim.dimension_name} wrong mode"
 
     def test_all_dimensions_return_consistent_metadata(self, all_dimensions):
         """Test all dimensions return required metadata fields.
@@ -83,21 +83,29 @@ class TestAllDimensionsConfig:
         text = "The quick brown fox jumps over the lazy dog. " * 50
 
         # All dimensions must have analysis_mode
-        required_fields = ['analysis_mode']
+        required_fields = ["analysis_mode"]
 
         # Sampling-aware dimensions have additional fields
         sampling_fields = [
-            'samples_analyzed',
-            'total_text_length',
-            'analyzed_text_length',
-            'coverage_percentage'
+            "samples_analyzed",
+            "total_text_length",
+            "analyzed_text_length",
+            "coverage_percentage",
         ]
 
         # Dimensions that use sampling (most of them)
         sampling_dimensions = {
-            'predictability', 'syntactic', 'advanced_lexical', 'readability',
-            'burstiness', 'voice', 'lexical', 'formatting', 'structure',
-            'sentiment', 'transition_marker'
+            "predictability",
+            "syntactic",
+            "advanced_lexical",
+            "readability",
+            "burstiness",
+            "voice",
+            "lexical",
+            "formatting",
+            "structure",
+            "sentiment",
+            "transition_marker",
         }
 
         for dim in all_dimensions:
@@ -113,18 +121,18 @@ class TestAllDimensionsConfig:
                     assert field in result, f"{dim.dimension_name} missing field: {field}"
 
                 # Verify types for sampling dimensions
-                assert isinstance(result['samples_analyzed'], int)
-                assert isinstance(result['total_text_length'], int)
-                assert isinstance(result['analyzed_text_length'], int)
-                assert isinstance(result['coverage_percentage'], (int, float))
+                assert isinstance(result["samples_analyzed"], int)
+                assert isinstance(result["total_text_length"], int)
+                assert isinstance(result["analyzed_text_length"], int)
+                assert isinstance(result["coverage_percentage"], (int, float))
 
                 # Verify values are reasonable
-                assert result['samples_analyzed'] >= 1
-                assert result['total_text_length'] == len(text)
-                assert 0 <= result['coverage_percentage'] <= 100
+                assert result["samples_analyzed"] >= 1
+                assert result["total_text_length"] == len(text)
+                assert 0 <= result["coverage_percentage"] <= 100
 
             # All dimensions must have analysis_mode as string
-            assert isinstance(result['analysis_mode'], str)
+            assert isinstance(result["analysis_mode"], str)
 
     def test_all_dimensions_handle_none_config(self, all_dimensions):
         """Test all dimensions handle config=None gracefully (default to ADAPTIVE)."""
@@ -134,18 +142,14 @@ class TestAllDimensionsConfig:
             result = dim.analyze(text, config=None)
 
             # Should default to ADAPTIVE mode
-            assert 'analysis_mode' in result
-            assert result['analysis_mode'] == 'adaptive'
+            assert "analysis_mode" in result
+            assert result["analysis_mode"] == "adaptive"
 
     def test_heavy_dimensions_support_full_mode(self):
         """Test heavy dimensions support FULL mode (no limits)."""
         DimensionRegistry.clear()
 
-        heavy_dims = [
-            PredictabilityDimension(),
-            SyntacticDimension(),
-            AdvancedLexicalDimension()
-        ]
+        heavy_dims = [PredictabilityDimension(), SyntacticDimension(), AdvancedLexicalDimension()]
 
         config = AnalysisConfig(mode=AnalysisMode.FULL)
         # Use moderate-length text for FULL mode test
@@ -154,10 +158,10 @@ class TestAllDimensionsConfig:
         for dim in heavy_dims:
             result = dim.analyze(text, config=config)
 
-            assert result['analysis_mode'] == 'full'
+            assert result["analysis_mode"] == "full"
             # FULL mode should analyze entire text (for moderate lengths)
-            assert result['analyzed_text_length'] == len(text)
-            assert result['coverage_percentage'] == 100.0
+            assert result["analyzed_text_length"] == len(text)
+            assert result["coverage_percentage"] == 100.0
 
     def test_fast_dimensions_ignore_sampling(self):
         """Test fast dimensions always analyze full text regardless of mode.
@@ -176,14 +180,14 @@ class TestAllDimensionsConfig:
             FormattingDimension(),
             StructureDimension(),
             SentimentDimension(),
-            TransitionMarkerDimension()
+            TransitionMarkerDimension(),
         ]
 
         # Try different modes - all should analyze full text
         configs = [
             AnalysisConfig(mode=AnalysisMode.FAST),
             AnalysisConfig(mode=AnalysisMode.ADAPTIVE),
-            AnalysisConfig(mode=AnalysisMode.FULL)
+            AnalysisConfig(mode=AnalysisMode.FULL),
         ]
 
         text = "Test sentence. " * 100
@@ -193,9 +197,9 @@ class TestAllDimensionsConfig:
                 result = dim.analyze(text, config=config)
 
                 # Fast dimensions always analyze 100%
-                assert result['samples_analyzed'] == 1
-                assert result['coverage_percentage'] == 100.0
-                assert result['analyzed_text_length'] == len(text)
+                assert result["samples_analyzed"] == 1
+                assert result["coverage_percentage"] == 100.0
+                assert result["analyzed_text_length"] == len(text)
 
     def test_dimensions_handle_empty_text(self, all_dimensions):
         """Test all dimensions handle empty text gracefully."""
@@ -203,9 +207,17 @@ class TestAllDimensionsConfig:
 
         # Dimensions that return total_text_length
         sampling_dimensions = {
-            'predictability', 'syntactic', 'advanced_lexical', 'readability',
-            'burstiness', 'voice', 'lexical', 'formatting', 'structure',
-            'sentiment', 'transition_marker'
+            "predictability",
+            "syntactic",
+            "advanced_lexical",
+            "readability",
+            "burstiness",
+            "voice",
+            "lexical",
+            "formatting",
+            "structure",
+            "sentiment",
+            "transition_marker",
         }
 
         for dim in all_dimensions:
@@ -216,4 +228,4 @@ class TestAllDimensionsConfig:
 
             # Check total_text_length only for sampling-aware dimensions
             if dim.dimension_name in sampling_dimensions:
-                assert result['total_text_length'] == 0
+                assert result["total_text_length"] == 0

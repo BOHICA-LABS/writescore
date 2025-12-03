@@ -42,11 +42,11 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - Token rank distribution: Top-10, Top-100, top-1000 percentages
   - High-predictability text segments (chunks with >70% top-10 tokens)
   - Model-based unpredictability metrics
-  
+
 - **Feature count**: ~4-5 metrics per analysis
 - **Detection accuracy**: 95% (cited from GLTR research)
 - **Key threshold**: AI signature when >70% tokens in top-10
-- **Performance**: 
+- **Performance**:
   - First run: 2-10s (model loading)
   - Cached: 0.1-0.5s
   - Timeout: 120 seconds (prevents hanging)
@@ -59,7 +59,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - MATTR (Moving Average Type-Token Ratio) - window-based diversity
   - RTTR (Root Type-Token Ratio) - length-independent measure
   - Maas - length-corrected TTR variant
-  
+
 - **Feature count**: 5 sophisticated lexical metrics
 - **Dependencies**: scipy, textacy, spacy NLP
 - **Accuracy boost**: +8% improvement over basic TTR/MTLD
@@ -71,7 +71,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - "Moreover" overuse: Human 0-1/1k, AI 3-8+/1k
   - Marker clustering (multiple in proximity)
   - Formulaic phrase detection
-  
+
 - **Feature count**: ~3-4 transition metrics
 - **Key signals**: Formal transition marker density
 - **Reliability**: Highly specific AI signature
@@ -83,7 +83,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - Passive voice constructions
   - POS (Part-of-Speech) diversity patterns
   - Syntactic repetition detection
-  
+
 - **Feature count**: ~5 syntactic metrics
 - **Dependencies**: spacy NLP with en_core_web_sm model
 - **Accuracy improvement**: +10% vs. non-syntactic baselines
@@ -101,7 +101,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
     - Tier 3: innovative, cutting-edge, revolutionary, game-changing, transformative
     - Idioms: "dive deep", "deep dive", "paradigm shift", "ecosystem", "landscape"
   - Formulaic transitions (18 patterns): Furthermore, Moreover, Additionally, etc.
-  
+
 - **Feature count**: 27+ vocabulary terms + 18 transition phrases
 - **Per-document metrics**: Vocabulary density/1k words, transition clustering
 - **Detection baseline**: >10 per 1k words = strong AI marker
@@ -115,7 +115,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - Average word length
   - Average sentence length
   - Syllable distribution patterns
-  
+
 - **Feature count**: 5-6 readability metrics
 - **Dependencies**: textstat, nltk
 - **AI signature**: Extreme values (<30 or >90 = mechanical)
@@ -128,7 +128,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - Short sentence ratio (<15 words)
   - Long sentence ratio (>30 words)
   - Length distribution variance
-  
+
 - **Feature count**: 4-5 burstiness metrics
 - **Threshold**: Stdev < 3.0 = AI signature, >10.0 = human-like
 - **Basis**: GPTZero research methodology
@@ -141,7 +141,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - Contractions (can't, don't, it's, won't, etc.)
   - Technical domain expertise (via domain_terms regex)
   - Personal authenticity markers
-  
+
 - **Feature count**: 4 voice metrics
 - **Customizable**: domain_terms list (default: cybersecurity terms)
 - **Detection**: AI avoids personal voice and contractions
@@ -154,7 +154,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - Quotation patterns
   - Formatting mechanical consistency (0.7+ = AI-like)
   - Distribution across document
-  
+
 - **Feature count**: 4-5 formatting metrics
 - **Detection accuracy**: 95% (em-dash strongest single signal)
 - **Research basis**: ChatGPT formatting analysis
@@ -169,7 +169,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - List nesting depth and symmetry
   - Uniform cluster detection (suspicious regularity)
   - Domain-aware thresholds (technical vs. narrative)
-  
+
 - **Feature count**: 8-10 structural metrics
 - **Dependencies**: marko markdown parser, domain_thresholds module
 - **Complexity**: AST-based analysis with heading phrase matching
@@ -187,7 +187,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - Average sentiment intensity
   - Sentiment distribution patterns
   - Monotonous emotional tone detection
-  
+
 - **Feature count**: 3-4 sentiment metrics
 - **Model**: DistilBERT-base finetuned on SST-2 (lazy-loaded)
 - **Dependencies**: transformers, torch (CPU mode)
@@ -200,7 +200,7 @@ The AI Pattern Analyzer is a modular, registry-based system for detecting AI-gen
   - Word frequency distribution
   - Stemmed diversity (catches word variants)
   - Vocabulary richness patterns
-  
+
 - **Feature count**: 2-3 lexical metrics
 - **Dependencies**: nltk Porter Stemmer
 - **Detection**: Repetitive vocabulary (low TTR) = AI signature
@@ -219,28 +219,28 @@ All dimensions implement `DimensionStrategy` base class with required contract:
 class DimensionStrategy(ABC):
     @property
     def dimension_name(self) -> str: ...      # Unique identifier
-    
+
     @property
     def weight(self) -> float: ...            # 0-100% contribution
-    
+
     @property
     def tier(self) -> str: ...                # ADVANCED|CORE|SUPPORTING|STRUCTURAL
-    
+
     @property
     def description(self) -> str: ...         # Human-readable purpose
-    
+
     def analyze(
-        self, 
+        self,
         text: str,
         lines: List[str],
         config: AnalysisConfig
     ) -> Dict[str, Any]: ...                  # Return metrics dict
-    
+
     def calculate_score(
         self,
         metrics: Dict[str, Any]
     ) -> float: ...                           # Return 0-100 score
-    
+
     def analyze_detailed(
         self,
         lines: List[str],
@@ -598,26 +598,26 @@ class MyDimension(DimensionStrategy):
     def __init__(self):
         super().__init__()
         DimensionRegistry.register(self)  # Self-register
-    
+
     @property
     def dimension_name(self) -> str:
         return "my_dimension"
-    
+
     @property
     def weight(self) -> float:
         return 5.0  # 5% of total score
-    
+
     @property
     def tier(self) -> str:
         return DimensionTier.SUPPORTING  # or CORE, ADVANCED
-    
+
     @property
     def description(self) -> str:
         return "Analyzes my specific pattern"
-    
+
     def analyze(
-        self, 
-        text: str, 
+        self,
+        text: str,
         lines: List[str],
         config: Optional[AnalysisConfig] = None,
         **kwargs
@@ -628,13 +628,13 @@ class MyDimension(DimensionStrategy):
             'metric2': value2,
         }
         return metrics
-    
+
     def calculate_score(self, metrics: Dict[str, Any]) -> float:
         # Return 0-100 score
         score = 100.0 - metrics['metric1']
         self._validate_score(score)
         return score
-    
+
     def analyze_detailed(
         self,
         lines: List[str],
@@ -672,19 +672,19 @@ class DimensionStrategy(ABC):
     @property
     @abstractmethod
     def dimension_name(self) -> str: pass
-    
+
     @property
     @abstractmethod
     def weight(self) -> float: pass  # 0-100
-    
+
     @property
     @abstractmethod
     def tier(self) -> str: pass  # ADVANCED|CORE|SUPPORTING|STRUCTURAL
-    
+
     @property
     @abstractmethod
     def description(self) -> str: pass
-    
+
     # REQUIRED METHODS
     @abstractmethod
     def analyze(
@@ -693,7 +693,7 @@ class DimensionStrategy(ABC):
         lines: List[str],
         **kwargs
     ) -> Dict[str, Any]: pass
-    
+
     @abstractmethod
     def calculate_score(
         self,
@@ -755,7 +755,7 @@ Dimensions can optimize based on mode:
 ```python
 def analyze(self, text, lines, config=None, **kwargs):
     config = config or DEFAULT_CONFIG
-    
+
     if config.analysis_mode == AnalysisMode.FAST:
         # Fast path: analyze first 2000 chars
         analyzed_text = self._prepare_text(text, config, self.dimension_name)
@@ -867,7 +867,7 @@ StyloMetrix should:
 
 ### What Could Be Improved (Opportunities for StyloMetrix)
 
-1. **Coverage Gaps**: 
+1. **Coverage Gaps**:
    - No NLP-based semantic coherence
    - No cross-document consistency
    - No author fingerprinting
@@ -897,4 +897,3 @@ StyloMetrix should target **pragmatic/semantic layers** not covered:
 - Multi-model comparative analysis
 
 This would complement the existing **lexical/syntactic/readability** coverage without duplication.
-

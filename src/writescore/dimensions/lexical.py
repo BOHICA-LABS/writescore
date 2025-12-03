@@ -97,7 +97,7 @@ class LexicalDimension(DimensionStrategy):
             # punkt_tab not found - download it
             print("Downloading NLTK punkt tokenizer data (first run only)...", file=sys.stderr)
             try:
-                nltk.download('punkt_tab', quiet=True)
+                nltk.download("punkt_tab", quiet=True)
                 print("✓ Punkt tokenizer setup complete", file=sys.stderr)
             except Exception as e:
                 print(f"Warning: Failed to download punkt_tab: {e}", file=sys.stderr)
@@ -108,11 +108,7 @@ class LexicalDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self,
-        text: str,
-        lines: List[str] = None,
-        config: Optional[AnalysisConfig] = None,
-        **kwargs
+        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
     ) -> Dict[str, Any]:
         """
         Analyze text for lexical diversity.
@@ -141,7 +137,7 @@ class LexicalDimension(DimensionStrategy):
                 lexical = self._analyze_lexical_diversity(sample_text)
                 nltk_metrics = self._analyze_nltk_lexical(sample_text)
                 lexical.update(nltk_metrics)
-                sample_results.append({'lexical_diversity': lexical})
+                sample_results.append({"lexical_diversity": lexical})
 
             # Aggregate metrics from all samples
             aggregated = self._aggregate_sampled_metrics(sample_results)
@@ -154,19 +150,21 @@ class LexicalDimension(DimensionStrategy):
             lexical = self._analyze_lexical_diversity(analyzed_text)
             nltk_metrics = self._analyze_nltk_lexical(analyzed_text)
             lexical.update(nltk_metrics)
-            aggregated = {'lexical_diversity': lexical}
+            aggregated = {"lexical_diversity": lexical}
             analyzed_length = len(analyzed_text)
             samples_analyzed = 1
 
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> Dict[str, Any]:
@@ -181,7 +179,7 @@ class LexicalDimension(DimensionStrategy):
             Dict with analysis results
         """
         # Lexical analysis is typically aggregate, not line-by-line
-        text = 'n'.join(lines)
+        text = "n".join(lines)
         return self.analyze(text, lines)
 
     def score(self, analysis_results: Dict[str, Any]) -> tuple:
@@ -194,7 +192,7 @@ class LexicalDimension(DimensionStrategy):
         Returns:
             Tuple of (score_value, score_label)
         """
-        ttr = analysis_results.get('diversity', 0.0)
+        ttr = analysis_results.get("diversity", 0.0)
 
         if ttr >= 0.60:
             return (10.0, "HIGH")
@@ -244,8 +242,8 @@ class LexicalDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        lexical = metrics.get('lexical_diversity', {})
-        mtld = lexical.get('mtld_score', 0)
+        lexical = metrics.get("lexical_diversity", {})
+        mtld = lexical.get("mtld_score", 0)
 
         # If MTLD is available, use it for scoring
         if mtld > 0:
@@ -253,21 +251,15 @@ class LexicalDimension(DimensionStrategy):
             # Threshold low=60, high=100, direction=increasing
             # _monotonic_score() returns 0-100 scale directly
             score = self._monotonic_score(
-                value=mtld,
-                threshold_low=60.0,
-                threshold_high=100.0,
-                increasing=True
+                value=mtld, threshold_low=60.0, threshold_high=100.0, increasing=True
             )
         else:
             # Fallback to TTR if MTLD unavailable (short texts)
-            ttr = lexical.get('diversity', 0.0)
+            ttr = lexical.get("diversity", 0.0)
             # Estimate MTLD from TTR: MTLD ≈ TTR × 140 (rough approximation)
             estimated_mtld = ttr * 140.0
             score = self._monotonic_score(
-                value=estimated_mtld,
-                threshold_low=60.0,
-                threshold_high=100.0,
-                increasing=True
+                value=estimated_mtld, threshold_low=60.0, threshold_high=100.0, increasing=True
             )
 
         self._validate_score(score)
@@ -286,10 +278,10 @@ class LexicalDimension(DimensionStrategy):
         """
         recommendations = []
 
-        lexical = metrics.get('lexical_diversity', {})
-        ttr = lexical.get('diversity', 0.0)
-        unique_words = lexical.get('unique', 0)
-        mtld = lexical.get('mtld_score', 0)
+        lexical = metrics.get("lexical_diversity", {})
+        ttr = lexical.get("diversity", 0.0)
+        unique_words = lexical.get("unique", 0)
+        mtld = lexical.get("mtld_score", 0)
 
         if ttr < 0.45:
             recommendations.append(
@@ -325,10 +317,10 @@ class LexicalDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -338,26 +330,23 @@ class LexicalDimension(DimensionStrategy):
     def _analyze_lexical_diversity(self, text: str) -> Dict:
         """Calculate Type-Token Ratio (lexical diversity)."""
         # Remove code blocks
-        text = re.sub(r'```[sS]*?```', '', text)
+        text = re.sub(r"```[sS]*?```", "", text)
         # Get all words (lowercase for uniqueness)
         words = [w.lower() for w in re.findall(r"\b[\w'-]+\b", text)]
 
         if not words:
-            return {'unique': 0, 'diversity': 0.0}
+            return {"unique": 0, "diversity": 0.0}
 
         unique = len(set(words))
         diversity = unique / len(words)
 
-        return {
-            'unique': unique,
-            'diversity': round(diversity, 3)
-        }
+        return {"unique": unique, "diversity": round(diversity, 3)}
 
     def _analyze_nltk_lexical(self, text: str) -> Dict:
         """Enhanced lexical diversity using NLTK."""
         try:
             # Remove code blocks
-            text = re.sub(r'```[sS]*?```', '', text)
+            text = re.sub(r"```[sS]*?```", "", text)
 
             # Tokenize
             words = word_tokenize(text.lower())
@@ -376,10 +365,7 @@ class LexicalDimension(DimensionStrategy):
             stemmed_unique = len(set(stemmed))
             stemmed_diversity = stemmed_unique / len(stemmed) if stemmed else 0
 
-            return {
-                'mtld_score': round(mtld, 2),
-                'stemmed_diversity': round(stemmed_diversity, 3)
-            }
+            return {"mtld_score": round(mtld, 2), "stemmed_diversity": round(stemmed_diversity, 3)}
         except Exception as e:
             print(f"Warning: NLTK lexical analysis failed: {e}", file=sys.stderr)
             return {}

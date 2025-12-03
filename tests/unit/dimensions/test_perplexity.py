@@ -158,6 +158,7 @@ class TestPerplexityCalculation:
 
         # Verify formula: perplexity = exp(-avg_log_prob)
         import math
+
         expected_perplexity = math.exp(-avg_log_prob)
         assert abs(perplexity - expected_perplexity) < 0.01
 
@@ -213,9 +214,9 @@ class TestMonotonicScoring:
 
     def test_monotonic_increasing(self, dimension):
         """Test that scoring is monotonic increasing."""
-        score_low = dimension._score_perplexity(21.2)    # AI median
-        score_med = dimension._score_perplexity(35.9)    # Human median
-        score_high = dimension._score_perplexity(50.0)   # Very human
+        score_low = dimension._score_perplexity(21.2)  # AI median
+        score_med = dimension._score_perplexity(35.9)  # Human median
+        score_high = dimension._score_perplexity(50.0)  # Very human
 
         assert score_low < score_med < score_high, "Scoring must be monotonic increasing"
 
@@ -247,61 +248,61 @@ class TestAnalyzeMethod:
         result = dimension.analyze(sample_text)
 
         # Check required fields
-        assert 'score' in result
-        assert 'raw_value' in result
-        assert 'perplexity' in result
-        assert 'token_count' in result
-        assert 'avg_log_prob' in result
-        assert 'threshold_low' in result
-        assert 'threshold_high' in result
-        assert 'interpretation' in result
-        assert 'available' in result
+        assert "score" in result
+        assert "raw_value" in result
+        assert "perplexity" in result
+        assert "token_count" in result
+        assert "avg_log_prob" in result
+        assert "threshold_low" in result
+        assert "threshold_high" in result
+        assert "interpretation" in result
+        assert "available" in result
 
     def test_analyze_perplexity_equals_raw_value(self, dimension, sample_text):
         """Test that perplexity equals raw_value."""
         result = dimension.analyze(sample_text)
-        assert result['perplexity'] == result['raw_value']
+        assert result["perplexity"] == result["raw_value"]
 
     def test_analyze_thresholds_correct(self, dimension, sample_text):
         """Test that thresholds are set correctly."""
         result = dimension.analyze(sample_text)
-        assert result['threshold_low'] == 25.0
-        assert result['threshold_high'] == 45.0
+        assert result["threshold_low"] == 25.0
+        assert result["threshold_high"] == 45.0
 
     def test_analyze_available_true_on_success(self, dimension, sample_text):
         """Test that available=True on successful analysis."""
         result = dimension.analyze(sample_text)
-        assert result['available'] is True
+        assert result["available"] is True
 
     def test_analyze_handles_empty_text(self, dimension):
         """Test that empty text returns neutral values."""
         result = dimension.analyze("")
 
-        assert result['available'] is False
-        assert result['score'] == 50.0  # Neutral
-        assert result['perplexity'] == 0.0
-        assert result['token_count'] == 0
+        assert result["available"] is False
+        assert result["score"] == 50.0  # Neutral
+        assert result["perplexity"] == 0.0
+        assert result["token_count"] == 0
 
     def test_analyze_handles_whitespace_only(self, dimension):
         """Test that whitespace-only text returns neutral values."""
         result = dimension.analyze("   \n\t   ")
 
-        assert result['available'] is False
-        assert result['score'] == 50.0
+        assert result["available"] is False
+        assert result["score"] == 50.0
 
     def test_analyze_short_text(self, dimension):
         """Test analysis of short text."""
         result = dimension.analyze("Hello world")
 
-        assert result['available'] is True
-        assert result['perplexity'] > 0
-        assert result['token_count'] >= 2
+        assert result["available"] is True
+        assert result["perplexity"] > 0
+        assert result["token_count"] >= 2
 
     def test_analyze_includes_interpretation(self, dimension, sample_text):
         """Test that interpretation is included."""
         result = dimension.analyze(sample_text)
-        assert isinstance(result['interpretation'], str)
-        assert len(result['interpretation']) > 0
+        assert isinstance(result["interpretation"], str)
+        assert len(result["interpretation"]) > 0
 
 
 class TestCalculateScore:
@@ -311,8 +312,8 @@ class TestCalculateScore:
         """Test that calculate_score uses _monotonic_score() helper."""
         # Provide metrics directly (not from analyze())
         metrics = {
-            'available': True,
-            'perplexity': 35.0  # Human median
+            "available": True,
+            "perplexity": 35.0,  # Human median
         }
         score = dimension.calculate_score(metrics)
 
@@ -322,10 +323,7 @@ class TestCalculateScore:
 
     def test_calculate_score_at_threshold_low(self, dimension):
         """Test scoring at threshold low (perplexity=25.0)."""
-        metrics = {
-            'available': True,
-            'perplexity': 25.0
-        }
+        metrics = {"available": True, "perplexity": 25.0}
         score = dimension.calculate_score(metrics)
 
         # At threshold_low=25.0, monotonic scoring returns 25.0
@@ -334,8 +332,8 @@ class TestCalculateScore:
     def test_calculate_score_below_threshold_low(self, dimension):
         """Test scoring below threshold low (perplexity<25.0, AI-like)."""
         metrics = {
-            'available': True,
-            'perplexity': 21.2  # AI median
+            "available": True,
+            "perplexity": 21.2,  # AI median
         }
         score = dimension.calculate_score(metrics)
 
@@ -345,8 +343,8 @@ class TestCalculateScore:
     def test_calculate_score_mid_range(self, dimension):
         """Test scoring in mid-range (perplexity between 25-45)."""
         metrics = {
-            'available': True,
-            'perplexity': 35.0  # Between thresholds
+            "available": True,
+            "perplexity": 35.0,  # Between thresholds
         }
         score = dimension.calculate_score(metrics)
 
@@ -356,10 +354,7 @@ class TestCalculateScore:
 
     def test_calculate_score_at_threshold_high(self, dimension):
         """Test scoring at threshold high (perplexity=45.0)."""
-        metrics = {
-            'available': True,
-            'perplexity': 45.0
-        }
+        metrics = {"available": True, "perplexity": 45.0}
         score = dimension.calculate_score(metrics)
 
         # At threshold_high=45.0, monotonic scoring returns 75.0
@@ -367,10 +362,7 @@ class TestCalculateScore:
 
     def test_calculate_score_above_threshold_high(self, dimension):
         """Test scoring above threshold high (perplexity>45.0, human-like)."""
-        metrics = {
-            'available': True,
-            'perplexity': 50.0
-        }
+        metrics = {"available": True, "perplexity": 50.0}
         score = dimension.calculate_score(metrics)
 
         # Above 45.0: should be 75-100 (asymptotic)
@@ -382,10 +374,7 @@ class TestCalculateScore:
         scores = []
 
         for pp in perplexity_values:
-            metrics = {
-                'available': True,
-                'perplexity': pp
-            }
+            metrics = {"available": True, "perplexity": pp}
             scores.append(dimension.calculate_score(metrics))
 
         # Scores should increase monotonically (or stay same for values below threshold)
@@ -393,15 +382,13 @@ class TestCalculateScore:
         # Then increases from 25 to 45 (25.0 to 75.0)
         # Then increases from 45+ (75.0 to 100.0 asymptotic)
         for i in range(len(scores) - 1):
-            assert scores[i] <= scores[i+1], \
-                f"Score should increase or stay same: {scores[i]} <= {scores[i+1]} (PP {perplexity_values[i]} vs {perplexity_values[i+1]})"
+            assert (
+                scores[i] <= scores[i + 1]
+            ), f"Score should increase or stay same: {scores[i]} <= {scores[i+1]} (PP {perplexity_values[i]} vs {perplexity_values[i+1]})"
 
     def test_calculate_score_handles_unavailable(self, dimension):
         """Test that calculate_score handles unavailable data gracefully."""
-        metrics = {
-            'available': False,
-            'perplexity': 0.0
-        }
+        metrics = {"available": False, "perplexity": 0.0}
         score = dimension.calculate_score(metrics)
 
         # Should return neutral score
@@ -419,10 +406,7 @@ class TestCalculateScore:
         test_perplexities = [10.0, 21.2, 25.0, 35.9, 45.0, 50.0, 100.0]
 
         for pp in test_perplexities:
-            metrics = {
-                'available': True,
-                'perplexity': pp
-            }
+            metrics = {"available": True, "perplexity": pp}
             score = dimension.calculate_score(metrics)
             assert 0.0 <= score <= 100.0, f"Score {score} for PP={pp} out of range"
 
@@ -432,49 +416,34 @@ class TestGetRecommendations:
 
     def test_recommendations_for_low_perplexity(self, dimension):
         """Test recommendations for low perplexity (<25.0)."""
-        metrics = {
-            'available': True,
-            'perplexity': 20.0,
-            'score': 16.0
-        }
+        metrics = {"available": True, "perplexity": 20.0, "score": 16.0}
         recommendations = dimension.get_recommendations(16.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('AI signature' in rec or 'predictable' in rec for rec in recommendations)
+        assert any("AI signature" in rec or "predictable" in rec for rec in recommendations)
 
     def test_recommendations_for_moderate_perplexity(self, dimension):
         """Test recommendations for moderate perplexity (25-35)."""
-        metrics = {
-            'available': True,
-            'perplexity': 30.0,
-            'score': 35.0
-        }
+        metrics = {"available": True, "perplexity": 30.0, "score": 35.0}
         recommendations = dimension.get_recommendations(35.0, metrics)
 
         assert len(recommendations) > 0
 
     def test_recommendations_for_high_perplexity(self, dimension):
         """Test recommendations for high perplexity (>45.0)."""
-        metrics = {
-            'available': True,
-            'perplexity': 50.0,
-            'score': 85.0
-        }
+        metrics = {"available": True, "perplexity": 50.0, "score": 85.0}
         recommendations = dimension.get_recommendations(85.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('human-like' in rec.lower() or 'good' in rec.lower() for rec in recommendations)
+        assert any("human-like" in rec.lower() or "good" in rec.lower() for rec in recommendations)
 
     def test_recommendations_when_unavailable(self, dimension):
         """Test recommendations when analysis unavailable."""
-        metrics = {
-            'available': False,
-            'perplexity': 0.0
-        }
+        metrics = {"available": False, "perplexity": 0.0}
         recommendations = dimension.get_recommendations(50.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('unavailable' in rec.lower() for rec in recommendations)
+        assert any("unavailable" in rec.lower() for rec in recommendations)
 
 
 class TestFormatDisplay:
@@ -486,14 +455,14 @@ class TestFormatDisplay:
         display = dimension.format_display(result)
 
         assert isinstance(display, str)
-        assert 'perplexity' in display.lower() or str(result['perplexity'])[:3] in display
+        assert "perplexity" in display.lower() or str(result["perplexity"])[:3] in display
 
     def test_format_display_unavailable(self, dimension):
         """Test format_display when unavailable."""
-        metrics = {'available': False}
+        metrics = {"available": False}
         display = dimension.format_display(metrics)
 
-        assert 'unavailable' in display.lower()
+        assert "unavailable" in display.lower()
 
 
 class TestEdgeCases:
@@ -503,8 +472,8 @@ class TestEdgeCases:
         """Test with very short text (5 words)."""
         result = dimension.analyze("Hello world from test suite")
 
-        assert result['available'] is True
-        assert result['perplexity'] > 0
+        assert result["available"] is True
+        assert result["perplexity"] > 0
 
     def test_single_word_text(self, dimension):
         """Test with single word (should fail gracefully)."""
@@ -512,30 +481,30 @@ class TestEdgeCases:
 
         # Single word may fail tokenization (needs 2+ tokens)
         # Should return neutral score if fails
-        assert 'score' in result
+        assert "score" in result
 
     def test_text_with_numbers(self, dimension):
         """Test text with numbers."""
         result = dimension.analyze("The year 2024 has 365 days and 12 months")
 
-        assert result['available'] is True
-        assert result['perplexity'] > 0
+        assert result["available"] is True
+        assert result["perplexity"] > 0
 
     def test_text_with_punctuation(self, dimension):
         """Test text with various punctuation."""
         text = "Hello! How are you? I'm fine, thanks. What about you?"
         result = dimension.analyze(text)
 
-        assert result['available'] is True
-        assert result['perplexity'] > 0
+        assert result["available"] is True
+        assert result["perplexity"] > 0
 
     def test_text_with_special_characters(self, dimension):
         """Test text with special characters."""
         text = "Email: test@example.com, Price: $99.99, Code: #ABC123"
         result = dimension.analyze(text)
 
-        assert result['available'] is True
-        assert result['perplexity'] > 0
+        assert result["available"] is True
+        assert result["perplexity"] > 0
 
 
 class TestPerformance:
@@ -549,7 +518,7 @@ class TestPerformance:
         result = dimension.analyze(text)
         elapsed = time.time() - start
 
-        assert result['available'] is True
+        assert result["available"] is True
         # Should complete in reasonable time (may be slow on first run due to model load)
         # We're generous with timing since model loading is one-time
         assert elapsed < 30.0, f"Analysis took {elapsed:.2f}s (expected <30s including model load)"
@@ -589,8 +558,8 @@ class TestIntegration:
         """Test complete analysis pipeline."""
         # Analyze
         result = dimension.analyze(sample_text)
-        assert result['available'] is True
-        assert result['perplexity'] > 0
+        assert result["available"] is True
+        assert result["perplexity"] > 0
 
         # Calculate score
         score = dimension.calculate_score(result)
@@ -609,8 +578,8 @@ class TestIntegration:
         result = dimension.analyze(sample_text)
 
         # Should have required fields
-        assert 'available' in result
-        assert 'analysis_mode' in result
+        assert "available" in result
+        assert "analysis_mode" in result
 
         # Score should be calculable
         score = dimension.calculate_score(result)
@@ -635,8 +604,8 @@ class TestAnalyzeDetailed:
         lines = ["Sample line 1", "Sample line 2"]
         result = dimension.analyze_detailed(lines)
 
-        assert 'note' in result
-        assert 'document-level' in result['note']
+        assert "note" in result
+        assert "document-level" in result["note"]
 
 
 class TestAIvsHumanDiscrimination:
@@ -649,8 +618,9 @@ class TestAIvsHumanDiscrimination:
 
         # This may not always hold for all text samples, but should trend this way
         # We check scores instead of raw perplexity as scoring is more stable
-        assert ai_result['score'] < human_result['score'], \
-            f"AI-like score ({ai_result['score']}) should be lower than human-like ({human_result['score']})"
+        assert (
+            ai_result["score"] < human_result["score"]
+        ), f"AI-like score ({ai_result['score']}) should be lower than human-like ({human_result['score']})"
 
 
 # Performance benchmarks (can be slow)
@@ -661,9 +631,13 @@ class TestPerformanceBenchmarks:
     def test_benchmark_various_lengths(self, dimension):
         """Benchmark analysis on various text lengths."""
         test_cases = [
-            ("Short", "Hello world test", 2.0),  # Includes model loading overhead (~1.4s first call)
+            (
+                "Short",
+                "Hello world test",
+                2.0,
+            ),  # Includes model loading overhead (~1.4s first call)
             ("Medium", "Test sentence " * 50, 10.0),
-            ("Long", "Test sentence " * 200, 30.0)
+            ("Long", "Test sentence " * 200, 30.0),
         ]
 
         for name, text, max_time in test_cases:
@@ -671,6 +645,6 @@ class TestPerformanceBenchmarks:
             result = dimension.analyze(text)
             elapsed = time.time() - start
 
-            assert result['available'] is True, f"{name} analysis failed"
+            assert result["available"] is True, f"{name} analysis failed"
             # Be generous with timing for different hardware
             assert elapsed < max_time, f"{name} took {elapsed:.2f}s (expected <{max_time}s)"

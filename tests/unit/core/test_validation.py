@@ -36,7 +36,7 @@ class TestDocumentScoreShift:
         shift = DocumentScoreShift(
             document_id="doc_01",
             old_scores={"dim_a": 50.0, "dim_b": 60.0},
-            new_scores={"dim_a": 55.0, "dim_b": 65.0}
+            new_scores={"dim_a": 55.0, "dim_b": 65.0},
         )
 
         assert shift.dimension_shifts["dim_a"] == 5.0
@@ -46,9 +46,7 @@ class TestDocumentScoreShift:
     def test_negative_shift(self):
         """Test negative shift (score decrease)."""
         shift = DocumentScoreShift(
-            document_id="doc_01",
-            old_scores={"dim_a": 80.0},
-            new_scores={"dim_a": 60.0}
+            document_id="doc_01", old_scores={"dim_a": 80.0}, new_scores={"dim_a": 60.0}
         )
 
         assert shift.dimension_shifts["dim_a"] == -20.0
@@ -59,7 +57,7 @@ class TestDocumentScoreShift:
         shift = DocumentScoreShift(
             document_id="doc_01",
             old_scores={"dim_a": 50.0},
-            new_scores={"dim_a": 55.0}  # 5 point shift
+            new_scores={"dim_a": 55.0},  # 5 point shift
         )
 
         assert not shift.has_warning_shift()
@@ -71,7 +69,7 @@ class TestDocumentScoreShift:
         shift = DocumentScoreShift(
             document_id="doc_01",
             old_scores={"dim_a": 50.0},
-            new_scores={"dim_a": 66.0}  # 16 point shift (> ERROR_THRESHOLD of 15)
+            new_scores={"dim_a": 66.0},  # 16 point shift (> ERROR_THRESHOLD of 15)
         )
 
         assert shift.has_warning_shift()
@@ -85,7 +83,7 @@ class TestDocumentScoreShift:
         shift = DocumentScoreShift(
             document_id="doc_01",
             old_scores={"stable": 50.0, "shifted": 30.0},
-            new_scores={"stable": 51.0, "shifted": 50.0}  # 20 point shift on 'shifted'
+            new_scores={"stable": 51.0, "shifted": 50.0},  # 20 point shift on 'shifted'
         )
 
         assert shift.dimension_shifts["stable"] == 1.0
@@ -103,9 +101,7 @@ class TestScoreShiftReport:
     def test_empty_report(self):
         """Test report with no documents."""
         report = ScoreShiftReport(
-            old_params_version="1.0",
-            new_params_version="2.0",
-            timestamp="2025-11-24T10:00:00Z"
+            old_params_version="1.0", new_params_version="2.0", timestamp="2025-11-24T10:00:00Z"
         )
         report.calculate_summary()
 
@@ -115,15 +111,13 @@ class TestScoreShiftReport:
     def test_single_document_acceptable(self):
         """Test report with single acceptable document."""
         report = ScoreShiftReport(
-            old_params_version="1.0",
-            new_params_version="2.0",
-            timestamp="2025-11-24T10:00:00Z"
+            old_params_version="1.0", new_params_version="2.0", timestamp="2025-11-24T10:00:00Z"
         )
 
         shift = DocumentScoreShift(
             document_id="doc_01",
             old_scores={"dim_a": 50.0, "dim_b": 60.0},
-            new_scores={"dim_a": 52.0, "dim_b": 61.0}
+            new_scores={"dim_a": 52.0, "dim_b": 61.0},
         )
         report.add_document_shift(shift)
         report.calculate_summary()
@@ -136,24 +130,24 @@ class TestScoreShiftReport:
     def test_multiple_documents_with_errors(self):
         """Test report with multiple documents including errors."""
         report = ScoreShiftReport(
-            old_params_version="1.0",
-            new_params_version="2.0",
-            timestamp="2025-11-24T10:00:00Z"
+            old_params_version="1.0", new_params_version="2.0", timestamp="2025-11-24T10:00:00Z"
         )
 
         # Acceptable document
-        report.add_document_shift(DocumentScoreShift(
-            document_id="doc_01",
-            old_scores={"dim_a": 50.0},
-            new_scores={"dim_a": 52.0}
-        ))
+        report.add_document_shift(
+            DocumentScoreShift(
+                document_id="doc_01", old_scores={"dim_a": 50.0}, new_scores={"dim_a": 52.0}
+            )
+        )
 
         # Document with error-level shift
-        report.add_document_shift(DocumentScoreShift(
-            document_id="doc_02",
-            old_scores={"dim_a": 50.0},
-            new_scores={"dim_a": 70.0}  # 20 point shift
-        ))
+        report.add_document_shift(
+            DocumentScoreShift(
+                document_id="doc_02",
+                old_scores={"dim_a": 50.0},
+                new_scores={"dim_a": 70.0},  # 20 point shift
+            )
+        )
 
         report.calculate_summary()
 
@@ -164,22 +158,24 @@ class TestScoreShiftReport:
     def test_dimension_mean_shifts(self):
         """Test per-dimension mean shift calculation."""
         report = ScoreShiftReport(
-            old_params_version="1.0",
-            new_params_version="2.0",
-            timestamp="2025-11-24T10:00:00Z"
+            old_params_version="1.0", new_params_version="2.0", timestamp="2025-11-24T10:00:00Z"
         )
 
-        report.add_document_shift(DocumentScoreShift(
-            document_id="doc_01",
-            old_scores={"dim_a": 50.0},
-            new_scores={"dim_a": 60.0}  # +10
-        ))
+        report.add_document_shift(
+            DocumentScoreShift(
+                document_id="doc_01",
+                old_scores={"dim_a": 50.0},
+                new_scores={"dim_a": 60.0},  # +10
+            )
+        )
 
-        report.add_document_shift(DocumentScoreShift(
-            document_id="doc_02",
-            old_scores={"dim_a": 50.0},
-            new_scores={"dim_a": 70.0}  # +20
-        ))
+        report.add_document_shift(
+            DocumentScoreShift(
+                document_id="doc_02",
+                old_scores={"dim_a": 50.0},
+                new_scores={"dim_a": 70.0},  # +20
+            )
+        )
 
         report.calculate_summary()
 
@@ -189,16 +185,14 @@ class TestScoreShiftReport:
     def test_format_text_report(self):
         """Test text report generation."""
         report = ScoreShiftReport(
-            old_params_version="1.0",
-            new_params_version="2.0",
-            timestamp="2025-11-24T10:00:00Z"
+            old_params_version="1.0", new_params_version="2.0", timestamp="2025-11-24T10:00:00Z"
         )
 
-        report.add_document_shift(DocumentScoreShift(
-            document_id="doc_01",
-            old_scores={"dim_a": 50.0},
-            new_scores={"dim_a": 55.0}
-        ))
+        report.add_document_shift(
+            DocumentScoreShift(
+                document_id="doc_01", old_scores={"dim_a": 50.0}, new_scores={"dim_a": 55.0}
+            )
+        )
 
         text = report.format_text_report()
 
@@ -210,16 +204,14 @@ class TestScoreShiftReport:
     def test_save_and_load(self):
         """Test saving report to JSON."""
         report = ScoreShiftReport(
-            old_params_version="1.0",
-            new_params_version="2.0",
-            timestamp="2025-11-24T10:00:00Z"
+            old_params_version="1.0", new_params_version="2.0", timestamp="2025-11-24T10:00:00Z"
         )
 
-        report.add_document_shift(DocumentScoreShift(
-            document_id="doc_01",
-            old_scores={"dim_a": 50.0},
-            new_scores={"dim_a": 55.0}
-        ))
+        report.add_document_shift(
+            DocumentScoreShift(
+                document_id="doc_01", old_scores={"dim_a": 50.0}, new_scores={"dim_a": 55.0}
+            )
+        )
         report.calculate_summary()
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -230,6 +222,7 @@ class TestScoreShiftReport:
 
             # Verify JSON structure
             import json
+
             with open(path) as f:
                 data = json.load(f)
 
@@ -248,8 +241,8 @@ class TestParameterValidator:
             scoring_type=ScoringType.GAUSSIAN,
             parameters=GaussianParameters(
                 target=ParameterValue(target, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(width, PercentileSource.STDEV)
-            )
+                width=ParameterValue(width, PercentileSource.STDEV),
+            ),
         )
 
     def _make_monotonic_params(self, low=0.3, high=0.7) -> DimensionParameters:
@@ -259,16 +252,14 @@ class TestParameterValidator:
             scoring_type=ScoringType.MONOTONIC,
             parameters=MonotonicParameters(
                 threshold_low=ParameterValue(low, PercentileSource.PERCENTILE, "p25_human"),
-                threshold_high=ParameterValue(high, PercentileSource.PERCENTILE, "p75_human")
-            )
+                threshold_high=ParameterValue(high, PercentileSource.PERCENTILE, "p75_human"),
+            ),
         )
 
     def test_valid_parameters(self):
         """Test validation of valid parameters."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v2.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v2.0"
         )
         params.dimensions["burstiness"] = self._make_gaussian_params()
         params.dimensions["lexical"] = self._make_monotonic_params()
@@ -282,9 +273,7 @@ class TestParameterValidator:
     def test_invalid_gaussian_width(self):
         """Test validation rejects zero width."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v2.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v2.0"
         )
 
         # Create params with zero width
@@ -293,8 +282,8 @@ class TestParameterValidator:
             scoring_type=ScoringType.GAUSSIAN,
             parameters=GaussianParameters(
                 target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(0.0, PercentileSource.STDEV)  # Invalid!
-            )
+                width=ParameterValue(0.0, PercentileSource.STDEV),  # Invalid!
+            ),
         )
         params.dimensions["bad_dim"] = invalid_dim
 
@@ -308,9 +297,7 @@ class TestParameterValidator:
     def test_invalid_monotonic_thresholds(self):
         """Test validation rejects inverted thresholds."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v2.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v2.0"
         )
 
         # Create params with inverted thresholds
@@ -319,8 +306,8 @@ class TestParameterValidator:
             scoring_type=ScoringType.MONOTONIC,
             parameters=MonotonicParameters(
                 threshold_low=ParameterValue(0.8, PercentileSource.PERCENTILE, "p75_human"),
-                threshold_high=ParameterValue(0.3, PercentileSource.PERCENTILE, "p25_human")
-            )
+                threshold_high=ParameterValue(0.3, PercentileSource.PERCENTILE, "p25_human"),
+            ),
         )
         params.dimensions["bad_dim"] = invalid_dim
 
@@ -334,9 +321,7 @@ class TestParameterValidator:
     def test_warning_for_high_cv(self):
         """Test warning for high coefficient of variation."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v2.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v2.0"
         )
 
         # Width much larger than target (CV > 2)
@@ -345,8 +330,8 @@ class TestParameterValidator:
             scoring_type=ScoringType.GAUSSIAN,
             parameters=GaussianParameters(
                 target=ParameterValue(1.0, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(5.0, PercentileSource.STDEV)  # CV = 5
-            )
+                width=ParameterValue(5.0, PercentileSource.STDEV),  # CV = 5
+            ),
         )
 
         validator = ParameterValidator()
@@ -358,9 +343,7 @@ class TestParameterValidator:
     def test_warning_for_missing_dimensions(self):
         """Test warning for missing recommended dimensions."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v2.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v2.0"
         )
         # Only add one dimension, missing many recommended ones
         params.dimensions["custom"] = self._make_gaussian_params()
@@ -380,7 +363,7 @@ class TestScoreShiftAnalyzer:
         """Test analysis with identical scores (no shift)."""
         old_scores = {
             "doc_01": {"dim_a": 50.0, "dim_b": 60.0},
-            "doc_02": {"dim_a": 70.0, "dim_b": 80.0}
+            "doc_02": {"dim_a": 70.0, "dim_b": 80.0},
         }
         new_scores = old_scores.copy()  # Identical
 
@@ -392,12 +375,8 @@ class TestScoreShiftAnalyzer:
 
     def test_analyze_small_shifts(self):
         """Test analysis with small acceptable shifts."""
-        old_scores = {
-            "doc_01": {"dim_a": 50.0, "dim_b": 60.0}
-        }
-        new_scores = {
-            "doc_01": {"dim_a": 52.0, "dim_b": 61.0}
-        }
+        old_scores = {"doc_01": {"dim_a": 50.0, "dim_b": 60.0}}
+        new_scores = {"doc_01": {"dim_a": 52.0, "dim_b": 61.0}}
 
         analyzer = ScoreShiftAnalyzer()
         report = analyzer.analyze_shift(old_scores, new_scores, "1.0", "2.0")
@@ -407,9 +386,7 @@ class TestScoreShiftAnalyzer:
 
     def test_analyze_large_shifts(self):
         """Test analysis with large unacceptable shifts."""
-        old_scores = {
-            "doc_01": {"dim_a": 50.0}
-        }
+        old_scores = {"doc_01": {"dim_a": 50.0}}
         new_scores = {
             "doc_01": {"dim_a": 80.0}  # 30 point shift
         }
@@ -429,22 +406,12 @@ class TestScoreShiftAnalyzer:
             new_path = Path(tmpdir) / "new_scores.json"
 
             # Create test files
-            old_data = {
-                "version": "1.0",
-                "baselines": {
-                    "doc_01": {"dim_a": 50.0}
-                }
-            }
-            new_data = {
-                "version": "2.0",
-                "baselines": {
-                    "doc_01": {"dim_a": 55.0}
-                }
-            }
+            old_data = {"version": "1.0", "baselines": {"doc_01": {"dim_a": 50.0}}}
+            new_data = {"version": "2.0", "baselines": {"doc_01": {"dim_a": 55.0}}}
 
-            with open(old_path, 'w') as f:
+            with open(old_path, "w") as f:
                 json.dump(old_data, f)
-            with open(new_path, 'w') as f:
+            with open(new_path, "w") as f:
                 json.dump(new_data, f)
 
             analyzer = ScoreShiftAnalyzer()
@@ -461,17 +428,15 @@ class TestValidateParameterUpdate:
     def test_validate_new_params_only(self):
         """Test validation of new params without old params."""
         new_params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v2.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v2.0"
         )
         new_params.dimensions["test"] = DimensionParameters(
             dimension_name="test",
             scoring_type=ScoringType.GAUSSIAN,
             parameters=GaussianParameters(
                 target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(2.0, PercentileSource.STDEV)
-            )
+                width=ParameterValue(2.0, PercentileSource.STDEV),
+            ),
         )
 
         is_valid, report = validate_parameter_update(None, new_params)

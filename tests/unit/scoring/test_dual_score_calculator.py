@@ -21,6 +21,7 @@ from writescore.scoring.dual_score_calculator import (
 # Fixtures and Helper Functions
 # ============================================================================
 
+
 @pytest.fixture(autouse=True)
 def load_dimensions():
     """
@@ -31,7 +32,7 @@ def load_dimensions():
     This fixture reloads all dimensions using the 'full' profile after each clear.
     """
     loader = DimensionLoader()
-    loader.load_from_profile('full')
+    loader.load_from_profile("full")
     yield
 
 
@@ -44,101 +45,65 @@ def create_analysis_results(**kwargs):
     """
     # Default required positional arguments
     defaults = {
-        'file_path': "/path/to/test.md",
-        'total_words': 500,
-        'total_sentences': 25,
-        'total_paragraphs': 10,
-        'ai_vocabulary_count': 5,
-        'ai_vocabulary_per_1k': 10.0,
-        'ai_vocabulary_list': ['delve', 'robust', 'leverage'],
-        'formulaic_transitions_count': 2,
-        'formulaic_transitions_list': ['Furthermore', 'Moreover'],
-        'sentence_mean_length': 20.0,
-        'sentence_stdev': 6.0,
-        'sentence_min': 5,
-        'sentence_max': 40,
-        'sentence_range': (5, 40),
-        'short_sentences_count': 3,
-        'medium_sentences_count': 18,
-        'long_sentences_count': 4,
-        'sentence_lengths': [15, 20, 18, 25, 22],
-        'paragraph_mean_words': 50.0,
-        'paragraph_stdev': 10.0,
-        'paragraph_range': (20, 80),
-        'unique_words': 300,
-        'lexical_diversity': 0.6,
-        'bullet_list_lines': 10,
-        'numbered_list_lines': 5,
-        'total_headings': 6,
-        'heading_depth': 3,
-        'h1_count': 1,
-        'h2_count': 3,
-        'h3_count': 2,
-        'h4_plus_count': 0,
-        'headings_per_page': 3.0,
-        'heading_parallelism_score': 0.5,
-        'verbose_headings_count': 1,
-        'avg_heading_length': 6.0,
-        'first_person_count': 5,
-        'direct_address_count': 3,
-        'contraction_count': 2,
-        'domain_terms_count': 4,
-        'domain_terms_list': ['Python', 'API'],
-        'em_dash_count': 3,
-        'em_dashes_per_page': 1.5,
-        'bold_markdown_count': 8,
-        'italic_markdown_count': 6,
+        "file_path": "/path/to/test.md",
+        "total_words": 500,
+        "total_sentences": 25,
+        "total_paragraphs": 10,
+        "ai_vocabulary_count": 5,
+        "ai_vocabulary_per_1k": 10.0,
+        "ai_vocabulary_list": ["delve", "robust", "leverage"],
+        "formulaic_transitions_count": 2,
+        "formulaic_transitions_list": ["Furthermore", "Moreover"],
+        "sentence_mean_length": 20.0,
+        "sentence_stdev": 6.0,
+        "sentence_min": 5,
+        "sentence_max": 40,
+        "sentence_range": (5, 40),
+        "short_sentences_count": 3,
+        "medium_sentences_count": 18,
+        "long_sentences_count": 4,
+        "sentence_lengths": [15, 20, 18, 25, 22],
+        "paragraph_mean_words": 50.0,
+        "paragraph_stdev": 10.0,
+        "paragraph_range": (20, 80),
+        "unique_words": 300,
+        "lexical_diversity": 0.6,
+        "bullet_list_lines": 10,
+        "numbered_list_lines": 5,
+        "total_headings": 6,
+        "heading_depth": 3,
+        "h1_count": 1,
+        "h2_count": 3,
+        "h3_count": 2,
+        "h4_plus_count": 0,
+        "headings_per_page": 3.0,
+        "heading_parallelism_score": 0.5,
+        "verbose_headings_count": 1,
+        "avg_heading_length": 6.0,
+        "first_person_count": 5,
+        "direct_address_count": 3,
+        "contraction_count": 2,
+        "domain_terms_count": 4,
+        "domain_terms_list": ["Python", "API"],
+        "em_dash_count": 3,
+        "em_dashes_per_page": 1.5,
+        "bold_markdown_count": 8,
+        "italic_markdown_count": 6,
         # NEW: dimension_results dict (Story 1.4.11+)
-        'dimension_results': {
-            'predictability': {
-                'gltr_top10_percentage': 65.0,
-                'score': 50.0
-            },
-            'burstiness': {
-                'sentence_stdev': 6.0,
-                'score': 50.0
-            },
-            'perplexity': {
-                'ai_vocabulary_per_1k': 10.0,
-                'score': 50.0
-            },
-            'formatting': {
-                'em_dashes_per_page': 1.5,
-                'score': 50.0
-            },
-            'structure': {
-                'heading_parallelism_score': 0.5,
-                'score': 50.0
-            },
-            'voice': {
-                'first_person_count': 5,
-                'score': 50.0
-            },
-            'readability': {
-                'flesch_reading_ease': 60.0,
-                'score': 50.0
-            },
-            'lexical': {
-                'unique_word_ratio': 0.6,
-                'score': 50.0
-            },
-            'sentiment': {
-                'sentiment_flatness_score': 'MEDIUM',
-                'score': 50.0
-            },
-            'syntactic': {
-                'subordination_index': 0.5,
-                'score': 50.0
-            },
-            'advanced_lexical': {
-                'hdd_score': 0.6,
-                'score': 50.0
-            },
-            'transition_marker': {
-                'transition_marker_density': 2.0,
-                'score': 50.0
-            }
-        }
+        "dimension_results": {
+            "predictability": {"gltr_top10_percentage": 65.0, "score": 50.0},
+            "burstiness": {"sentence_stdev": 6.0, "score": 50.0},
+            "perplexity": {"ai_vocabulary_per_1k": 10.0, "score": 50.0},
+            "formatting": {"em_dashes_per_page": 1.5, "score": 50.0},
+            "structure": {"heading_parallelism_score": 0.5, "score": 50.0},
+            "voice": {"first_person_count": 5, "score": 50.0},
+            "readability": {"flesch_reading_ease": 60.0, "score": 50.0},
+            "lexical": {"unique_word_ratio": 0.6, "score": 50.0},
+            "sentiment": {"sentiment_flatness_score": "MEDIUM", "score": 50.0},
+            "syntactic": {"subordination_index": 0.5, "score": 50.0},
+            "advanced_lexical": {"hdd_score": 0.6, "score": 50.0},
+            "transition_marker": {"transition_marker_density": 2.0, "score": 50.0},
+        },
     }
 
     # Update with provided kwargs
@@ -154,7 +119,7 @@ def basic_results():
         # Basic metrics override for variety
         sentence_stdev=8.5,
         ai_vocabulary_per_1k=2.0,
-        em_dashes_per_page=1.5
+        em_dashes_per_page=1.5,
     )
 
 
@@ -169,62 +134,62 @@ def low_quality_results():
         em_dashes_per_page=8.0,
         # NEW: dimension_results with LOW scores for all dimensions
         dimension_results={
-            'predictability': {
-                'gltr_top10_percentage': 85.0,
-                'score': 25.0  # LOW
+            "predictability": {
+                "gltr_top10_percentage": 85.0,
+                "score": 25.0,  # LOW
             },
-            'burstiness': {
-                'sentence_stdev': 2.0,
-                'score': 25.0  # LOW
+            "burstiness": {
+                "sentence_stdev": 2.0,
+                "score": 25.0,  # LOW
             },
-            'perplexity': {
-                'ai_vocabulary_per_1k': 25.0,
-                'score': 25.0  # LOW
+            "perplexity": {
+                "ai_vocabulary_per_1k": 25.0,
+                "score": 25.0,  # LOW
             },
-            'formatting': {
-                'em_dashes_per_page': 8.0,
-                'score': 25.0  # LOW
+            "formatting": {
+                "em_dashes_per_page": 8.0,
+                "score": 25.0,  # LOW
             },
-            'structure': {
-                'heading_parallelism_score': 0.2,
-                'score': 25.0  # LOW
+            "structure": {
+                "heading_parallelism_score": 0.2,
+                "score": 25.0,  # LOW
             },
-            'voice': {
-                'first_person_count': 15,
-                'score': 25.0  # LOW
+            "voice": {
+                "first_person_count": 15,
+                "score": 25.0,  # LOW
             },
-            'readability': {
-                'flesch_reading_ease': 30.0,
-                'score': 25.0  # LOW
+            "readability": {
+                "flesch_reading_ease": 30.0,
+                "score": 25.0,  # LOW
             },
-            'lexical': {
-                'unique_word_ratio': 0.3,
-                'hdd_score': 0.45,
-                'mattr': 0.55,
-                'rttr': 5.0,
-                'score': 25.0  # LOW
+            "lexical": {
+                "unique_word_ratio": 0.3,
+                "hdd_score": 0.45,
+                "mattr": 0.55,
+                "rttr": 5.0,
+                "score": 25.0,  # LOW
             },
-            'sentiment': {
-                'sentiment_flatness_score': 'LOW',
-                'roberta_sentiment_variance': 0.08,
-                'score': 25.0  # LOW
+            "sentiment": {
+                "sentiment_flatness_score": "LOW",
+                "roberta_sentiment_variance": 0.08,
+                "score": 25.0,  # LOW
             },
-            'syntactic': {
-                'subordination_index': 0.2,
-                'score': 25.0  # LOW
+            "syntactic": {
+                "subordination_index": 0.2,
+                "score": 25.0,  # LOW
             },
-            'advanced_lexical': {
-                'hdd_score': 0.45,
-                'mattr': 0.55,
-                'rttr': 5.0,
-                'score': 25.0  # LOW
+            "advanced_lexical": {
+                "hdd_score": 0.45,
+                "mattr": 0.55,
+                "rttr": 5.0,
+                "score": 25.0,  # LOW
             },
-            'transition_marker': {
-                'transition_marker_density': 8.0,
-                'however_per_1k': 8.0,
-                'score': 25.0  # LOW
-            }
-        }
+            "transition_marker": {
+                "transition_marker_density": 8.0,
+                "however_per_1k": 8.0,
+                "score": 25.0,  # LOW
+            },
+        },
     )
 
 
@@ -244,62 +209,62 @@ def high_quality_results():
         em_dashes_per_page=0.5,
         # NEW: dimension_results with HIGH scores for all dimensions
         dimension_results={
-            'predictability': {
-                'gltr_top10_percentage': 45.0,
-                'score': 95.0  # HIGH (increased from 90.0 for proper weight normalization)
+            "predictability": {
+                "gltr_top10_percentage": 45.0,
+                "score": 95.0,  # HIGH (increased from 90.0 for proper weight normalization)
             },
-            'burstiness': {
-                'sentence_stdev': 10.5,
-                'score': 95.0  # HIGH
+            "burstiness": {
+                "sentence_stdev": 10.5,
+                "score": 95.0,  # HIGH
             },
-            'perplexity': {
-                'ai_vocabulary_per_1k': 1.0,
-                'score': 95.0  # HIGH
+            "perplexity": {
+                "ai_vocabulary_per_1k": 1.0,
+                "score": 95.0,  # HIGH
             },
-            'formatting': {
-                'em_dashes_per_page': 0.5,
-                'score': 95.0  # HIGH
+            "formatting": {
+                "em_dashes_per_page": 0.5,
+                "score": 95.0,  # HIGH
             },
-            'structure': {
-                'heading_parallelism_score': 0.9,
-                'score': 95.0  # HIGH
+            "structure": {
+                "heading_parallelism_score": 0.9,
+                "score": 95.0,  # HIGH
             },
-            'voice': {
-                'first_person_count': 2,
-                'score': 95.0  # HIGH
+            "voice": {
+                "first_person_count": 2,
+                "score": 95.0,  # HIGH
             },
-            'readability': {
-                'flesch_reading_ease': 75.0,
-                'score': 95.0  # HIGH
+            "readability": {
+                "flesch_reading_ease": 75.0,
+                "score": 95.0,  # HIGH
             },
-            'lexical': {
-                'unique_word_ratio': 0.85,
-                'hdd_score': 0.85,
-                'mattr': 0.85,
-                'rttr': 9.5,
-                'score': 95.0  # HIGH
+            "lexical": {
+                "unique_word_ratio": 0.85,
+                "hdd_score": 0.85,
+                "mattr": 0.85,
+                "rttr": 9.5,
+                "score": 95.0,  # HIGH
             },
-            'sentiment': {
-                'sentiment_flatness_score': 'HIGH',
-                'roberta_sentiment_variance': 0.25,
-                'score': 95.0  # HIGH
+            "sentiment": {
+                "sentiment_flatness_score": "HIGH",
+                "roberta_sentiment_variance": 0.25,
+                "score": 95.0,  # HIGH
             },
-            'syntactic': {
-                'subordination_index': 0.8,
-                'score': 95.0  # HIGH
+            "syntactic": {
+                "subordination_index": 0.8,
+                "score": 95.0,  # HIGH
             },
-            'advanced_lexical': {
-                'hdd_score': 0.85,
-                'mattr': 0.85,
-                'rttr': 9.5,
-                'score': 95.0  # HIGH
+            "advanced_lexical": {
+                "hdd_score": 0.85,
+                "mattr": 0.85,
+                "rttr": 9.5,
+                "score": 95.0,  # HIGH
             },
-            'transition_marker': {
-                'transition_marker_density': 1.0,
-                'however_per_1k': 1.0,
-                'score': 95.0  # HIGH
-            }
-        }
+            "transition_marker": {
+                "transition_marker_density": 1.0,
+                "however_per_1k": 1.0,
+                "score": 95.0,  # HIGH
+            },
+        },
     )
 
 
@@ -311,7 +276,7 @@ def results_with_missing_advanced():
         # Basic metrics
         sentence_stdev=6.0,
         ai_vocabulary_per_1k=8.0,
-        em_dashes_per_page=3.0
+        em_dashes_per_page=3.0,
         # Uses default dimension_results from helper
     )
 
@@ -324,7 +289,7 @@ def results_with_partial_perplexity():
         # Basic metrics
         sentence_stdev=8.5,
         ai_vocabulary_per_1k=2.0,
-        em_dashes_per_page=1.5
+        em_dashes_per_page=1.5,
         # Uses default dimension_results from helper
     )
 
@@ -332,6 +297,7 @@ def results_with_partial_perplexity():
 # ============================================================================
 # Helper Function Tests
 # ============================================================================
+
 
 class TestCalculateImpact:
     """Tests for _calculate_impact helper function."""
@@ -527,6 +493,7 @@ class TestInterpretDetection:
 # Main Function Tests
 # ============================================================================
 
+
 class TestCalculateDualScoreBasic:
     """Tests for basic calculate_dual_score functionality."""
 
@@ -556,11 +523,7 @@ class TestCalculateDualScoreBasic:
 
     def test_custom_targets(self, basic_results):
         """Test dual score calculation with custom targets."""
-        score = calculate_dual_score(
-            basic_results,
-            detection_target=20.0,
-            quality_target=90.0
-        )
+        score = calculate_dual_score(basic_results, detection_target=20.0, quality_target=90.0)
 
         assert score.detection_target == 20.0
         assert score.quality_target == 90.0
@@ -583,10 +546,10 @@ class TestCalculateDualScoreBasic:
 
         # Check each category has dimensions
         for cat in score.categories:
-            assert hasattr(cat, 'dimensions')
-            assert hasattr(cat, 'total')
-            assert hasattr(cat, 'max_total')
-            assert hasattr(cat, 'percentage')
+            assert hasattr(cat, "dimensions")
+            assert hasattr(cat, "total")
+            assert hasattr(cat, "max_total")
+            assert hasattr(cat, "percentage")
 
 
 class TestCalculateDualScoreDimensions:
@@ -675,8 +638,13 @@ class TestCalculateDualScoreDimensions:
         dim_names = [dim.name for dim in core_cat.dimensions]
         # Check for key dimensions using substring matching
         assert any("burstiness" in name.lower() or "sentence" in name.lower() for name in dim_names)
-        assert any("perplexity" in name.lower() or "vocabulary" in name.lower() for name in dim_names)
-        assert any("formatting" in name.lower() or "em-dash" in name.lower() or "em dash" in name.lower() for name in dim_names)
+        assert any(
+            "perplexity" in name.lower() or "vocabulary" in name.lower() for name in dim_names
+        )
+        assert any(
+            "formatting" in name.lower() or "em-dash" in name.lower() or "em dash" in name.lower()
+            for name in dim_names
+        )
 
 
 class TestCalculateDualScoreGaps:
@@ -690,7 +658,7 @@ class TestCalculateDualScoreGaps:
             formatting_score="LOW",
             sentence_stdev=2.0,
             ai_vocabulary_per_1k=25.0,
-            em_dashes_per_page=8.0
+            em_dashes_per_page=8.0,
         )
 
         score = calculate_dual_score(results, quality_target=85.0)
@@ -751,7 +719,7 @@ class TestCalculateDualScoreImprovements:
         assert len(score.improvements) > 0
 
         # Effort multipliers: LOW=1.0, MEDIUM=0.7, HIGH=0.4
-        effort_mult = {'LOW': 1.0, 'MEDIUM': 0.7, 'HIGH': 0.4}
+        effort_mult = {"LOW": 1.0, "MEDIUM": 0.7, "HIGH": 0.4}
 
         # Verify each improvement has positive ROI
         for imp in score.improvements:
@@ -806,7 +774,7 @@ class TestCalculateDualScorePathToTarget:
             formatting_score="MEDIUM",
             sentence_stdev=6.0,
             ai_vocabulary_per_1k=8.0,
-            em_dashes_per_page=3.0
+            em_dashes_per_page=3.0,
         )
 
         score = calculate_dual_score(results, quality_target=60.0)
@@ -846,7 +814,7 @@ class TestCalculateDualScoreEffortEstimation:
             formatting_score="MEDIUM",
             sentence_stdev=8.0,
             ai_vocabulary_per_1k=3.0,
-            em_dashes_per_page=2.5
+            em_dashes_per_page=2.5,
         )
 
         score = calculate_dual_score(results, quality_target=85.0)
@@ -862,7 +830,7 @@ class TestCalculateDualScoreEffortEstimation:
             formatting_score="MEDIUM",
             sentence_stdev=6.0,
             ai_vocabulary_per_1k=8.0,
-            em_dashes_per_page=3.0
+            em_dashes_per_page=3.0,
         )
 
         score = calculate_dual_score(results, quality_target=85.0)
@@ -878,7 +846,7 @@ class TestCalculateDualScoreEffortEstimation:
             formatting_score="MEDIUM",
             sentence_stdev=3.0,
             ai_vocabulary_per_1k=12.0,
-            em_dashes_per_page=4.0
+            em_dashes_per_page=4.0,
         )
 
         score = calculate_dual_score(results, quality_target=85.0)
@@ -897,6 +865,7 @@ class TestCalculateDualScoreEffortEstimation:
 # ============================================================================
 # Edge Cases and Missing Data Tests
 # ============================================================================
+
 
 class TestCalculateDualScoreEdgeCases:
     """Tests for edge cases in calculate_dual_score."""
@@ -927,14 +896,12 @@ class TestCalculateDualScoreEdgeCases:
     def test_none_attribute_values(self):
         """Test handling of dimensions with no data (None values in dimension_results)."""
         results = create_analysis_results(
-            sentence_stdev=6.0,
-            ai_vocabulary_per_1k=8.0,
-            em_dashes_per_page=3.0
+            sentence_stdev=6.0, ai_vocabulary_per_1k=8.0, em_dashes_per_page=3.0
         )
 
         # Set some dimensions to None to test handling
-        results.dimension_results['predictability'] = None
-        results.dimension_results['advanced_lexical'] = None
+        results.dimension_results["predictability"] = None
+        results.dimension_results["advanced_lexical"] = None
 
         score = calculate_dual_score(results)
 
@@ -949,7 +916,7 @@ class TestCalculateDualScoreEdgeCases:
             formatting_score="UNKNOWN",
             sentence_stdev=6.0,
             ai_vocabulary_per_1k=8.0,
-            em_dashes_per_page=3.0
+            em_dashes_per_page=3.0,
         )
 
         score = calculate_dual_score(results)
@@ -967,7 +934,7 @@ class TestCalculateDualScoreEdgeCases:
             formatting_score="MEDIUM",
             sentence_stdev=6.0,
             ai_vocabulary_per_1k=8.0,
-            em_dashes_per_page=3.0
+            em_dashes_per_page=3.0,
         )
 
         score = calculate_dual_score(results)
@@ -985,31 +952,32 @@ class TestCalculateDualScoreRounding:
 
         # Check detection_risk
         detection_str = str(score.detection_risk)
-        if '.' in detection_str:
-            decimal_places = len(detection_str.split('.')[1])
+        if "." in detection_str:
+            decimal_places = len(detection_str.split(".")[1])
             assert decimal_places <= 1
 
         # Check quality_score
         quality_str = str(score.quality_score)
-        if '.' in quality_str:
-            decimal_places = len(quality_str.split('.')[1])
+        if "." in quality_str:
+            decimal_places = len(quality_str.split(".")[1])
             assert decimal_places <= 1
 
         # Check gaps
         detection_gap_str = str(score.detection_gap)
-        if '.' in detection_gap_str:
-            decimal_places = len(detection_gap_str.split('.')[1])
+        if "." in detection_gap_str:
+            decimal_places = len(detection_gap_str.split(".")[1])
             assert decimal_places <= 1
 
         quality_gap_str = str(score.quality_gap)
-        if '.' in quality_gap_str:
-            decimal_places = len(quality_gap_str.split('.')[1])
+        if "." in quality_gap_str:
+            decimal_places = len(quality_gap_str.split(".")[1])
             assert decimal_places <= 1
 
 
 # ============================================================================
 # Integration Tests
 # ============================================================================
+
 
 class TestCalculateDualScoreIntegration:
     """Integration tests for complete dual score calculation workflow."""
@@ -1049,7 +1017,11 @@ class TestCalculateDualScoreIntegration:
         total_possible_from_categories = sum(cat.max_total for cat in score.categories)
 
         # Quality score should match (total / possible * 100)
-        expected_quality = (total_from_categories / total_possible_from_categories * 100) if total_possible_from_categories > 0 else 0
+        expected_quality = (
+            (total_from_categories / total_possible_from_categories * 100)
+            if total_possible_from_categories > 0
+            else 0
+        )
 
         # Story 2.4.1: Tolerance tightened to 7.5 (previously 10.0, baseline 5.0)
         # Normalization causes ~7.0 variance, this is expected behavior

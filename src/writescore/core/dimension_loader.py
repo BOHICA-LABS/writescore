@@ -17,30 +17,38 @@ from writescore.core.dimension_registry import DimensionRegistry
 
 # Mapping of dimension names to their module paths
 DIMENSION_MODULE_MAP = {
-    'perplexity': 'writescore.dimensions.perplexity',
-    'burstiness': 'writescore.dimensions.burstiness',
-    'structure': 'writescore.dimensions.structure',
-    'formatting': 'writescore.dimensions.formatting',
-    'voice': 'writescore.dimensions.voice',
-    'readability': 'writescore.dimensions.readability',
-    'lexical': 'writescore.dimensions.lexical',
-    'sentiment': 'writescore.dimensions.sentiment',
-    'syntactic': 'writescore.dimensions.syntactic',
-    'predictability': 'writescore.dimensions.predictability',
-    'advanced_lexical': 'writescore.dimensions.advanced_lexical',
-    'transition_marker': 'writescore.dimensions.transition_marker',
-    'pragmatic_markers': 'writescore.dimensions.pragmatic_markers',
-    'figurative_language': 'writescore.dimensions.figurative_language',
-    'semantic_coherence': 'writescore.dimensions.semantic_coherence',
-    'ai_vocabulary': 'writescore.dimensions.ai_vocabulary',
+    "perplexity": "writescore.dimensions.perplexity",
+    "burstiness": "writescore.dimensions.burstiness",
+    "structure": "writescore.dimensions.structure",
+    "formatting": "writescore.dimensions.formatting",
+    "voice": "writescore.dimensions.voice",
+    "readability": "writescore.dimensions.readability",
+    "lexical": "writescore.dimensions.lexical",
+    "sentiment": "writescore.dimensions.sentiment",
+    "syntactic": "writescore.dimensions.syntactic",
+    "predictability": "writescore.dimensions.predictability",
+    "advanced_lexical": "writescore.dimensions.advanced_lexical",
+    "transition_marker": "writescore.dimensions.transition_marker",
+    "pragmatic_markers": "writescore.dimensions.pragmatic_markers",
+    "figurative_language": "writescore.dimensions.figurative_language",
+    "semantic_coherence": "writescore.dimensions.semantic_coherence",
+    "ai_vocabulary": "writescore.dimensions.ai_vocabulary",
 }
 
 # Built-in dimension profiles
 BUILTIN_DIMENSION_PROFILES = {
-    'fast': ['perplexity', 'burstiness', 'structure', 'formatting'],  # 4 dims, ~100ms
-    'balanced': ['perplexity', 'burstiness', 'structure', 'formatting',
-                 'voice', 'lexical', 'readability', 'sentiment'],  # 8 dims, ~200ms
-    'full': list(DIMENSION_MODULE_MAP.keys()),  # 16 dims, ~4-6s (ML dependencies)
+    "fast": ["perplexity", "burstiness", "structure", "formatting"],  # 4 dims, ~100ms
+    "balanced": [
+        "perplexity",
+        "burstiness",
+        "structure",
+        "formatting",
+        "voice",
+        "lexical",
+        "readability",
+        "sentiment",
+    ],  # 8 dims, ~200ms
+    "full": list(DIMENSION_MODULE_MAP.keys()),  # 16 dims, ~4-6s (ML dependencies)
 }
 
 # User-defined custom profiles
@@ -77,16 +85,16 @@ class DimensionLoader:
             Dict with 'loaded' list and 'failed' dict
             Example: {'loaded': ['perplexity', 'burstiness'], 'failed': {}}
         """
-        results = {'loaded': [], 'failed': {}}
+        results = {"loaded": [], "failed": {}}
 
         for dim_name in dimension_names:
             if dim_name not in DIMENSION_MODULE_MAP:
-                results['failed'][dim_name] = f"Unknown dimension: {dim_name}"
+                results["failed"][dim_name] = f"Unknown dimension: {dim_name}"
                 continue
 
             # Check if dimension is already registered (not just loaded by this instance)
             if DimensionRegistry.has(dim_name) and dim_name in self._loaded_modules:
-                results['loaded'].append(dim_name)
+                results["loaded"].append(dim_name)
                 continue
 
             module_path = DIMENSION_MODULE_MAP[dim_name]
@@ -108,13 +116,15 @@ class DimensionLoader:
 
                 # Verify dimension self-registered
                 if not DimensionRegistry.has(dim_name):
-                    results['failed'][dim_name] = "Module loaded but dimension did not self-register"
+                    results["failed"][dim_name] = (
+                        "Module loaded but dimension did not self-register"
+                    )
                     continue
 
-                results['loaded'].append(dim_name)
+                results["loaded"].append(dim_name)
 
             except Exception as e:
-                results['failed'][dim_name] = str(e)
+                results["failed"][dim_name] = str(e)
                 print(f"Warning: Failed to load dimension '{dim_name}': {e}", file=sys.stderr)
 
         return results
@@ -214,9 +224,9 @@ class DimensionLoader:
             >>> result = loader.load_from_config(config)
         """
         # Explicit dimension list takes precedence over profile
-        if hasattr(config, 'dimensions_to_load') and config.dimensions_to_load:
+        if hasattr(config, "dimensions_to_load") and config.dimensions_to_load:
             return self.load_dimensions(config.dimensions_to_load)
 
         # Otherwise use profile
-        profile = getattr(config, 'dimension_profile', 'balanced')
+        profile = getattr(config, "dimension_profile", "balanced")
         return self.load_from_profile(profile)

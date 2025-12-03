@@ -40,6 +40,7 @@ DEFAULT_ACTIVE_FILE = Path("config/scoring_parameters.yaml")
 @dataclass
 class ParameterChange:
     """Represents a single parameter change between versions."""
+
     dimension: str
     field: str
     old_value: Any
@@ -53,7 +54,7 @@ class ParameterChange:
             "field": self.field,
             "old_value": self.old_value,
             "new_value": self.new_value,
-            "change_type": self.change_type
+            "change_type": self.change_type,
         }
 
 
@@ -70,6 +71,7 @@ class ParameterDiff:
         removed_dimensions: Dimensions removed in new version
         modified_dimensions: Dimensions with changed parameters
     """
+
     old_version: str
     new_version: str
     changes: List[ParameterChange] = field(default_factory=list)
@@ -89,10 +91,7 @@ class ParameterDiff:
 
     def format_summary(self) -> str:
         """Format a summary of changes."""
-        lines = [
-            f"Parameter Diff: {self.old_version} → {self.new_version}",
-            "=" * 50
-        ]
+        lines = [f"Parameter Diff: {self.old_version} → {self.new_version}", "=" * 50]
 
         if not self.has_changes:
             lines.append("No changes detected.")
@@ -152,7 +151,7 @@ class ParameterDiff:
             "removed_dimensions": self.removed_dimensions,
             "modified_dimensions": self.modified_dimensions,
             "changes": [c.to_dict() for c in self.changes],
-            "total_changes": self.total_changes
+            "total_changes": self.total_changes,
         }
 
 
@@ -167,10 +166,12 @@ class ParameterVersionManager:
     - Archiving old versions
     """
 
-    def __init__(self,
-                 params_dir: Optional[Path] = None,
-                 archive_dir: Optional[Path] = None,
-                 active_file: Optional[Path] = None):
+    def __init__(
+        self,
+        params_dir: Optional[Path] = None,
+        archive_dir: Optional[Path] = None,
+        active_file: Optional[Path] = None,
+    ):
         """
         Initialize version manager.
 
@@ -202,13 +203,15 @@ class ParameterVersionManager:
                 with open(yaml_file) as f:
                     data = yaml.safe_load(f)
 
-                versions.append({
-                    "version": data.get("version", "unknown"),
-                    "timestamp": data.get("timestamp", "unknown"),
-                    "path": str(yaml_file),
-                    "filename": yaml_file.name,
-                    "validation_dataset": data.get("validation_dataset_version", "unknown")
-                })
+                versions.append(
+                    {
+                        "version": data.get("version", "unknown"),
+                        "timestamp": data.get("timestamp", "unknown"),
+                        "path": str(yaml_file),
+                        "filename": yaml_file.name,
+                        "validation_dataset": data.get("validation_dataset_version", "unknown"),
+                    }
+                )
             except Exception as e:
                 logger.warning(f"Could not read version info from {yaml_file}: {e}")
 
@@ -218,14 +221,16 @@ class ParameterVersionManager:
                 with open(yaml_file) as f:
                     data = yaml.safe_load(f)
 
-                versions.append({
-                    "version": data.get("version", "unknown"),
-                    "timestamp": data.get("timestamp", "unknown"),
-                    "path": str(yaml_file),
-                    "filename": yaml_file.name,
-                    "validation_dataset": data.get("validation_dataset_version", "unknown"),
-                    "archived": True
-                })
+                versions.append(
+                    {
+                        "version": data.get("version", "unknown"),
+                        "timestamp": data.get("timestamp", "unknown"),
+                        "path": str(yaml_file),
+                        "filename": yaml_file.name,
+                        "validation_dataset": data.get("validation_dataset_version", "unknown"),
+                        "archived": True,
+                    }
+                )
             except Exception as e:
                 logger.warning(f"Could not read version info from {yaml_file}: {e}")
 
@@ -279,9 +284,7 @@ class ParameterVersionManager:
 
         return None
 
-    def deploy(self,
-               params: PercentileParameters,
-               backup_current: bool = True) -> str:
+    def deploy(self, params: PercentileParameters, backup_current: bool = True) -> str:
         """
         Deploy new parameters as the active version.
 
@@ -329,9 +332,7 @@ class ParameterVersionManager:
 
         if version_path is None:
             available = [v["version"] for v in self.list_versions()]
-            raise ValueError(
-                f"Version '{version}' not found. Available versions: {available}"
-            )
+            raise ValueError(f"Version '{version}' not found. Available versions: {available}")
 
         # Backup current before rollback
         if self.active_file.exists():
@@ -394,9 +395,9 @@ class ParameterComparator:
     Compares two parameter versions to identify differences.
     """
 
-    def compare(self,
-                old_params: PercentileParameters,
-                new_params: PercentileParameters) -> ParameterDiff:
+    def compare(
+        self, old_params: PercentileParameters, new_params: PercentileParameters
+    ) -> ParameterDiff:
         """
         Compare two parameter sets.
 
@@ -407,10 +408,7 @@ class ParameterComparator:
         Returns:
             ParameterDiff with all changes
         """
-        diff = ParameterDiff(
-            old_version=old_params.version,
-            new_version=new_params.version
-        )
+        diff = ParameterDiff(old_version=old_params.version, new_version=new_params.version)
 
         old_dims = set(old_params.dimensions.keys())
         new_dims = set(new_params.dimensions.keys())
@@ -434,10 +432,9 @@ class ParameterComparator:
 
         return diff
 
-    def compare_versions(self,
-                        old_version: str,
-                        new_version: str,
-                        version_manager: ParameterVersionManager) -> ParameterDiff:
+    def compare_versions(
+        self, old_version: str, new_version: str, version_manager: ParameterVersionManager
+    ) -> ParameterDiff:
         """
         Compare two versions by version string.
 
@@ -462,105 +459,120 @@ class ParameterComparator:
 
         return self.compare(old_params, new_params)
 
-    def _compare_dimension(self,
-                          dim_name: str,
-                          old_dim: DimensionParameters,
-                          new_dim: DimensionParameters) -> List[ParameterChange]:
+    def _compare_dimension(
+        self, dim_name: str, old_dim: DimensionParameters, new_dim: DimensionParameters
+    ) -> List[ParameterChange]:
         """Compare parameters for a single dimension."""
         changes = []
 
         # Check scoring type change
         if old_dim.scoring_type != new_dim.scoring_type:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="scoring_type",
-                old_value=old_dim.scoring_type.value,
-                new_value=new_dim.scoring_type.value,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="scoring_type",
+                    old_value=old_dim.scoring_type.value,
+                    new_value=new_dim.scoring_type.value,
+                    change_type="modified",
+                )
+            )
 
         # Compare parameter values based on type
-        if isinstance(old_dim.parameters, GaussianParameters) and \
-           isinstance(new_dim.parameters, GaussianParameters):
+        if isinstance(old_dim.parameters, GaussianParameters) and isinstance(
+            new_dim.parameters, GaussianParameters
+        ):
             changes.extend(self._compare_gaussian(dim_name, old_dim.parameters, new_dim.parameters))
 
-        elif isinstance(old_dim.parameters, MonotonicParameters) and \
-             isinstance(new_dim.parameters, MonotonicParameters):
-            changes.extend(self._compare_monotonic(dim_name, old_dim.parameters, new_dim.parameters))
+        elif isinstance(old_dim.parameters, MonotonicParameters) and isinstance(
+            new_dim.parameters, MonotonicParameters
+        ):
+            changes.extend(
+                self._compare_monotonic(dim_name, old_dim.parameters, new_dim.parameters)
+            )
 
-        elif isinstance(old_dim.parameters, ThresholdParameters) and \
-             isinstance(new_dim.parameters, ThresholdParameters):
-            changes.extend(self._compare_threshold(dim_name, old_dim.parameters, new_dim.parameters))
+        elif isinstance(old_dim.parameters, ThresholdParameters) and isinstance(
+            new_dim.parameters, ThresholdParameters
+        ):
+            changes.extend(
+                self._compare_threshold(dim_name, old_dim.parameters, new_dim.parameters)
+            )
 
         return changes
 
-    def _compare_gaussian(self,
-                         dim_name: str,
-                         old_params: GaussianParameters,
-                         new_params: GaussianParameters) -> List[ParameterChange]:
+    def _compare_gaussian(
+        self, dim_name: str, old_params: GaussianParameters, new_params: GaussianParameters
+    ) -> List[ParameterChange]:
         """Compare Gaussian parameters."""
         changes = []
 
         if old_params.target.value != new_params.target.value:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="target",
-                old_value=old_params.target.value,
-                new_value=new_params.target.value,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="target",
+                    old_value=old_params.target.value,
+                    new_value=new_params.target.value,
+                    change_type="modified",
+                )
+            )
 
         if old_params.width.value != new_params.width.value:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="width",
-                old_value=old_params.width.value,
-                new_value=new_params.width.value,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="width",
+                    old_value=old_params.width.value,
+                    new_value=new_params.width.value,
+                    change_type="modified",
+                )
+            )
 
         return changes
 
-    def _compare_monotonic(self,
-                          dim_name: str,
-                          old_params: MonotonicParameters,
-                          new_params: MonotonicParameters) -> List[ParameterChange]:
+    def _compare_monotonic(
+        self, dim_name: str, old_params: MonotonicParameters, new_params: MonotonicParameters
+    ) -> List[ParameterChange]:
         """Compare monotonic parameters."""
         changes = []
 
         if old_params.threshold_low.value != new_params.threshold_low.value:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="threshold_low",
-                old_value=old_params.threshold_low.value,
-                new_value=new_params.threshold_low.value,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="threshold_low",
+                    old_value=old_params.threshold_low.value,
+                    new_value=new_params.threshold_low.value,
+                    change_type="modified",
+                )
+            )
 
         if old_params.threshold_high.value != new_params.threshold_high.value:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="threshold_high",
-                old_value=old_params.threshold_high.value,
-                new_value=new_params.threshold_high.value,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="threshold_high",
+                    old_value=old_params.threshold_high.value,
+                    new_value=new_params.threshold_high.value,
+                    change_type="modified",
+                )
+            )
 
         if old_params.direction != new_params.direction:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="direction",
-                old_value=old_params.direction,
-                new_value=new_params.direction,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="direction",
+                    old_value=old_params.direction,
+                    new_value=new_params.direction,
+                    change_type="modified",
+                )
+            )
 
         return changes
 
-    def _compare_threshold(self,
-                          dim_name: str,
-                          old_params: ThresholdParameters,
-                          new_params: ThresholdParameters) -> List[ParameterChange]:
+    def _compare_threshold(
+        self, dim_name: str, old_params: ThresholdParameters, new_params: ThresholdParameters
+    ) -> List[ParameterChange]:
         """Compare threshold parameters."""
         changes = []
 
@@ -569,38 +581,43 @@ class ParameterComparator:
         new_thresholds = [t.value for t in new_params.thresholds]
 
         if old_thresholds != new_thresholds:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="thresholds",
-                old_value=old_thresholds,
-                new_value=new_thresholds,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="thresholds",
+                    old_value=old_thresholds,
+                    new_value=new_thresholds,
+                    change_type="modified",
+                )
+            )
 
         if old_params.labels != new_params.labels:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="labels",
-                old_value=old_params.labels,
-                new_value=new_params.labels,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="labels",
+                    old_value=old_params.labels,
+                    new_value=new_params.labels,
+                    change_type="modified",
+                )
+            )
 
         if old_params.scores != new_params.scores:
-            changes.append(ParameterChange(
-                dimension=dim_name,
-                field="scores",
-                old_value=old_params.scores,
-                new_value=new_params.scores,
-                change_type="modified"
-            ))
+            changes.append(
+                ParameterChange(
+                    dimension=dim_name,
+                    field="scores",
+                    old_value=old_params.scores,
+                    new_value=new_params.scores,
+                    change_type="modified",
+                )
+            )
 
         return changes
 
 
 def generate_deployment_checklist(
-    new_params: PercentileParameters,
-    current_params: Optional[PercentileParameters] = None
+    new_params: PercentileParameters, current_params: Optional[PercentileParameters] = None
 ) -> str:
     """
     Generate a deployment checklist for parameter updates.
@@ -631,58 +648,59 @@ def generate_deployment_checklist(
         lines.append(f"Total Changes: {diff.total_changes}")
         lines.append("")
 
-    lines.extend([
-        "PRE-DEPLOYMENT CHECKLIST:",
-        "-" * 40,
-        "[ ] Parameters validated against schema",
-        "[ ] Score shift analysis completed",
-        "    - Mean shift < 5 points",
-        "    - Max shift < 15 points",
-        "[ ] Validation dataset version confirmed",
-        "[ ] Backup of current parameters created",
-        "",
-        "DEPLOYMENT STEPS:",
-        "-" * 40,
-        "[ ] 1. Run score shift analysis on test corpus",
-        "       writescore analyze --validate-params NEW_PARAMS.yaml",
-        "",
-        "[ ] 2. Review shift report for anomalies",
-        "       - Check per-dimension shifts",
-        "       - Verify no regressions on known examples",
-        "",
-        "[ ] 3. Deploy to staging environment",
-        "       writescore deploy --staging NEW_PARAMS.yaml",
-        "",
-        "[ ] 4. Run integration tests",
-        "       pytest tests/integration/",
-        "",
-        "[ ] 5. Deploy to production",
-        "       writescore deploy NEW_PARAMS.yaml",
-        "",
-        "POST-DEPLOYMENT VERIFICATION:",
-        "-" * 40,
-        "[ ] Verify active version matches deployed version",
-        "[ ] Run smoke tests on representative documents",
-        "[ ] Monitor for unexpected score distributions",
-        "",
-        "ROLLBACK PROCEDURE (if needed):",
-        "-" * 40,
-    ])
+    lines.extend(
+        [
+            "PRE-DEPLOYMENT CHECKLIST:",
+            "-" * 40,
+            "[ ] Parameters validated against schema",
+            "[ ] Score shift analysis completed",
+            "    - Mean shift < 5 points",
+            "    - Max shift < 15 points",
+            "[ ] Validation dataset version confirmed",
+            "[ ] Backup of current parameters created",
+            "",
+            "DEPLOYMENT STEPS:",
+            "-" * 40,
+            "[ ] 1. Run score shift analysis on test corpus",
+            "       writescore analyze --validate-params NEW_PARAMS.yaml",
+            "",
+            "[ ] 2. Review shift report for anomalies",
+            "       - Check per-dimension shifts",
+            "       - Verify no regressions on known examples",
+            "",
+            "[ ] 3. Deploy to staging environment",
+            "       writescore deploy --staging NEW_PARAMS.yaml",
+            "",
+            "[ ] 4. Run integration tests",
+            "       pytest tests/integration/",
+            "",
+            "[ ] 5. Deploy to production",
+            "       writescore deploy NEW_PARAMS.yaml",
+            "",
+            "POST-DEPLOYMENT VERIFICATION:",
+            "-" * 40,
+            "[ ] Verify active version matches deployed version",
+            "[ ] Run smoke tests on representative documents",
+            "[ ] Monitor for unexpected score distributions",
+            "",
+            "ROLLBACK PROCEDURE (if needed):",
+            "-" * 40,
+        ]
+    )
 
     if current_params:
         lines.append(f"    writescore rollback --version {current_params.version}")
     else:
         lines.append("    writescore rollback --version PREVIOUS_VERSION")
 
-    lines.extend([
-        "",
-        "=" * 60
-    ])
+    lines.extend(["", "=" * 60])
 
     return "\n".join(lines)
 
 
-def format_version_list(versions: List[Dict[str, Any]], current_version: Optional[str] = None) -> str:
+def format_version_list(
+    versions: List[Dict[str, Any]], current_version: Optional[str] = None
+) -> str:
     """
     Format version list for display.
 
@@ -693,11 +711,7 @@ def format_version_list(versions: List[Dict[str, Any]], current_version: Optiona
     Returns:
         Formatted version list string
     """
-    lines = [
-        "AVAILABLE PARAMETER VERSIONS",
-        "=" * 60,
-        ""
-    ]
+    lines = ["AVAILABLE PARAMETER VERSIONS", "=" * 60, ""]
 
     if not versions:
         lines.append("No parameter versions found.")

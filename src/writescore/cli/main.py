@@ -57,7 +57,7 @@ def parse_domain_terms(domain_terms_str: str):
     if not domain_terms_str:
         return None
 
-    return [rf'\b{term.strip()}\b' for term in domain_terms_str.split(',')]
+    return [rf"\b{term.strip()}\b" for term in domain_terms_str.split(",")]
 
 
 def generate_percentile_interpretation(result, dual_score=None):
@@ -80,63 +80,72 @@ def generate_percentile_interpretation(result, dual_score=None):
     baseline_human_stats = {
         "burstiness": {
             "percentiles": {"p10": 5.0, "p25": 8.0, "p50": 12.0, "p75": 18.0, "p90": 25.0},
-            "min_val": 2.0, "max_val": 35.0
+            "min_val": 2.0,
+            "max_val": 35.0,
         },
         "lexical": {
             "percentiles": {"p10": 0.45, "p25": 0.52, "p50": 0.60, "p75": 0.68, "p90": 0.75},
-            "min_val": 0.35, "max_val": 0.85
+            "min_val": 0.35,
+            "max_val": 0.85,
         },
         "readability": {
             "percentiles": {"p10": 8.0, "p25": 10.0, "p50": 12.0, "p75": 14.0, "p90": 16.0},
-            "min_val": 5.0, "max_val": 20.0
+            "min_val": 5.0,
+            "max_val": 20.0,
         },
         "sentiment": {
             "percentiles": {"p10": 0.02, "p25": 0.05, "p50": 0.10, "p75": 0.18, "p90": 0.30},
-            "min_val": 0.0, "max_val": 0.50
+            "min_val": 0.0,
+            "max_val": 0.50,
         },
         "voice": {
             "percentiles": {"p10": 0.15, "p25": 0.25, "p50": 0.40, "p75": 0.55, "p90": 0.70},
-            "min_val": 0.05, "max_val": 0.85
+            "min_val": 0.05,
+            "max_val": 0.85,
         },
         "transition_marker": {
             "percentiles": {"p10": 1.0, "p25": 2.0, "p50": 4.0, "p75": 6.0, "p90": 9.0},
-            "min_val": 0.0, "max_val": 15.0
+            "min_val": 0.0,
+            "max_val": 15.0,
         },
         "syntactic": {
             "percentiles": {"p10": 12.0, "p25": 15.0, "p50": 18.0, "p75": 22.0, "p90": 28.0},
-            "min_val": 8.0, "max_val": 35.0
+            "min_val": 8.0,
+            "max_val": 35.0,
         },
         "structure": {
             "percentiles": {"p10": 0.6, "p25": 0.7, "p50": 0.8, "p75": 0.88, "p90": 0.95},
-            "min_val": 0.4, "max_val": 1.0
-        }
+            "min_val": 0.4,
+            "max_val": 1.0,
+        },
     }
 
     # Baseline AI distribution statistics (AI tends to be more uniform)
     baseline_ai_stats = {
         "burstiness": {
             "percentiles": {"p10": 3.0, "p25": 5.0, "p50": 7.0, "p75": 9.0, "p90": 12.0},
-            "min_val": 1.0, "max_val": 18.0
+            "min_val": 1.0,
+            "max_val": 18.0,
         },
         "lexical": {
             "percentiles": {"p10": 0.55, "p25": 0.58, "p50": 0.62, "p75": 0.66, "p90": 0.70},
-            "min_val": 0.50, "max_val": 0.75
+            "min_val": 0.50,
+            "max_val": 0.75,
         },
         "sentiment": {
             "percentiles": {"p10": 0.01, "p25": 0.02, "p50": 0.04, "p75": 0.06, "p90": 0.10},
-            "min_val": 0.0, "max_val": 0.15
+            "min_val": 0.0,
+            "max_val": 0.15,
         },
         "voice": {
             "percentiles": {"p10": 0.05, "p25": 0.08, "p50": 0.12, "p75": 0.18, "p90": 0.25},
-            "min_val": 0.02, "max_val": 0.35
-        }
+            "min_val": 0.02,
+            "max_val": 0.35,
+        },
     }
 
     # Create interpreter with baseline stats
-    interpreter = ScoreInterpreter(
-        human_stats=baseline_human_stats,
-        ai_stats=baseline_ai_stats
-    )
+    interpreter = ScoreInterpreter(human_stats=baseline_human_stats, ai_stats=baseline_ai_stats)
 
     # Build interpretation
     interp = ScoreInterpretation()
@@ -144,8 +153,8 @@ def generate_percentile_interpretation(result, dual_score=None):
     # Add overall percentiles from dual score if available
     if dual_score:
         # Quality score: higher percentile = better
-        quality = dual_score.quality_score if hasattr(dual_score, 'quality_score') else None
-        detection = dual_score.detection_risk if hasattr(dual_score, 'detection_risk') else None
+        quality = dual_score.quality_score if hasattr(dual_score, "quality_score") else None
+        detection = dual_score.detection_risk if hasattr(dual_score, "detection_risk") else None
 
         if quality is not None:
             interp.overall_quality_percentile = quality  # Score 0-100 maps roughly to percentile
@@ -154,13 +163,17 @@ def generate_percentile_interpretation(result, dual_score=None):
             interp.overall_detection_percentile = 100 - detection
 
     # Process each dimension from the result
-    if hasattr(result, 'dimension_results'):
+    if hasattr(result, "dimension_results"):
         for dim_name, dim_result in result.dimension_results.items():
             # Get raw metric value
             raw_value = None
-            if hasattr(dim_result, 'raw_metrics') and dim_result.raw_metrics and isinstance(dim_result.raw_metrics, dict):
+            if (
+                hasattr(dim_result, "raw_metrics")
+                and dim_result.raw_metrics
+                and isinstance(dim_result.raw_metrics, dict)
+            ):
                 # Get first metric or specific known metric
-                for key in ['variance', 'ratio', 'score', 'value', 'density']:
+                for key in ["variance", "ratio", "score", "value", "density"]:
                     if key in dim_result.raw_metrics:
                         raw_value = dim_result.raw_metrics[key]
                         break
@@ -182,7 +195,7 @@ def generate_percentile_interpretation(result, dual_score=None):
 
 def show_mode_help():
     """Display detailed information about analysis modes."""
-    print('''
+    print("""
 ╔═══════════════════════════════════════════════════════════════════════════╗
 ║                        ANALYSIS MODES - QUICK REFERENCE                   ║
 ╚═══════════════════════════════════════════════════════════════════════════╝
@@ -276,10 +289,10 @@ Examples:
   writescore chapter.md --mode adaptive --dry-run
 
 For complete documentation: docs/analysis-modes-guide.md
-    ''')
+    """)
 
 
-def create_analysis_config(mode, samples, sample_size, sample_strategy, profile='balanced'):
+def create_analysis_config(mode, samples, sample_size, sample_strategy, profile="balanced"):
     """
     Create AnalysisConfig from CLI arguments.
 
@@ -298,7 +311,7 @@ def create_analysis_config(mode, samples, sample_size, sample_strategy, profile=
         sampling_sections=samples,
         sampling_chars_per_section=sample_size,
         sampling_strategy=sample_strategy,
-        dimension_profile=profile
+        dimension_profile=profile,
     )
 
 
@@ -346,7 +359,9 @@ def show_dry_run_config(file_path: str, config: AnalysisConfig, detailed, show_s
         print(f"          {config.sampling_chars_per_section} chars per section")
         print(f"          Strategy: {config.sampling_strategy}")
         total = config.sampling_sections * config.sampling_chars_per_section
-        print(f"Expected time: {30 + config.sampling_sections * 10}-{60 + config.sampling_sections * 20} seconds")
+        print(
+            f"Expected time: {30 + config.sampling_sections * 10}-{60 + config.sampling_sections * 20} seconds"
+        )
         print(f"Coverage: ~{(total / file_size * 100):.1f}%")
 
     elif config.mode == AnalysisMode.FULL:
@@ -381,9 +396,9 @@ def show_coverage_stats(result, config: AnalysisConfig, file_path: str):
     print("=" * 75)
 
     # Calculate actual coverage from metadata if available
-    if hasattr(result, 'metadata') and 'coverage' in result.metadata:
-        actual_coverage = result.metadata['coverage']
-        chars_analyzed = result.metadata.get('chars_analyzed', 0)
+    if hasattr(result, "metadata") and "coverage" in result.metadata:
+        actual_coverage = result.metadata["coverage"]
+        chars_analyzed = result.metadata.get("chars_analyzed", 0)
         print(f"Characters analyzed: {chars_analyzed:,} of {file_size:,} ({actual_coverage:.1f}%)")
     else:
         # Estimate based on mode
@@ -404,8 +419,14 @@ def show_coverage_stats(result, config: AnalysisConfig, file_path: str):
     print()
 
 
-def handle_history_commands(file, show_history_full, compare_history,
-                            show_dimension_trends, show_raw_metric_trends, export_history):
+def handle_history_commands(
+    file,
+    show_history_full,
+    compare_history,
+    show_dimension_trends,
+    show_raw_metric_trends,
+    export_history,
+):
     """
     Handle history viewing commands (--show-history-full, --compare-history, etc.).
 
@@ -441,17 +462,20 @@ def handle_history_commands(file, show_history_full, compare_history,
 
     elif compare_history:
         # Parse iteration specifiers (e.g., "first,last" or "1,5")
-        parts = compare_history.split(',')
+        parts = compare_history.split(",")
         if len(parts) != 2:
-            print('Error: --compare-history requires two iterations separated by comma', file=sys.stderr)
+            print(
+                "Error: --compare-history requires two iterations separated by comma",
+                file=sys.stderr,
+            )
             return 1
 
         # Convert to indices
         def parse_iteration(spec: str, history_len: int) -> int:
             spec = spec.strip().lower()
-            if spec == 'first':
+            if spec == "first":
                 return 0
-            elif spec == 'last':
+            elif spec == "last":
                 return history_len - 1
             else:
                 try:
@@ -477,23 +501,37 @@ def handle_history_commands(file, show_history_full, compare_history,
         print(generate_raw_metric_trends(history))
 
     elif export_history:
-        if export_history == 'csv':
-            output_file = file.replace('.md', '-history.csv')
+        if export_history == "csv":
+            output_file = file.replace(".md", "-history.csv")
             history.export_to_csv(output_file)
             print(f"History exported to: {output_file}")
-        elif export_history == 'json':
-            output_file = file.replace('.md', '-history.json')
+        elif export_history == "json":
+            output_file = file.replace(".md", "-history.json")
             import json
-            with open(output_file, 'w') as f:
+
+            with open(output_file, "w") as f:
                 json.dump(history.to_dict(), f, indent=2)
             print(f"History exported to: {output_file}")
 
     return 0
 
 
-def run_single_file_analysis(file, mode, samples, sample_size, sample_strategy, profile,
-                             dry_run, show_coverage, detection_target, quality_target,
-                             history_notes, no_track_history, no_score_summary, format):
+def run_single_file_analysis(
+    file,
+    mode,
+    samples,
+    sample_size,
+    sample_strategy,
+    profile,
+    dry_run,
+    show_coverage,
+    detection_target,
+    quality_target,
+    history_notes,
+    no_track_history,
+    no_score_summary,
+    format,
+):
     """
     Run analysis on a single file.
 
@@ -530,12 +568,14 @@ def run_single_file_analysis(file, mode, samples, sample_size, sample_strategy, 
             return [], None
 
         # Display mode info (only for text format, to avoid breaking JSON/TSV output)
-        if format == 'text':
+        if format == "text":
             print(f"\nAnalyzing: {file}")
-            print(f"Mode: {config.mode.value.upper()}", end='')
+            print(f"Mode: {config.mode.value.upper()}", end="")
 
             if config.mode in [AnalysisMode.SAMPLING, AnalysisMode.ADAPTIVE]:
-                print(f" (sampling: {config.sampling_sections} × {config.sampling_chars_per_section} chars, {config.sampling_strategy})")
+                print(
+                    f" (sampling: {config.sampling_sections} × {config.sampling_chars_per_section} chars, {config.sampling_strategy})"
+                )
             else:
                 print()
 
@@ -549,19 +589,17 @@ def run_single_file_analysis(file, mode, samples, sample_size, sample_strategy, 
         elapsed = time.time() - start_time
 
         # Add mode info to results metadata (for history tracking)
-        if not hasattr(result, 'metadata'):
+        if not hasattr(result, "metadata"):
             result.metadata = {}
-        result.metadata['analysis_mode'] = config.mode.value
-        result.metadata['analysis_time_seconds'] = elapsed
+        result.metadata["analysis_mode"] = config.mode.value
+        result.metadata["analysis_time_seconds"] = elapsed
 
         # Calculate dual score for history and optimization (if score summary shown)
         calculated_dual_score = None
-        if not no_score_summary and format == 'text':
+        if not no_score_summary and format == "text":
             try:
                 calculated_dual_score = analyzer.calculate_dual_score(
-                    result,
-                    detection_target=detection_target,
-                    quality_target=quality_target
+                    result, detection_target=detection_target, quality_target=quality_target
                 )
 
                 # Save to history (unless disabled)
@@ -579,7 +617,7 @@ def run_single_file_analysis(file, mode, samples, sample_size, sample_strategy, 
             show_coverage_stats(result, config, file)
 
         # Display elapsed time (only for text format, to avoid breaking JSON/TSV output)
-        if format == 'text':
+        if format == "text":
             print(f"\nCompleted in {elapsed:.1f} seconds")
 
         return [result], calculated_dual_score
@@ -616,7 +654,9 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
         print(f"Directory: {batch_dir}")
         print(f"Mode: {config.mode.value.upper()}")
         if config.mode in [AnalysisMode.SAMPLING, AnalysisMode.ADAPTIVE]:
-            print(f"Sampling: {config.sampling_sections} × {config.sampling_chars_per_section} chars ({config.sampling_strategy})")
+            print(
+                f"Sampling: {config.sampling_sections} × {config.sampling_chars_per_section} chars ({config.sampling_strategy})"
+            )
         print("\nMode will be applied to all .md files in directory")
         return [], None
 
@@ -625,7 +665,7 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
         print(f"Error: {batch_dir} is not a directory", file=sys.stderr)
         sys.exit(1)
 
-    md_files = sorted(batch_path.glob('**/*.md'))
+    md_files = sorted(batch_path.glob("**/*.md"))
     if not md_files:
         print(f"Error: No .md files found in {batch_dir}", file=sys.stderr)
         sys.exit(1)
@@ -640,7 +680,7 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
     results = []
     for md_file in md_files:
         try:
-            print(f"Analyzing: {md_file.name}...", end=' ', flush=True)
+            print(f"Analyzing: {md_file.name}...", end=" ", flush=True)
 
             result = analyzer.analyze_file(str(md_file), config=config)
             results.append(result)
@@ -655,7 +695,7 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
 
 
 # Click group for multiple commands
-@click.group(context_settings={"help_option_names": ['-h', '--help']})
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
 def cli():
     """WriteScore - AI Pattern Analysis and Parameter Calibration.
 
@@ -666,69 +706,178 @@ def cli():
 
 
 # Analyze command (main analysis functionality)
-@cli.command(name='analyze')
-@click.argument('file', required=False, type=click.Path(exists=True))
-@click.option('--batch', metavar='DIR', type=click.Path(exists=True, file_okay=False, dir_okay=True),
-              help='Analyze all .md files in directory')
-@click.option('--detailed', is_flag=True,
-              help='Provide detailed line-by-line diagnostics with context and suggestions (for LLM cleanup)')
-@click.option('--format', type=click.Choice(['text', 'json', 'tsv']), default='text',
-              help='Output format (default: text)')
-@click.option('--domain-terms', metavar='TERMS',
-              help='Comma-separated domain-specific terms to detect (overrides defaults)')
-@click.option('--output', '-o', metavar='FILE', type=click.File('w'),
-              help='Write output to file instead of stdout')
-@click.option('--show-scores', is_flag=True,
-              help='Calculate and display dual scores (Detection Risk + Quality Score) with optimization path')
-@click.option('--detection-target', type=float, default=30.0, metavar='N',
-              help='Target detection risk score (0-100, lower=better, default: 30.0)')
-@click.option('--quality-target', type=float, default=85.0, metavar='N',
-              help='Target quality score (0-100, higher=better, default: 85.0)')
-@click.option('--show-history', is_flag=True,
-              help='Show aggregate score trends (quality/detection)')
-@click.option('--show-history-full', is_flag=True,
-              help='Show complete optimization journey with all iterations')
-@click.option('--show-dimension-trends', is_flag=True,
-              help='Show trends for all dimensions (v2.0 data required)')
-@click.option('--show-raw-metric-trends', is_flag=True,
-              help='Show raw metric trends with sparklines (v2.0 data required)')
-@click.option('--compare-history', type=str, metavar='I1,I2',
-              help='Compare two iterations (e.g., "first,last" or "1,5")')
-@click.option('--export-history', type=click.Choice(['csv', 'json']), metavar='FORMAT',
-              help='Export history to CSV or JSON format')
-@click.option('--history-notes', type=str, default="", metavar='NOTES',
-              help='Add notes for this iteration (e.g., "Fixed AI vocabulary")')
-@click.option('--no-score-summary', is_flag=True,
-              help='Suppress score summary display in output')
-@click.option('--mode', '-m', type=click.Choice(['fast', 'adaptive', 'sampling', 'full']),
-              default='adaptive',
-              help='Analysis mode: fast (5-15s), adaptive (30-240s, RECOMMENDED), sampling (60-300s), full (5-20min)')
-@click.option('--profile', '-p', type=click.Choice(['fast', 'balanced', 'full']),
-              default='balanced',
-              help='Dimension profile: fast (4 dims, ~100ms), balanced (8 dims, ~200ms, DEFAULT), full (12 dims, ~4-6s)')
-@click.option('--samples', type=click.IntRange(1, 20), default=5, metavar='N',
-              help='Number of sections to sample (default: 5, range: 1-20)')
-@click.option('--sample-size', type=click.IntRange(500, 10000), default=2000, metavar='CHARS',
-              help='Characters per sample section (default: 2000, range: 500-10000)')
-@click.option('--sample-strategy', type=click.Choice(['even', 'weighted', 'adaptive']),
-              default='even',
-              help='Sampling distribution: even, weighted (40%% begin/40%% end), adaptive')
-@click.option('--dry-run', is_flag=True,
-              help='Show configuration without running analysis')
-@click.option('--show-coverage', is_flag=True,
-              help='Display coverage statistics (samples, chars analyzed, coverage %%)')
-@click.option('--show-percentiles', is_flag=True,
-              help='Show percentile-based interpretation (where scores fall in human/AI distributions)')
-@click.option('--help-modes', is_flag=True, is_eager=True, expose_value=False, callback=lambda ctx, param, value: (show_mode_help(), ctx.exit()) if value else None,
-              help='Show detailed information about analysis modes and exit')
-@click.option('--no-track-history', is_flag=True, hidden=True,
-              help='Disable history tracking (internal use)')
-def analyze_command(file, batch, detailed, format, domain_terms, output, show_scores,
-                    detection_target, quality_target, show_history, show_history_full,
-                    show_dimension_trends, show_raw_metric_trends, compare_history,
-                    export_history, history_notes, no_score_summary, mode, profile, samples,
-                    sample_size, sample_strategy, dry_run, show_coverage, show_percentiles,
-                    no_track_history):
+@cli.command(name="analyze")
+@click.argument("file", required=False, type=click.Path(exists=True))
+@click.option(
+    "--batch",
+    metavar="DIR",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    help="Analyze all .md files in directory",
+)
+@click.option(
+    "--detailed",
+    is_flag=True,
+    help="Provide detailed line-by-line diagnostics with context and suggestions (for LLM cleanup)",
+)
+@click.option(
+    "--format",
+    type=click.Choice(["text", "json", "tsv"]),
+    default="text",
+    help="Output format (default: text)",
+)
+@click.option(
+    "--domain-terms",
+    metavar="TERMS",
+    help="Comma-separated domain-specific terms to detect (overrides defaults)",
+)
+@click.option(
+    "--output",
+    "-o",
+    metavar="FILE",
+    type=click.File("w"),
+    help="Write output to file instead of stdout",
+)
+@click.option(
+    "--show-scores",
+    is_flag=True,
+    help="Calculate and display dual scores (Detection Risk + Quality Score) with optimization path",
+)
+@click.option(
+    "--detection-target",
+    type=float,
+    default=30.0,
+    metavar="N",
+    help="Target detection risk score (0-100, lower=better, default: 30.0)",
+)
+@click.option(
+    "--quality-target",
+    type=float,
+    default=85.0,
+    metavar="N",
+    help="Target quality score (0-100, higher=better, default: 85.0)",
+)
+@click.option(
+    "--show-history", is_flag=True, help="Show aggregate score trends (quality/detection)"
+)
+@click.option(
+    "--show-history-full",
+    is_flag=True,
+    help="Show complete optimization journey with all iterations",
+)
+@click.option(
+    "--show-dimension-trends",
+    is_flag=True,
+    help="Show trends for all dimensions (v2.0 data required)",
+)
+@click.option(
+    "--show-raw-metric-trends",
+    is_flag=True,
+    help="Show raw metric trends with sparklines (v2.0 data required)",
+)
+@click.option(
+    "--compare-history",
+    type=str,
+    metavar="I1,I2",
+    help='Compare two iterations (e.g., "first,last" or "1,5")',
+)
+@click.option(
+    "--export-history",
+    type=click.Choice(["csv", "json"]),
+    metavar="FORMAT",
+    help="Export history to CSV or JSON format",
+)
+@click.option(
+    "--history-notes",
+    type=str,
+    default="",
+    metavar="NOTES",
+    help='Add notes for this iteration (e.g., "Fixed AI vocabulary")',
+)
+@click.option("--no-score-summary", is_flag=True, help="Suppress score summary display in output")
+@click.option(
+    "--mode",
+    "-m",
+    type=click.Choice(["fast", "adaptive", "sampling", "full"]),
+    default="adaptive",
+    help="Analysis mode: fast (5-15s), adaptive (30-240s, RECOMMENDED), sampling (60-300s), full (5-20min)",
+)
+@click.option(
+    "--profile",
+    "-p",
+    type=click.Choice(["fast", "balanced", "full"]),
+    default="balanced",
+    help="Dimension profile: fast (4 dims, ~100ms), balanced (8 dims, ~200ms, DEFAULT), full (12 dims, ~4-6s)",
+)
+@click.option(
+    "--samples",
+    type=click.IntRange(1, 20),
+    default=5,
+    metavar="N",
+    help="Number of sections to sample (default: 5, range: 1-20)",
+)
+@click.option(
+    "--sample-size",
+    type=click.IntRange(500, 10000),
+    default=2000,
+    metavar="CHARS",
+    help="Characters per sample section (default: 2000, range: 500-10000)",
+)
+@click.option(
+    "--sample-strategy",
+    type=click.Choice(["even", "weighted", "adaptive"]),
+    default="even",
+    help="Sampling distribution: even, weighted (40%% begin/40%% end), adaptive",
+)
+@click.option("--dry-run", is_flag=True, help="Show configuration without running analysis")
+@click.option(
+    "--show-coverage",
+    is_flag=True,
+    help="Display coverage statistics (samples, chars analyzed, coverage %%)",
+)
+@click.option(
+    "--show-percentiles",
+    is_flag=True,
+    help="Show percentile-based interpretation (where scores fall in human/AI distributions)",
+)
+@click.option(
+    "--help-modes",
+    is_flag=True,
+    is_eager=True,
+    expose_value=False,
+    callback=lambda ctx, param, value: (show_mode_help(), ctx.exit()) if value else None,
+    help="Show detailed information about analysis modes and exit",
+)
+@click.option(
+    "--no-track-history", is_flag=True, hidden=True, help="Disable history tracking (internal use)"
+)
+def analyze_command(
+    file,
+    batch,
+    detailed,
+    format,
+    domain_terms,
+    output,
+    show_scores,
+    detection_target,
+    quality_target,
+    show_history,
+    show_history_full,
+    show_dimension_trends,
+    show_raw_metric_trends,
+    compare_history,
+    export_history,
+    history_notes,
+    no_score_summary,
+    mode,
+    profile,
+    samples,
+    sample_size,
+    sample_strategy,
+    dry_run,
+    show_coverage,
+    show_percentiles,
+    no_track_history,
+):
     """Analyze manuscripts for AI-generated content patterns.
 
     Examples:
@@ -758,42 +907,70 @@ def analyze_command(file, batch, detailed, format, domain_terms, output, show_sc
     """
     # Validate inputs
     if not file and not batch:
-        raise click.UsageError('Either FILE or --batch DIR must be specified')
+        raise click.UsageError("Either FILE or --batch DIR must be specified")
 
     # Handle history viewing commands (don't run analysis)
-    if any([show_history_full, compare_history, show_dimension_trends,
-            show_raw_metric_trends, export_history]):
+    if any(
+        [
+            show_history_full,
+            compare_history,
+            show_dimension_trends,
+            show_raw_metric_trends,
+            export_history,
+        ]
+    ):
         if not file:
-            raise click.UsageError('History viewing commands require a FILE argument')
-        sys.exit(handle_history_commands(file, show_history_full, compare_history,
-                                        show_dimension_trends, show_raw_metric_trends,
-                                        export_history))
+            raise click.UsageError("History viewing commands require a FILE argument")
+        sys.exit(
+            handle_history_commands(
+                file,
+                show_history_full,
+                compare_history,
+                show_dimension_trends,
+                show_raw_metric_trends,
+                export_history,
+            )
+        )
 
     # Detailed mode limitations
     if detailed and batch:
-        click.echo("Warning: --detailed mode not supported for batch analysis. Using standard mode.", err=True)
+        click.echo(
+            "Warning: --detailed mode not supported for batch analysis. Using standard mode.",
+            err=True,
+        )
         detailed = False
 
-    if detailed and format == 'tsv':
-        click.echo("Warning: --detailed mode not compatible with TSV format. Using JSON format.", err=True)
-        format = 'json'
+    if detailed and format == "tsv":
+        click.echo(
+            "Warning: --detailed mode not compatible with TSV format. Using JSON format.", err=True
+        )
+        format = "json"
 
     # Show scores validation
     if show_scores and batch:
-        click.echo("Warning: --show-scores mode not supported for batch analysis. Using standard mode.", err=True)
+        click.echo(
+            "Warning: --show-scores mode not supported for batch analysis. Using standard mode.",
+            err=True,
+        )
         show_scores = False
 
     # Validate mode arguments
-    if mode == 'fast' and (samples != 5 or sample_size != 2000):
+    if mode == "fast" and (samples != 5 or sample_size != 2000):
         click.echo("Warning: --samples and --sample-size are ignored in 'fast' mode", err=True)
 
     # Warning: FULL mode with large files
-    if mode == 'full' and file and os.path.exists(file):
+    if mode == "full" and file and os.path.exists(file):
         file_size = os.path.getsize(file)
         if file_size > 500000:  # >500k chars (~250 pages)
             pages = file_size / 2000
-            click.echo(f"\n⚠ Warning: FULL mode with {pages:.0f}-page document may take 20+ minutes.", err=True)
-            click.echo("           Consider using --mode adaptive for faster results (30-240s).\n", err=True)
+            click.echo(
+                f"\n⚠ Warning: FULL mode with {pages:.0f}-page document may take 20+ minutes.",
+                err=True,
+            )
+            click.echo(
+                "           Consider using --mode adaptive for faster results (30-240s).\n",
+                err=True,
+            )
 
             # Interactive confirmation (skip if in batch or dry-run)
             if not batch and not dry_run:
@@ -833,46 +1010,61 @@ def analyze_command(file, batch, detailed, format, domain_terms, output, show_sc
 
     # Standard analysis mode
     if batch:
-        results, calculated_dual_score = run_batch_analysis(batch, mode, samples, sample_size, sample_strategy, profile, dry_run)
+        results, calculated_dual_score = run_batch_analysis(
+            batch, mode, samples, sample_size, sample_strategy, profile, dry_run
+        )
     else:
         results, calculated_dual_score = run_single_file_analysis(
-            file, mode, samples, sample_size, sample_strategy, profile, dry_run, show_coverage,
-            detection_target, quality_target, history_notes, no_track_history, no_score_summary, format
+            file,
+            mode,
+            samples,
+            sample_size,
+            sample_strategy,
+            profile,
+            dry_run,
+            show_coverage,
+            detection_target,
+            quality_target,
+            history_notes,
+            no_track_history,
+            no_score_summary,
+            format,
         )
 
     # Format and output
     output_lines = []
 
-    if format == 'tsv' and len(results) > 1:
+    if format == "tsv" and len(results) > 1:
         # TSV batch output with header
-        output_lines.append(format_report(results[0], 'tsv').split('\n')[0])  # Header
+        output_lines.append(format_report(results[0], "tsv").split("\n")[0])  # Header
         for r in results:
-            output_lines.append(format_report(r, 'tsv').split('\n')[1])  # Data row
+            output_lines.append(format_report(r, "tsv").split("\n")[1])  # Data row
     else:
         # Individual reports
         for r in results:
             dual_score_param = calculated_dual_score if (len(results) == 1 and not batch) else None
 
-            output_lines.append(format_report(
-                r,
-                format,
-                include_score_summary=not no_score_summary,
-                detection_target=detection_target,
-                quality_target=quality_target,
-                dual_score=dual_score_param,
-                mode=mode
-            ))
+            output_lines.append(
+                format_report(
+                    r,
+                    format,
+                    include_score_summary=not no_score_summary,
+                    detection_target=detection_target,
+                    quality_target=quality_target,
+                    dual_score=dual_score_param,
+                    mode=mode,
+                )
+            )
 
-    output_text = '\n'.join(output_lines)
+    output_text = "\n".join(output_lines)
 
     # Add percentile interpretation if requested (single file only, text format)
-    if show_percentiles and len(results) == 1 and format == 'text' and not batch:
+    if show_percentiles and len(results) == 1 and format == "text" and not batch:
         try:
             percentile_report = generate_percentile_interpretation(
-                results[0],
-                dual_score=calculated_dual_score
+                results[0], dual_score=calculated_dual_score
             )
-            output_text += '\n\n' + percentile_report
+            output_text += "\n\n" + percentile_report
         except Exception as e:
             click.echo(f"Warning: Could not generate percentile report: {e}", err=True)
 
@@ -885,29 +1077,56 @@ def analyze_command(file, batch, detailed, format, domain_terms, output, show_sc
 
 
 # Recalibrate command (parameter derivation from validation data)
-@cli.command(name='recalibrate')
-@click.argument('dataset', type=click.Path(exists=True))
-@click.option('-o', '--output', type=click.Path(), default='config/scoring_parameters.json',
-              help='Output path for derived parameters (default: config/scoring_parameters.json)')
-@click.option('-e', '--existing', type=click.Path(exists=True),
-              help='Path to existing parameters for comparison')
-@click.option('-r', '--report', type=click.Path(),
-              help='Path to save detailed recalibration report (JSON)')
-@click.option('--text-report', type=click.Path(),
-              help='Path to save human-readable text report')
-@click.option('-d', '--dimensions', multiple=True,
-              help='Specific dimensions to recalibrate (default: all)')
-@click.option('--no-backup', is_flag=True,
-              help='Do not create backup of existing parameters')
-@click.option('--dry-run', is_flag=True,
-              help='Run analysis without saving parameters (preview only)')
-@click.option('--auto-select-method', is_flag=True,
-              help='Use Shapiro-Wilk normality testing to auto-select scoring method for each dimension')
-@click.option('--normality-report', type=click.Path(),
-              help='Path to save normality test report (only with --auto-select-method)')
-@click.option('-v', '--verbose', is_flag=True,
-              help='Enable verbose logging')
-def recalibrate_command(dataset, output, existing, report, text_report, dimensions, no_backup, dry_run, auto_select_method, normality_report, verbose):
+@cli.command(name="recalibrate")
+@click.argument("dataset", type=click.Path(exists=True))
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(),
+    default="config/scoring_parameters.json",
+    help="Output path for derived parameters (default: config/scoring_parameters.json)",
+)
+@click.option(
+    "-e",
+    "--existing",
+    type=click.Path(exists=True),
+    help="Path to existing parameters for comparison",
+)
+@click.option(
+    "-r", "--report", type=click.Path(), help="Path to save detailed recalibration report (JSON)"
+)
+@click.option("--text-report", type=click.Path(), help="Path to save human-readable text report")
+@click.option(
+    "-d", "--dimensions", multiple=True, help="Specific dimensions to recalibrate (default: all)"
+)
+@click.option("--no-backup", is_flag=True, help="Do not create backup of existing parameters")
+@click.option(
+    "--dry-run", is_flag=True, help="Run analysis without saving parameters (preview only)"
+)
+@click.option(
+    "--auto-select-method",
+    is_flag=True,
+    help="Use Shapiro-Wilk normality testing to auto-select scoring method for each dimension",
+)
+@click.option(
+    "--normality-report",
+    type=click.Path(),
+    help="Path to save normality test report (only with --auto-select-method)",
+)
+@click.option("-v", "--verbose", is_flag=True, help="Enable verbose logging")
+def recalibrate_command(
+    dataset,
+    output,
+    existing,
+    report,
+    text_report,
+    dimensions,
+    no_backup,
+    dry_run,
+    auto_select_method,
+    normality_report,
+    verbose,
+):
     """Recalibrate scoring parameters from validation dataset.
 
     Derives optimal scoring parameters by analyzing distribution statistics
@@ -949,9 +1168,7 @@ def recalibrate_command(dataset, output, existing, report, text_report, dimensio
     # Setup logging
     level = logging.DEBUG if verbose else logging.INFO
     logging.basicConfig(
-        level=level,
-        format='%(levelname)s - %(name)s - %(message)s',
-        stream=sys.stdout
+        level=level, format="%(levelname)s - %(name)s - %(message)s", stream=sys.stdout
     )
     logging.getLogger(__name__)
 
@@ -1000,7 +1217,7 @@ def recalibrate_command(dataset, output, existing, report, text_report, dimensio
             output_params_path=output_path,
             existing_params_path=existing_path,
             dimension_names=dimension_list,
-            backup=not no_backup
+            backup=not no_backup,
         )
 
         # Print summary to console
@@ -1024,7 +1241,7 @@ def recalibrate_command(dataset, output, existing, report, text_report, dimensio
                 click.echo(f"  [NEW] {change.dimension_name}")
             else:
                 change_summary = change.get_change_summary()
-                if change_summary.get('changes'):
+                if change_summary.get("changes"):
                     click.echo(f"  [MODIFIED] {change.dimension_name}")
                 else:
                     click.echo(f"  [NO CHANGE] {change.dimension_name}")
@@ -1037,7 +1254,7 @@ def recalibrate_command(dataset, output, existing, report, text_report, dimensio
         if text_report_path:
             text = recal_report.format_text_report()
             text_report_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(text_report_path, 'w') as f:
+            with open(text_report_path, "w") as f:
                 f.write(text)
             click.echo(f"Text report saved to: {text_report_path}")
 
@@ -1046,7 +1263,7 @@ def recalibrate_command(dataset, output, existing, report, text_report, dimensio
             norm_report = workflow.get_normality_report()
             if norm_report:
                 normality_report_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(normality_report_path, 'w') as f:
+                with open(normality_report_path, "w") as f:
                     f.write(norm_report)
                 click.echo(f"Normality report saved to: {normality_report_path}")
         elif normality_report_path and not auto_select_method:
@@ -1078,20 +1295,32 @@ def recalibrate_command(dataset, output, existing, report, text_report, dimensio
         click.echo(f"Recalibration failed: {e}", err=True)
         if verbose:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 
 
 # Versions command (list parameter versions)
-@cli.command(name='versions')
-@click.option('--params-dir', type=click.Path(), default='config/parameters',
-              help='Directory containing parameter files (default: config/parameters)')
-@click.option('--archive-dir', type=click.Path(), default='config/parameters/archive',
-              help='Directory for archived versions (default: config/parameters/archive)')
-@click.option('--active-file', type=click.Path(), default='config/scoring_parameters.yaml',
-              help='Path to active parameter file (default: config/scoring_parameters.yaml)')
-@click.option('--json', 'output_json', is_flag=True,
-              help='Output in JSON format')
+@cli.command(name="versions")
+@click.option(
+    "--params-dir",
+    type=click.Path(),
+    default="config/parameters",
+    help="Directory containing parameter files (default: config/parameters)",
+)
+@click.option(
+    "--archive-dir",
+    type=click.Path(),
+    default="config/parameters/archive",
+    help="Directory for archived versions (default: config/parameters/archive)",
+)
+@click.option(
+    "--active-file",
+    type=click.Path(),
+    default="config/scoring_parameters.yaml",
+    help="Path to active parameter file (default: config/scoring_parameters.yaml)",
+)
+@click.option("--json", "output_json", is_flag=True, help="Output in JSON format")
 def versions_command(params_dir, archive_dir, active_file, output_json):
     """List available parameter versions.
 
@@ -1112,37 +1341,43 @@ def versions_command(params_dir, archive_dir, active_file, output_json):
     import json
 
     manager = ParameterVersionManager(
-        params_dir=Path(params_dir),
-        archive_dir=Path(archive_dir),
-        active_file=Path(active_file)
+        params_dir=Path(params_dir), archive_dir=Path(archive_dir), active_file=Path(active_file)
     )
 
     versions = manager.list_versions()
     current = manager.get_current_version()
 
     if output_json:
-        click.echo(json.dumps({
-            "current_version": current,
-            "versions": versions
-        }, indent=2))
+        click.echo(json.dumps({"current_version": current, "versions": versions}, indent=2))
     else:
         click.echo(format_version_list(versions, current))
 
 
 # Rollback command (restore previous version)
-@cli.command(name='rollback')
-@click.option('--version', '-v', 'target_version', required=True,
-              help='Version to rollback to')
-@click.option('--params-dir', type=click.Path(), default='config/parameters',
-              help='Directory containing parameter files')
-@click.option('--archive-dir', type=click.Path(), default='config/parameters/archive',
-              help='Directory for archived versions')
-@click.option('--active-file', type=click.Path(), default='config/scoring_parameters.yaml',
-              help='Path to active parameter file')
-@click.option('--dry-run', is_flag=True,
-              help='Show what would be rolled back without making changes')
-@click.option('-y', '--yes', is_flag=True,
-              help='Skip confirmation prompt')
+@cli.command(name="rollback")
+@click.option("--version", "-v", "target_version", required=True, help="Version to rollback to")
+@click.option(
+    "--params-dir",
+    type=click.Path(),
+    default="config/parameters",
+    help="Directory containing parameter files",
+)
+@click.option(
+    "--archive-dir",
+    type=click.Path(),
+    default="config/parameters/archive",
+    help="Directory for archived versions",
+)
+@click.option(
+    "--active-file",
+    type=click.Path(),
+    default="config/scoring_parameters.yaml",
+    help="Path to active parameter file",
+)
+@click.option(
+    "--dry-run", is_flag=True, help="Show what would be rolled back without making changes"
+)
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompt")
 def rollback_command(target_version, params_dir, archive_dir, active_file, dry_run, yes):
     """Rollback to a previous parameter version.
 
@@ -1161,9 +1396,7 @@ def rollback_command(target_version, params_dir, archive_dir, active_file, dry_r
       writescore rollback --version 1.0 --yes
     """
     manager = ParameterVersionManager(
-        params_dir=Path(params_dir),
-        archive_dir=Path(archive_dir),
-        active_file=Path(active_file)
+        params_dir=Path(params_dir), archive_dir=Path(archive_dir), active_file=Path(active_file)
     )
 
     # Get current version for display
@@ -1216,17 +1449,23 @@ def rollback_command(target_version, params_dir, archive_dir, active_file, dry_r
 
 
 # Diff command (compare parameter versions)
-@cli.command(name='diff')
-@click.argument('old_version')
-@click.argument('new_version')
-@click.option('--params-dir', type=click.Path(), default='config/parameters',
-              help='Directory containing parameter files')
-@click.option('--archive-dir', type=click.Path(), default='config/parameters/archive',
-              help='Directory for archived versions')
-@click.option('--detailed', is_flag=True,
-              help='Show detailed per-field changes')
-@click.option('--json', 'output_json', is_flag=True,
-              help='Output in JSON format')
+@cli.command(name="diff")
+@click.argument("old_version")
+@click.argument("new_version")
+@click.option(
+    "--params-dir",
+    type=click.Path(),
+    default="config/parameters",
+    help="Directory containing parameter files",
+)
+@click.option(
+    "--archive-dir",
+    type=click.Path(),
+    default="config/parameters/archive",
+    help="Directory for archived versions",
+)
+@click.option("--detailed", is_flag=True, help="Show detailed per-field changes")
+@click.option("--json", "output_json", is_flag=True, help="Output in JSON format")
 def diff_command(old_version, new_version, params_dir, archive_dir, detailed, output_json):
     """Compare two parameter versions.
 
@@ -1246,10 +1485,7 @@ def diff_command(old_version, new_version, params_dir, archive_dir, detailed, ou
     """
     import json
 
-    manager = ParameterVersionManager(
-        params_dir=Path(params_dir),
-        archive_dir=Path(archive_dir)
-    )
+    manager = ParameterVersionManager(params_dir=Path(params_dir), archive_dir=Path(archive_dir))
 
     comparator = ParameterComparator()
 
@@ -1270,20 +1506,31 @@ def diff_command(old_version, new_version, params_dir, archive_dir, detailed, ou
 
 
 # Deploy command (deploy new parameters)
-@cli.command(name='deploy')
-@click.argument('params_file', type=click.Path(exists=True))
-@click.option('--params-dir', type=click.Path(), default='config/parameters',
-              help='Directory for versioned parameter files')
-@click.option('--archive-dir', type=click.Path(), default='config/parameters/archive',
-              help='Directory for archived versions')
-@click.option('--active-file', type=click.Path(), default='config/scoring_parameters.yaml',
-              help='Path to active parameter file')
-@click.option('--no-backup', is_flag=True,
-              help='Do not backup current parameters before deployment')
-@click.option('--dry-run', is_flag=True,
-              help='Show deployment checklist without deploying')
-@click.option('-y', '--yes', is_flag=True,
-              help='Skip confirmation prompt')
+@cli.command(name="deploy")
+@click.argument("params_file", type=click.Path(exists=True))
+@click.option(
+    "--params-dir",
+    type=click.Path(),
+    default="config/parameters",
+    help="Directory for versioned parameter files",
+)
+@click.option(
+    "--archive-dir",
+    type=click.Path(),
+    default="config/parameters/archive",
+    help="Directory for archived versions",
+)
+@click.option(
+    "--active-file",
+    type=click.Path(),
+    default="config/scoring_parameters.yaml",
+    help="Path to active parameter file",
+)
+@click.option(
+    "--no-backup", is_flag=True, help="Do not backup current parameters before deployment"
+)
+@click.option("--dry-run", is_flag=True, help="Show deployment checklist without deploying")
+@click.option("-y", "--yes", is_flag=True, help="Skip confirmation prompt")
 def deploy_command(params_file, params_dir, archive_dir, active_file, no_backup, dry_run, yes):
     """Deploy new parameters as the active version.
 
@@ -1307,9 +1554,7 @@ def deploy_command(params_file, params_dir, archive_dir, active_file, no_backup,
     from writescore.core.parameter_loader import ParameterLoader
 
     manager = ParameterVersionManager(
-        params_dir=Path(params_dir),
-        archive_dir=Path(archive_dir),
-        active_file=Path(active_file)
+        params_dir=Path(params_dir), archive_dir=Path(archive_dir), active_file=Path(active_file)
     )
 
     # Load new parameters
@@ -1374,5 +1619,5 @@ def deploy_command(params_file, params_dir, archive_dir, active_file, no_backup,
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

@@ -25,6 +25,7 @@ dependencies = [
     "marko>=2.0.0",
     "nltk>=3.8",
     "spacy>=3.7.0",
+    "en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
     "textstat>=0.7.3",
     "transformers>=4.35.0",
     "torch>=2.0.0",
@@ -103,6 +104,62 @@ show_missing = true
 
 [tool.coverage.html]
 directory = "htmlcov"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = false
+warn_unused_ignores = true
+ignore_missing_imports = true
+implicit_optional = true
+strict_optional = false
+check_untyped_defs = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+no_implicit_reexport = false
+# Disable noisy checks for legacy code
+disable_error_code = [
+    "var-annotated",     # Don't require type annotations on all variables
+    "arg-type",          # Allow flexible argument types
+    "return-value",      # Allow flexible return types
+    "assignment",        # Allow flexible assignments
+    "override",          # Don't enforce override compatibility
+    "attr-defined",      # Allow dynamic attributes
+    "call-arg",          # Allow flexible call arguments
+    "index",             # Allow flexible indexing
+    "operator",          # Allow flexible operators
+    "dict-item",         # Allow flexible dict items
+    "valid-type",        # Allow flexible type expressions
+    "misc",              # Allow miscellaneous type issues
+]
+# TODO: Tech Debt - Re-enable these error codes incrementally in future epic
+# Priority: override, attr-defined, assignment, return-value, arg-type
+exclude = [
+    "/opt/homebrew/anaconda3/",
+    ".*/site-packages/mcp/.*",
+]
+# Per-module overrides for third-party libraries
+[[tool.mypy.overrides]]
+module = [
+    "marko.*",
+    "scipy.*",
+    "textstat.*",
+    "textacy.*",
+    "transformers.*",
+    "torch.*",
+    "spacy.*",
+    "nltk.*",
+    "sentence_transformers.*",
+    "yaml",
+    "yaml.*",
+]
+ignore_missing_imports = true
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["mcp", "mcp.*"]
+follow_imports = "skip"
+ignore_missing_imports = true
+ignore_errors = true
 
 [tool.ruff]
 line-length = 100

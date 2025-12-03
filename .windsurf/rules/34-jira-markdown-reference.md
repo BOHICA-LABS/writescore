@@ -77,7 +77,7 @@ public class Example {
 
 ```markdown
 > This is a blockquote
-> 
+>
 > It can span multiple paragraphs
 ```
 
@@ -116,7 +116,7 @@ Paragraph 1
 
 Paragraph 2 (blank line between blocks)
 
-Line with manual break  
+Line with manual break
 continues on next line (two spaces before newline)
 ```
 

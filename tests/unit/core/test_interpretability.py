@@ -22,10 +22,7 @@ class TestPercentileContext:
     def test_basic_creation(self):
         """Test basic context creation."""
         context = PercentileContext(
-            dimension_name="burstiness",
-            raw_value=0.65,
-            percentile_human=45.0,
-            percentile_ai=30.0
+            dimension_name="burstiness", raw_value=0.65, percentile_human=45.0, percentile_ai=30.0
         )
 
         assert context.dimension_name == "burstiness"
@@ -39,7 +36,7 @@ class TestPercentileContext:
             dimension_name="lexical",
             raw_value=0.72,
             percentile_human=60.5,
-            interpretation="Above average"
+            interpretation="Above average",
         )
 
         d = context.to_dict()
@@ -51,10 +48,7 @@ class TestPercentileContext:
 
     def test_default_values(self):
         """Test default values."""
-        context = PercentileContext(
-            dimension_name="test",
-            raw_value=0.5
-        )
+        context = PercentileContext(dimension_name="test", raw_value=0.5)
 
         assert context.percentile_human is None
         assert context.percentile_ai is None
@@ -77,9 +71,7 @@ class TestScoreInterpretation:
         """Test with dimension contexts."""
         interp = ScoreInterpretation()
         interp.dimension_contexts["burstiness"] = PercentileContext(
-            dimension_name="burstiness",
-            raw_value=0.65,
-            percentile_human=45.0
+            dimension_name="burstiness", raw_value=0.65, percentile_human=45.0
         )
 
         assert "burstiness" in interp.dimension_contexts
@@ -89,12 +81,9 @@ class TestScoreInterpretation:
         """Test serialization."""
         interp = ScoreInterpretation(
             overall_quality_percentile=72.5,
-            recommendations=["Improve burstiness", "Reduce hedging"]
+            recommendations=["Improve burstiness", "Reduce hedging"],
         )
-        interp.dimension_contexts["test"] = PercentileContext(
-            dimension_name="test",
-            raw_value=0.5
-        )
+        interp.dimension_contexts["test"] = PercentileContext(dimension_name="test", raw_value=0.5)
 
         d = interp.to_dict()
 
@@ -110,15 +99,9 @@ class TestPercentileCalculator:
     def sample_stats(self):
         """Sample distribution statistics."""
         return {
-            "percentiles": {
-                "p10": 0.3,
-                "p25": 0.4,
-                "p50": 0.5,
-                "p75": 0.6,
-                "p90": 0.7
-            },
+            "percentiles": {"p10": 0.3, "p25": 0.4, "p50": 0.5, "p75": 0.6, "p90": 0.7},
             "min_val": 0.1,
-            "max_val": 0.9
+            "max_val": 0.9,
         }
 
     def test_calculate_at_known_percentile(self, sample_stats):
@@ -179,13 +162,13 @@ class TestScoreInterpreter:
             "burstiness": {
                 "percentiles": {"p10": 5.0, "p25": 8.0, "p50": 12.0, "p75": 16.0, "p90": 20.0},
                 "min_val": 2.0,
-                "max_val": 25.0
+                "max_val": 25.0,
             },
             "lexical": {
                 "percentiles": {"p10": 0.4, "p25": 0.5, "p50": 0.6, "p75": 0.7, "p90": 0.8},
                 "min_val": 0.3,
-                "max_val": 0.9
-            }
+                "max_val": 0.9,
+            },
         }
 
     @pytest.fixture
@@ -195,13 +178,13 @@ class TestScoreInterpreter:
             "burstiness": {
                 "percentiles": {"p10": 3.0, "p25": 5.0, "p50": 7.0, "p75": 9.0, "p90": 11.0},
                 "min_val": 1.0,
-                "max_val": 15.0
+                "max_val": 15.0,
             },
             "lexical": {
                 "percentiles": {"p10": 0.5, "p25": 0.55, "p50": 0.6, "p75": 0.65, "p90": 0.7},
                 "min_val": 0.4,
-                "max_val": 0.75
-            }
+                "max_val": 0.75,
+            },
         }
 
     def test_interpret_dimension_human_only(self, human_stats):
@@ -268,7 +251,7 @@ class TestDistributionVisualizer:
             "dimension_name": "burstiness",
             "percentiles": {"p10": 5.0, "p25": 8.0, "p50": 12.0, "p75": 16.0, "p90": 20.0},
             "min_val": 2.0,
-            "max_val": 25.0
+            "max_val": 25.0,
         }
 
     def test_visualize_position(self, sample_stats):
@@ -294,16 +277,8 @@ class TestDistributionVisualizer:
 
     def test_visualize_comparison(self):
         """Test human vs AI comparison visualization."""
-        human_stats = {
-            "percentiles": {"p50": 12.0},
-            "min_val": 2.0,
-            "max_val": 25.0
-        }
-        ai_stats = {
-            "percentiles": {"p50": 7.0},
-            "min_val": 1.0,
-            "max_val": 15.0
-        }
+        human_stats = {"percentiles": {"p50": 12.0}, "min_val": 2.0, "max_val": 25.0}
+        ai_stats = {"percentiles": {"p50": 7.0}, "min_val": 1.0, "max_val": 15.0}
 
         viz = DistributionVisualizer(width=50)
         result = viz.visualize_comparison(10.0, human_stats, ai_stats, "burstiness")
@@ -318,7 +293,7 @@ class TestDistributionVisualizer:
             "dimension_name": "test",
             "percentiles": {"p50": 0.5},
             "min_val": 0.0,
-            "max_val": 1.0
+            "max_val": 1.0,
         }
 
         viz_narrow = DistributionVisualizer(width=20)
@@ -347,14 +322,14 @@ class TestFormatPercentileReport:
         interp = ScoreInterpretation(
             overall_quality_percentile=72.5,
             overall_detection_percentile=25.0,
-            recommendations=["Improve burstiness", "Reduce hedging"]
+            recommendations=["Improve burstiness", "Reduce hedging"],
         )
         interp.dimension_contexts["burstiness"] = PercentileContext(
             dimension_name="burstiness",
             raw_value=12.0,
             percentile_human=50.0,
             percentile_ai=85.0,
-            interpretation="At median of human writing"
+            interpretation="At median of human writing",
         )
 
         report = format_percentile_report(interp)
@@ -368,13 +343,8 @@ class TestFormatPercentileReport:
 
     def test_report_structure(self):
         """Test report has expected sections."""
-        interp = ScoreInterpretation(
-            recommendations=["Test recommendation"]
-        )
-        interp.dimension_contexts["test"] = PercentileContext(
-            dimension_name="test",
-            raw_value=0.5
-        )
+        interp = ScoreInterpretation(recommendations=["Test recommendation"])
+        interp.dimension_contexts["test"] = PercentileContext(dimension_name="test", raw_value=0.5)
 
         report = format_percentile_report(interp)
 
@@ -390,7 +360,7 @@ class TestPercentileEdgeCases:
         stats = {
             "percentiles": {"p10": 5.0, "p25": 5.0, "p50": 5.0, "p75": 5.0, "p90": 5.0},
             "min_val": 5.0,
-            "max_val": 5.0
+            "max_val": 5.0,
         }
 
         calc = PercentileCalculator(stats)
@@ -401,11 +371,7 @@ class TestPercentileEdgeCases:
 
     def test_negative_values(self):
         """Test with negative metric values."""
-        stats = {
-            "percentiles": {"p50": -0.5},
-            "min_val": -1.0,
-            "max_val": 0.0
-        }
+        stats = {"percentiles": {"p50": -0.5}, "min_val": -1.0, "max_val": 0.0}
 
         calc = PercentileCalculator(stats)
         result = calc.calculate_percentile(-0.5)
@@ -414,11 +380,7 @@ class TestPercentileEdgeCases:
 
     def test_very_large_values(self):
         """Test with very large values."""
-        stats = {
-            "percentiles": {"p50": 1000000.0},
-            "min_val": 0.0,
-            "max_val": 2000000.0
-        }
+        stats = {"percentiles": {"p50": 1000000.0}, "min_val": 0.0, "max_val": 2000000.0}
 
         calc = PercentileCalculator(stats)
         result = calc.calculate_percentile(1500000.0)

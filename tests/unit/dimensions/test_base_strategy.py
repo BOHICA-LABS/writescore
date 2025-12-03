@@ -26,6 +26,7 @@ from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 # Test Fixtures - Concrete Implementations
 # ============================================================================
 
+
 class CompleteDimension(DimensionStrategy):
     """Complete concrete implementation for testing."""
 
@@ -46,26 +47,24 @@ class CompleteDimension(DimensionStrategy):
         return "Test dimension for unit testing"
 
     def analyze(self, text: str, lines: List[str], **kwargs) -> Dict[str, Any]:
-        return {'test_metric': len(text)}
+        return {"test_metric": len(text)}
 
     def calculate_score(self, metrics: Dict[str, Any]) -> float:
         score = 85.0
         self._validate_score(score)
         return score
 
-    def get_recommendations(
-        self, score: float, metrics: Dict[str, Any]
-    ) -> List[str]:
+    def get_recommendations(self, score: float, metrics: Dict[str, Any]) -> List[str]:
         if score < 75:
             return ["Improve test metric"]
         return []
 
     def get_tiers(self) -> Dict[str, Tuple[float, float]]:
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
 
@@ -108,13 +107,11 @@ class InvalidTierDimension(DimensionStrategy):
     def calculate_score(self, metrics: Dict[str, Any]) -> float:
         return 50.0
 
-    def get_recommendations(
-        self, score: float, metrics: Dict[str, Any]
-    ) -> List[str]:
+    def get_recommendations(self, score: float, metrics: Dict[str, Any]) -> List[str]:
         return []
 
     def get_tiers(self) -> Dict[str, Tuple[float, float]]:
-        return {'good': (0.0, 100.0)}
+        return {"good": (0.0, 100.0)}
 
 
 @pytest.fixture
@@ -151,6 +148,7 @@ More text here.
 # Abstract Base Class Tests
 # ============================================================================
 
+
 def test_cannot_instantiate_base():
     """Verify DimensionStrategy cannot be instantiated directly."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
@@ -173,6 +171,7 @@ def test_complete_dimension_can_be_instantiated():
 # ============================================================================
 # Abstract Properties Tests
 # ============================================================================
+
 
 def test_dimension_name_property(dimension):
     """Test dimension_name property is accessible."""
@@ -202,16 +201,17 @@ def test_description_property(dimension):
 # Abstract Methods Tests
 # ============================================================================
 
+
 def test_analyze_method(dimension):
     """Test analyze method works correctly."""
     result = dimension.analyze("test text", ["test", "text"])
     assert isinstance(result, dict)
-    assert 'test_metric' in result
+    assert "test_metric" in result
 
 
 def test_calculate_score_method(dimension):
     """Test calculate_score method works correctly."""
-    metrics = {'test_metric': 100}
+    metrics = {"test_metric": 100}
     score = dimension.calculate_score(metrics)
     assert isinstance(score, float)
     assert score == 85.0
@@ -231,15 +231,16 @@ def test_get_tiers_method(dimension):
     """Test get_tiers method works correctly."""
     tiers = dimension.get_tiers()
     assert isinstance(tiers, dict)
-    assert 'excellent' in tiers
-    assert 'good' in tiers
-    assert 'acceptable' in tiers
-    assert 'poor' in tiers
+    assert "excellent" in tiers
+    assert "good" in tiers
+    assert "acceptable" in tiers
+    assert "poor" in tiers
 
 
 # ============================================================================
 # Tier Validation Tests
 # ============================================================================
+
 
 def test_tier_validation_with_valid_values(dimension):
     """Verify valid tier values are accepted."""
@@ -249,11 +250,13 @@ def test_tier_validation_with_valid_values(dimension):
 
 def test_tier_validation_with_all_valid_tier_types():
     """Test all DimensionTier enum values are valid."""
+
     def make_dim_class(tier_val):
         class TestDim(CompleteDimension):
             @property
             def tier(self):
                 return tier_val
+
         return TestDim
 
     for tier_value in DimensionTier:
@@ -287,6 +290,7 @@ def test_dimension_tier_is_string_enum():
 # Score Validation Tests
 # ============================================================================
 
+
 def test_score_validation_valid_scores(dimension):
     """Verify valid scores are accepted."""
     # Valid scores - should not raise
@@ -318,6 +322,7 @@ def test_score_validation_invalid_above_100(dimension):
 # ============================================================================
 # Weight Validation Tests
 # ============================================================================
+
 
 def test_weight_validation_valid_weights(dimension):
     """Verify valid weights are accepted."""
@@ -351,18 +356,19 @@ def test_weight_validation_invalid_above_100(dimension):
 # get_impact_level() Tests
 # ============================================================================
 
+
 def test_impact_level_none(dimension):
     """Test get_impact_level returns NONE for gap < 5."""
     assert dimension.get_impact_level(100.0) == "NONE"  # gap = 0
-    assert dimension.get_impact_level(96.0) == "NONE"   # gap = 4
-    assert dimension.get_impact_level(95.1) == "NONE"   # gap = 4.9
+    assert dimension.get_impact_level(96.0) == "NONE"  # gap = 4
+    assert dimension.get_impact_level(95.1) == "NONE"  # gap = 4.9
 
 
 def test_impact_level_low(dimension):
     """Test get_impact_level returns LOW for 5 <= gap < 15."""
-    assert dimension.get_impact_level(95.0) == "LOW"    # gap = 5
-    assert dimension.get_impact_level(92.0) == "LOW"    # gap = 8
-    assert dimension.get_impact_level(85.1) == "LOW"    # gap = 14.9
+    assert dimension.get_impact_level(95.0) == "LOW"  # gap = 5
+    assert dimension.get_impact_level(92.0) == "LOW"  # gap = 8
+    assert dimension.get_impact_level(85.1) == "LOW"  # gap = 14.9
 
 
 def test_impact_level_medium(dimension):
@@ -375,10 +381,10 @@ def test_impact_level_medium(dimension):
 
 def test_impact_level_high(dimension):
     """Test get_impact_level returns HIGH for gap >= 30."""
-    assert dimension.get_impact_level(70.0) == "HIGH"   # gap = 30
-    assert dimension.get_impact_level(69.0) == "HIGH"   # gap = 31
-    assert dimension.get_impact_level(50.0) == "HIGH"   # gap = 50
-    assert dimension.get_impact_level(0.0) == "HIGH"    # gap = 100
+    assert dimension.get_impact_level(70.0) == "HIGH"  # gap = 30
+    assert dimension.get_impact_level(69.0) == "HIGH"  # gap = 31
+    assert dimension.get_impact_level(50.0) == "HIGH"  # gap = 50
+    assert dimension.get_impact_level(0.0) == "HIGH"  # gap = 100
 
 
 def test_impact_level_all_thresholds(dimension):
@@ -393,6 +399,7 @@ def test_impact_level_all_thresholds(dimension):
 # ============================================================================
 # _calculate_gap() Tests
 # ============================================================================
+
 
 def test_calculate_gap_static_method():
     """Test _calculate_gap static method."""
@@ -413,6 +420,7 @@ def test_calculate_gap_instance_method(dimension):
 # AST Helper Methods Tests
 # ============================================================================
 
+
 def test_get_markdown_parser(dimension):
     """Test _get_markdown_parser lazy loading."""
     parser1 = dimension._get_markdown_parser()
@@ -424,22 +432,22 @@ def test_get_markdown_parser(dimension):
 
 def test_parse_to_ast(dimension, markdown_text):
     """Test _parse_to_ast parsing."""
-    ast = dimension._parse_to_ast(markdown_text, cache_key='test')
+    ast = dimension._parse_to_ast(markdown_text, cache_key="test")
     assert ast is not None
 
 
 def test_parse_to_ast_caching(dimension, markdown_text):
     """Test _parse_to_ast caching works."""
-    ast1 = dimension._parse_to_ast(markdown_text, cache_key='test_cache')
-    ast2 = dimension._parse_to_ast(markdown_text, cache_key='test_cache')
+    ast1 = dimension._parse_to_ast(markdown_text, cache_key="test_cache")
+    ast2 = dimension._parse_to_ast(markdown_text, cache_key="test_cache")
 
     assert ast1 is ast2  # Should return cached version
 
 
 def test_parse_to_ast_different_cache_keys(dimension, markdown_text):
     """Test different cache keys store separately."""
-    ast1 = dimension._parse_to_ast(markdown_text, cache_key='key1')
-    ast2 = dimension._parse_to_ast(markdown_text, cache_key='key2')
+    ast1 = dimension._parse_to_ast(markdown_text, cache_key="key1")
+    ast2 = dimension._parse_to_ast(markdown_text, cache_key="key2")
 
     # Different cache keys, so different objects (re-parsed)
     assert ast1 is not ast2
@@ -456,7 +464,7 @@ def test_parse_to_ast_no_cache_key(dimension, markdown_text):
 
 def test_walk_ast_find_headings(dimension, markdown_text):
     """Test _walk_ast finds headings."""
-    ast = dimension._parse_to_ast(markdown_text, cache_key='test_headings')
+    ast = dimension._parse_to_ast(markdown_text, cache_key="test_headings")
     headings = dimension._walk_ast(ast, Heading)
 
     assert len(headings) >= 2  # Should find at least 2 headings
@@ -464,7 +472,7 @@ def test_walk_ast_find_headings(dimension, markdown_text):
 
 def test_walk_ast_find_quotes(dimension, markdown_text):
     """Test _walk_ast finds blockquotes."""
-    ast = dimension._parse_to_ast(markdown_text, cache_key='test_quotes')
+    ast = dimension._parse_to_ast(markdown_text, cache_key="test_quotes")
     quotes = dimension._walk_ast(ast, Quote)
 
     assert len(quotes) >= 1  # Should find at least 1 blockquote
@@ -472,7 +480,7 @@ def test_walk_ast_find_quotes(dimension, markdown_text):
 
 def test_walk_ast_find_code_blocks(dimension, markdown_text):
     """Test _walk_ast finds code blocks."""
-    ast = dimension._parse_to_ast(markdown_text, cache_key='test_code')
+    ast = dimension._parse_to_ast(markdown_text, cache_key="test_code")
     code_blocks = dimension._walk_ast(ast, FencedCode)
 
     assert len(code_blocks) >= 1  # Should find at least 1 code block
@@ -480,7 +488,7 @@ def test_walk_ast_find_code_blocks(dimension, markdown_text):
 
 def test_walk_ast_no_type_filter(dimension, markdown_text):
     """Test _walk_ast without type filter returns all nodes."""
-    ast = dimension._parse_to_ast(markdown_text, cache_key='test_all')
+    ast = dimension._parse_to_ast(markdown_text, cache_key="test_all")
     all_nodes = dimension._walk_ast(ast, node_type=None)
 
     assert len(all_nodes) > 0  # Should return many nodes
@@ -488,7 +496,7 @@ def test_walk_ast_no_type_filter(dimension, markdown_text):
 
 def test_extract_text_from_node(dimension, markdown_text):
     """Test _extract_text_from_node extracts text."""
-    ast = dimension._parse_to_ast(markdown_text, cache_key='test_extract')
+    ast = dimension._parse_to_ast(markdown_text, cache_key="test_extract")
     headings = dimension._walk_ast(ast, Heading)
 
     assert len(headings) > 0
@@ -509,9 +517,10 @@ def test_extract_text_handles_string_node(dimension):
 # Backward Compatibility Tests
 # ============================================================================
 
+
 def test_score_method_backward_compatibility(dimension):
     """Verify score() method wraps calculate_score() correctly."""
-    score_value, score_label = dimension.score({'test': 'data'})
+    score_value, score_label = dimension.score({"test": "data"})
 
     assert score_value == 85.0
     assert isinstance(score_label, str)
@@ -533,9 +542,10 @@ def test_get_dimension_name_deprecated(dimension):
 # analyze_detailed() Tests
 # ============================================================================
 
+
 def test_analyze_detailed_default_implementation(dimension):
     """Verify analyze_detailed returns empty list by default."""
-    result = dimension.analyze_detailed(['line 1', 'line 2'])
+    result = dimension.analyze_detailed(["line 1", "line 2"])
 
     assert result == []
     assert isinstance(result, list)
@@ -543,10 +553,7 @@ def test_analyze_detailed_default_implementation(dimension):
 
 def test_analyze_detailed_with_html_comment_checker(dimension):
     """Verify analyze_detailed accepts html_comment_checker parameter."""
-    result = dimension.analyze_detailed(
-        ['line 1', 'line 2'],
-        html_comment_checker=lambda x: False
-    )
+    result = dimension.analyze_detailed(["line 1", "line 2"], html_comment_checker=lambda x: False)
 
     assert result == []
 
@@ -554,6 +561,7 @@ def test_analyze_detailed_with_html_comment_checker(dimension):
 # ============================================================================
 # _map_score_to_tier() Tests
 # ============================================================================
+
 
 def test_map_score_to_tier_excellent(dimension):
     """Test _map_score_to_tier maps to EXCELLENT tier."""
@@ -598,14 +606,15 @@ def test_map_score_to_tier_boundary_values(dimension):
 # Integration Tests
 # ============================================================================
 
+
 def test_full_analysis_workflow(dimension):
     """Test complete analysis workflow."""
     # 1. Analyze
     text = "This is test text for analysis"
-    lines = text.split('\n')
+    lines = text.split("\n")
     metrics = dimension.analyze(text, lines, word_count=6)
 
-    assert 'test_metric' in metrics
+    assert "test_metric" in metrics
 
     # 2. Calculate score
     score = dimension.calculate_score(metrics)
@@ -634,13 +643,13 @@ def test_dimension_metadata_accessible():
 def test_ast_cache_persists_across_calls(dimension, markdown_text):
     """Test AST cache persists across multiple calls."""
     # First parse
-    ast1 = dimension._parse_to_ast(markdown_text, cache_key='persist_test')
+    ast1 = dimension._parse_to_ast(markdown_text, cache_key="persist_test")
 
     # Second parse with same cache key
-    ast2 = dimension._parse_to_ast(markdown_text, cache_key='persist_test')
+    ast2 = dimension._parse_to_ast(markdown_text, cache_key="persist_test")
 
     # Should be the exact same object from cache
     assert ast1 is ast2
 
     # Verify cache was actually used (check internal state)
-    assert 'persist_test' in dimension._ast_cache
+    assert "persist_test" in dimension._ast_cache

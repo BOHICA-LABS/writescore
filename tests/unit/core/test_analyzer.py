@@ -32,7 +32,7 @@ def analyzer():
 @pytest.fixture
 def analyzer_with_domain_terms():
     """Create AIPatternAnalyzer with custom domain terms."""
-    custom_terms = [r'\bPython\b', r'\bDjango\b', r'\bREST\b', r'\bAPI\b']
+    custom_terms = [r"\bPython\b", r"\bDjango\b", r"\bREST\b", r"\bAPI\b"]
     return AIPatternAnalyzer(domain_terms=custom_terms)
 
 
@@ -83,6 +83,7 @@ More content here.
 # Initialization Tests
 # ============================================================================
 
+
 class TestInitialization:
     """Tests for AIPatternAnalyzer initialization."""
 
@@ -96,18 +97,18 @@ class TestInitialization:
         assert analyzer.dimensions is not None
         assert isinstance(analyzer.dimensions, dict)
         # Verify core dimensions are loaded
-        assert 'perplexity' in analyzer.dimensions
-        assert 'burstiness' in analyzer.dimensions
-        assert 'structure' in analyzer.dimensions
-        assert 'formatting' in analyzer.dimensions
-        assert 'voice' in analyzer.dimensions
-        assert 'lexical' in analyzer.dimensions
-        assert 'readability' in analyzer.dimensions
-        assert 'sentiment' in analyzer.dimensions
+        assert "perplexity" in analyzer.dimensions
+        assert "burstiness" in analyzer.dimensions
+        assert "structure" in analyzer.dimensions
+        assert "formatting" in analyzer.dimensions
+        assert "voice" in analyzer.dimensions
+        assert "lexical" in analyzer.dimensions
+        assert "readability" in analyzer.dimensions
+        assert "sentiment" in analyzer.dimensions
 
     def test_init_custom_domain_terms(self, analyzer_with_domain_terms):
         """Test initialization with custom domain terms."""
-        expected_terms = [r'\bPython\b', r'\bDjango\b', r'\bREST\b', r'\bAPI\b']
+        expected_terms = [r"\bPython\b", r"\bDjango\b", r"\bREST\b", r"\bAPI\b"]
         assert analyzer_with_domain_terms.domain_terms == expected_terms
 
     def test_init_creates_html_comment_pattern(self, analyzer):
@@ -123,6 +124,7 @@ class TestInitialization:
 # ============================================================================
 # File Analysis Tests
 # ============================================================================
+
 
 class TestAnalyzeFile:
     """Tests for main analyze_file method."""
@@ -180,6 +182,7 @@ class TestAnalyzeFile:
 # ============================================================================
 # Preprocessing Tests
 # ============================================================================
+
 
 class TestPreprocessing:
     """Tests for preprocessing methods."""
@@ -243,6 +246,7 @@ After"""
 # Word Counting Tests
 # ============================================================================
 
+
 class TestCountWords:
     """Tests for _count_words method."""
 
@@ -295,6 +299,7 @@ More regular text."""
 # AST Parsing Tests
 # ============================================================================
 
+
 class TestAstParsing:
     """Tests for AST parsing helper methods."""
 
@@ -325,12 +330,12 @@ class TestAstParsing:
         """Test AST parsing with caching."""
         text = "# Test"
 
-        ast1 = analyzer._parse_to_ast(text, cache_key='test')
-        ast2 = analyzer._parse_to_ast(text, cache_key='test')
+        ast1 = analyzer._parse_to_ast(text, cache_key="test")
+        ast2 = analyzer._parse_to_ast(text, cache_key="test")
 
         # Should return same cached instance
         assert ast1 is ast2
-        assert 'test' in analyzer._ast_cache
+        assert "test" in analyzer._ast_cache
 
     def test_parse_to_ast_empty(self, analyzer):
         """Test AST parsing of empty text."""
@@ -379,6 +384,7 @@ class TestAstParsing:
 # Dual Score Calculation Tests
 # ============================================================================
 
+
 class TestCalculateDualScore:
     """Tests for calculate_dual_score method."""
 
@@ -397,9 +403,7 @@ class TestCalculateDualScore:
         """Test dual score calculation with custom targets."""
         results = analyzer.analyze_file(sample_markdown_file)
         dual_score = analyzer.calculate_dual_score(
-            results,
-            detection_target=20.0,
-            quality_target=90.0
+            results, detection_target=20.0, quality_target=90.0
         )
 
         assert isinstance(dual_score, DualScore)
@@ -411,6 +415,7 @@ class TestCalculateDualScore:
 # History Tracking Tests
 # ============================================================================
 
+
 class TestHistoryTracking:
     """Tests for score history tracking."""
 
@@ -421,8 +426,8 @@ class TestHistoryTracking:
         history_path = analyzer._get_history_file_path(str(source))
 
         assert isinstance(history_path, Path)
-        assert history_path.name.endswith('.history.json')
-        assert 'document' in str(history_path)
+        assert history_path.name.endswith(".history.json")
+        assert "document" in str(history_path)
         assert history_path.parent.exists()  # Directory should be created
 
     def test_load_score_history_nonexistent(self, analyzer, tmp_path):
@@ -451,6 +456,7 @@ class TestHistoryTracking:
 # Overall Assessment Tests
 # ============================================================================
 
+
 class TestAssessOverall:
     """Tests for _assess_overall method."""
 
@@ -467,6 +473,7 @@ class TestAssessOverall:
 # Detailed Analysis Tests
 # ============================================================================
 
+
 class TestAnalyzeFileDetailed:
     """Tests for analyze_file_detailed method."""
 
@@ -482,14 +489,15 @@ class TestAnalyzeFileDetailed:
         detailed = analyzer.analyze_file_detailed(sample_markdown_file)
 
         # Should have various issue lists (may be empty)
-        assert hasattr(detailed, 'ai_vocabulary')
-        assert hasattr(detailed, 'heading_issues')
-        assert hasattr(detailed, 'uniform_paragraphs')
+        assert hasattr(detailed, "ai_vocabulary")
+        assert hasattr(detailed, "heading_issues")
+        assert hasattr(detailed, "uniform_paragraphs")
 
 
 # ============================================================================
 # Additional Coverage Tests for Missed Branches
 # ============================================================================
+
 
 class TestFlattenOptionalMetrics:
     """Tests for _flatten_optional_metrics method - Lines 390-412."""
@@ -501,42 +509,36 @@ class TestFlattenOptionalMetrics:
 
         # Create syntactic results with data
         syntactic_results = {
-            'syntactic': {
-                'syntactic_repetition_score': 0.15,
-                'pos_diversity': 0.75,
-                'avg_dependency_depth': 2.5,
-                'subordination_index': 0.3
+            "syntactic": {
+                "syntactic_repetition_score": 0.15,
+                "pos_diversity": 0.75,
+                "avg_dependency_depth": 2.5,
+                "subordination_index": 0.3,
             }
         }
 
         # Call _flatten_optional_metrics
         from writescore.core.analyzer import AIPatternAnalyzer
+
         metrics = AIPatternAnalyzer._flatten_optional_metrics(
             analyzer, syntactic_results, {}, {}, {}
         )
 
         # Verify syntactic metrics are extracted (Line 390-395 covered)
-        assert metrics.get('syntactic_repetition_score') == 0.15
-        assert metrics.get('pos_diversity') == 0.75
-        assert metrics.get('avg_dependency_depth') == 2.5
-        assert metrics.get('subordination_index') == 0.3
+        assert metrics.get("syntactic_repetition_score") == 0.15
+        assert metrics.get("pos_diversity") == 0.75
+        assert metrics.get("avg_dependency_depth") == 2.5
+        assert metrics.get("subordination_index") == 0.3
 
     def test_flatten_with_lexical_diversity(self, analyzer):
         """Test flattening when lexical diversity is present - Line 398."""
-        lexical_results = {
-            'lexical_diversity': {
-                'mtld_score': 85.0,
-                'stemmed_diversity': 0.68
-            }
-        }
+        lexical_results = {"lexical_diversity": {"mtld_score": 85.0, "stemmed_diversity": 0.68}}
 
-        metrics = AIPatternAnalyzer._flatten_optional_metrics(
-            analyzer, {}, lexical_results, {}, {}
-        )
+        metrics = AIPatternAnalyzer._flatten_optional_metrics(analyzer, {}, lexical_results, {}, {})
 
         # Verify lexical metrics are extracted (Line 398-400 covered)
-        assert metrics.get('mtld_score') == 85.0
-        assert metrics.get('stemmed_diversity') == 0.68
+        assert metrics.get("mtld_score") == 85.0
+        assert metrics.get("stemmed_diversity") == 0.68
 
     # Story 2.0: Removed 4 deprecated tests for v5.0.0
     # - test_flatten_with_gltr
@@ -649,7 +651,7 @@ class TestExceptionHandling:
         def mock_dump(*args, **kwargs):
             raise OSError("Mock write error")
 
-        monkeypatch.setattr(json, 'dump', mock_dump)
+        monkeypatch.setattr(json, "dump", mock_dump)
 
         # Try to save (should handle exception gracefully and not raise)
         try:
@@ -667,6 +669,7 @@ class TestExtractTextEdgeCases:
 
     def test_extract_text_from_node_with_string_children(self, analyzer):
         """Test extracting text when node.children is a string - Line 209."""
+
         # Create a mock node with children as string (unusual but possible)
         class MockNode:
             def __init__(self):
@@ -680,6 +683,7 @@ class TestExtractTextEdgeCases:
 
     def test_extract_text_from_node_with_dest(self, analyzer):
         """Test extracting text from link node with 'dest' attribute - Line 211."""
+
         # Create a mock link node
         class MockLinkNode:
             def __init__(self):
@@ -701,6 +705,7 @@ class TestExtractTextEdgeCases:
 
     def test_extract_text_from_unknown_node(self, analyzer):
         """Test extracting text from unknown node type - Line 215."""
+
         # Create a mock node with no children, dest, or string type
         class UnknownNode:
             pass
@@ -728,7 +733,7 @@ Regular content here.
 
         # Should detect verbose heading (Lines 645-647 covered)
         assert len(detailed.heading_issues) > 0
-        assert any('verbose' in issue.issue_type for issue in detailed.heading_issues)
+        assert any("verbose" in issue.issue_type for issue in detailed.heading_issues)
 
     def test_analyze_headings_deep_hierarchy(self, analyzer, tmp_path):
         """Test deep hierarchy heading detection - Lines 650-653."""
@@ -747,7 +752,7 @@ Content here.
         detailed = analyzer.analyze_file_detailed(str(file_path))
 
         # Should detect deep hierarchy (Lines 650-653 covered)
-        deep_issues = [i for i in detailed.heading_issues if 'deep_hierarchy' in i.issue_type]
+        deep_issues = [i for i in detailed.heading_issues if "deep_hierarchy" in i.issue_type]
         assert len(deep_issues) > 0
 
     def test_analyze_paragraphs_with_headings(self, analyzer, tmp_path):

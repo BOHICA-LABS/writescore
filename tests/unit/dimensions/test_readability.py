@@ -88,42 +88,42 @@ class TestAnalyzeMethod:
         result = dimension.analyze(standard_text)
 
         # Should contain readability metrics
-        assert 'flesch_reading_ease' in result
-        assert 'flesch_kincaid_grade' in result
-        assert 'automated_readability_index' in result
-        assert 'available' in result
+        assert "flesch_reading_ease" in result
+        assert "flesch_kincaid_grade" in result
+        assert "automated_readability_index" in result
+        assert "available" in result
 
         # Should NOT contain transition marker metrics (those belong in TransitionMarkerDimension)
-        assert 'however_count' not in result
-        assert 'moreover_count' not in result
-        assert 'however_per_1k' not in result
-        assert 'moreover_per_1k' not in result
-        assert 'total_ai_markers_per_1k' not in result
+        assert "however_count" not in result
+        assert "moreover_count" not in result
+        assert "however_per_1k" not in result
+        assert "moreover_per_1k" not in result
+        assert "total_ai_markers_per_1k" not in result
 
     def test_analyze_includes_avg_word_length(self, dimension, standard_text):
         """Test analyze() includes average word length."""
         result = dimension.analyze(standard_text)
 
-        assert 'avg_word_length' in result
-        assert result['avg_word_length'] >= 0
+        assert "avg_word_length" in result
+        assert result["avg_word_length"] >= 0
 
     def test_analyze_includes_avg_sentence_length(self, dimension, standard_text):
         """Test analyze() includes average sentence length."""
         result = dimension.analyze(standard_text)
 
-        assert 'avg_sentence_length' in result
-        assert result['avg_sentence_length'] >= 0
+        assert "avg_sentence_length" in result
+        assert result["avg_sentence_length"] >= 0
 
     def test_analyze_sets_available_flag(self, dimension, standard_text):
         """Test analyze() sets 'available' flag."""
         result = dimension.analyze(standard_text)
-        assert 'available' in result
-        assert result['available'] is True
+        assert "available" in result
+        assert result["available"] is True
 
     def test_analyze_handles_empty_text(self, dimension):
         """Test analyze() handles empty text gracefully."""
         result = dimension.analyze("")
-        assert 'available' in result
+        assert "available" in result
 
 
 class TestCalculateScoreMethod:
@@ -136,8 +136,8 @@ class TestCalculateScoreMethod:
     def test_score_extreme_low_readability(self, dimension):
         """Test score for extremely low grade level (too simple, FK <4)."""
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 3.0  # Too simple (3rd grade)
+            "available": True,
+            "flesch_kincaid_grade": 3.0,  # Too simple (3rd grade)
         }
         score = dimension.calculate_score(metrics)
 
@@ -146,8 +146,8 @@ class TestCalculateScoreMethod:
     def test_score_extreme_high_readability(self, dimension):
         """Test score for extremely high grade level (too complex, FK >14)."""
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 15.0  # Too complex (college+)
+            "available": True,
+            "flesch_kincaid_grade": 15.0,  # Too complex (college+)
         }
         score = dimension.calculate_score(metrics)
 
@@ -156,8 +156,8 @@ class TestCalculateScoreMethod:
     def test_score_borderline_low(self, dimension):
         """Test score for borderline low grade level (FK ~6.5)."""
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 6.5  # 1σ below target
+            "available": True,
+            "flesch_kincaid_grade": 6.5,  # 1σ below target
         }
         score = dimension.calculate_score(metrics)
 
@@ -166,8 +166,8 @@ class TestCalculateScoreMethod:
     def test_score_borderline_high(self, dimension):
         """Test score for borderline high grade level (FK ~11.5)."""
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 11.5  # 1σ above target
+            "available": True,
+            "flesch_kincaid_grade": 11.5,  # 1σ above target
         }
         score = dimension.calculate_score(metrics)
 
@@ -176,8 +176,8 @@ class TestCalculateScoreMethod:
     def test_score_standard_range(self, dimension):
         """Test score for target range (FK ~9.0) - optimal."""
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 9.0  # At target
+            "available": True,
+            "flesch_kincaid_grade": 9.0,  # At target
         }
         score = dimension.calculate_score(metrics)
 
@@ -189,26 +189,18 @@ class TestCalculateScoreMethod:
         Note: Story 2.4.1 - Tests Gaussian scoring with natural variation around μ=9.0.
         """
         # Test just below target (8th grade)
-        metrics1 = {
-            'available': True,
-            'flesch_kincaid_grade': 8.0
-        }
+        metrics1 = {"available": True, "flesch_kincaid_grade": 8.0}
         score1 = dimension.calculate_score(metrics1)
         assert 85.0 <= score1 <= 100.0  # Within 0.4σ of target
 
         # Test just above target (10th grade)
-        metrics2 = {
-            'available': True,
-            'flesch_kincaid_grade': 10.0
-        }
+        metrics2 = {"available": True, "flesch_kincaid_grade": 10.0}
         score2 = dimension.calculate_score(metrics2)
         assert 85.0 <= score2 <= 100.0  # Within 0.4σ of target
 
     def test_score_unavailable_data(self, dimension):
         """Test score when readability data unavailable."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         score = dimension.calculate_score(metrics)
 
         assert score == 50.0  # Neutral score for unavailable data
@@ -219,7 +211,7 @@ class TestCalculateScoreMethod:
         Note: Story 2.4.1 - Default 9.0 is exactly the target, scores ~100.0.
         """
         metrics = {
-            'available': True
+            "available": True
             # Missing flesch_kincaid_grade - should use default 9.0
         }
         score = dimension.calculate_score(metrics)
@@ -235,10 +227,7 @@ class TestCalculateScoreMethod:
         test_cases = [2.0, 4.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 14.0, 16.0, 18.0]
 
         for fk_grade in test_cases:
-            metrics = {
-                'available': True,
-                'flesch_kincaid_grade': fk_grade
-            }
+            metrics = {"available": True, "flesch_kincaid_grade": fk_grade}
             score = dimension.calculate_score(metrics)
             assert 0.0 <= score <= 100.0
 
@@ -248,60 +237,53 @@ class TestGetRecommendations:
 
     def test_recommendations_for_extreme_low_readability(self, dimension):
         """Test recommendations for extremely low readability."""
-        metrics = {
-            'available': True,
-            'flesch_reading_ease': 25.0,
-            'flesch_kincaid_grade': 16.0
-        }
+        metrics = {"available": True, "flesch_reading_ease": 25.0, "flesch_kincaid_grade": 16.0}
         recommendations = dimension.get_recommendations(25.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('extremely low' in rec.lower() or 'difficult' in rec.lower() for rec in recommendations)
-        assert any('simplify' in rec.lower() for rec in recommendations)
+        assert any(
+            "extremely low" in rec.lower() or "difficult" in rec.lower() for rec in recommendations
+        )
+        assert any("simplify" in rec.lower() for rec in recommendations)
 
     def test_recommendations_for_extreme_high_readability(self, dimension):
         """Test recommendations for extremely high readability."""
-        metrics = {
-            'available': True,
-            'flesch_reading_ease': 95.0
-        }
+        metrics = {"available": True, "flesch_reading_ease": 95.0}
         recommendations = dimension.get_recommendations(25.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('extremely high' in rec.lower() or 'overly simple' in rec.lower() for rec in recommendations)
+        assert any(
+            "extremely high" in rec.lower() or "overly simple" in rec.lower()
+            for rec in recommendations
+        )
 
     def test_recommendations_for_standard_range(self, dimension):
         """Test recommendations for standard mid-range readability."""
-        metrics = {
-            'available': True,
-            'flesch_reading_ease': 65.0,
-            'flesch_kincaid_grade': 8.0
-        }
+        metrics = {"available": True, "flesch_reading_ease": 65.0, "flesch_kincaid_grade": 8.0}
         recommendations = dimension.get_recommendations(62.5, metrics)
 
         assert len(recommendations) > 0
-        assert any('standard' in rec.lower() or 'mid-range' in rec.lower() for rec in recommendations)
+        assert any(
+            "standard" in rec.lower() or "mid-range" in rec.lower() for rec in recommendations
+        )
 
     def test_recommendations_for_good_variation(self, dimension):
         """Test recommendations for good readability variation."""
-        metrics = {
-            'available': True,
-            'flesch_reading_ease': 50.0
-        }
+        metrics = {"available": True, "flesch_reading_ease": 50.0}
         recommendations = dimension.get_recommendations(100.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('good' in rec.lower() or 'natural' in rec.lower() for rec in recommendations)
+        assert any("good" in rec.lower() or "natural" in rec.lower() for rec in recommendations)
 
     def test_recommendations_unavailable_data(self, dimension):
         """Test recommendations when readability data unavailable."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         recommendations = dimension.get_recommendations(50.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('unavailable' in rec.lower() or 'install' in rec.lower() for rec in recommendations)
+        assert any(
+            "unavailable" in rec.lower() or "install" in rec.lower() for rec in recommendations
+        )
 
 
 class TestGetTiers:
@@ -312,16 +294,16 @@ class TestGetTiers:
         tiers = dimension.get_tiers()
 
         assert isinstance(tiers, dict)
-        assert 'excellent' in tiers
-        assert 'good' in tiers
-        assert 'acceptable' in tiers
-        assert 'poor' in tiers
+        assert "excellent" in tiers
+        assert "good" in tiers
+        assert "acceptable" in tiers
+        assert "poor" in tiers
 
     def test_tier_ranges(self, dimension):
         """Test tier ranges are properly defined."""
         tiers = dimension.get_tiers()
 
-        excellent_min, excellent_max = tiers['excellent']
+        excellent_min, excellent_max = tiers["excellent"]
         assert excellent_min == 90.0
         assert excellent_max == 100.0
 
@@ -329,57 +311,57 @@ class TestGetTiers:
 class TestReadabilityPatternsAnalysis:
     """Tests for _analyze_readability_patterns() helper method."""
 
-    @patch('writescore.dimensions.readability.textstat')
+    @patch("writescore.dimensions.readability.textstat")
     def test_flesch_reading_ease_calculation(self, mock_textstat, dimension):
         """Test Flesch Reading Ease calculation."""
         mock_textstat.flesch_reading_ease.return_value = 65.0
 
         result = dimension._analyze_readability_patterns("Sample text")
 
-        assert 'flesch_reading_ease' in result
-        assert result['flesch_reading_ease'] == 65.0
+        assert "flesch_reading_ease" in result
+        assert result["flesch_reading_ease"] == 65.0
 
-    @patch('writescore.dimensions.readability.textstat')
+    @patch("writescore.dimensions.readability.textstat")
     def test_flesch_kincaid_grade_calculation(self, mock_textstat, dimension):
         """Test Flesch-Kincaid Grade Level calculation."""
         mock_textstat.flesch_kincaid_grade.return_value = 8.0
 
         result = dimension._analyze_readability_patterns("Sample text")
 
-        assert 'flesch_kincaid_grade' in result
-        assert result['flesch_kincaid_grade'] == 8.0
+        assert "flesch_kincaid_grade" in result
+        assert result["flesch_kincaid_grade"] == 8.0
 
-    @patch('writescore.dimensions.readability.textstat')
+    @patch("writescore.dimensions.readability.textstat")
     def test_automated_readability_index_calculation(self, mock_textstat, dimension):
         """Test Automated Readability Index calculation."""
         mock_textstat.automated_readability_index.return_value = 8.5
 
         result = dimension._analyze_readability_patterns("Sample text")
 
-        assert 'automated_readability_index' in result
-        assert result['automated_readability_index'] == 8.5
+        assert "automated_readability_index" in result
+        assert result["automated_readability_index"] == 8.5
 
     def test_avg_word_length_calculation(self, dimension):
         """Test average word length calculation."""
         text = "cat dog bird"  # All 3-4 letter words
         result = dimension._analyze_readability_patterns(text)
 
-        assert 'avg_word_length' in result
-        assert result['avg_word_length'] > 0
+        assert "avg_word_length" in result
+        assert result["avg_word_length"] > 0
 
     def test_avg_sentence_length_calculation(self, dimension):
         """Test average sentence length calculation."""
         text = "This is a sentence. This is another sentence."
         result = dimension._analyze_readability_patterns(text)
 
-        assert 'avg_sentence_length' in result
-        assert result['avg_sentence_length'] > 0
+        assert "avg_sentence_length" in result
+        assert result["avg_sentence_length"] > 0
 
     def test_handles_errors_gracefully(self, dimension):
         """Test error handling when textstat fails."""
         result = dimension._analyze_readability_patterns("")
 
-        assert 'flesch_reading_ease' in result
+        assert "flesch_reading_ease" in result
         # Should return default values even if calculation fails
 
 
@@ -391,21 +373,21 @@ class TestEdgeCases:
         text = "word word word word word"
         result = dimension.analyze(text)
 
-        assert 'available' in result
+        assert "available" in result
 
     def test_handles_text_with_only_punctuation(self, dimension):
         """Test handling of text with only punctuation."""
         text = "... !!! ???"
         result = dimension.analyze(text)
 
-        assert 'available' in result
+        assert "available" in result
 
     def test_handles_very_long_words(self, dimension):
         """Test handling of text with very long words."""
         text = "supercalifragilisticexpialidocious " * 20
         result = dimension.analyze(text)
 
-        assert 'available' in result
+        assert "available" in result
 
 
 class TestBackwardCompatibility:
@@ -428,8 +410,8 @@ class TestGaussianScoring:
     def test_calculate_score_optimal_fk_grade(self, dimension):
         """Test scoring at optimal FK Grade Level (μ=9.0) returns near-perfect score."""
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 9.0  # Optimal target
+            "available": True,
+            "flesch_kincaid_grade": 9.0,  # Optimal target
         }
         score = dimension.calculate_score(metrics)
 
@@ -443,16 +425,16 @@ class TestGaussianScoring:
         # At μ±1σ, Gaussian function returns exp(-0.5) ≈ 0.606
 
         metrics_low = {
-            'available': True,
-            'flesch_kincaid_grade': 6.5  # μ - 1σ
+            "available": True,
+            "flesch_kincaid_grade": 6.5,  # μ - 1σ
         }
         score_low = dimension.calculate_score(metrics_low)
         assert score_low >= 55.0
         assert score_low <= 65.0
 
         metrics_high = {
-            'available': True,
-            'flesch_kincaid_grade': 11.5  # μ + 1σ
+            "available": True,
+            "flesch_kincaid_grade": 11.5,  # μ + 1σ
         }
         score_high = dimension.calculate_score(metrics_high)
         assert score_high >= 55.0
@@ -461,8 +443,8 @@ class TestGaussianScoring:
     def test_calculate_score_very_simple_text(self, dimension):
         """Test scoring for very simple text (low grade level) returns moderate score."""
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 3.0  # Very simple (elementary school)
+            "available": True,
+            "flesch_kincaid_grade": 3.0,  # Very simple (elementary school)
         }
         score = dimension.calculate_score(metrics)
 
@@ -472,8 +454,8 @@ class TestGaussianScoring:
     def test_calculate_score_very_complex_text(self, dimension):
         """Test scoring for very complex text (high grade level) returns low score."""
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 18.0  # Very complex (graduate level)
+            "available": True,
+            "flesch_kincaid_grade": 18.0,  # Very complex (graduate level)
         }
         score = dimension.calculate_score(metrics)
 
@@ -482,9 +464,7 @@ class TestGaussianScoring:
 
     def test_calculate_score_unavailable_data(self, dimension):
         """Test scoring with unavailable data returns neutral score."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         score = dimension.calculate_score(metrics)
 
         # Should return neutral 50.0
@@ -494,8 +474,8 @@ class TestGaussianScoring:
         """Test that academic writing range (11-13) still scores reasonably."""
         # Research notes academic μ=12.0 as variant, but we're testing default μ=9.0
         metrics = {
-            'available': True,
-            'flesch_kincaid_grade': 12.0  # Academic writing
+            "available": True,
+            "flesch_kincaid_grade": 12.0,  # Academic writing
         }
         score = dimension.calculate_score(metrics)
 
@@ -508,12 +488,9 @@ class TestGaussianScoring:
         """Test that score increases monotonically approaching optimal from below."""
         scores = []
         for grade in [4.0, 6.0, 8.0, 9.0]:
-            metrics = {
-                'available': True,
-                'flesch_kincaid_grade': grade
-            }
+            metrics = {"available": True, "flesch_kincaid_grade": grade}
             scores.append(dimension.calculate_score(metrics))
 
         # Scores should increase as we approach optimal (9.0)
         for i in range(len(scores) - 1):
-            assert scores[i] < scores[i+1], f"Score should increase: {scores[i]} < {scores[i+1]}"
+            assert scores[i] < scores[i + 1], f"Score should increase: {scores[i]} < {scores[i+1]}"

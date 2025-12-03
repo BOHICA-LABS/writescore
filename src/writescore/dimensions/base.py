@@ -67,7 +67,7 @@ class DimensionAnalyzer(ABC):
         Returns:
             Dimension name
         """
-        return self.__class__.__name__.replace('Analyzer', '')
+        return self.__class__.__name__.replace("Analyzer", "")
 
     # ========================================================================
     # AST HELPER METHODS (for Phase 3 structure analysis)
@@ -120,7 +120,7 @@ class DimensionAnalyzer(ABC):
             nodes.append(node)
 
         # Recursively process children
-        if hasattr(node, 'children') and node.children:
+        if hasattr(node, "children") and node.children:
             for child in node.children:
                 nodes.extend(self._walk_ast(child, node_type))
 
@@ -135,13 +135,13 @@ class DimensionAnalyzer(ABC):
         Returns:
             Plain text string
         """
-        if hasattr(node, 'children') and node.children:
-            return ''.join([self._extract_text_from_node(child) for child in node.children])
-        elif hasattr(node, 'children') and isinstance(node.children, str):
+        if hasattr(node, "children") and node.children:
+            return "".join([self._extract_text_from_node(child) for child in node.children])
+        elif hasattr(node, "children") and isinstance(node.children, str):
             return node.children
-        elif hasattr(node, 'dest'):  # Link destination
-            return ''
+        elif hasattr(node, "dest"):  # Link destination
+            return ""
         elif isinstance(node, str):
             return node
         else:
-            return ''
+            return ""

@@ -149,11 +149,7 @@ class TestOptionalDependency:
 
     def test_load_model_returns_none_when_unavailable(self):
         """Test load_model returns None when sentence-transformers unavailable."""
-        with patch.object(
-            SemanticCoherenceDimension,
-            'check_availability',
-            return_value=False
-        ):
+        with patch.object(SemanticCoherenceDimension, "check_availability", return_value=False):
             # Clear LRU cache
             SemanticCoherenceDimension.load_model.cache_clear()
             model = SemanticCoherenceDimension.load_model()
@@ -161,7 +157,7 @@ class TestOptionalDependency:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_load_model_returns_model_when_available(self):
         """Test load_model returns model instance when available."""
@@ -172,7 +168,7 @@ class TestOptionalDependency:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_load_model_is_cached(self):
         """Test model loading uses LRU cache."""
@@ -253,39 +249,35 @@ class TestFallbackAnalysis:
         text = "Para 1.\n\nPara 2."
         result = dimension._analyze_basic_coherence(text)
 
-        assert result['method'] == 'basic'
-        assert not result['available']
+        assert result["method"] == "basic"
+        assert not result["available"]
 
     def test_fallback_handles_insufficient_paragraphs(self, dimension):
         """Test fallback handles single paragraph gracefully."""
         text = "Single paragraph only."
         result = dimension._analyze_basic_coherence(text)
 
-        assert result['method'] == 'basic'
-        assert 'lexical_overlap' in result
-        assert result['paragraph_count'] == 1
+        assert result["method"] == "basic"
+        assert "lexical_overlap" in result
+        assert result["paragraph_count"] == 1
 
     def test_fallback_calculates_word_overlap(self, dimension):
         """Test fallback calculates lexical overlap between paragraphs."""
         text = "Dogs and cats are pets.\n\nCats and birds are animals."
         result = dimension._analyze_basic_coherence(text)
 
-        assert 'lexical_overlap' in result
-        assert isinstance(result['lexical_overlap'], float)
-        assert 0.0 <= result['lexical_overlap'] <= 1.0
+        assert "lexical_overlap" in result
+        assert isinstance(result["lexical_overlap"], float)
+        assert 0.0 <= result["lexical_overlap"] <= 1.0
 
     def test_analyze_uses_fallback_when_model_unavailable(self, dimension):
         """Test analyze() uses fallback when model unavailable."""
-        with patch.object(
-            SemanticCoherenceDimension,
-            'load_model',
-            return_value=None
-        ):
+        with patch.object(SemanticCoherenceDimension, "load_model", return_value=None):
             text = "Para 1.\n\nPara 2."
             result = dimension.analyze(text)
 
-            assert result['method'] == 'basic'
-            assert not result['available']
+            assert result["method"] == "basic"
+            assert not result["available"]
 
 
 # ============================================================================
@@ -298,38 +290,38 @@ class TestSemanticAnalysis:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_analyze_returns_semantic_method_when_available(self, dimension, text_high_coherence):
         """Test analyze returns method='semantic' when model available."""
         result = dimension.analyze(text_high_coherence)
 
-        assert result['method'] == 'semantic'
-        assert result['available']
+        assert result["method"] == "semantic"
+        assert result["available"]
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_analyze_includes_all_metrics(self, dimension, text_high_coherence):
         """Test analyze includes all 4 coherence metrics."""
         result = dimension.analyze(text_high_coherence)
 
-        assert 'metrics' in result
-        metrics = result['metrics']
-        assert 'paragraph_cohesion' in metrics
-        assert 'topic_consistency' in metrics
-        assert 'discourse_flow' in metrics
-        assert 'conceptual_depth' in metrics
+        assert "metrics" in result
+        metrics = result["metrics"]
+        assert "paragraph_cohesion" in metrics
+        assert "topic_consistency" in metrics
+        assert "discourse_flow" in metrics
+        assert "conceptual_depth" in metrics
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_analyze_metrics_in_valid_range(self, dimension, text_high_coherence):
         """Test all metrics return values in [0.0, 1.0] range."""
         result = dimension.analyze(text_high_coherence)
-        metrics = result['metrics']
+        metrics = result["metrics"]
 
         for metric_name, metric_value in metrics.items():
             assert isinstance(metric_value, float), f"{metric_name} is not float"
@@ -337,9 +329,11 @@ class TestSemanticAnalysis:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
-    def test_analyze_high_coherence_scores_better(self, dimension, text_high_coherence, text_low_coherence):
+    def test_analyze_high_coherence_scores_better(
+        self, dimension, text_high_coherence, text_low_coherence
+    ):
         """Test high coherence text scores better than low coherence text."""
         result_high = dimension.analyze(text_high_coherence)
         result_low = dimension.analyze(text_low_coherence)
@@ -352,18 +346,18 @@ class TestSemanticAnalysis:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_analyze_handles_insufficient_paragraphs(self, dimension, text_single_paragraph):
         """Test analyze handles single paragraph gracefully."""
         result = dimension.analyze(text_single_paragraph)
 
         # Should return error or basic analysis
-        assert 'error' in result or result['method'] == 'basic'
+        assert "error" in result or result["method"] == "basic"
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_analyze_tracks_sampling(self, dimension):
         """Test analyze tracks if sentence sampling was used."""
@@ -371,16 +365,18 @@ class TestSemanticAnalysis:
         # Create multiple paragraphs each with many sentences
         paragraphs = []
         for p in range(10):  # 10 paragraphs
-            sentences = [f"This is sentence {i} in paragraph {p}." for i in range(60)]  # 60 sentences each
+            sentences = [
+                f"This is sentence {i} in paragraph {p}." for i in range(60)
+            ]  # 60 sentences each
             paragraphs.append(" ".join(sentences))
 
         long_text = "\n\n".join(paragraphs)  # 600 sentences total
 
         result = dimension.analyze(long_text)
 
-        assert 'sampled' in result
+        assert "sampled" in result
         # Should be True since >500 sentences
-        assert result['sampled']
+        assert result["sampled"]
 
 
 # ============================================================================
@@ -393,7 +389,7 @@ class TestEmbeddingGeneration:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_generate_embeddings_returns_numpy_array(self, dimension):
         """Test embedding generation returns numpy array."""
@@ -407,7 +403,7 @@ class TestEmbeddingGeneration:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_generate_embeddings_handles_batch_size(self, dimension):
         """Test embedding generation respects batch size."""
@@ -419,11 +415,7 @@ class TestEmbeddingGeneration:
 
     def test_generate_embeddings_returns_none_when_unavailable(self, dimension):
         """Test embedding generation returns None when model unavailable."""
-        with patch.object(
-            SemanticCoherenceDimension,
-            'load_model',
-            return_value=None
-        ):
+        with patch.object(SemanticCoherenceDimension, "load_model", return_value=None):
             texts = ["Text one", "Text two"]
             embeddings = dimension._generate_embeddings(texts)
 
@@ -441,11 +433,7 @@ class TestCoherenceMetrics:
     def test_paragraph_cohesion_metric(self, dimension):
         """Test paragraph cohesion calculation."""
         # Create mock embeddings (3 sentences in 1 paragraph)
-        embeddings = np.array([
-            [1.0, 0.0, 0.0],
-            [0.9, 0.1, 0.0],
-            [0.8, 0.2, 0.0]
-        ])
+        embeddings = np.array([[1.0, 0.0, 0.0], [0.9, 0.1, 0.0], [0.8, 0.2, 0.0]])
         sentences_per_paragraph = [3]
 
         cohesion = dimension._calculate_paragraph_cohesion(embeddings, sentences_per_paragraph)
@@ -459,7 +447,7 @@ class TestCoherenceMetrics:
         paragraph_embeddings = [
             np.array([1.0, 0.0, 0.0]),
             np.array([0.9, 0.1, 0.0]),
-            np.array([0.8, 0.2, 0.0])
+            np.array([0.8, 0.2, 0.0]),
         ]
 
         consistency = dimension._calculate_topic_consistency(paragraph_embeddings)
@@ -473,7 +461,7 @@ class TestCoherenceMetrics:
         paragraph_embeddings = [
             np.array([1.0, 0.0, 0.0]),
             np.array([0.7, 0.3, 0.0]),  # In ideal range
-            np.array([0.6, 0.4, 0.0])
+            np.array([0.6, 0.4, 0.0]),
         ]
 
         flow = dimension._calculate_discourse_flow(paragraph_embeddings)
@@ -487,7 +475,7 @@ class TestCoherenceMetrics:
         paragraph_embeddings = [
             np.array([1.0, 0.0, 0.0]),
             np.array([0.9, 0.1, 0.0]),
-            np.array([0.8, 0.2, 0.0])
+            np.array([0.8, 0.2, 0.0]),
         ]
         document_embedding = np.array([0.9, 0.1, 0.0])
 
@@ -519,14 +507,14 @@ class TestScoring:
     def test_calculate_score_returns_float(self, dimension):
         """Test calculate_score returns float in 0-100 range."""
         metrics = {
-            'method': 'semantic',
-            'available': True,
-            'metrics': {
-                'paragraph_cohesion': 0.75,
-                'topic_consistency': 0.70,
-                'discourse_flow': 0.65,
-                'conceptual_depth': 0.68
-            }
+            "method": "semantic",
+            "available": True,
+            "metrics": {
+                "paragraph_cohesion": 0.75,
+                "topic_consistency": 0.70,
+                "discourse_flow": 0.65,
+                "conceptual_depth": 0.68,
+            },
         }
 
         score = dimension.calculate_score(metrics)
@@ -536,11 +524,7 @@ class TestScoring:
 
     def test_calculate_score_fallback_returns_neutral(self, dimension):
         """Test calculate_score returns 50.0 for fallback mode."""
-        metrics = {
-            'method': 'basic',
-            'available': False,
-            'lexical_overlap': 0.3
-        }
+        metrics = {"method": "basic", "available": False, "lexical_overlap": 0.3}
 
         score = dimension.calculate_score(metrics)
 
@@ -548,11 +532,7 @@ class TestScoring:
 
     def test_calculate_score_handles_errors(self, dimension):
         """Test calculate_score handles error conditions."""
-        metrics = {
-            'method': 'semantic',
-            'available': True,
-            'error': 'Insufficient paragraphs'
-        }
+        metrics = {"method": "semantic", "available": True, "error": "Insufficient paragraphs"}
 
         score = dimension.calculate_score(metrics)
 
@@ -560,9 +540,11 @@ class TestScoring:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
-    def test_calculate_score_high_coherence_scores_high(self, dimension, text_high_coherence, text_low_coherence):
+    def test_calculate_score_high_coherence_scores_high(
+        self, dimension, text_high_coherence, text_low_coherence
+    ):
         """Test high coherence text scores better than low coherence."""
         result_high = dimension.analyze(text_high_coherence)
         score_high = dimension.calculate_score(result_high)
@@ -577,7 +559,7 @@ class TestScoring:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_calculate_score_low_coherence_scores_low(self, dimension, text_low_coherence):
         """Test low coherence text scores lower."""
@@ -598,7 +580,7 @@ class TestDomainAwareScoring:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_technical_content_uses_lenient_thresholds(self, dimension):
         """Test technical content gets more lenient thresholds."""
@@ -615,21 +597,22 @@ class TestDomainAwareScoring:
 
         # Analyze and score with technical domain
         result = dimension.analyze(text_technical)
-        result['content_type'] = 'technical'  # Set domain
+        result["content_type"] = "technical"  # Set domain
         score_technical = dimension.calculate_score(result)
 
         # Analyze and score with general domain (same metrics)
         result_general = result.copy()
-        result_general['content_type'] = 'general'
+        result_general["content_type"] = "general"
         score_general = dimension.calculate_score(result_general)
 
         # Technical should score higher (more lenient thresholds)
-        assert score_technical >= score_general, \
-            f"Technical domain ({score_technical:.1f}) should score >= general ({score_general:.1f})"
+        assert (
+            score_technical >= score_general
+        ), f"Technical domain ({score_technical:.1f}) should score >= general ({score_general:.1f})"
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_creative_content_uses_moderate_thresholds(self, dimension):
         """Test creative content gets moderate thresholds."""
@@ -646,7 +629,7 @@ class TestDomainAwareScoring:
 
         # Analyze with creative domain
         result = dimension.analyze(text_creative)
-        result['content_type'] = 'creative'
+        result["content_type"] = "creative"
         score_creative = dimension.calculate_score(result)
 
         # Should return valid score
@@ -655,7 +638,7 @@ class TestDomainAwareScoring:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_academic_content_uses_standard_thresholds(self, dimension):
         """Test academic content gets standard thresholds."""
@@ -673,7 +656,7 @@ class TestDomainAwareScoring:
 
         # Analyze with academic domain
         result = dimension.analyze(text_academic)
-        result['content_type'] = 'academic'
+        result["content_type"] = "academic"
         score_academic = dimension.calculate_score(result)
 
         # Should return valid score with standard thresholds
@@ -681,7 +664,7 @@ class TestDomainAwareScoring:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_unknown_domain_defaults_to_general(self, dimension):
         """Test unknown content types default to general thresholds."""
@@ -689,11 +672,11 @@ class TestDomainAwareScoring:
         result = dimension.analyze(text)
 
         # Set unknown content type
-        result['content_type'] = 'unknown_type'
+        result["content_type"] = "unknown_type"
         score_unknown = dimension.calculate_score(result)
 
         # Set general content type
-        result['content_type'] = 'general'
+        result["content_type"] = "general"
         score_general = dimension.calculate_score(result)
 
         # Should use same thresholds (both general)
@@ -701,7 +684,7 @@ class TestDomainAwareScoring:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_missing_content_type_defaults_to_general(self, dimension):
         """Test missing content_type key defaults to general thresholds."""
@@ -709,8 +692,8 @@ class TestDomainAwareScoring:
         result = dimension.analyze(text)
 
         # Remove content_type if present
-        if 'content_type' in result:
-            del result['content_type']
+        if "content_type" in result:
+            del result["content_type"]
 
         score = dimension.calculate_score(result)
 
@@ -719,7 +702,7 @@ class TestDomainAwareScoring:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_domain_thresholds_affect_scoring(self, dimension):
         """Test domain-specific thresholds produce different scores."""
@@ -738,13 +721,13 @@ class TestDomainAwareScoring:
 
         # Score with each domain
         scores = {}
-        for domain in ['general', 'technical', 'creative', 'academic']:
-            result['content_type'] = domain
+        for domain in ["general", "technical", "creative", "academic"]:
+            result["content_type"] = domain
             scores[domain] = dimension.calculate_score(result)
 
         # Technical should be most lenient (highest score for same metrics)
-        assert scores['technical'] >= scores['general'], "Technical should be >= general"
-        assert scores['technical'] >= scores['creative'], "Technical should be >= creative"
+        assert scores["technical"] >= scores["general"], "Technical should be >= general"
+        assert scores["technical"] >= scores["creative"], "Technical should be >= creative"
 
         # All scores should be valid
         for domain, score in scores.items():
@@ -755,7 +738,7 @@ class TestDomainAwareScoring:
         # Fallback mode should ignore content_type
         text = "Short text."
         result = dimension._analyze_basic_coherence(text)
-        result['content_type'] = 'technical'
+        result["content_type"] = "technical"
 
         score = dimension.calculate_score(result)
 
@@ -764,25 +747,31 @@ class TestDomainAwareScoring:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_all_domain_thresholds_defined(self, dimension):
         """Test all expected domains have complete threshold definitions."""
-        expected_domains = ['general', 'technical', 'creative', 'academic']
-        expected_metrics = ['paragraph_cohesion', 'topic_consistency',
-                          'discourse_flow', 'conceptual_depth']
-        expected_levels = ['excellent', 'good', 'acceptable']
+        expected_domains = ["general", "technical", "creative", "academic"]
+        expected_metrics = [
+            "paragraph_cohesion",
+            "topic_consistency",
+            "discourse_flow",
+            "conceptual_depth",
+        ]
+        expected_levels = ["excellent", "good", "acceptable"]
 
         for domain in expected_domains:
             assert domain in dimension.THRESHOLDS, f"Missing domain: {domain}"
 
             for metric in expected_metrics:
-                assert metric in dimension.THRESHOLDS[domain], \
-                    f"Missing metric {metric} in {domain}"
+                assert (
+                    metric in dimension.THRESHOLDS[domain]
+                ), f"Missing metric {metric} in {domain}"
 
                 for level in expected_levels:
-                    assert level in dimension.THRESHOLDS[domain][metric], \
-                        f"Missing level {level} for {metric} in {domain}"
+                    assert (
+                        level in dimension.THRESHOLDS[domain][metric]
+                    ), f"Missing level {level} for {metric} in {domain}"
 
 
 # ============================================================================
@@ -796,14 +785,14 @@ class TestRecommendations:
     def test_get_recommendations_returns_list(self, dimension):
         """Test get_recommendations returns list of strings."""
         metrics = {
-            'method': 'semantic',
-            'available': True,
-            'metrics': {
-                'paragraph_cohesion': 0.50,
-                'topic_consistency': 0.50,
-                'discourse_flow': 0.50,
-                'conceptual_depth': 0.50
-            }
+            "method": "semantic",
+            "available": True,
+            "metrics": {
+                "paragraph_cohesion": 0.50,
+                "topic_consistency": 0.50,
+                "discourse_flow": 0.50,
+                "conceptual_depth": 0.50,
+            },
         }
 
         recommendations = dimension.get_recommendations(60.0, metrics)
@@ -813,52 +802,49 @@ class TestRecommendations:
 
     def test_get_recommendations_fallback_suggests_installation(self, dimension):
         """Test fallback mode recommends installing sentence-transformers."""
-        metrics = {
-            'method': 'basic',
-            'available': False
-        }
+        metrics = {"method": "basic", "available": False}
 
         recommendations = dimension.get_recommendations(50.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('sentence-transformers' in r.lower() for r in recommendations)
+        assert any("sentence-transformers" in r.lower() for r in recommendations)
 
     def test_get_recommendations_provides_metric_specific_advice(self, dimension):
         """Test recommendations address specific low metrics."""
         metrics = {
-            'method': 'semantic',
-            'available': True,
-            'metrics': {
-                'paragraph_cohesion': 0.40,  # Low
-                'topic_consistency': 0.80,    # Good
-                'discourse_flow': 0.80,       # Good
-                'conceptual_depth': 0.80      # Good
-            }
+            "method": "semantic",
+            "available": True,
+            "metrics": {
+                "paragraph_cohesion": 0.40,  # Low
+                "topic_consistency": 0.80,  # Good
+                "discourse_flow": 0.80,  # Good
+                "conceptual_depth": 0.80,  # Good
+            },
         }
 
         recommendations = dimension.get_recommendations(70.0, metrics)
 
         # Should mention paragraph cohesion
-        assert any('cohesion' in r.lower() for r in recommendations)
+        assert any("cohesion" in r.lower() for r in recommendations)
 
     def test_get_recommendations_positive_for_good_scores(self, dimension):
         """Test recommendations are positive for good scores."""
         metrics = {
-            'method': 'semantic',
-            'available': True,
-            'metrics': {
-                'paragraph_cohesion': 0.85,
-                'topic_consistency': 0.82,
-                'discourse_flow': 0.78,
-                'conceptual_depth': 0.80
-            }
+            "method": "semantic",
+            "available": True,
+            "metrics": {
+                "paragraph_cohesion": 0.85,
+                "topic_consistency": 0.82,
+                "discourse_flow": 0.78,
+                "conceptual_depth": 0.80,
+            },
         }
 
         recommendations = dimension.get_recommendations(90.0, metrics)
 
         # Should have positive message
         assert len(recommendations) > 0
-        assert any('strong' in r.lower() for r in recommendations)
+        assert any("strong" in r.lower() for r in recommendations)
 
 
 # ============================================================================
@@ -874,10 +860,10 @@ class TestTierDefinitions:
         tiers = dimension.get_tiers()
 
         assert isinstance(tiers, dict)
-        assert 'excellent' in tiers
-        assert 'good' in tiers
-        assert 'acceptable' in tiers
-        assert 'poor' in tiers
+        assert "excellent" in tiers
+        assert "good" in tiers
+        assert "acceptable" in tiers
+        assert "poor" in tiers
 
     def test_get_tiers_ranges_are_valid(self, dimension):
         """Test tier ranges are valid tuples."""
@@ -913,14 +899,10 @@ class TestIntegration:
 
     def test_full_workflow_fallback_mode(self, dimension, text_high_coherence):
         """Test full workflow in fallback mode."""
-        with patch.object(
-            SemanticCoherenceDimension,
-            'load_model',
-            return_value=None
-        ):
+        with patch.object(SemanticCoherenceDimension, "load_model", return_value=None):
             # Analyze
             result = dimension.analyze(text_high_coherence)
-            assert result['method'] == 'basic'
+            assert result["method"] == "basic"
 
             # Score
             score = dimension.calculate_score(result)
@@ -932,18 +914,18 @@ class TestIntegration:
 
             # Tiers
             tiers = dimension.get_tiers()
-            assert 'acceptable' in tiers
+            assert "acceptable" in tiers
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_full_workflow_semantic_mode(self, dimension, text_high_coherence):
         """Test full workflow with semantic analysis."""
         # Analyze
         result = dimension.analyze(text_high_coherence)
-        assert result['method'] == 'semantic'
-        assert 'metrics' in result
+        assert result["method"] == "semantic"
+        assert "metrics" in result
 
         # Score
         score = dimension.calculate_score(result)
@@ -981,7 +963,7 @@ class TestPerformance:
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_processing_time_10k_words(self, dimension):
         """Test processing time meets <2s per 10k words target."""
@@ -1009,21 +991,25 @@ class TestPerformance:
         elapsed = time.time() - start
 
         # Validate result
-        assert result['method'] == 'semantic'
-        assert 'metrics' in result
+        assert result["method"] == "semantic"
+        assert "metrics" in result
 
         # Validate performance target (<8s per 10k words on CI, <2s locally)
         # Scale target based on actual word count
         # CI runners are slower than local machines (especially Python 3.9)
         target_time = (word_count / 10000) * 8.0
-        assert elapsed < target_time, f"Processing took {elapsed:.2f}s, expected <{target_time:.2f}s for {word_count} words"
+        assert (
+            elapsed < target_time
+        ), f"Processing took {elapsed:.2f}s, expected <{target_time:.2f}s for {word_count} words"
 
         # Log performance for monitoring
-        print(f"\nPerformance: {word_count} words processed in {elapsed:.2f}s ({word_count/elapsed:.0f} words/sec)")
+        print(
+            f"\nPerformance: {word_count} words processed in {elapsed:.2f}s ({word_count/elapsed:.0f} words/sec)"
+        )
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_memory_usage_inference(self, dimension):
         """Test memory usage during model load and inference."""
@@ -1048,7 +1034,9 @@ class TestPerformance:
         load_increase_mb = after_load_mb - baseline_mb
 
         # Run inference
-        text = "Test paragraph one with semantic content.\n\nTest paragraph two with related content."
+        text = (
+            "Test paragraph one with semantic content.\n\nTest paragraph two with related content."
+        )
         dimension.analyze(text)
 
         # Measure memory after inference
@@ -1057,15 +1045,19 @@ class TestPerformance:
 
         # Validate memory target (<5GB = 5120 MB increase)
         # Note: This is process increase, not absolute usage
-        assert total_increase_mb < 5120, f"Memory increased by {total_increase_mb:.0f}MB, expected <5120MB"
+        assert (
+            total_increase_mb < 5120
+        ), f"Memory increased by {total_increase_mb:.0f}MB, expected <5120MB"
 
         # Log memory usage for monitoring
-        print(f"\nMemory: Baseline={baseline_mb:.0f}MB, After load={after_load_mb:.0f}MB (+{load_increase_mb:.0f}MB), "
-              f"After inference={after_inference_mb:.0f}MB (+{total_increase_mb:.0f}MB total)")
+        print(
+            f"\nMemory: Baseline={baseline_mb:.0f}MB, After load={after_load_mb:.0f}MB (+{load_increase_mb:.0f}MB), "
+            f"After inference={after_inference_mb:.0f}MB (+{total_increase_mb:.0f}MB total)"
+        )
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_sampling_optimization_speedup(self, dimension):
         """Test sentence sampling reduces processing time."""
@@ -1074,7 +1066,9 @@ class TestPerformance:
         # Create long document that triggers sampling (>500 sentences)
         paragraphs = []
         for p in range(15):  # 15 paragraphs
-            sentences = [f"Sentence {s} in paragraph {p}." for s in range(50)]  # 50 each = 750 total
+            sentences = [
+                f"Sentence {s} in paragraph {p}." for s in range(50)
+            ]  # 50 each = 750 total
             paragraphs.append(" ".join(sentences))
 
         long_text = "\n\n".join(paragraphs)
@@ -1085,12 +1079,14 @@ class TestPerformance:
         sampled_time = time.time() - start
 
         # Verify sampling was used
-        assert result.get('sampled', False), "Sampling should be triggered for >500 sentences"
+        assert result.get("sampled", False), "Sampling should be triggered for >500 sentences"
 
         # Create shorter document that doesn't trigger sampling
         short_paragraphs = []
         for p in range(5):  # 5 paragraphs
-            sentences = [f"Sentence {s} in paragraph {p}." for s in range(20)]  # 20 each = 100 total
+            sentences = [
+                f"Sentence {s} in paragraph {p}." for s in range(20)
+            ]  # 20 each = 100 total
             short_paragraphs.append(" ".join(sentences))
 
         short_text = "\n\n".join(short_paragraphs)
@@ -1101,28 +1097,33 @@ class TestPerformance:
         unsampled_time = time.time() - start
 
         # Verify no sampling
-        assert not short_result.get('sampled', True), "Sampling should not trigger for <500 sentences"
+        assert not short_result.get(
+            "sampled", True
+        ), "Sampling should not trigger for <500 sentences"
 
         # Sampling should result in faster processing per sentence
         # (Not necessarily faster absolute time since long doc has more sentences,
         # but should be comparable despite having 7.5x more sentences)
-        long_sentence_count = result['sentence_count']
-        short_sentence_count = short_result['sentence_count']
+        long_sentence_count = result["sentence_count"]
+        short_sentence_count = short_result["sentence_count"]
 
         time_per_sentence_sampled = sampled_time / long_sentence_count
         time_per_sentence_unsampled = unsampled_time / short_sentence_count
 
         # With sampling, time per sentence should be lower (more efficient)
         # Allow some variance due to overhead
-        assert time_per_sentence_sampled < time_per_sentence_unsampled * 2, \
-            f"Sampling efficiency: {time_per_sentence_sampled:.6f}s/sentence vs {time_per_sentence_unsampled:.6f}s/sentence"
+        assert (
+            time_per_sentence_sampled < time_per_sentence_unsampled * 2
+        ), f"Sampling efficiency: {time_per_sentence_sampled:.6f}s/sentence vs {time_per_sentence_unsampled:.6f}s/sentence"
 
-        print(f"\nSampling: Long doc ({long_sentence_count} sentences) = {sampled_time:.2f}s, "
-              f"Short doc ({short_sentence_count} sentences) = {unsampled_time:.2f}s")
+        print(
+            f"\nSampling: Long doc ({long_sentence_count} sentences) = {sampled_time:.2f}s, "
+            f"Short doc ({short_sentence_count} sentences) = {unsampled_time:.2f}s"
+        )
 
     @pytest.mark.skipif(
         not SemanticCoherenceDimension.check_availability(),
-        reason="sentence-transformers not installed"
+        reason="sentence-transformers not installed",
     )
     def test_performance_targets_met(self, dimension):
         """Test all Story 2.3.0 performance targets are met."""
@@ -1154,7 +1155,7 @@ class TestPerformance:
         elapsed = time.time() - start
 
         # Validate targets
-        assert result['method'] == 'semantic', "Should use semantic analysis"
+        assert result["method"] == "semantic", "Should use semantic analysis"
         assert elapsed < 2.0, f"Processing {actual_words} words took {elapsed:.2f}s, expected <2.0s"
 
         # Target 2: Model size ~90MB, RAM ~2-4GB (informational - can't easily test)
@@ -1173,15 +1174,15 @@ class TestMonotonicScoringWithDomainAwareness:
     def test_calculate_score_general_domain_low_coherence(self, dimension):
         """Test general domain with low coherence."""
         metrics = {
-            'available': True,
-            'method': 'semantic',
-            'content_type': 'general',
-            'metrics': {
-                'paragraph_cohesion': 0.50,
-                'topic_consistency': 0.50,
-                'discourse_flow': 0.45,
-                'conceptual_depth': 0.45
-            }
+            "available": True,
+            "method": "semantic",
+            "content_type": "general",
+            "metrics": {
+                "paragraph_cohesion": 0.50,
+                "topic_consistency": 0.50,
+                "discourse_flow": 0.45,
+                "conceptual_depth": 0.45,
+            },
         }
         score = dimension.calculate_score(metrics)
 
@@ -1191,15 +1192,15 @@ class TestMonotonicScoringWithDomainAwareness:
     def test_calculate_score_general_domain_high_coherence(self, dimension):
         """Test general domain with high coherence."""
         metrics = {
-            'available': True,
-            'method': 'semantic',
-            'content_type': 'general',
-            'metrics': {
-                'paragraph_cohesion': 0.80,
-                'topic_consistency': 0.75,
-                'discourse_flow': 0.78,
-                'conceptual_depth': 0.72
-            }
+            "available": True,
+            "method": "semantic",
+            "content_type": "general",
+            "metrics": {
+                "paragraph_cohesion": 0.80,
+                "topic_consistency": 0.75,
+                "discourse_flow": 0.78,
+                "conceptual_depth": 0.72,
+            },
         }
         score = dimension.calculate_score(metrics)
 
@@ -1212,34 +1213,35 @@ class TestMonotonicScoringWithDomainAwareness:
         coherence_value = 0.60
 
         general_metrics = {
-            'available': True,
-            'method': 'semantic',
-            'content_type': 'general',
-            'metrics': {
-                'paragraph_cohesion': coherence_value,
-                'topic_consistency': coherence_value,
-                'discourse_flow': coherence_value,
-                'conceptual_depth': coherence_value
-            }
+            "available": True,
+            "method": "semantic",
+            "content_type": "general",
+            "metrics": {
+                "paragraph_cohesion": coherence_value,
+                "topic_consistency": coherence_value,
+                "discourse_flow": coherence_value,
+                "conceptual_depth": coherence_value,
+            },
         }
         general_score = dimension.calculate_score(general_metrics)
 
         technical_metrics = {
-            'available': True,
-            'method': 'semantic',
-            'content_type': 'technical',
-            'metrics': {
-                'paragraph_cohesion': coherence_value,
-                'topic_consistency': coherence_value,
-                'discourse_flow': coherence_value,
-                'conceptual_depth': coherence_value
-            }
+            "available": True,
+            "method": "semantic",
+            "content_type": "technical",
+            "metrics": {
+                "paragraph_cohesion": coherence_value,
+                "topic_consistency": coherence_value,
+                "discourse_flow": coherence_value,
+                "conceptual_depth": coherence_value,
+            },
         }
         technical_score = dimension.calculate_score(technical_metrics)
 
         # Technical should score higher with same coherence (lower thresholds)
-        assert technical_score >= general_score, \
-            f"Technical {technical_score} should score ≥ general {general_score}"
+        assert (
+            technical_score >= general_score
+        ), f"Technical {technical_score} should score ≥ general {general_score}"
 
     def test_calculate_score_monotonic_increasing(self, dimension):
         """Test that score increases with coherence."""
@@ -1248,33 +1250,34 @@ class TestMonotonicScoringWithDomainAwareness:
 
         for coherence in coherence_levels:
             metrics = {
-                'available': True,
-                'method': 'semantic',
-                'content_type': 'general',
-                'metrics': {
-                    'paragraph_cohesion': coherence,
-                    'topic_consistency': coherence,
-                    'discourse_flow': coherence,
-                    'conceptual_depth': coherence
-                }
+                "available": True,
+                "method": "semantic",
+                "content_type": "general",
+                "metrics": {
+                    "paragraph_cohesion": coherence,
+                    "topic_consistency": coherence,
+                    "discourse_flow": coherence,
+                    "conceptual_depth": coherence,
+                },
             }
             scores.append(dimension.calculate_score(metrics))
 
         # Scores should increase monotonically
         for i in range(len(scores) - 1):
-            assert scores[i] <= scores[i + 1], \
-                f"Score decreased: {scores[i]} -> {scores[i + 1]} at coherence {coherence_levels[i]} -> {coherence_levels[i+1]}"
+            assert (
+                scores[i] <= scores[i + 1]
+            ), f"Score decreased: {scores[i]} -> {scores[i + 1]} at coherence {coherence_levels[i]} -> {coherence_levels[i+1]}"
 
     def test_calculate_score_unavailable_fallback(self, dimension):
         """Test fallback to neutral score when unavailable."""
-        metrics = {'available': False}
+        metrics = {"available": False}
         score = dimension.calculate_score(metrics)
 
         assert score == 50.0, f"Unavailable should return 50.0, got {score}"
 
     def test_calculate_score_basic_fallback(self, dimension):
         """Test fallback to neutral score with basic method."""
-        metrics = {'method': 'basic'}
+        metrics = {"method": "basic"}
         score = dimension.calculate_score(metrics)
 
         assert score == 50.0, f"Basic method should return 50.0, got {score}"
@@ -1283,19 +1286,34 @@ class TestMonotonicScoringWithDomainAwareness:
         """Test that all scores are in valid 0-100 range."""
         test_cases = [
             # Very low
-            {'paragraph_cohesion': 0.0, 'topic_consistency': 0.0, 'discourse_flow': 0.0, 'conceptual_depth': 0.0},
+            {
+                "paragraph_cohesion": 0.0,
+                "topic_consistency": 0.0,
+                "discourse_flow": 0.0,
+                "conceptual_depth": 0.0,
+            },
             # Very high
-            {'paragraph_cohesion': 1.0, 'topic_consistency': 1.0, 'discourse_flow': 1.0, 'conceptual_depth': 1.0},
+            {
+                "paragraph_cohesion": 1.0,
+                "topic_consistency": 1.0,
+                "discourse_flow": 1.0,
+                "conceptual_depth": 1.0,
+            },
             # Mixed
-            {'paragraph_cohesion': 0.3, 'topic_consistency': 0.8, 'discourse_flow': 0.5, 'conceptual_depth': 0.7},
+            {
+                "paragraph_cohesion": 0.3,
+                "topic_consistency": 0.8,
+                "discourse_flow": 0.5,
+                "conceptual_depth": 0.7,
+            },
         ]
 
         for coherence_metrics in test_cases:
             metrics = {
-                'available': True,
-                'method': 'semantic',
-                'content_type': 'general',
-                'metrics': coherence_metrics
+                "available": True,
+                "method": "semantic",
+                "content_type": "general",
+                "metrics": coherence_metrics,
             }
             score = dimension.calculate_score(metrics)
 
@@ -1305,15 +1323,15 @@ class TestMonotonicScoringWithDomainAwareness:
         """Test score calculation for creative domain (higher thresholds)."""
         # Creative content has higher coherence thresholds (more narrative freedom)
         metrics = {
-            'available': True,
-            'method': 'semantic',
-            'content_type': 'creative',
-            'metrics': {
-                'paragraph_cohesion': 0.70,
-                'topic_consistency': 0.68,
-                'discourse_flow': 0.72,
-                'conceptual_depth': 0.66
-            }
+            "available": True,
+            "method": "semantic",
+            "content_type": "creative",
+            "metrics": {
+                "paragraph_cohesion": 0.70,
+                "topic_consistency": 0.68,
+                "discourse_flow": 0.72,
+                "conceptual_depth": 0.66,
+            },
         }
         score = dimension.calculate_score(metrics)
 
@@ -1324,17 +1342,19 @@ class TestMonotonicScoringWithDomainAwareness:
         """Test score calculation for academic domain (stricter thresholds)."""
         # Academic content has stricter thresholds (expects strong coherence)
         metrics = {
-            'available': True,
-            'method': 'semantic',
-            'content_type': 'academic',
-            'metrics': {
-                'paragraph_cohesion': 0.75,
-                'topic_consistency': 0.73,
-                'discourse_flow': 0.76,
-                'conceptual_depth': 0.74
-            }
+            "available": True,
+            "method": "semantic",
+            "content_type": "academic",
+            "metrics": {
+                "paragraph_cohesion": 0.75,
+                "topic_consistency": 0.73,
+                "discourse_flow": 0.76,
+                "conceptual_depth": 0.74,
+            },
         }
         score = dimension.calculate_score(metrics)
 
         # Average coherence = 0.745, should score well in academic domain
-        assert 60 <= score <= 90, f"Academic domain score {score} unexpected for avg coherence 0.745"
+        assert (
+            60 <= score <= 90
+        ), f"Academic domain score {score} unexpected for avg coherence 0.745"

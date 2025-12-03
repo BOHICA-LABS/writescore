@@ -70,7 +70,7 @@ class TestGLTRPerformance:
 
         # Relaxed for CI: 150s (CI runners without GPU run GPT-2 very slowly)
         assert elapsed < 150.0, f"FAST mode took {elapsed:.1f}s, expected <150s"
-        assert result['samples_analyzed'] == 1
+        assert result["samples_analyzed"] == 1
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -91,7 +91,7 @@ class TestGLTRPerformance:
 
         # Relaxed for CI: 180s (2x original)
         assert elapsed < 180.0, f"ADAPTIVE mode took {elapsed:.1f}s, expected <180s"
-        assert result['samples_analyzed'] >= 5
+        assert result["samples_analyzed"] >= 5
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -110,7 +110,7 @@ class TestGLTRPerformance:
         elapsed = time.time() - start
 
         assert elapsed < 900.0, f"FULL mode took {elapsed:.1f}s, expected <900s (15min)"
-        assert result['coverage_percentage'] == 100.0
+        assert result["coverage_percentage"] == 100.0
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -121,9 +121,7 @@ class TestGLTRPerformance:
         Local threshold: 120s (original target)
         """
         config = AnalysisConfig(
-            mode=AnalysisMode.SAMPLING,
-            sampling_sections=5,
-            sampling_chars_per_section=3000
+            mode=AnalysisMode.SAMPLING, sampling_sections=5, sampling_chars_per_section=3000
         )
 
         helpers = TestDataHelpers()
@@ -135,7 +133,7 @@ class TestGLTRPerformance:
 
         # Relaxed for CI: 180s (1.5x original 120s)
         assert elapsed < 180.0, f"SAMPLING mode took {elapsed:.1f}s, expected <180s"
-        assert result['samples_analyzed'] == 5
+        assert result["samples_analyzed"] == 5
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -169,12 +167,14 @@ class TestGLTRPerformance:
         adaptive_time = time.time() - start_adaptive
 
         # ADAPTIVE should be no slower than FULL (allow 20% margin for variance)
-        assert adaptive_time < full_time * 1.2, \
-            f"ADAPTIVE ({adaptive_time:.1f}s) should not be slower than FULL ({full_time:.1f}s)"
+        assert (
+            adaptive_time < full_time * 1.2
+        ), f"ADAPTIVE ({adaptive_time:.1f}s) should not be slower than FULL ({full_time:.1f}s)"
 
         # ADAPTIVE should analyze less data than FULL
-        assert adaptive_result['analyzed_text_length'] < full_result['analyzed_text_length'], \
-            f"ADAPTIVE ({adaptive_result['analyzed_text_length']} chars) should analyze less than FULL ({full_result['analyzed_text_length']} chars)"
+        assert (
+            adaptive_result["analyzed_text_length"] < full_result["analyzed_text_length"]
+        ), f"ADAPTIVE ({adaptive_result['analyzed_text_length']} chars) should analyze less than FULL ({full_result['analyzed_text_length']} chars)"
 
     @pytest.mark.performance_local
     def test_fast_mode_performance_on_small_text(self, dim):
@@ -194,7 +194,7 @@ class TestGLTRPerformance:
         elapsed = time.time() - start
 
         assert elapsed < 30.0, f"FAST mode on small text took {elapsed:.1f}s, expected <30s"
-        assert result['available'] is True
+        assert result["available"] is True
 
 
 class TestGLTRPerformanceLocal:
@@ -217,7 +217,7 @@ class TestGLTRPerformanceLocal:
 
         # Strict local target: 25s (includes model loading)
         assert elapsed < 25.0, f"FAST mode took {elapsed:.1f}s, expected <25s"
-        assert result['samples_analyzed'] == 1
+        assert result["samples_analyzed"] == 1
 
     @pytest.mark.performance_local
     @pytest.mark.slow
@@ -233,16 +233,14 @@ class TestGLTRPerformanceLocal:
 
         # Strict local target: 90s
         assert elapsed < 90.0, f"ADAPTIVE mode took {elapsed:.1f}s, expected <90s"
-        assert result['samples_analyzed'] >= 5
+        assert result["samples_analyzed"] >= 5
 
     @pytest.mark.performance_local
     @pytest.mark.slow
     def test_sampling_mode_strict_120_seconds(self, dim):
         """Test SAMPLING mode meets strict 120-second target (local only)."""
         config = AnalysisConfig(
-            mode=AnalysisMode.SAMPLING,
-            sampling_sections=5,
-            sampling_chars_per_section=3000
+            mode=AnalysisMode.SAMPLING, sampling_sections=5, sampling_chars_per_section=3000
         )
         helpers = TestDataHelpers()
         chapter_text = helpers._load_sample_chapter()
@@ -253,4 +251,4 @@ class TestGLTRPerformanceLocal:
 
         # Strict local target: 120s
         assert elapsed < 120.0, f"SAMPLING mode took {elapsed:.1f}s, expected <120s"
-        assert result['samples_analyzed'] == 5
+        assert result["samples_analyzed"] == 5

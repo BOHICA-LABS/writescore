@@ -40,26 +40,26 @@ class TestBackwardCompatibility:
         analyzer = AIPatternAnalyzer()
 
         # Simulate old calling pattern (no config param)
-        result = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'))
+        result = analyzer.analyze_file(str(FIXTURES_DIR / "sample_mixed_text.md"))
 
         assert result is not None
         assert result.total_words > 0
         # Verify all dimension scores exist
-        assert hasattr(result, 'perplexity_score')
-        assert hasattr(result, 'burstiness_score')
-        assert hasattr(result, 'structure_score')
-        assert hasattr(result, 'voice_score')
-        assert hasattr(result, 'formatting_score')
+        assert hasattr(result, "perplexity_score")
+        assert hasattr(result, "burstiness_score")
+        assert hasattr(result, "structure_score")
+        assert hasattr(result, "voice_score")
+        assert hasattr(result, "formatting_score")
 
     def test_config_none_identical_results(self):
         """config=None produces bit-identical scores to no config."""
         analyzer = AIPatternAnalyzer()
 
         # Analyze without config (old behavior)
-        result1 = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'))
+        result1 = analyzer.analyze_file(str(FIXTURES_DIR / "sample_mixed_text.md"))
 
         # Analyze with config=None (new behavior)
-        result2 = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'), config=None)
+        result2 = analyzer.analyze_file(str(FIXTURES_DIR / "sample_mixed_text.md"), config=None)
 
         # Scores must be identical
         assert result1.perplexity_score == result2.perplexity_score
@@ -78,11 +78,13 @@ class TestBackwardCompatibility:
         analyzer = AIPatternAnalyzer()
 
         # Analyze with config=None
-        result1 = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'), config=None)
+        result1 = analyzer.analyze_file(str(FIXTURES_DIR / "sample_mixed_text.md"), config=None)
 
         # Analyze with explicit default config
         default_config = AnalysisConfig()
-        result2 = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'), config=default_config)
+        result2 = analyzer.analyze_file(
+            str(FIXTURES_DIR / "sample_mixed_text.md"), config=default_config
+        )
 
         # Should produce identical results (both use DEFAULT_CONFIG internally)
         assert result1.perplexity_score == result2.perplexity_score
@@ -93,7 +95,7 @@ class TestBackwardCompatibility:
     def test_no_performance_regression_default_path(self):
         """Config=None path has <5% overhead vs no config."""
         analyzer = AIPatternAnalyzer()
-        test_file = str(FIXTURES_DIR / 'section-1.1-final.md')  # ~5000 words
+        test_file = str(FIXTURES_DIR / "section-1.1-final.md")  # ~5000 words
 
         # Benchmark: No config (baseline)
         times_no_config = []
@@ -119,14 +121,16 @@ class TestBackwardCompatibility:
         print(f"  With config=None: {with_config:.2f}s")
         print(f"  Overhead: {overhead_pct:.2f}%")
 
-        assert overhead_pct < 5.0, f"Performance regression: {overhead_pct:.1f}% overhead (limit: 5%)"
+        assert (
+            overhead_pct < 5.0
+        ), f"Performance regression: {overhead_pct:.1f}% overhead (limit: 5%)"
 
     @pytest.mark.slow
     def test_fast_mode_timing_within_bounds(self):
         """FAST mode completes analysis within reasonable time bounds."""
         analyzer = AIPatternAnalyzer()
         config = AnalysisConfig(mode=AnalysisMode.FAST)
-        test_file = str(FIXTURES_DIR / 'section-1.2.md')  # ~6600 words
+        test_file = str(FIXTURES_DIR / "section-1.2.md")  # ~6600 words
 
         start = time.time()
         result = analyzer.analyze_file(test_file, config=config)
@@ -137,7 +141,9 @@ class TestBackwardCompatibility:
         # Verify timing - FAST mode should be quick (allowing for some variance)
         # Story spec says 5-15s for ~20k words, so 6.6k should be faster
         # Using 0.1-20s as reasonable bound for 6.6k words (system now runs faster)
-        assert 0.1 <= elapsed <= 20, f"FAST mode took {elapsed:.1f}s (expected 0.1-20s for 6.6k words)"
+        assert (
+            0.1 <= elapsed <= 20
+        ), f"FAST mode took {elapsed:.1f}s (expected 0.1-20s for 6.6k words)"
         assert result is not None
         assert result.total_words > 0
 
@@ -150,56 +156,54 @@ class TestConfigModes:
         analyzer = AIPatternAnalyzer()
         config = AnalysisConfig(mode=AnalysisMode.FAST)
 
-        result = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'), config=config)
+        result = analyzer.analyze_file(str(FIXTURES_DIR / "sample_mixed_text.md"), config=config)
 
         assert result is not None
         assert result.total_words > 0
         # Verify scores exist (they are string values like HIGH/MEDIUM/LOW)
-        assert hasattr(result, 'perplexity_score')
-        assert hasattr(result, 'burstiness_score')
+        assert hasattr(result, "perplexity_score")
+        assert hasattr(result, "burstiness_score")
 
     def test_adaptive_mode_creates_results(self):
         """ADAPTIVE mode creates valid analysis results."""
         analyzer = AIPatternAnalyzer()
         config = AnalysisConfig(mode=AnalysisMode.ADAPTIVE)
 
-        result = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'), config=config)
+        result = analyzer.analyze_file(str(FIXTURES_DIR / "sample_mixed_text.md"), config=config)
 
         assert result is not None
         assert result.total_words > 0
         # Verify scores exist (they are string values like HIGH/MEDIUM/LOW)
-        assert hasattr(result, 'perplexity_score')
-        assert hasattr(result, 'burstiness_score')
+        assert hasattr(result, "perplexity_score")
+        assert hasattr(result, "burstiness_score")
 
     def test_sampling_mode_creates_results(self):
         """SAMPLING mode creates valid analysis results."""
         analyzer = AIPatternAnalyzer()
         config = AnalysisConfig(
-            mode=AnalysisMode.SAMPLING,
-            sampling_sections=5,
-            sampling_chars_per_section=2000
+            mode=AnalysisMode.SAMPLING, sampling_sections=5, sampling_chars_per_section=2000
         )
 
-        result = analyzer.analyze_file(str(FIXTURES_DIR / 'section-1.1-final.md'), config=config)
+        result = analyzer.analyze_file(str(FIXTURES_DIR / "section-1.1-final.md"), config=config)
 
         assert result is not None
         assert result.total_words > 0
         # Verify scores exist (they are string values like HIGH/MEDIUM/LOW)
-        assert hasattr(result, 'perplexity_score')
-        assert hasattr(result, 'burstiness_score')
+        assert hasattr(result, "perplexity_score")
+        assert hasattr(result, "burstiness_score")
 
     def test_full_mode_creates_results(self):
         """FULL mode creates valid analysis results."""
         analyzer = AIPatternAnalyzer()
         config = AnalysisConfig(mode=AnalysisMode.FULL)
 
-        result = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'), config=config)
+        result = analyzer.analyze_file(str(FIXTURES_DIR / "sample_mixed_text.md"), config=config)
 
         assert result is not None
         assert result.total_words > 0
         # Verify scores exist (they are string values like HIGH/MEDIUM/LOW)
-        assert hasattr(result, 'perplexity_score')
-        assert hasattr(result, 'burstiness_score')
+        assert hasattr(result, "perplexity_score")
+        assert hasattr(result, "burstiness_score")
 
 
 class TestConfigPropagation:
@@ -211,7 +215,7 @@ class TestConfigPropagation:
         config = AnalysisConfig(mode=AnalysisMode.FAST)
 
         # This should work without errors if config is properly threaded
-        result = analyzer.analyze_file(str(FIXTURES_DIR / 'sample_mixed_text.md'), config=config)
+        result = analyzer.analyze_file(str(FIXTURES_DIR / "sample_mixed_text.md"), config=config)
 
         # If we got a result, config was successfully passed through
         assert result is not None
@@ -219,7 +223,7 @@ class TestConfigPropagation:
     def test_different_configs_accepted(self):
         """Verify analyzer accepts various config objects."""
         analyzer = AIPatternAnalyzer()
-        test_file = str(FIXTURES_DIR / 'sample_mixed_text.md')
+        test_file = str(FIXTURES_DIR / "sample_mixed_text.md")
 
         # Test different config modes
         configs = [

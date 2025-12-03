@@ -31,6 +31,7 @@ class PercentileContext:
         target_percentile: Target percentile for "human-like" writing
         gap_to_target: Distance from current to target percentile
     """
+
     dimension_name: str
     raw_value: float
     percentile_human: Optional[float] = None
@@ -47,10 +48,12 @@ class PercentileContext:
             "raw_value": round(self.raw_value, 4),
             "percentile_human": round(self.percentile_human, 1) if self.percentile_human else None,
             "percentile_ai": round(self.percentile_ai, 1) if self.percentile_ai else None,
-            "percentile_combined": round(self.percentile_combined, 1) if self.percentile_combined else None,
+            "percentile_combined": round(self.percentile_combined, 1)
+            if self.percentile_combined
+            else None,
             "interpretation": self.interpretation,
             "target_percentile": self.target_percentile,
-            "gap_to_target": round(self.gap_to_target, 1)
+            "gap_to_target": round(self.gap_to_target, 1),
         }
 
 
@@ -65,6 +68,7 @@ class ScoreInterpretation:
         dimension_contexts: Per-dimension percentile contexts
         recommendations: Prioritized recommendations with percentile context
     """
+
     overall_quality_percentile: Optional[float] = None
     overall_detection_percentile: Optional[float] = None
     dimension_contexts: Dict[str, PercentileContext] = field(default_factory=dict)
@@ -78,7 +82,7 @@ class ScoreInterpretation:
             "dimension_contexts": {
                 name: ctx.to_dict() for name, ctx in self.dimension_contexts.items()
             },
-            "recommendations": self.recommendations
+            "recommendations": self.recommendations,
         }
 
 
@@ -174,7 +178,7 @@ class ScoreInterpreter:
         self,
         human_stats: Optional[Dict[str, Dict[str, Any]]] = None,
         ai_stats: Optional[Dict[str, Dict[str, Any]]] = None,
-        combined_stats: Optional[Dict[str, Dict[str, Any]]] = None
+        combined_stats: Optional[Dict[str, Dict[str, Any]]] = None,
     ):
         """
         Initialize with distribution statistics.
@@ -189,10 +193,7 @@ class ScoreInterpreter:
         self.combined_stats = combined_stats or {}
 
     def interpret_dimension(
-        self,
-        dimension_name: str,
-        raw_value: float,
-        target_percentile: float = 50.0
+        self, dimension_name: str, raw_value: float, target_percentile: float = 50.0
     ) -> PercentileContext:
         """
         Generate percentile-based interpretation for a dimension.
@@ -206,9 +207,7 @@ class ScoreInterpreter:
             PercentileContext with interpretation
         """
         context = PercentileContext(
-            dimension_name=dimension_name,
-            raw_value=raw_value,
-            target_percentile=target_percentile
+            dimension_name=dimension_name, raw_value=raw_value, target_percentile=target_percentile
         )
 
         # Calculate percentiles for each distribution
@@ -267,15 +266,13 @@ class ScoreInterpreter:
 
         if abs(context.gap_to_target) > 10:
             direction = "increase" if context.gap_to_target > 0 else "decrease"
-            parts.append(f"Target: {direction} to reach {context.target_percentile:.0f}th percentile")
+            parts.append(
+                f"Target: {direction} to reach {context.target_percentile:.0f}th percentile"
+            )
 
         return "; ".join(parts) if parts else "No interpretation available"
 
-    def generate_recommendation(
-        self,
-        dimension_name: str,
-        context: PercentileContext
-    ) -> str:
+    def generate_recommendation(self, dimension_name: str, context: PercentileContext) -> str:
         """
         Generate a recommendation with percentile context.
 
@@ -297,40 +294,43 @@ class ScoreInterpreter:
             "burstiness": {
                 "low": "Add more sentence length variation (currently too uniform)",
                 "high": "Smooth out extreme sentence length variations",
-                "target": "Sentence length variation is well-balanced"
+                "target": "Sentence length variation is well-balanced",
             },
             "lexical": {
                 "low": "Increase vocabulary diversity with more varied word choices",
                 "high": "Consider simplifying some vocabulary for readability",
-                "target": "Vocabulary diversity is appropriate"
+                "target": "Vocabulary diversity is appropriate",
             },
             "sentiment": {
                 "low": "Add more emotional variation and tonal shifts",
                 "high": "Tone down extreme emotional swings",
-                "target": "Emotional variation is natural"
+                "target": "Emotional variation is natural",
             },
             "voice": {
                 "low": "Use more active voice constructions",
                 "high": "Balance active voice with some passive where appropriate",
-                "target": "Voice balance is good"
+                "target": "Voice balance is good",
             },
             "readability": {
                 "low": "Simplify sentence structure for better readability",
                 "high": "Add some complexity to avoid overly simple prose",
-                "target": "Readability level is appropriate"
+                "target": "Readability level is appropriate",
             },
             "transition_marker": {
                 "low": "Add more transitional phrases to improve flow",
                 "high": "Reduce excessive transition markers",
-                "target": "Transition usage is natural"
-            }
+                "target": "Transition usage is natural",
+            },
         }
 
-        dim_recs = recommendations.get(dimension_name, {
-            "low": f"Increase {dimension_name} metric",
-            "high": f"Decrease {dimension_name} metric",
-            "target": f"{dimension_name} is at target"
-        })
+        dim_recs = recommendations.get(
+            dimension_name,
+            {
+                "low": f"Increase {dimension_name} metric",
+                "high": f"Decrease {dimension_name} metric",
+                "target": f"{dimension_name} is at target",
+            },
+        )
 
         # Determine which recommendation to use
         if abs(p - target) <= 10:
@@ -367,10 +367,7 @@ class DistributionVisualizer:
         self.width = width
 
     def visualize_position(
-        self,
-        value: float,
-        stats: Dict[str, Any],
-        label: str = "Your score"
+        self, value: float, stats: Dict[str, Any], label: str = "Your score"
     ) -> str:
         """
         Create ASCII visualization showing position on distribution.
@@ -400,35 +397,35 @@ class DistributionVisualizer:
         lines = []
 
         # Scale line with percentile markers
-        scale = ['-'] * self.width
+        scale = ["-"] * self.width
         markers = []
 
         for pname, pval in percentiles.items():
             p_pos = int((pval - min_val) / range_val * self.width)
             p_pos = max(0, min(self.width - 1, p_pos))
             if 0 <= p_pos < self.width:
-                scale[p_pos] = '|'
+                scale[p_pos] = "|"
                 markers.append((p_pos, pname))
 
         # Add current value marker
-        scale[pos] = '*'
+        scale[pos] = "*"
 
         # Header
         lines.append(f"Distribution: {stats.get('dimension_name', 'Unknown')}")
         lines.append("=" * self.width)
 
         # Main scale
-        lines.append(''.join(scale))
+        lines.append("".join(scale))
 
         # Position indicator line
-        indicator = [' '] * self.width
-        indicator[pos] = '^'
-        lines.append(''.join(indicator))
+        indicator = [" "] * self.width
+        indicator[pos] = "^"
+        lines.append("".join(indicator))
 
         # Value label
         value_label = f"{label}: {value:.3f}"
         label_start = max(0, pos - len(value_label) // 2)
-        lines.append(' ' * label_start + value_label)
+        lines.append(" " * label_start + value_label)
 
         # Percentile labels (compact)
         p_labels = []
@@ -440,14 +437,14 @@ class DistributionVisualizer:
         # Range
         lines.append(f"Range: [{min_val:.3f}, {max_val:.3f}]")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def visualize_comparison(
         self,
         value: float,
         human_stats: Dict[str, Any],
         ai_stats: Dict[str, Any],
-        dimension_name: str
+        dimension_name: str,
     ) -> str:
         """
         Create side-by-side comparison of human vs AI distributions.
@@ -491,7 +488,7 @@ class DistributionVisualizer:
         else:
             lines.append("=> Similar to both human and AI distributions")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def _create_percentile_bar(self, percentile: float, label: str) -> str:
         """Create a single percentile bar."""
@@ -499,13 +496,12 @@ class DistributionVisualizer:
         filled = int(percentile / 100 * bar_width)
         filled = max(0, min(bar_width, filled))
 
-        bar = '[' + '#' * filled + '-' * (bar_width - filled) + ']'
+        bar = "[" + "#" * filled + "-" * (bar_width - filled) + "]"
         return f"{label:6s} {bar} {percentile:5.1f}%"
 
 
 def format_percentile_report(
-    interpretation: ScoreInterpretation,
-    include_visualizations: bool = False
+    interpretation: ScoreInterpretation, include_visualizations: bool = False
 ) -> str:
     """
     Format a complete percentile-based interpretation report.
@@ -553,4 +549,4 @@ def format_percentile_report(
 
     lines.append("\n" + "=" * 70)
 
-    return '\n'.join(lines)
+    return "\n".join(lines)

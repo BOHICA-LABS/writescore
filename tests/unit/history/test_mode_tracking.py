@@ -29,6 +29,7 @@ from writescore.history.trends import generate_comparison_report, generate_full_
 # Test Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def sample_historical_score_with_mode():
     """Create a HistoricalScore with mode tracking."""
@@ -50,7 +51,7 @@ def sample_historical_score_with_mode():
         tier3_score=9.6,
         tier4_score=6.0,
         dimensions={},
-        raw_metrics={}
+        raw_metrics={},
     )
 
 
@@ -75,7 +76,7 @@ def sample_historical_score_fast_mode():
         tier3_score=10.0,
         tier4_score=6.5,
         dimensions={},
-        raw_metrics={}
+        raw_metrics={},
     )
 
 
@@ -83,12 +84,13 @@ def sample_historical_score_fast_mode():
 # Core Mode Tracking Tests
 # ============================================================================
 
+
 def test_historical_score_has_mode_fields(sample_historical_score_with_mode):
     """Test that HistoricalScore includes mode tracking fields."""
     score = sample_historical_score_with_mode
 
-    assert hasattr(score, 'analysis_mode')
-    assert hasattr(score, 'analysis_time_seconds')
+    assert hasattr(score, "analysis_mode")
+    assert hasattr(score, "analysis_time_seconds")
     assert score.analysis_mode == "adaptive"
     assert score.analysis_time_seconds == 45.3
 
@@ -98,38 +100,38 @@ def test_historical_score_mode_serialization(sample_historical_score_with_mode):
     score = sample_historical_score_with_mode
     data = score.to_dict()
 
-    assert 'analysis_mode' in data
-    assert 'analysis_time_seconds' in data
-    assert data['analysis_mode'] == "adaptive"
-    assert data['analysis_time_seconds'] == 45.3
+    assert "analysis_mode" in data
+    assert "analysis_time_seconds" in data
+    assert data["analysis_mode"] == "adaptive"
+    assert data["analysis_time_seconds"] == 45.3
 
 
 def test_historical_score_mode_deserialization():
     """Test that from_dict() correctly deserializes mode and time."""
     data = {
-        'timestamp': '2025-01-15T10:30:00',
-        'total_words': 3847,
-        'total_sentences': 156,
-        'total_paragraphs': 42,
-        'notes': 'Test',
-        'history_version': '2.0',
-        'analysis_mode': 'full',
-        'analysis_time_seconds': 120.5,
-        'detection_risk': 35.0,
-        'quality_score': 72.0,
-        'detection_interpretation': 'MODERATE',
-        'quality_interpretation': 'GOOD',
-        'tier1_score': 17.5,
-        'tier2_score': 14.6,
-        'tier3_score': 9.6,
-        'tier4_score': 6.0,
-        'dimensions': {},
-        'raw_metrics': {}
+        "timestamp": "2025-01-15T10:30:00",
+        "total_words": 3847,
+        "total_sentences": 156,
+        "total_paragraphs": 42,
+        "notes": "Test",
+        "history_version": "2.0",
+        "analysis_mode": "full",
+        "analysis_time_seconds": 120.5,
+        "detection_risk": 35.0,
+        "quality_score": 72.0,
+        "detection_interpretation": "MODERATE",
+        "quality_interpretation": "GOOD",
+        "tier1_score": 17.5,
+        "tier2_score": 14.6,
+        "tier3_score": 9.6,
+        "tier4_score": 6.0,
+        "dimensions": {},
+        "raw_metrics": {},
     }
 
     score = HistoricalScore.from_dict(data)
 
-    assert score.analysis_mode == 'full'
+    assert score.analysis_mode == "full"
     assert score.analysis_time_seconds == 120.5
 
 
@@ -137,25 +139,25 @@ def test_backward_compatibility_missing_mode_fields():
     """Test that old history without mode fields loads with defaults."""
     # Simulate old v2.0 history without mode fields
     data = {
-        'timestamp': '2025-01-15T10:30:00',
-        'total_words': 3847,
-        'history_version': '2.0',
-        'detection_risk': 35.0,
-        'quality_score': 72.0,
-        'detection_interpretation': 'MODERATE',
-        'quality_interpretation': 'GOOD',
-        'tier1_score': 17.5,
-        'tier2_score': 14.6,
-        'tier3_score': 9.6,
-        'tier4_score': 6.0,
-        'dimensions': {},
-        'raw_metrics': {}
+        "timestamp": "2025-01-15T10:30:00",
+        "total_words": 3847,
+        "history_version": "2.0",
+        "detection_risk": 35.0,
+        "quality_score": 72.0,
+        "detection_interpretation": "MODERATE",
+        "quality_interpretation": "GOOD",
+        "tier1_score": 17.5,
+        "tier2_score": 14.6,
+        "tier3_score": 9.6,
+        "tier4_score": 6.0,
+        "dimensions": {},
+        "raw_metrics": {},
     }
 
     score = HistoricalScore.from_dict(data)
 
     # Should use defaults
-    assert score.analysis_mode == 'adaptive'
+    assert score.analysis_mode == "adaptive"
     assert score.analysis_time_seconds == 0.0
 
 
@@ -177,6 +179,7 @@ def test_mode_roundtrip_serialization(sample_historical_score_with_mode):
 # History File Save/Load Tests
 # ============================================================================
 
+
 def test_mode_saved_in_history_file(sample_historical_score_with_mode):
     """Test that mode data is saved to history JSON file."""
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -192,9 +195,9 @@ def test_mode_saved_in_history_file(sample_historical_score_with_mode):
         with open(history_file) as f:
             data = json.load(f)
 
-        assert len(data['scores']) == 1
-        assert data['scores'][0]['analysis_mode'] == 'adaptive'
-        assert data['scores'][0]['analysis_time_seconds'] == 45.3
+        assert len(data["scores"]) == 1
+        assert data["scores"][0]["analysis_mode"] == "adaptive"
+        assert data["scores"][0]["analysis_time_seconds"] == 45.3
 
 
 def test_mode_loaded_from_history_file(sample_historical_score_with_mode):
@@ -213,13 +216,14 @@ def test_mode_loaded_from_history_file(sample_historical_score_with_mode):
 
         assert len(loaded_history.scores) == 1
         score = loaded_history.scores[0]
-        assert score.analysis_mode == 'adaptive'
+        assert score.analysis_mode == "adaptive"
         assert score.analysis_time_seconds == 45.3
 
 
 # ============================================================================
 # Display Tests
 # ============================================================================
+
 
 def test_full_history_report_shows_mode(sample_historical_score_with_mode):
     """Test that full history report displays mode information."""
@@ -229,15 +233,14 @@ def test_full_history_report_shows_mode(sample_historical_score_with_mode):
     report = generate_full_history_report(history)
 
     # Should contain mode display
-    assert 'Mode:' in report
-    assert 'ADAPTIVE' in report
-    assert 'Analysis Time:' in report
-    assert '45.3s' in report
+    assert "Mode:" in report
+    assert "ADAPTIVE" in report
+    assert "Analysis Time:" in report
+    assert "45.3s" in report
 
 
 def test_comparison_report_shows_mode(
-    sample_historical_score_with_mode,
-    sample_historical_score_fast_mode
+    sample_historical_score_with_mode, sample_historical_score_fast_mode
 ):
     """Test that comparison report displays mode for both iterations."""
     history = ScoreHistory(file_path="/path/to/test.md")
@@ -247,29 +250,29 @@ def test_comparison_report_shows_mode(
     report = generate_comparison_report(history, 0, 1)
 
     # Should show mode for both iterations
-    assert 'Mode: ADAPTIVE' in report
-    assert 'Mode: FAST' in report
-    assert '45.3s' in report
-    assert '12.8s' in report
+    assert "Mode: ADAPTIVE" in report
+    assert "Mode: FAST" in report
+    assert "45.3s" in report
+    assert "12.8s" in report
 
 
 def test_comparison_report_backward_compatibility():
     """Test that comparison report handles old scores without mode fields."""
     # Create old-style score (no mode)
     old_score_data = {
-        'timestamp': '2025-01-14T10:00:00',
-        'total_words': 3500,
-        'history_version': '2.0',
-        'detection_risk': 40.0,
-        'quality_score': 70.0,
-        'detection_interpretation': 'MODERATE',
-        'quality_interpretation': 'GOOD',
-        'tier1_score': 16.0,
-        'tier2_score': 14.0,
-        'tier3_score': 9.0,
-        'tier4_score': 5.5,
-        'dimensions': {},
-        'raw_metrics': {}
+        "timestamp": "2025-01-14T10:00:00",
+        "total_words": 3500,
+        "history_version": "2.0",
+        "detection_risk": 40.0,
+        "quality_score": 70.0,
+        "detection_interpretation": "MODERATE",
+        "quality_interpretation": "GOOD",
+        "tier1_score": 16.0,
+        "tier2_score": 14.0,
+        "tier3_score": 9.0,
+        "tier4_score": 5.5,
+        "dimensions": {},
+        "raw_metrics": {},
     }
     old_score = HistoricalScore.from_dict(old_score_data)
 
@@ -289,7 +292,7 @@ def test_comparison_report_backward_compatibility():
         tier3_score=9.6,
         tier4_score=6.0,
         dimensions={},
-        raw_metrics={}
+        raw_metrics={},
     )
 
     history = ScoreHistory(file_path="/path/to/test.md")
@@ -301,23 +304,23 @@ def test_comparison_report_backward_compatibility():
 
     # Old score will show default "ADAPTIVE" value (from from_dict default)
     # This is correct - old scores without mode field get the default
-    assert 'Mode: ADAPTIVE' in report
+    assert "Mode: ADAPTIVE" in report
     # Time should show N/A for old score (since analysis_time_seconds defaults to 0.0)
-    assert 'Time: N/A' in report
+    assert "Time: N/A" in report
 
 
 def test_different_mode_types_in_history():
     """Test that all mode types are properly tracked and displayed."""
-    modes = ['fast', 'adaptive', 'sampling', 'full']
+    modes = ["fast", "adaptive", "sampling", "full"]
     history = ScoreHistory(file_path="/path/to/test.md")
 
     for i, mode in enumerate(modes):
         score = HistoricalScore(
             timestamp=f"2025-01-15T{10+i}:00:00",
-            total_words=3800 + i*50,
+            total_words=3800 + i * 50,
             history_version="2.0",
             analysis_mode=mode,
-            analysis_time_seconds=10.0 * (i+1),
+            analysis_time_seconds=10.0 * (i + 1),
             detection_risk=35.0,
             quality_score=72.0,
             detection_interpretation="MODERATE",
@@ -327,7 +330,7 @@ def test_different_mode_types_in_history():
             tier3_score=9.6,
             tier4_score=6.0,
             dimensions={},
-            raw_metrics={}
+            raw_metrics={},
         )
         history.scores.append(score)
 

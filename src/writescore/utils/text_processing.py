@@ -50,7 +50,7 @@ def count_words(text: str) -> int:
         Number of words
     """
     # Simple word counting - matches word boundaries
-    words = re.findall(r'\b[a-zA-Z]+\b', text)
+    words = re.findall(r"\b[a-zA-Z]+\b", text)
     return len(words)
 
 
@@ -66,11 +66,11 @@ def clean_text(text: str, remove_code_blocks: bool = True) -> str:
         Cleaned text
     """
     # Remove HTML comments (metadata blocks)
-    text = re.sub(r'<!--.*?-->', '', text, flags=re.DOTALL)
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
 
     # Remove code blocks if requested
     if remove_code_blocks:
-        text = re.sub(r'```.*?```', '', text, flags=re.DOTALL)
+        text = re.sub(r"```.*?```", "", text, flags=re.DOTALL)
 
     return text
 
@@ -87,12 +87,12 @@ def extract_sentences(text: str) -> List[str]:
     """
     # Simple sentence splitting - can be enhanced with NLTK
     # Handles common abbreviations
-    text = re.sub(r'\b(Dr|Mr|Mrs|Ms|Prof)\.\s', r'\1<DOT> ', text)
+    text = re.sub(r"\b(Dr|Mr|Mrs|Ms|Prof)\.\s", r"\1<DOT> ", text)
 
-    sentences = re.split(r'[.!?]+\s+', text)
+    sentences = re.split(r"[.!?]+\s+", text)
 
     # Restore abbreviations
-    sentences = [s.replace('<DOT>', '.') for s in sentences if s.strip()]
+    sentences = [s.replace("<DOT>", ".") for s in sentences if s.strip()]
 
     return sentences
 
@@ -114,7 +114,7 @@ def extract_paragraphs(lines: List[str]) -> List[List[str]]:
         stripped = line.strip()
 
         # Skip empty lines and markdown structures
-        if not stripped or stripped.startswith('#') or stripped.startswith('```'):
+        if not stripped or stripped.startswith("#") or stripped.startswith("```"):
             if current_para:
                 paragraphs.append(current_para)
                 current_para = []
@@ -139,7 +139,7 @@ def is_code_block_line(line: str) -> bool:
         True if line is a code block fence
     """
     stripped = line.strip()
-    return stripped.startswith('```')
+    return stripped.startswith("```")
 
 
 def is_list_item(line: str) -> bool:
@@ -155,7 +155,7 @@ def is_list_item(line: str) -> bool:
     stripped = line.strip()
     # Bullet lists: -, *, +
     # Numbered lists: 1., 2., etc.
-    return bool(re.match(r'^[-*+]\s+', stripped) or re.match(r'^\d+\.\s+', stripped))
+    return bool(re.match(r"^[-*+]\s+", stripped) or re.match(r"^\d+\.\s+", stripped))
 
 
 def extract_heading_info(line: str) -> Tuple[int, str]:
@@ -168,7 +168,7 @@ def extract_heading_info(line: str) -> Tuple[int, str]:
     Returns:
         Tuple of (heading_level, heading_text) or (0, "") if not a heading
     """
-    match = re.match(r'^(#{1,6})\s+(.+)$', line.strip())
+    match = re.match(r"^(#{1,6})\s+(.+)$", line.strip())
     if match:
         level = len(match.group(1))
         text = match.group(2).strip()
@@ -186,7 +186,7 @@ def calculate_word_frequency(text: str) -> dict:
     Returns:
         Dictionary mapping words to their counts
     """
-    words = re.findall(r'\b[a-zA-Z]+\b', text.lower())
+    words = re.findall(r"\b[a-zA-Z]+\b", text.lower())
     freq = {}
     for word in words:
         freq[word] = freq.get(word, 0) + 1

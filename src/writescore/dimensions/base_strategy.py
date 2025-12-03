@@ -181,11 +181,7 @@ class DimensionStrategy(ABC):
 
     @abstractmethod
     def analyze(
-        self,
-        text: str,
-        lines: List[str] = None,
-        config: Optional[AnalysisConfig] = None,
-        **kwargs
+        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
     ) -> Dict[str, Any]:
         """
         Perform dimension-specific analysis on text.
@@ -251,9 +247,7 @@ class DimensionStrategy(ABC):
         pass
 
     @abstractmethod
-    def get_recommendations(
-        self, score: float, metrics: Dict[str, Any]
-    ) -> List[str]:
+    def get_recommendations(self, score: float, metrics: Dict[str, Any]) -> List[str]:
         """
         Generate actionable recommendations based on score and metrics.
 
@@ -349,18 +343,28 @@ class DimensionStrategy(ABC):
             Formats up to 2 key metrics from the metrics dict
         """
         # Default: extract score and first 2 numeric metrics
-        score = metrics.get('score', 0)
+        score = metrics.get("score", 0)
 
         # Find first 2 interesting metrics (non-meta fields)
-        ignore_keys = {'score', 'tier', 'weight', 'tier_mapping', 'recommendations',
-                       'available', 'method', 'error'}
+        ignore_keys = {
+            "score",
+            "tier",
+            "weight",
+            "tier_mapping",
+            "recommendations",
+            "available",
+            "method",
+            "error",
+        }
 
         display_metrics = []
         for key, value in metrics.items():
             if key in ignore_keys:
                 continue
             if isinstance(value, (int, float)):
-                display_metrics.append(f"{key}: {value:.2f}" if isinstance(value, float) else f"{key}: {value}")
+                display_metrics.append(
+                    f"{key}: {value:.2f}" if isinstance(value, float) else f"{key}: {value}"
+                )
                 if len(display_metrics) >= 2:
                     break
 
@@ -369,9 +373,7 @@ class DimensionStrategy(ABC):
         else:
             return f"(score: {score:.1f})"
 
-    def analyze_detailed(
-        self, lines: List[str], html_comment_checker=None
-    ) -> List[Any]:
+    def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> List[Any]:
         """
         Optional detailed analysis with line-by-line findings.
 
@@ -521,7 +523,7 @@ class DimensionStrategy(ABC):
             nodes.append(node)
 
         # Recursively process children
-        if hasattr(node, 'children') and node.children:
+        if hasattr(node, "children") and node.children:
             for child in node.children:
                 nodes.extend(self._walk_ast(child, node_type))
 
@@ -542,28 +544,23 @@ class DimensionStrategy(ABC):
             text = self._extract_text_from_node(heading_node)
             ```
         """
-        if hasattr(node, 'children') and node.children:
-            return ''.join([
-                self._extract_text_from_node(child) for child in node.children
-            ])
-        elif hasattr(node, 'children') and isinstance(node.children, str):
+        if hasattr(node, "children") and node.children:
+            return "".join([self._extract_text_from_node(child) for child in node.children])
+        elif hasattr(node, "children") and isinstance(node.children, str):
             return node.children
-        elif hasattr(node, 'dest'):  # Link destination
-            return ''
+        elif hasattr(node, "dest"):  # Link destination
+            return ""
         elif isinstance(node, str):
             return node
         else:
-            return ''
+            return ""
 
     # ========================================================================
     # CONFIGURATION HELPER METHODS
     # ========================================================================
 
     def _prepare_text(
-        self,
-        text: str,
-        config: Optional[AnalysisConfig] = None,
-        dimension_name: str = None
+        self, text: str, config: Optional[AnalysisConfig] = None, dimension_name: str = None
     ) -> Union[str, List[Tuple[int, str]]]:
         """
         Prepare text based on configuration.
@@ -598,8 +595,7 @@ class DimensionStrategy(ABC):
 
         # Get effective character limit for this dimension
         effective_limit = config.get_effective_limit(
-            dimension_name or self.dimension_name,
-            len(text)
+            dimension_name or self.dimension_name, len(text)
         )
 
         # If we have a limit, truncate and return string
@@ -614,10 +610,7 @@ class DimensionStrategy(ABC):
         # No limit and no sampling - return full text
         return text
 
-    def _aggregate_sampled_metrics(
-        self,
-        sample_metrics: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def _aggregate_sampled_metrics(self, sample_metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Aggregate metrics from multiple samples.
 
@@ -661,7 +654,11 @@ class DimensionStrategy(ABC):
 
         for key in all_keys:
             # Collect all values for this key (skip None)
-            values = [sample[key] for sample in sample_metrics if key in sample and sample[key] is not None]
+            values = [
+                sample[key]
+                for sample in sample_metrics
+                if key in sample and sample[key] is not None
+            ]
 
             if not values:
                 aggregated[key] = None
@@ -691,7 +688,11 @@ class DimensionStrategy(ABC):
                 for v in values:
                     for item in v:
                         # Handle unhashable items (dicts, lists)
-                        item_key = str(item) if not isinstance(item, (str, int, float, bool, tuple)) else item
+                        item_key = (
+                            str(item)
+                            if not isinstance(item, (str, int, float, bool, tuple))
+                            else item
+                        )
                         if item_key not in seen:
                             combined.append(item)
                             seen.add(item_key)
@@ -709,7 +710,8 @@ class DimensionStrategy(ABC):
                 for nested_key in all_nested_keys:
                     # Collect values for this nested key across all samples
                     nested_values = [
-                        v[nested_key] for v in values
+                        v[nested_key]
+                        for v in values
                         if isinstance(v, dict) and nested_key in v and v[nested_key] is not None
                     ]
 
@@ -720,7 +722,9 @@ class DimensionStrategy(ABC):
                     # Determine type and aggregate
                     first_nested = nested_values[0]
 
-                    if isinstance(first_nested, (int, float)) and not isinstance(first_nested, bool):
+                    if isinstance(first_nested, (int, float)) and not isinstance(
+                        first_nested, bool
+                    ):
                         # Numeric: Average across samples
                         merged[nested_key] = sum(nested_values) / len(nested_values)
                     elif isinstance(first_nested, bool):
@@ -737,14 +741,20 @@ class DimensionStrategy(ABC):
                         seen_nested = set()
                         for nv in nested_values:
                             for item in nv:
-                                item_key = str(item) if not isinstance(item, (str, int, float, bool, tuple)) else item
+                                item_key = (
+                                    str(item)
+                                    if not isinstance(item, (str, int, float, bool, tuple))
+                                    else item
+                                )
                                 if item_key not in seen_nested:
                                     combined_nested.append(item)
                                     seen_nested.add(item_key)
                         merged[nested_key] = combined_nested
                     elif isinstance(first_nested, dict):
                         # Recursively handle deeply nested dicts (recursive call)
-                        merged[nested_key] = self._aggregate_sampled_metrics([{'nested': v} for v in nested_values])['nested']
+                        merged[nested_key] = self._aggregate_sampled_metrics(
+                            [{"nested": v} for v in nested_values]
+                        )["nested"]
                     else:
                         # Unknown type: Use first value
                         merged[nested_key] = first_nested
@@ -778,9 +788,7 @@ class DimensionStrategy(ABC):
         """
         if not isinstance(self.tier, DimensionTier):
             valid_tiers = [t.value for t in DimensionTier]
-            raise ValueError(
-                f"tier must be one of {valid_tiers}, got: {self.tier}"
-            )
+            raise ValueError(f"tier must be one of {valid_tiers}, got: {self.tier}")
 
     def _validate_score(self, score: float) -> None:
         """
@@ -802,9 +810,7 @@ class DimensionStrategy(ABC):
             ```
         """
         if not (0.0 <= score <= 100.0):
-            raise ValueError(
-                f"score must be between 0.0 and 100.0, got: {score}"
-            )
+            raise ValueError(f"score must be between 0.0 and 100.0, got: {score}")
 
     def _validate_weight(self, weight: float) -> None:
         """
@@ -825,9 +831,7 @@ class DimensionStrategy(ABC):
             ```
         """
         if not (0.0 <= weight <= 100.0):
-            raise ValueError(
-                f"weight must be between 0.0 and 100.0, got: {weight}"
-            )
+            raise ValueError(f"weight must be between 0.0 and 100.0, got: {weight}")
 
     @staticmethod
     def _calculate_gap(score: float) -> float:
@@ -930,17 +934,13 @@ class DimensionStrategy(ABC):
         distance = value - target
 
         # Gaussian formula
-        score = 100.0 * math.exp(-(distance ** 2) / (2 * width ** 2))
+        score = 100.0 * math.exp(-(distance**2) / (2 * width**2))
 
         # Clamp to valid range (though mathematically should always be [0, 100])
         return max(0.0, min(100.0, score))
 
     def _monotonic_score(
-        self,
-        value: float,
-        threshold_low: float,
-        threshold_high: float,
-        increasing: bool = True
+        self, value: float, threshold_low: float, threshold_high: float, increasing: bool = True
     ) -> float:
         """
         Score using monotonic relationship (higher/lower is always better).

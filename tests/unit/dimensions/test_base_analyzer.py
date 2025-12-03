@@ -17,7 +17,7 @@ class ConcreteDimensionAnalyzer(DimensionAnalyzer):
 
     def analyze(self, text, lines=None, **kwargs):
         """Test implementation of abstract analyze method."""
-        return {'test': 'analysis', 'text_length': len(text)}
+        return {"test": "analysis", "text_length": len(text)}
 
     def score(self, analysis_results):
         """Test implementation of abstract score method."""
@@ -59,8 +59,8 @@ class TestInit:
 
     def test_init_creates_parser_cache(self, analyzer):
         """Test that init creates AST cache."""
-        assert hasattr(analyzer, '_markdown_parser')
-        assert hasattr(analyzer, '_ast_cache')
+        assert hasattr(analyzer, "_markdown_parser")
+        assert hasattr(analyzer, "_ast_cache")
         assert analyzer._ast_cache == {}
 
 
@@ -72,11 +72,11 @@ class TestAbstractMethods:
         result = analyzer.analyze("test text", lines=["test", "text"])
 
         assert isinstance(result, dict)
-        assert 'test' in result
+        assert "test" in result
 
     def test_score_implemented(self, analyzer):
         """Test that score method is implemented."""
-        score, label = analyzer.score({'test': 'data'})
+        score, label = analyzer.score({"test": "data"})
 
         assert isinstance(score, (int, float))
         assert isinstance(label, str)
@@ -93,6 +93,7 @@ class TestGetMaxScore:
 
     def test_get_max_score_can_override(self):
         """Test that subclasses can override max score."""
+
         class CustomAnalyzer(DimensionAnalyzer):
             def analyze(self, text, lines=None, **kwargs):
                 return {}
@@ -119,6 +120,7 @@ class TestGetDimensionName:
 
     def test_get_dimension_name_various_classes(self):
         """Test dimension name extraction for different class names."""
+
         class StructureAnalyzer(DimensionAnalyzer):
             def analyze(self, text, lines=None, **kwargs):
                 return {}
@@ -151,7 +153,7 @@ class TestGetMarkdownParser:
         parser = analyzer._get_markdown_parser()
 
         assert parser is not None
-        assert hasattr(parser, 'parse')
+        assert hasattr(parser, "parse")
 
 
 class TestGetMarkdownParserNoMarko:
@@ -173,7 +175,7 @@ class TestParseToAst:
         ast = analyzer._parse_to_ast(markdown_text)
 
         assert ast is not None
-        assert hasattr(ast, 'children')
+        assert hasattr(ast, "children")
 
     def test_parse_to_ast_caching(self, analyzer, markdown_text):
         """Test AST caching behavior."""

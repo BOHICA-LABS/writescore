@@ -46,19 +46,16 @@ class DimensionRegistry:
 
     # Class-level storage
     _dimensions: Dict[str, DimensionStrategy] = {}
-    _tiers: Dict[str, List[str]] = {
-        'ADVANCED': [],
-        'CORE': [],
-        'SUPPORTING': [],
-        'STRUCTURAL': []
-    }
+    _tiers: Dict[str, List[str]] = {"ADVANCED": [], "CORE": [], "SUPPORTING": [], "STRUCTURAL": []}
     _name_map: Dict[str, str] = {}  # normalized → original name
     _lock = threading.Lock()
 
-    VALID_TIERS = {'ADVANCED', 'CORE', 'SUPPORTING', 'STRUCTURAL'}
+    VALID_TIERS = {"ADVANCED", "CORE", "SUPPORTING", "STRUCTURAL"}
 
     @classmethod
-    def register(cls, dimension: DimensionStrategy, allow_overwrite: bool = True) -> DimensionStrategy:
+    def register(
+        cls, dimension: DimensionStrategy, allow_overwrite: bool = True
+    ) -> DimensionStrategy:
         """
         Register a dimension with the registry.
 
@@ -99,23 +96,24 @@ class DimensionRegistry:
             if normalized_name in cls._dimensions:
                 if allow_overwrite:
                     # Idempotent behavior: return existing dimension
-                    logger.debug(f"Dimension '{name}' already registered, returning existing instance")
+                    logger.debug(
+                        f"Dimension '{name}' already registered, returning existing instance"
+                    )
                     return cls._dimensions[normalized_name]
                 else:
                     raise DuplicateDimensionError(
-                        f"Dimension '{name}' is already registered",
-                        dimension_name=name
+                        f"Dimension '{name}' is already registered", dimension_name=name
                     )
 
             # Validate tier
             tier = dimension.tier
             # Handle both string and DimensionTier enum
-            tier_str = tier.value if hasattr(tier, 'value') else str(tier)
+            tier_str = tier.value if hasattr(tier, "value") else str(tier)
             if tier_str not in cls.VALID_TIERS:
                 raise InvalidTierError(
                     f"Invalid tier '{tier_str}'. Must be one of: {cls.VALID_TIERS}",
                     tier=tier_str,
-                    valid_tiers=cls.VALID_TIERS
+                    valid_tiers=cls.VALID_TIERS,
                 )
 
             # Validate weight
@@ -124,7 +122,7 @@ class DimensionRegistry:
                 raise InvalidWeightError(
                     f"Weight {weight} out of range. Must be between 0 and 100",
                     weight=weight,
-                    valid_range=(0, 100)
+                    valid_range=(0, 100),
                 )
 
             # Register dimension
@@ -156,7 +154,7 @@ class DimensionRegistry:
                 raise DimensionNotFoundError(
                     f"Dimension '{dimension_name}' not found. "
                     f"Registered dimensions: {list(cls._name_map.values())}",
-                    dimension_name=dimension_name
+                    dimension_name=dimension_name,
                 )
             return cls._dimensions[normalized_name]
 
@@ -189,7 +187,7 @@ class DimensionRegistry:
             raise InvalidTierError(
                 f"Invalid tier '{tier}'. Must be one of: {cls.VALID_TIERS}",
                 tier=tier,
-                valid_tiers=cls.VALID_TIERS
+                valid_tiers=cls.VALID_TIERS,
             )
 
         with cls._lock:
@@ -214,8 +212,8 @@ class DimensionRegistry:
             summary = {}
             for tier, dim_names in cls._tiers.items():
                 summary[tier] = {
-                    'count': len(dim_names),
-                    'dimensions': [cls._name_map[name] for name in dim_names]
+                    "count": len(dim_names),
+                    "dimensions": [cls._name_map[name] for name in dim_names],
                 }
             return summary
 
@@ -264,8 +262,9 @@ class DimensionRegistry:
             >>> DimensionRegistry.validate_no_deprecated()  # Raises if any deprecated dims found
         """
         with cls._lock:
-            deprecated = [d for d in cls._dimensions.values()
-                         if d.dimension_name.endswith('_deprecated')]
+            deprecated = [
+                d for d in cls._dimensions.values() if d.dimension_name.endswith("_deprecated")
+            ]
 
             if deprecated:
                 names = [d.dimension_name for d in deprecated]
@@ -282,13 +281,13 @@ class DimensionRegistry:
         with cls._lock:
             tier_counts = {tier: len(dims) for tier, dims in cls._tiers.items()}
             total = len(cls._dimensions)
-            return (f"DimensionRegistry(total={total}, "
-                    f"tiers={tier_counts})")
+            return f"DimensionRegistry(total={total}, " f"tiers={tier_counts})"
 
 
 # ============================================================================
 # MODULE-LEVEL CONVENIENCE FUNCTIONS
 # ============================================================================
+
 
 def register_dimension(dimension: DimensionStrategy) -> DimensionStrategy:
     """

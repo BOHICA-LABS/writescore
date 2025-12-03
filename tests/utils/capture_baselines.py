@@ -38,9 +38,11 @@ def get_package_version():
         if setup_path.exists():
             with open(setup_path) as f:
                 for line in f:
-                    if 'version=' in line:
+                    if "version=" in line:
                         # Extract version string
-                        version = line.split('version=')[1].split(',')[0].strip().strip('"').strip("'")
+                        version = (
+                            line.split("version=")[1].split(",")[0].strip().strip('"').strip("'")
+                        )
                         return version
         return "unknown"
     except Exception:
@@ -66,19 +68,19 @@ def capture_baselines():
     # Initialize dimensions
     print("\nInitializing 13 dimensions...")
     dimensions = {
-        'predictability': PredictabilityDimension(),
-        'advanced_lexical': AdvancedLexicalDimension(),
-        'readability': ReadabilityDimension(),
-        'transition_marker': TransitionMarkerDimension(),
-        'perplexity': PerplexityDimension(),
-        'burstiness': BurstinessDimension(),
-        'structure': StructureDimension(),
-        'formatting': FormattingDimension(),
-        'voice': VoiceDimension(),
-        'lexical': LexicalDimension(),
-        'sentiment': SentimentDimension(),
-        'syntactic': SyntacticDimension(),
-        'figurative_language': FigurativeLanguageDimension()
+        "predictability": PredictabilityDimension(),
+        "advanced_lexical": AdvancedLexicalDimension(),
+        "readability": ReadabilityDimension(),
+        "transition_marker": TransitionMarkerDimension(),
+        "perplexity": PerplexityDimension(),
+        "burstiness": BurstinessDimension(),
+        "structure": StructureDimension(),
+        "formatting": FormattingDimension(),
+        "voice": VoiceDimension(),
+        "lexical": LexicalDimension(),
+        "sentiment": SentimentDimension(),
+        "syntactic": SyntacticDimension(),
+        "figurative_language": FigurativeLanguageDimension(),
     }
 
     print(f"Initialized: {', '.join(dimensions.keys())}")
@@ -90,10 +92,10 @@ def capture_baselines():
 
     baselines = {}
 
-    for i, sample in enumerate(corpus_data['samples'], 1):
-        sample_id = sample['id']
-        text = sample['text']
-        category = sample['category']
+    for i, sample in enumerate(corpus_data["samples"], 1):
+        sample_id = sample["id"]
+        text = sample["text"]
+        category = sample["category"]
 
         print(f"\n[{i}/{len(corpus_data['samples'])}] Analyzing {sample_id} ({category})...")
 
@@ -116,17 +118,17 @@ def capture_baselines():
     print("=" * 80)
 
     output_data = {
-        'version': '1.0',
-        'captured': datetime.utcnow().isoformat() + 'Z',
-        'model_versions': {
-            'writescore': get_package_version(),
-            'python': f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+        "version": "1.0",
+        "captured": datetime.utcnow().isoformat() + "Z",
+        "model_versions": {
+            "writescore": get_package_version(),
+            "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
         },
-        'baselines': baselines
+        "baselines": baselines,
     }
 
     output_path = Path(__file__).parent.parent / "fixtures" / "baseline_scores.json"
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(output_data, f, indent=2)
 
     print(f"\n✅ Baselines saved to: {output_path}")
@@ -136,5 +138,5 @@ def capture_baselines():
     print("\n" + "=" * 80)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     capture_baselines()

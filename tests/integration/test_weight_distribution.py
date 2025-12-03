@@ -33,51 +33,47 @@ from writescore.dimensions.voice import VoiceDimension
 # Expected weights after rebalancing (16 dimensions = 100%)
 EXPECTED_WEIGHTS = {
     # ADVANCED tier
-    'predictability': 18.1,       # Highest weight - GLTR token analysis
-    'advanced_lexical': 12.8,     # HDD, Yule's K, MATTR diversity
-    'transition_marker': 5.5,     # Basic + formulaic transitions
-    'pragmatic_markers': 3.7,     # Hedging, boosting, evidentiality
-    'perplexity': 2.8,            # True perplexity estimation
-    'syntactic': 1.8,             # Dependency depth, subordination
-
+    "predictability": 18.1,  # Highest weight - GLTR token analysis
+    "advanced_lexical": 12.8,  # HDD, Yule's K, MATTR diversity
+    "transition_marker": 5.5,  # Basic + formulaic transitions
+    "pragmatic_markers": 3.7,  # Hedging, boosting, evidentiality
+    "perplexity": 2.8,  # True perplexity estimation
+    "syntactic": 1.8,  # Dependency depth, subordination
     # SUPPORTING tier
-    'sentiment': 15.6,            # Emotional variation patterns
-    'semantic_coherence': 4.6,    # Paragraph/topic coherence
-    'lexical': 2.8,               # Basic TTR, MTLD diversity
-    'figurative_language': 2.8,   # Metaphors, similes, idioms
-
+    "sentiment": 15.6,  # Emotional variation patterns
+    "semantic_coherence": 4.6,  # Paragraph/topic coherence
+    "lexical": 2.8,  # Basic TTR, MTLD diversity
+    "figurative_language": 2.8,  # Metaphors, similes, idioms
     # CORE tier
-    'readability': 9.2,           # Flesch-Kincaid metrics
-    'burstiness': 5.5,            # Sentence/paragraph variation
-    'voice': 4.6,                 # First-person, contractions
-    'formatting': 3.7,            # Em-dash, bold/italic patterns
-    'structure': 3.7,             # Heading depth, list patterns
-    'ai_vocabulary': 2.8,         # AI-characteristic word patterns
+    "readability": 9.2,  # Flesch-Kincaid metrics
+    "burstiness": 5.5,  # Sentence/paragraph variation
+    "voice": 4.6,  # First-person, contractions
+    "formatting": 3.7,  # Em-dash, bold/italic patterns
+    "structure": 3.7,  # Heading depth, list patterns
+    "ai_vocabulary": 2.8,  # AI-characteristic word patterns
 }
 
 # Expected tiers
 EXPECTED_TIERS = {
     # ADVANCED tier (6 dimensions)
-    'predictability': 'ADVANCED',
-    'advanced_lexical': 'ADVANCED',
-    'transition_marker': 'ADVANCED',
-    'pragmatic_markers': 'ADVANCED',
-    'perplexity': 'ADVANCED',
-    'syntactic': 'ADVANCED',
-
+    "predictability": "ADVANCED",
+    "advanced_lexical": "ADVANCED",
+    "transition_marker": "ADVANCED",
+    "pragmatic_markers": "ADVANCED",
+    "perplexity": "ADVANCED",
+    "syntactic": "ADVANCED",
     # SUPPORTING tier (4 dimensions)
-    'sentiment': 'SUPPORTING',
-    'semantic_coherence': 'SUPPORTING',
-    'lexical': 'SUPPORTING',
-    'figurative_language': 'SUPPORTING',
-
+    "sentiment": "SUPPORTING",
+    "semantic_coherence": "SUPPORTING",
+    "lexical": "SUPPORTING",
+    "figurative_language": "SUPPORTING",
     # CORE tier (6 dimensions)
-    'readability': 'CORE',
-    'burstiness': 'CORE',
-    'voice': 'CORE',
-    'formatting': 'CORE',
-    'structure': 'CORE',
-    'ai_vocabulary': 'CORE',
+    "readability": "CORE",
+    "burstiness": "CORE",
+    "voice": "CORE",
+    "formatting": "CORE",
+    "structure": "CORE",
+    "ai_vocabulary": "CORE",
 }
 
 
@@ -129,8 +125,9 @@ class TestWeightDistribution:
             dimension = DimensionRegistry.get(dimension_name)
             assert dimension is not None, f"Dimension '{dimension_name}' not found in registry"
             actual_weight = dimension.weight
-            assert actual_weight == expected_weight, \
-                f"Dimension '{dimension_name}' has weight {actual_weight}, expected {expected_weight}"
+            assert (
+                actual_weight == expected_weight
+            ), f"Dimension '{dimension_name}' has weight {actual_weight}, expected {expected_weight}"
 
     def test_individual_dimension_tiers(self):
         """Test that each dimension has the correct tier."""
@@ -140,8 +137,9 @@ class TestWeightDistribution:
             dimension = DimensionRegistry.get(dimension_name)
             assert dimension is not None, f"Dimension '{dimension_name}' not found in registry"
             actual_tier = dimension.tier
-            assert actual_tier == expected_tier, \
-                f"Dimension '{dimension_name}' has tier {actual_tier}, expected {expected_tier}"
+            assert (
+                actual_tier == expected_tier
+            ), f"Dimension '{dimension_name}' has tier {actual_tier}, expected {expected_tier}"
 
     def test_weight_sum(self):
         """Test that dimension weights sum to 100%."""
@@ -149,8 +147,7 @@ class TestWeightDistribution:
 
         total_weight = sum(EXPECTED_WEIGHTS.values())
         # Allow tiny floating point tolerance
-        assert abs(total_weight - 100.0) < 0.01, \
-            f"Total weight is {total_weight}, expected 100.0"
+        assert abs(total_weight - 100.0) < 0.01, f"Total weight is {total_weight}, expected 100.0"
 
     def test_dimension_names_match(self):
         """Test that dimension_name property matches registry key."""
@@ -159,8 +156,7 @@ class TestWeightDistribution:
         for dimension in dimensions:
             name = dimension.dimension_name
             registered = DimensionRegistry.get(name)
-            assert registered is dimension, \
-                f"Dimension '{name}' not found by name in registry"
+            assert registered is dimension, f"Dimension '{name}' not found by name in registry"
 
     def test_weight_range_validation(self):
         """Test that all weights are within valid range (0-100)."""
@@ -169,8 +165,9 @@ class TestWeightDistribution:
         all_dimensions = DimensionRegistry.get_all()
         for dimension in all_dimensions:
             weight = dimension.weight
-            assert 0 <= weight <= 100, \
-                f"Dimension '{dimension.dimension_name}' has invalid weight {weight} (must be 0-100)"
+            assert (
+                0 <= weight <= 100
+            ), f"Dimension '{dimension.dimension_name}' has invalid weight {weight} (must be 0-100)"
 
     def test_tier_categorization(self):
         """Test dimension tier distribution: CORE=6, SUPPORTING=4, ADVANCED=6."""
@@ -182,26 +179,33 @@ class TestWeightDistribution:
             tier = dimension.tier
             tier_counts[tier] = tier_counts.get(tier, 0) + 1
 
-        assert tier_counts.get('CORE', 0) == 6, f"Expected 6 CORE dimensions, got {tier_counts.get('CORE', 0)}"
-        assert tier_counts.get('SUPPORTING', 0) == 4, f"Expected 4 SUPPORTING dimensions, got {tier_counts.get('SUPPORTING', 0)}"
-        assert tier_counts.get('ADVANCED', 0) == 6, f"Expected 6 ADVANCED dimensions, got {tier_counts.get('ADVANCED', 0)}"
+        assert (
+            tier_counts.get("CORE", 0) == 6
+        ), f"Expected 6 CORE dimensions, got {tier_counts.get('CORE', 0)}"
+        assert (
+            tier_counts.get("SUPPORTING", 0) == 4
+        ), f"Expected 4 SUPPORTING dimensions, got {tier_counts.get('SUPPORTING', 0)}"
+        assert (
+            tier_counts.get("ADVANCED", 0) == 6
+        ), f"Expected 6 ADVANCED dimensions, got {tier_counts.get('ADVANCED', 0)}"
 
     def test_required_methods_implemented(self):
         """Test that all dimensions implement required DimensionStrategy methods."""
         dimensions = instantiate_all_dimensions()
 
         required_methods = [
-            'dimension_name',
-            'weight',
-            'tier',
-            'description',
-            'analyze',
-            'calculate_score',
-            'get_recommendations',
-            'get_tiers',
+            "dimension_name",
+            "weight",
+            "tier",
+            "description",
+            "analyze",
+            "calculate_score",
+            "get_recommendations",
+            "get_tiers",
         ]
 
         for dimension in dimensions:
             for method_name in required_methods:
-                assert hasattr(dimension, method_name), \
-                    f"Dimension '{dimension.dimension_name}' missing required method/property '{method_name}'"
+                assert hasattr(
+                    dimension, method_name
+                ), f"Dimension '{dimension.dimension_name}' missing required method/property '{method_name}'"

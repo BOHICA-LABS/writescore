@@ -44,6 +44,7 @@ class DimensionStatistics:
         skewness: Distribution skewness
         kurtosis: Distribution kurtosis
     """
+
     dimension_name: str
     metric_name: str
     values: List[float] = field(default_factory=list)
@@ -76,36 +77,37 @@ class DimensionStatistics:
 
         # Percentiles
         self.percentiles = {
-            'p10': float(np.percentile(arr, 10)),
-            'p25': float(np.percentile(arr, 25)),
-            'p50': float(np.percentile(arr, 50)),
-            'p75': float(np.percentile(arr, 75)),
-            'p90': float(np.percentile(arr, 90))
+            "p10": float(np.percentile(arr, 10)),
+            "p25": float(np.percentile(arr, 25)),
+            "p50": float(np.percentile(arr, 50)),
+            "p75": float(np.percentile(arr, 75)),
+            "p90": float(np.percentile(arr, 90)),
         }
 
-        self.iqr = self.percentiles['p75'] - self.percentiles['p25']
+        self.iqr = self.percentiles["p75"] - self.percentiles["p25"]
 
         # Higher-order statistics
         if len(arr) >= 3:
             from scipy import stats
+
             self.skewness = float(stats.skew(arr))
             self.kurtosis = float(stats.kurtosis(arr))
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
-            'dimension_name': self.dimension_name,
-            'metric_name': self.metric_name,
-            'count': self.count,
-            'mean': round(self.mean, 4),
-            'median': round(self.median, 4),
-            'stdev': round(self.stdev, 4),
-            'iqr': round(self.iqr, 4),
-            'percentiles': {k: round(v, 4) for k, v in self.percentiles.items()},
-            'min': round(self.min_val, 4),
-            'max': round(self.max_val, 4),
-            'skewness': round(self.skewness, 4) if self.skewness is not None else None,
-            'kurtosis': round(self.kurtosis, 4) if self.kurtosis is not None else None
+            "dimension_name": self.dimension_name,
+            "metric_name": self.metric_name,
+            "count": self.count,
+            "mean": round(self.mean, 4),
+            "median": round(self.median, 4),
+            "stdev": round(self.stdev, 4),
+            "iqr": round(self.iqr, 4),
+            "percentiles": {k: round(v, 4) for k, v in self.percentiles.items()},
+            "min": round(self.min_val, 4),
+            "max": round(self.max_val, 4),
+            "skewness": round(self.skewness, 4) if self.skewness is not None else None,
+            "kurtosis": round(self.kurtosis, 4) if self.kurtosis is not None else None,
         }
 
 
@@ -120,27 +122,21 @@ class DistributionAnalysis:
         dimensions: Dictionary mapping dimension names to label-specific statistics
         metadata: Additional metadata
     """
+
     dataset_version: str
     timestamp: str
     dimensions: Dict[str, Dict[str, DimensionStatistics]] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def add_dimension_stats(
-        self,
-        dimension_name: str,
-        label: str,
-        stats: DimensionStatistics
+        self, dimension_name: str, label: str, stats: DimensionStatistics
     ) -> None:
         """Add statistics for a dimension and label."""
         if dimension_name not in self.dimensions:
             self.dimensions[dimension_name] = {}
         self.dimensions[dimension_name][label] = stats
 
-    def get_dimension_stats(
-        self,
-        dimension_name: str,
-        label: str
-    ) -> Optional[DimensionStatistics]:
+    def get_dimension_stats(self, dimension_name: str, label: str) -> Optional[DimensionStatistics]:
         """Get statistics for specific dimension and label."""
         return self.dimensions.get(dimension_name, {}).get(label)
 
@@ -149,22 +145,21 @@ class DistributionAnalysis:
         dimensions_dict = {}
         for dim_name, label_stats in self.dimensions.items():
             dimensions_dict[dim_name] = {
-                label: stats.to_dict()
-                for label, stats in label_stats.items()
+                label: stats.to_dict() for label, stats in label_stats.items()
             }
 
         return {
-            'dataset_version': self.dataset_version,
-            'timestamp': self.timestamp,
-            'dimensions': dimensions_dict,
-            'metadata': self.metadata
+            "dataset_version": self.dataset_version,
+            "timestamp": self.timestamp,
+            "dimensions": dimensions_dict,
+            "metadata": self.metadata,
         }
 
     def save_json(self, output_path: Path) -> None:
         """Save analysis to JSON file."""
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(self.to_dict(), f, indent=2)
 
         logger.info(f"Saved distribution analysis to {output_path}")
@@ -176,27 +171,27 @@ class DistributionAnalysis:
             data = json.load(f)
 
         analysis = cls(
-            dataset_version=data['dataset_version'],
-            timestamp=data['timestamp'],
-            metadata=data.get('metadata', {})
+            dataset_version=data["dataset_version"],
+            timestamp=data["timestamp"],
+            metadata=data.get("metadata", {}),
         )
 
         # Reconstruct dimension statistics
-        for dim_name, label_stats_dict in data['dimensions'].items():
+        for dim_name, label_stats_dict in data["dimensions"].items():
             for label, stats_dict in label_stats_dict.items():
                 stats = DimensionStatistics(
-                    dimension_name=stats_dict['dimension_name'],
-                    metric_name=stats_dict['metric_name'],
-                    count=stats_dict['count'],
-                    mean=stats_dict['mean'],
-                    median=stats_dict['median'],
-                    stdev=stats_dict['stdev'],
-                    iqr=stats_dict['iqr'],
-                    percentiles=stats_dict['percentiles'],
-                    min_val=stats_dict['min'],
-                    max_val=stats_dict['max'],
-                    skewness=stats_dict.get('skewness'),
-                    kurtosis=stats_dict.get('kurtosis')
+                    dimension_name=stats_dict["dimension_name"],
+                    metric_name=stats_dict["metric_name"],
+                    count=stats_dict["count"],
+                    mean=stats_dict["mean"],
+                    median=stats_dict["median"],
+                    stdev=stats_dict["stdev"],
+                    iqr=stats_dict["iqr"],
+                    percentiles=stats_dict["percentiles"],
+                    min_val=stats_dict["min"],
+                    max_val=stats_dict["max"],
+                    skewness=stats_dict.get("skewness"),
+                    kurtosis=stats_dict.get("kurtosis"),
                 )
                 analysis.add_dimension_stats(dim_name, label, stats)
 
@@ -223,12 +218,10 @@ class DistributionAnalyzer:
         if self.registry.get_count() == 0:
             # Load dimensions if registry is empty
             loader = DimensionLoader()
-            loader.load_from_profile('full')
+            loader.load_from_profile("full")
 
     def analyze_dataset(
-        self,
-        dataset: ValidationDataset,
-        dimension_names: Optional[List[str]] = None
+        self, dataset: ValidationDataset, dimension_names: Optional[List[str]] = None
     ) -> DistributionAnalysis:
         """
         Analyze validation dataset across all dimensions.
@@ -258,18 +251,16 @@ class DistributionAnalyzer:
             dataset_version=dataset.version,
             timestamp=datetime.now().isoformat(),
             metadata={
-                'total_documents': len(dataset.documents),
-                'dimensions_analyzed': len(dimension_names)
-            }
+                "total_documents": len(dataset.documents),
+                "dimensions_analyzed": len(dimension_names),
+            },
         )
 
         for dim_name in dimension_names:
-            for label in ['human', 'ai', 'combined']:
+            for label in ["human", "ai", "combined"]:
                 if label in metric_values.get(dim_name, {}):
                     stats = self._compute_statistics(
-                        dim_name,
-                        label,
-                        metric_values[dim_name][label]
+                        dim_name, label, metric_values[dim_name][label]
                     )
                     analysis.add_dimension_stats(dim_name, label, stats)
 
@@ -277,9 +268,7 @@ class DistributionAnalyzer:
         return analysis
 
     def _collect_metric_values(
-        self,
-        dataset: ValidationDataset,
-        dimension_names: List[str]
+        self, dataset: ValidationDataset, dimension_names: List[str]
     ) -> Dict[str, Dict[str, Dict[str, List[float]]]]:
         """
         Collect metric values for each dimension, split by label.
@@ -302,7 +291,7 @@ class DistributionAnalyzer:
                     # Add to label-specific and combined lists
                     for metric_name, value in metric_dict.items():
                         values[dim_name][doc.label][metric_name].append(value)
-                        values[dim_name]['combined'][metric_name].append(value)
+                        values[dim_name]["combined"][metric_name].append(value)
 
                 except Exception as e:
                     logger.warning(f"Error analyzing {dim_name} on doc {doc.id}: {e}")
@@ -313,14 +302,10 @@ class DistributionAnalyzer:
     def _analyze_document(self, dimension_name: str, text: str) -> Dict[str, Any]:
         """Run dimension analyzer on document text."""
         dimension = self.registry.get(dimension_name)
-        lines = text.split('\n')
+        lines = text.split("\n")
         return dimension.analyze(text, lines)
 
-    def _extract_metrics(
-        self,
-        dimension_name: str,
-        metrics: Dict[str, Any]
-    ) -> Dict[str, float]:
+    def _extract_metrics(self, dimension_name: str, metrics: Dict[str, Any]) -> Dict[str, float]:
         """
         Extract key metric value(s) from dimension metrics dict.
 
@@ -330,22 +315,22 @@ class DistributionAnalyzer:
         # Map dimension names to their primary metric keys
         # This is based on the existing dimension implementations
         metric_mapping = {
-            'burstiness': ['variance'],
-            'lexical': ['type_token_ratio'],
-            'advanced_lexical': ['gltr_rank_10_ratio'],
-            'perplexity': ['perplexity'],
-            'predictability': ['avg_rank'],
-            'readability': ['flesch_reading_ease'],
-            'sentiment': ['sentiment_variance'],
-            'syntactic': ['avg_depth'],
-            'structure': ['avg_paragraph_length'],
-            'transition_marker': ['density'],
-            'voice': ['passive_ratio'],
-            'formatting': ['em_dash_density'],
-            'semantic_coherence': ['coherence_score'],
-            'pragmatic_markers': ['hedging_density'],
-            'ai_vocabulary': ['ai_vocab_density'],
-            'figurative_language': ['figurative_ratio']
+            "burstiness": ["variance"],
+            "lexical": ["type_token_ratio"],
+            "advanced_lexical": ["gltr_rank_10_ratio"],
+            "perplexity": ["perplexity"],
+            "predictability": ["avg_rank"],
+            "readability": ["flesch_reading_ease"],
+            "sentiment": ["sentiment_variance"],
+            "syntactic": ["avg_depth"],
+            "structure": ["avg_paragraph_length"],
+            "transition_marker": ["density"],
+            "voice": ["passive_ratio"],
+            "formatting": ["em_dash_density"],
+            "semantic_coherence": ["coherence_score"],
+            "pragmatic_markers": ["hedging_density"],
+            "ai_vocabulary": ["ai_vocab_density"],
+            "figurative_language": ["figurative_ratio"],
         }
 
         result = {}
@@ -368,10 +353,7 @@ class DistributionAnalyzer:
         return result
 
     def _compute_statistics(
-        self,
-        dimension_name: str,
-        label: str,
-        metric_values: Dict[str, List[float]]
+        self, dimension_name: str, label: str, metric_values: Dict[str, List[float]]
     ) -> DimensionStatistics:
         """Compute statistics for dimension metric values."""
         # Use first metric (most dimensions have only one primary metric)
@@ -379,9 +361,7 @@ class DistributionAnalyzer:
         values = metric_values[metric_name]
 
         stats = DimensionStatistics(
-            dimension_name=dimension_name,
-            metric_name=metric_name,
-            values=values
+            dimension_name=dimension_name, metric_name=metric_name, values=values
         )
         stats.compute()
 
@@ -393,9 +373,7 @@ class DistributionAnalyzer:
         return stats
 
     def generate_summary_report(
-        self,
-        analysis: DistributionAnalysis,
-        output_path: Optional[Path] = None
+        self, analysis: DistributionAnalysis, output_path: Optional[Path] = None
     ) -> str:
         """
         Generate human-readable summary report.
@@ -421,7 +399,7 @@ class DistributionAnalyzer:
             lines.append(f"\n{dim_name.upper()}")
             lines.append("-" * 80)
 
-            for label in ['human', 'ai', 'combined']:
+            for label in ["human", "ai", "combined"]:
                 stats = analysis.get_dimension_stats(dim_name, label)
                 if not stats:
                     continue
@@ -446,7 +424,7 @@ class DistributionAnalyzer:
 
         if output_path:
             output_path.parent.mkdir(parents=True, exist_ok=True)
-            with open(output_path, 'w') as f:
+            with open(output_path, "w") as f:
                 f.write(report)
             logger.info(f"Saved summary report to {output_path}")
 

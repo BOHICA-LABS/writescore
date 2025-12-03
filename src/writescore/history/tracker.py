@@ -28,6 +28,7 @@ class DimensionScore:
         raw_value: Original metric value (e.g., 0.72 for MATTR, 12.4 for AI vocab)
         interpretation: Quality interpretation ('EXCELLENT', 'GOOD', 'FAIR', 'POOR')
     """
+
     score: float
     max_score: float
     percentage: float
@@ -37,22 +38,22 @@ class DimensionScore:
     def to_dict(self) -> Dict:
         """Convert to dict for JSON serialization."""
         return {
-            'score': self.score,
-            'max_score': self.max_score,
-            'percentage': self.percentage,
-            'raw_value': self.raw_value,
-            'interpretation': self.interpretation
+            "score": self.score,
+            "max_score": self.max_score,
+            "percentage": self.percentage,
+            "raw_value": self.raw_value,
+            "interpretation": self.interpretation,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'DimensionScore':
+    def from_dict(cls, data: Dict) -> "DimensionScore":
         """Reconstruct from dict (JSON deserialization)."""
         return cls(
-            score=data['score'],
-            max_score=data['max_score'],
-            percentage=data['percentage'],
-            raw_value=data.get('raw_value'),
-            interpretation=data.get('interpretation', '')
+            score=data["score"],
+            max_score=data["max_score"],
+            percentage=data["percentage"],
+            raw_value=data.get("raw_value"),
+            interpretation=data.get("interpretation", ""),
         )
 
 
@@ -64,6 +65,7 @@ class HistoricalScore:
     Captures all dimensions, tier scores, and raw metrics for complete
     optimization journey tracking.
     """
+
     # Metadata
     timestamp: str
     total_words: int
@@ -95,64 +97,61 @@ class HistoricalScore:
     def to_dict(self) -> Dict:
         """Convert to dict for JSON serialization."""
         return {
-            'timestamp': self.timestamp,
-            'total_words': self.total_words,
-            'total_sentences': self.total_sentences,
-            'total_paragraphs': self.total_paragraphs,
-            'notes': self.notes,
-            'history_version': self.history_version,
-            'analysis_mode': self.analysis_mode,
-            'analysis_time_seconds': self.analysis_time_seconds,
-            'detection_risk': self.detection_risk,
-            'quality_score': self.quality_score,
-            'detection_interpretation': self.detection_interpretation,
-            'quality_interpretation': self.quality_interpretation,
-            'tier1_score': self.tier1_score,
-            'tier2_score': self.tier2_score,
-            'tier3_score': self.tier3_score,
-            'tier4_score': self.tier4_score,
-            'dimensions': {
-                name: dim.to_dict()
-                for name, dim in self.dimensions.items()
-            },
-            'raw_metrics': self.raw_metrics
+            "timestamp": self.timestamp,
+            "total_words": self.total_words,
+            "total_sentences": self.total_sentences,
+            "total_paragraphs": self.total_paragraphs,
+            "notes": self.notes,
+            "history_version": self.history_version,
+            "analysis_mode": self.analysis_mode,
+            "analysis_time_seconds": self.analysis_time_seconds,
+            "detection_risk": self.detection_risk,
+            "quality_score": self.quality_score,
+            "detection_interpretation": self.detection_interpretation,
+            "quality_interpretation": self.quality_interpretation,
+            "tier1_score": self.tier1_score,
+            "tier2_score": self.tier2_score,
+            "tier3_score": self.tier3_score,
+            "tier4_score": self.tier4_score,
+            "dimensions": {name: dim.to_dict() for name, dim in self.dimensions.items()},
+            "raw_metrics": self.raw_metrics,
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'HistoricalScore':
+    def from_dict(cls, data: Dict) -> "HistoricalScore":
         """
         Reconstruct from dict with backward compatibility.
 
         Supports both v1.0 (aggregate only) and v2.0 (comprehensive) formats.
         """
         # Detect version
-        version = data.get('history_version', '1.0')
+        version = data.get("history_version", "1.0")
 
         # Reconstruct dimensions if present
         dimensions = {}
-        if 'dimensions' in data:
-            for name, dim_data in data['dimensions'].items():
+        if "dimensions" in data:
+            for name, dim_data in data["dimensions"].items():
                 dimensions[name] = DimensionScore.from_dict(dim_data)
 
         return cls(
-            timestamp=data['timestamp'],
-            total_words=data.get('total_words', 0),
-            total_sentences=data.get('total_sentences', 0),
-            total_paragraphs=data.get('total_paragraphs', 0),
-            notes=data.get('notes', ''),
+            timestamp=data["timestamp"],
+            total_words=data.get("total_words", 0),
+            total_sentences=data.get("total_sentences", 0),
+            total_paragraphs=data.get("total_paragraphs", 0),
+            notes=data.get("notes", ""),
             history_version=version,
-            analysis_mode=data.get('analysis_mode', 'adaptive'),
-            analysis_time_seconds=data.get('analysis_time_seconds', 0.0),
-            detection_risk=data.get('detection_risk', 0.0),
-            quality_score=data.get('quality_score', 0.0),
-            detection_interpretation=data.get('detection_interpretation', ''),
-            quality_interpretation=data.get('quality_interpretation', ''),
-            tier1_score=data.get('tier1_score', 0.0),
-            tier2_score=data.get('tier2_score', 0.0),
-            tier3_score=data.get('tier3_score', 0.0),
-            tier4_score=data.get('tier4_score', 0.0),
+            analysis_mode=data.get("analysis_mode", "adaptive"),
+            analysis_time_seconds=data.get("analysis_time_seconds", 0.0),
+            detection_risk=data.get("detection_risk", 0.0),
+            quality_score=data.get("quality_score", 0.0),
+            detection_interpretation=data.get("detection_interpretation", ""),
+            quality_interpretation=data.get("quality_interpretation", ""),
+            tier1_score=data.get("tier1_score", 0.0),
+            tier2_score=data.get("tier2_score", 0.0),
+            tier3_score=data.get("tier3_score", 0.0),
+            tier4_score=data.get("tier4_score", 0.0),
             dimensions=dimensions,
-            raw_metrics=data.get('raw_metrics', {})
+            raw_metrics=data.get("raw_metrics", {}),
         )
 
 
@@ -163,6 +162,7 @@ class ScoreHistory:
 
     Supports both v1.0 (legacy) and v2.0 (comprehensive) score formats.
     """
+
     file_path: str
     scores: List[HistoricalScore] = field(default_factory=list)
 
@@ -187,7 +187,7 @@ class ScoreHistory:
                     max_score=dimension.max_score,
                     percentage=dimension.percentage,
                     raw_value=dimension.raw_value,
-                    interpretation=dimension.impact
+                    interpretation=dimension.impact,
                 )
                 tier_total += dimension.score
             if tier_idx < 4:
@@ -199,41 +199,43 @@ class ScoreHistory:
         total_paragraphs = 0
         if results:
             # Core metrics that exist in current implementation
-            raw_metrics['ai_vocabulary_per_1k'] = getattr(results, 'ai_vocabulary_per_1k', 0.0)
-            raw_metrics['sentence_stdev'] = getattr(results, 'sentence_stdev', 0.0)
-            raw_metrics['em_dashes_per_page'] = getattr(results, 'em_dashes_per_page', 0.0)
-            raw_metrics['heading_parallelism'] = getattr(results, 'heading_parallelism_score', 0.0)
-            raw_metrics['paragraph_cv'] = getattr(results, 'paragraph_cv', 0.0)
-            raw_metrics['section_variance_pct'] = getattr(results, 'section_variance_pct', 0.0)
-            raw_metrics['mattr'] = getattr(results, 'mattr', 0.0)
-            raw_metrics['rttr'] = getattr(results, 'rttr', 0.0)
-            raw_metrics['blockquote_per_page'] = getattr(results, 'blockquote_per_page', 0.0)
-            raw_metrics['generic_link_ratio'] = getattr(results, 'generic_link_ratio', 0.0)
-            raw_metrics['bold_per_1k'] = getattr(results, 'bold_per_1k', 0.0)
-            raw_metrics['italic_per_1k'] = getattr(results, 'italic_per_1k', 0.0)
+            raw_metrics["ai_vocabulary_per_1k"] = getattr(results, "ai_vocabulary_per_1k", 0.0)
+            raw_metrics["sentence_stdev"] = getattr(results, "sentence_stdev", 0.0)
+            raw_metrics["em_dashes_per_page"] = getattr(results, "em_dashes_per_page", 0.0)
+            raw_metrics["heading_parallelism"] = getattr(results, "heading_parallelism_score", 0.0)
+            raw_metrics["paragraph_cv"] = getattr(results, "paragraph_cv", 0.0)
+            raw_metrics["section_variance_pct"] = getattr(results, "section_variance_pct", 0.0)
+            raw_metrics["mattr"] = getattr(results, "mattr", 0.0)
+            raw_metrics["rttr"] = getattr(results, "rttr", 0.0)
+            raw_metrics["blockquote_per_page"] = getattr(results, "blockquote_per_page", 0.0)
+            raw_metrics["generic_link_ratio"] = getattr(results, "generic_link_ratio", 0.0)
+            raw_metrics["bold_per_1k"] = getattr(results, "bold_per_1k", 0.0)
+            raw_metrics["italic_per_1k"] = getattr(results, "italic_per_1k", 0.0)
 
             # Extract counts
-            total_sentences = getattr(results, 'total_sentences', 0)
-            total_paragraphs = getattr(results, 'total_paragraphs', 0)
+            total_sentences = getattr(results, "total_sentences", 0)
+            total_paragraphs = getattr(results, "total_paragraphs", 0)
 
-        self.scores.append(HistoricalScore(
-            timestamp=score.timestamp,
-            detection_risk=score.detection_risk,
-            quality_score=score.quality_score,
-            detection_interpretation=score.detection_interpretation,
-            quality_interpretation=score.quality_interpretation,
-            total_words=score.total_words,
-            total_sentences=total_sentences,
-            total_paragraphs=total_paragraphs,
-            notes=notes,
-            history_version="2.0",
-            tier1_score=tier_scores[0],
-            tier2_score=tier_scores[1],
-            tier3_score=tier_scores[2],
-            tier4_score=tier_scores[3],
-            dimensions=dimensions,
-            raw_metrics=raw_metrics
-        ))
+        self.scores.append(
+            HistoricalScore(
+                timestamp=score.timestamp,
+                detection_risk=score.detection_risk,
+                quality_score=score.quality_score,
+                detection_interpretation=score.detection_interpretation,
+                quality_interpretation=score.quality_interpretation,
+                total_words=score.total_words,
+                total_sentences=total_sentences,
+                total_paragraphs=total_paragraphs,
+                notes=notes,
+                history_version="2.0",
+                tier1_score=tier_scores[0],
+                tier2_score=tier_scores[1],
+                tier3_score=tier_scores[2],
+                tier4_score=tier_scores[3],
+                dimensions=dimensions,
+                raw_metrics=raw_metrics,
+            )
+        )
 
     def get_trend(self) -> Dict[str, str]:
         """
@@ -243,16 +245,24 @@ class ScoreHistory:
             Dict with detection and quality trends
         """
         if len(self.scores) < 2:
-            return {'detection': 'N/A', 'quality': 'N/A'}
+            return {"detection": "N/A", "quality": "N/A"}
 
         det_change = self.scores[-1].detection_risk - self.scores[-2].detection_risk
         qual_change = self.scores[-1].quality_score - self.scores[-2].quality_score
 
         return {
-            'detection': 'IMPROVING' if det_change < -1 else 'WORSENING' if det_change > 1 else 'STABLE',
-            'quality': 'IMPROVING' if qual_change > 1 else 'DECLINING' if qual_change < -1 else 'STABLE',
-            'detection_change': round(det_change, 1),
-            'quality_change': round(qual_change, 1)
+            "detection": "IMPROVING"
+            if det_change < -1
+            else "WORSENING"
+            if det_change > 1
+            else "STABLE",
+            "quality": "IMPROVING"
+            if qual_change > 1
+            else "DECLINING"
+            if qual_change < -1
+            else "STABLE",
+            "detection_change": round(det_change, 1),
+            "quality_change": round(qual_change, 1),
         }
 
     def get_dimension_trend(self, dimension_name: str) -> Dict:
@@ -266,30 +276,30 @@ class ScoreHistory:
             Dict with trend information including change, first/last scores, and raw values
         """
         if len(self.scores) < 2:
-            return {'trend': 'N/A', 'change': 0.0}
+            return {"trend": "N/A", "change": 0.0}
 
         # Only analyze v2.0 scores
-        v2_scores = [s for s in self.scores if s.history_version == '2.0']
+        v2_scores = [s for s in self.scores if s.history_version == "2.0"]
         if len(v2_scores) < 2:
-            return {'trend': 'N/A', 'change': 0.0}
+            return {"trend": "N/A", "change": 0.0}
 
         # Get dimension from first and last v2.0 scores
         first_dim = v2_scores[0].dimensions.get(dimension_name)
         last_dim = v2_scores[-1].dimensions.get(dimension_name)
 
         if not first_dim or not last_dim:
-            return {'trend': 'N/A', 'change': 0.0}
+            return {"trend": "N/A", "change": 0.0}
 
         change = last_dim.score - first_dim.score
 
         return {
-            'trend': 'IMPROVING' if change > 1 else 'DECLINING' if change < -1 else 'STABLE',
-            'change': round(change, 1),
-            'first_score': first_dim.score,
-            'last_score': last_dim.score,
-            'first_raw': first_dim.raw_value,
-            'last_raw': last_dim.raw_value,
-            'percentage_change': round(last_dim.percentage - first_dim.percentage, 1)
+            "trend": "IMPROVING" if change > 1 else "DECLINING" if change < -1 else "STABLE",
+            "change": round(change, 1),
+            "first_score": first_dim.score,
+            "last_score": last_dim.score,
+            "first_raw": first_dim.raw_value,
+            "last_raw": last_dim.raw_value,
+            "percentage_change": round(last_dim.percentage - first_dim.percentage, 1),
         }
 
     def get_tier_trends(self) -> Dict[str, Dict]:
@@ -302,7 +312,7 @@ class ScoreHistory:
         if len(self.scores) < 2:
             return {}
 
-        v2_scores = [s for s in self.scores if s.history_version == '2.0']
+        v2_scores = [s for s in self.scores if s.history_version == "2.0"]
         if len(v2_scores) < 2:
             return {}
 
@@ -310,10 +320,10 @@ class ScoreHistory:
         last = v2_scores[-1]
 
         tier_info = [
-            ('Tier 1 (Advanced Detection)', 'tier1_score', 70),
-            ('Tier 2 (Core Patterns)', 'tier2_score', 74),
-            ('Tier 3 (Supporting Indicators)', 'tier3_score', 46),
-            ('Tier 4 (Advanced Structural)', 'tier4_score', 10)
+            ("Tier 1 (Advanced Detection)", "tier1_score", 70),
+            ("Tier 2 (Core Patterns)", "tier2_score", 74),
+            ("Tier 3 (Supporting Indicators)", "tier3_score", 46),
+            ("Tier 4 (Advanced Structural)", "tier4_score", 10),
         ]
 
         trends = {}
@@ -323,11 +333,11 @@ class ScoreHistory:
             change = last_val - first_val
 
             trends[name] = {
-                'first': first_val,
-                'last': last_val,
-                'change': round(change, 1),
-                'max': max_score,
-                'trend': 'IMPROVING' if change > 1 else 'DECLINING' if change < -1 else 'STABLE'
+                "first": first_val,
+                "last": last_val,
+                "change": round(change, 1),
+                "max": max_score,
+                "trend": "IMPROVING" if change > 1 else "DECLINING" if change < -1 else "STABLE",
             }
 
         return trends
@@ -346,7 +356,7 @@ class ScoreHistory:
         if len(self.scores) < lookback:
             return []
 
-        v2_scores = [s for s in self.scores if s.history_version == '2.0']
+        v2_scores = [s for s in self.scores if s.history_version == "2.0"]
         if len(v2_scores) < lookback:
             return []
 
@@ -385,14 +395,23 @@ class ScoreHistory:
 
         # Build header
         header = [
-            'timestamp', 'iteration', 'total_words', 'total_sentences', 'total_paragraphs',
-            'notes', 'history_version',
-            'quality_score', 'detection_risk',
-            'tier1_score', 'tier2_score', 'tier3_score', 'tier4_score'
+            "timestamp",
+            "iteration",
+            "total_words",
+            "total_sentences",
+            "total_paragraphs",
+            "notes",
+            "history_version",
+            "quality_score",
+            "detection_risk",
+            "tier1_score",
+            "tier2_score",
+            "tier3_score",
+            "tier4_score",
         ]
 
         # Add dimension scores (use first v2.0 score to get dimension names)
-        v2_scores = [s for s in self.scores if s.history_version == '2.0' and s.dimensions]
+        v2_scores = [s for s in self.scores if s.history_version == "2.0" and s.dimensions]
         if v2_scores:
             dim_names = sorted(v2_scores[0].dimensions.keys())
             header.extend([f"{name}_score" for name in dim_names])
@@ -404,25 +423,25 @@ class ScoreHistory:
                 header.extend(metric_names)
 
         # Write CSV
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=header, extrasaction='ignore')
+        with open(output_path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=header, extrasaction="ignore")
             writer.writeheader()
 
             for i, score in enumerate(self.scores, start=1):
                 row = {
-                    'timestamp': score.timestamp,
-                    'iteration': i,
-                    'total_words': score.total_words,
-                    'total_sentences': score.total_sentences,
-                    'total_paragraphs': score.total_paragraphs,
-                    'notes': score.notes,
-                    'history_version': score.history_version,
-                    'quality_score': score.quality_score,
-                    'detection_risk': score.detection_risk,
-                    'tier1_score': score.tier1_score,
-                    'tier2_score': score.tier2_score,
-                    'tier3_score': score.tier3_score,
-                    'tier4_score': score.tier4_score
+                    "timestamp": score.timestamp,
+                    "iteration": i,
+                    "total_words": score.total_words,
+                    "total_sentences": score.total_sentences,
+                    "total_paragraphs": score.total_paragraphs,
+                    "notes": score.notes,
+                    "history_version": score.history_version,
+                    "quality_score": score.quality_score,
+                    "detection_risk": score.detection_risk,
+                    "tier1_score": score.tier1_score,
+                    "tier2_score": score.tier2_score,
+                    "tier3_score": score.tier3_score,
+                    "tier4_score": score.tier4_score,
                 }
 
                 # Add dimension scores
@@ -438,19 +457,13 @@ class ScoreHistory:
 
     def to_dict(self) -> Dict:
         """Convert to dict for JSON serialization."""
-        return {
-            'file_path': self.file_path,
-            'scores': [score.to_dict() for score in self.scores]
-        }
+        return {"file_path": self.file_path, "scores": [score.to_dict() for score in self.scores]}
 
     @classmethod
-    def from_dict(cls, data: Dict) -> 'ScoreHistory':
+    def from_dict(cls, data: Dict) -> "ScoreHistory":
         """Reconstruct from dict with backward compatibility."""
-        scores = [HistoricalScore.from_dict(s) for s in data.get('scores', [])]
-        return cls(
-            file_path=data['file_path'],
-            scores=scores
-        )
+        scores = [HistoricalScore.from_dict(s) for s in data.get("scores", [])]
+        return cls(file_path=data["file_path"], scores=scores)
 
 
 def load_score_history(file_path: str) -> ScoreHistory:
@@ -471,7 +484,7 @@ def load_score_history(file_path: str) -> ScoreHistory:
         return ScoreHistory(file_path=file_path)
 
     try:
-        with open(history_file, encoding='utf-8') as f:
+        with open(history_file, encoding="utf-8") as f:
             data = json.load(f)
             return ScoreHistory.from_dict(data)
     except (json.JSONDecodeError, KeyError) as e:
@@ -488,5 +501,5 @@ def save_score_history(history: ScoreHistory):
     """
     history_file = Path(history.file_path).parent / f".{Path(history.file_path).name}.history.json"
 
-    with open(history_file, 'w', encoding='utf-8') as f:
+    with open(history_file, "w", encoding="utf-8") as f:
         json.dump(history.to_dict(), f, indent=2)
