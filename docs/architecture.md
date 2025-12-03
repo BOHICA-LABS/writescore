@@ -180,7 +180,7 @@ class AIPatternAnalyzer:
 | **DimensionStrategy** | Abstract base class for all dimensions |
 | **DimensionRegistry** | Thread-safe dimension registration |
 | **DimensionLoader** | Config-driven lazy loading |
-| **18 Dimensions** | Individual analysis implementations |
+| **16 Dimensions** | Individual analysis implementations |
 
 **DimensionStrategy Interface:**
 ```python
@@ -228,7 +228,7 @@ graph TB
     subgraph DIM["Dimension System"]
         REG[DimensionRegistry]
         LOAD[DimensionLoader]
-        D1[18 Dimensions]
+        D1[16 Dimensions]
     end
 
     subgraph SCORE["Scoring System"]
@@ -255,24 +255,31 @@ graph TB
 
 ### 3.4 Dimension Inventory
 
+**16 dimensions** across 3 tiers, weights summing to 100%:
+
 | Dimension | Tier | Weight | Purpose |
 |-----------|------|--------|---------|
-| `perplexity` | CORE | 12.0% | AI vocabulary detection |
+| `predictability` | ADVANCED | 18.1% | GLTR/n-gram analysis (transformers) |
+| `advanced_lexical` | ADVANCED | 12.8% | MATTR, HDD, Yule's K diversity metrics |
+| `transition_marker` | ADVANCED | 5.5% | Formulaic transition detection |
+| `pragmatic_markers` | ADVANCED | 3.7% | Hedging, certainty, discourse markers |
+| `perplexity` | ADVANCED | 2.8% | GPT-2 mathematical perplexity |
+| `syntactic` | ADVANCED | 1.8% | Dependency tree complexity |
+| `readability` | CORE | 9.2% | Flesch-Kincaid, Gunning Fog |
 | `burstiness` | CORE | 5.5% | Sentence variation (GPTZero methodology) |
-| `formatting` | CORE | 8.0% | Em-dash patterns (strongest AI signal) |
-| `voice` | CORE | 6.0% | First-person, contractions, authenticity |
-| `ai_vocabulary` | CORE | 5.0% | AI-typical word patterns |
-| `transition_marker` | CORE | 4.0% | Formulaic transitions |
-| `predictability` | ADVANCED | 15.0% | GLTR/n-gram analysis (transformers) |
-| `semantic_coherence` | ADVANCED | 10.0% | Cross-sentence coherence (embeddings) |
-| `syntactic` | SUPPORTING | 5.0% | Dependency tree complexity |
-| `lexical` | SUPPORTING | 4.0% | Type-token ratio diversity |
-| `advanced_lexical` | SUPPORTING | 6.0% | MATTR, HDD, Yule's K |
-| `figurative_language` | SUPPORTING | 5.0% | Similes, metaphors, idioms |
-| `sentiment` | SUPPORTING | 4.0% | Emotional variance detection |
-| `readability` | SUPPORTING | 3.0% | Flesch-Kincaid, Gunning Fog |
-| `pragmatic_markers` | SUPPORTING | 3.5% | Discourse markers |
-| `structure` | STRUCTURAL | 4.0% | Heading hierarchy, lists |
+| `voice` | CORE | 4.6% | First-person, contractions, authenticity |
+| `structure` | CORE | 3.7% | Heading hierarchy, lists |
+| `formatting` | CORE | 3.7% | Em-dash patterns (strongest AI signal) |
+| `ai_vocabulary` | CORE | 2.8% | AI-typical word patterns (34 terms) |
+| `sentiment` | SUPPORTING | 15.6% | Emotional variance detection |
+| `semantic_coherence` | SUPPORTING | 4.6% | Cross-sentence coherence (embeddings) |
+| `figurative_language` | SUPPORTING | 2.8% | Similes, metaphors, idioms |
+| `lexical` | SUPPORTING | 2.8% | Type-token ratio diversity |
+
+**Tier Distribution:**
+- **ADVANCED** (44.7%): ML-based, highest precision
+- **CORE** (29.5%): Proven signatures >85% accuracy
+- **SUPPORTING** (25.8%): Contextual quality indicators
 
 ### 3.5 Dimension Self-Registration Pattern
 
