@@ -1,0 +1,44 @@
+# Dependabot configuration for WriteScore
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      # Group dev/test dependencies to reduce PR noise
+      dev-dependencies:
+        patterns:
+          - "pytest*"
+          - "ruff"
+          - "mypy"
+          - "pre-commit"
+          - "coverage"
+        update-types:
+          - "minor"
+          - "patch"
+      # Group ML dependencies (often updated together)
+      ml-dependencies:
+        patterns:
+          - "torch"
+          - "transformers"
+          - "accelerate"
+        update-types:
+          - "patch"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build"
+      include: "scope"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"

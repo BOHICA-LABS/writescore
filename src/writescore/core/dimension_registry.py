@@ -8,7 +8,7 @@ new dimensions.
 
 import logging
 import threading
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from writescore.core.exceptions import (
     DimensionNotFoundError,
@@ -201,7 +201,7 @@ class DimensionRegistry:
             return len(cls._dimensions)
 
     @classmethod
-    def get_tiers_summary(cls) -> Dict[str, Dict[str, any]]:
+    def get_tiers_summary(cls) -> Dict[str, Dict[str, Any]]:
         """
         Get summary of all tiers with counts and dimension names.
 

@@ -47,7 +47,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 # Technical literals - words that function metaphorically in general discourse
 # but literally in technical contexts (AC: 4)
@@ -350,9 +350,9 @@ class FigurativeLanguageDimension(DimensionStrategy):
         return 2.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "SUPPORTING"
+        return DimensionTier.SUPPORTING
 
     @property
     def description(self) -> str:
@@ -364,7 +364,11 @@ class FigurativeLanguageDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for figurative language patterns.
@@ -1119,7 +1123,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
         score = max(0.0, min(100.0, score))
 
         self._validate_score(score)
-        return score
+        return float(score)
 
     def get_recommendations(self, score: float, metrics: Dict[str, Any]) -> List[str]:
         """

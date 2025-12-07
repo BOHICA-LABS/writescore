@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import SentenceBurstinessIssue
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.scoring.dual_score import THRESHOLDS
 from writescore.utils.text_processing import safe_ratio
 
@@ -52,9 +52,9 @@ class BurstinessDimension(DimensionStrategy):
         return 5.5
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "CORE"
+        return DimensionTier.CORE
 
     @property
     def description(self) -> str:
@@ -66,7 +66,11 @@ class BurstinessDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for sentence and paragraph variation.
@@ -206,7 +210,7 @@ class BurstinessDimension(DimensionStrategy):
         Returns:
             List of recommendation strings
         """
-        recommendations = []
+        recommendations: List[str] = []
 
         sentence_burst = metrics.get("sentence_burstiness", {})
         stdev = sentence_burst.get("stdev", 0)
@@ -355,7 +359,7 @@ class BurstinessDimension(DimensionStrategy):
             "lengths": all_lengths,
         }
 
-    def _analyze_paragraph_variation(self, text: str) -> Dict:
+    def _analyze_paragraph_variation(self, text: str) -> Dict[str, Any]:
         """Analyze paragraph length variation."""
         paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
         # Filter out headings and code blocks
@@ -378,7 +382,7 @@ class BurstinessDimension(DimensionStrategy):
             "max": max(para_words),
         }
 
-    def _calculate_paragraph_cv(self, text: str) -> Dict[str, float]:
+    def _calculate_paragraph_cv(self, text: str) -> Dict[str, Any]:
         """
         Calculate coefficient of variation for paragraph lengths.
 

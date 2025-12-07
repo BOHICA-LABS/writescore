@@ -37,7 +37,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import TransitionInstance
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.utils.pattern_matching import FORMULAIC_TRANSITIONS
 
 
@@ -101,9 +101,9 @@ class TransitionMarkerDimension(DimensionStrategy):
         return 5.5
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "ADVANCED"
+        return DimensionTier.ADVANCED
 
     @property
     def description(self) -> str:
@@ -115,7 +115,11 @@ class TransitionMarkerDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for transition marker patterns (v2.0.0).
@@ -387,7 +391,7 @@ class TransitionMarkerDimension(DimensionStrategy):
             "total_transitions_per_1k": total_transitions_per_1k,
         }
 
-    def _analyze_basic_transitions(self, text: str, **kwargs) -> Dict:
+    def _analyze_basic_transitions(self, text: str, **kwargs) -> Dict[str, Any]:
         """
         Analyze basic AI-specific transition markers (however, moreover).
 
@@ -396,7 +400,7 @@ class TransitionMarkerDimension(DimensionStrategy):
         - Frequency per 1k words
         - Total combined marker frequency
         """
-        result = {}
+        result: Dict[str, Any] = {}
 
         # Count AI-specific markers: however and moreover
         however_pattern = re.compile(r"\bhowever\b", re.IGNORECASE)

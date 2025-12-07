@@ -14,7 +14,7 @@ Extracted from analyze_ai_patterns.py (lines 5886-6887)
 import json
 import sys
 from dataclasses import asdict
-from typing import Optional
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Required dependency
 from writescore.core.dimension_registry import DimensionRegistry
@@ -310,7 +310,7 @@ HEADING STRUCTURE ISSUES ({len(analysis.heading_issues)} total)
 MECHANICAL PARALLELISM (identical structures):
 """
                 # Show first 3 examples only
-                shown = set()
+                shown: Set[str] = set()
                 for h in parallel_issues:
                     if len(shown) >= 3:
                         break
@@ -680,7 +680,7 @@ def format_report(
     detection_target: float = 30.0,
     quality_target: float = 85.0,
     dual_score=None,
-    dual_score_section: str = None,
+    dual_score_section: Optional[str] = None,
     mode: Optional[str] = None,
 ) -> str:
     """
@@ -815,7 +815,9 @@ DIMENSION SCORES
 
         # Group by tier for organized display
         tier_order = ["CORE", "ADVANCED", "SUPPORTING", "STRUCTURAL"]
-        dimensions_by_tier = {tier: [] for tier in tier_order}
+        dimensions_by_tier: Dict[str, List[Tuple[str, Dict[str, Any]]]] = {
+            tier: [] for tier in tier_order
+        }
 
         for dim_name, dim_data in dimension_results.items():
             tier = dim_data.get("tier", "SUPPORTING")
@@ -953,11 +955,8 @@ H4 Subsection CV:        {r.h4_subsection_cv:.2f}  {h4_icon} {r.h4_assessment}
 
         # Multi-level Combined Structure Score (if available)
         if r.combined_structure_score is not None:
-            combined_icon = (
-                "✓"
-                if r.combined_structure_prob_human >= 0.65
-                else ("⚠" if r.combined_structure_prob_human >= 0.40 else "✗")
-            )
+            prob_human = r.combined_structure_prob_human or 0.0
+            combined_icon = "✓" if prob_human >= 0.65 else ("⚠" if prob_human >= 0.40 else "✗")
             report += f"""
 
 {'─' * 80}
@@ -1255,9 +1254,9 @@ RECOMMENDATIONS
             prioritized_recs = []
 
         # Group by impact level
-        critical = []
-        important = []
-        refinements = []
+        critical: List[str] = []
+        important: List[str] = []
+        refinements: List[str] = []
 
         # Group recommendations by impact level from DynamicReporter
         for rec in prioritized_recs:
@@ -1272,7 +1271,7 @@ RECOMMENDATIONS
                 refinements.append(text)
 
         # Strengths not yet implemented in dynamic system (Story 1.16)
-        strengths = []
+        strengths: List[str] = []
 
         # ====================================================================
         # OUTPUT TIERED RECOMMENDATIONS
@@ -1304,8 +1303,8 @@ Content appears naturally human-written across all dimensions.
 🔴 CRITICAL ISSUES (Fix First):
 {'─' * 80}
 """
-                for rec in critical:
-                    report += f"{rec}\n"
+                for crit_rec in critical:
+                    report += f"{crit_rec}\n"
             else:
                 report += f"""
 🔴 CRITICAL ISSUES (Fix First):
@@ -1320,8 +1319,8 @@ Content appears naturally human-written across all dimensions.
 🟡 IMPORTANT IMPROVEMENTS:
 {'─' * 80}
 """
-                for rec in important:
-                    report += f"{rec}\n"
+                for imp_rec in important:
+                    report += f"{imp_rec}\n"
             else:
                 report += f"""
 🟡 IMPORTANT IMPROVEMENTS:
@@ -1336,8 +1335,8 @@ Content appears naturally human-written across all dimensions.
 🔵 STRUCTURAL REFINEMENTS (Advanced):
 {'─' * 80}
 """
-                for rec in refinements:
-                    report += f"{rec}\n"
+                for ref_rec in refinements:
+                    report += f"{ref_rec}\n"
             else:
                 report += f"""
 🔵 STRUCTURAL REFINEMENTS (Advanced):

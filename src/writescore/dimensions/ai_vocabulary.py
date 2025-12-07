@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import VocabInstance
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.utils.text_processing import count_words
 
 # Tier 1 - Extremely High AI Association (14 patterns, 3× weight)
@@ -149,9 +149,9 @@ class AiVocabularyDimension(DimensionStrategy):
         return 2.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "CORE"
+        return DimensionTier.CORE
 
     @property
     def description(self) -> str:
@@ -163,7 +163,11 @@ class AiVocabularyDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for AI vocabulary patterns with tier-weighted scoring.

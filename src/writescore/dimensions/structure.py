@@ -25,7 +25,7 @@ from marko.inline import Link
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import HeadingIssue
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.scoring.domain_thresholds import DocumentDomain, calculate_combined_structure_score
 from writescore.scoring.dual_score import THRESHOLDS
 
@@ -65,9 +65,9 @@ class StructureDimension(DimensionStrategy):
         return 3.7
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "CORE"
+        return DimensionTier.CORE
 
     @property
     def description(self) -> str:
@@ -79,7 +79,11 @@ class StructureDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for structural patterns.
@@ -512,7 +516,7 @@ class StructureDimension(DimensionStrategy):
     def _calculate_heading_parallelism(self, headings: List[Tuple[str, str]]) -> float:
         """Calculate how mechanically parallel headings are (0-1, higher = more AI-like)."""
         # Group headings by level
-        by_level = {}
+        by_level: Dict[int, List[str]] = {}
         for level_marks, text in headings:
             level = len(level_marks)
             if level not in by_level:
@@ -553,7 +557,7 @@ class StructureDimension(DimensionStrategy):
                 return True
         return False
 
-    def _calculate_section_variance(self, text: str) -> Dict[str, float]:
+    def _calculate_section_variance(self, text: str) -> Dict[str, Any]:
         """
         Calculate variance in H2 section lengths.
 
@@ -629,7 +633,7 @@ class StructureDimension(DimensionStrategy):
             "uniform_clusters": uniform_clusters,
         }
 
-    def _calculate_list_nesting_depth(self, text: str) -> Dict[str, any]:
+    def _calculate_list_nesting_depth(self, text: str) -> Dict[str, Any]:
         """
         Analyze markdown list nesting depth and structure.
 
@@ -668,7 +672,7 @@ class StructureDimension(DimensionStrategy):
         avg_depth = statistics.mean(list_depths)
 
         # Count distribution
-        depth_distribution = {}
+        depth_distribution: Dict[int, int] = {}
         for depth in list_depths:
             depth_distribution[depth] = depth_distribution.get(depth, 0) + 1
 
@@ -739,7 +743,7 @@ class StructureDimension(DimensionStrategy):
         heading_pattern = re.compile(r"^(#{1,6})\s+(.+)$")
 
         # Track all headings by level for parallelism detection
-        headings_by_level = {}
+        headings_by_level: Dict[int, List[Tuple[int, str]]] = {}
 
         for line_num, line in enumerate(lines, start=1):
             # Skip HTML comments (metadata)
@@ -1134,7 +1138,7 @@ class StructureDimension(DimensionStrategy):
         max_depth = max(levels)
 
         # Track transitions
-        transitions = {}
+        transitions: Dict[str, int] = {}
         for i in range(len(levels) - 1):
             transition = f"H{levels[i]}→H{levels[i+1]}"
             transitions[transition] = transitions.get(transition, 0) + 1
@@ -1408,8 +1412,8 @@ class StructureDimension(DimensionStrategy):
             r"https?://",
         ]
 
-        generic_links = []
-        generic_examples = []
+        generic_links: List[Any] = []
+        generic_examples: List[str] = []
 
         for link in links:
             anchor_text = self._extract_text_from_node(link).strip()
@@ -1472,7 +1476,7 @@ class StructureDimension(DimensionStrategy):
         ]
 
         generic_count = 0
-        generic_examples = []
+        generic_examples: List[str] = []
 
         for anchor, _url in matches:
             is_generic = any(

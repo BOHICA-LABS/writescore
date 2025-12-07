@@ -16,7 +16,7 @@ Research sources:
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 
 class DocumentDomain(Enum):
@@ -250,9 +250,9 @@ def calculate_cv_score(cv: float, thresholds: HierarchyThresholds) -> Tuple[floa
 
 
 def calculate_combined_structure_score(
-    section_length_cv: float = None,
-    h3_subsection_cv: float = None,
-    h4_subsection_cv: float = None,
+    section_length_cv: Optional[float] = None,
+    h3_subsection_cv: Optional[float] = None,
+    h4_subsection_cv: Optional[float] = None,
     domain: DocumentDomain = DocumentDomain.GENERAL,
 ) -> Dict:
     """

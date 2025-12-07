@@ -10,7 +10,7 @@ Created in Story 2.5.1 (Shapiro-Wilk Enhancement).
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy import stats
@@ -88,7 +88,12 @@ class NormalityTester:
     KURTOSIS_NORMAL = 1.0  # |kurtosis| < 1.0 = normal-like tails
     KURTOSIS_HEAVY = 3.0  # |kurtosis| > 3.0 = heavy tails
 
-    def __init__(self, alpha: float = 0.05, min_samples: int = None, max_samples: int = None):
+    def __init__(
+        self,
+        alpha: float = 0.05,
+        min_samples: Optional[int] = None,
+        max_samples: Optional[int] = None,
+    ):
         """
         Initialize normality tester.
 

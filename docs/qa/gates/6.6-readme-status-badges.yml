@@ -1,0 +1,39 @@
+schema: 1
+story: "6.6"
+story_title: "README Status Badges"
+gate: PASS
+status_reason: "All acceptance criteria met. Badges reorganized with logical grouping, correct ordering, and appropriate count (10 badges)."
+reviewer: "Quinn (Test Architect)"
+updated: "2025-12-06T00:00:00Z"
+
+waiver: { active: false }
+
+top_issues: []
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []
+
+quality_score: 100
+expires: "2025-12-20T00:00:00Z"
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 10, 13, 14, 15, 18, 19, 20]
+    ac_gaps: []
+
+nfr_validation:
+  security: { status: PASS, notes: "Security policy badge links to SECURITY.md" }
+  performance: { status: PASS, notes: "Static badges from shields.io CDN" }
+  reliability: { status: PASS, notes: "Uses stable badge endpoints" }
+  maintainability: { status: PASS, notes: "HTML comments label badge sections" }
+
+recommendations:
+  immediate: []
+  future:
+    - action: "Verify all badge links work after GitHub render"
+      refs: ["README.md:1-18"]

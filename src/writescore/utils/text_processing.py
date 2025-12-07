@@ -6,7 +6,7 @@ word counting, and basic text manipulation.
 """
 
 import re
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 
 def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
@@ -107,8 +107,8 @@ def extract_paragraphs(lines: List[str]) -> List[List[str]]:
     Returns:
         List of paragraphs (each paragraph is a list of lines)
     """
-    paragraphs = []
-    current_para = []
+    paragraphs: List[List[str]] = []
+    current_para: List[str] = []
 
     for line in lines:
         stripped = line.strip()
@@ -187,7 +187,7 @@ def calculate_word_frequency(text: str) -> dict:
         Dictionary mapping words to their counts
     """
     words = re.findall(r"\b[a-zA-Z]+\b", text.lower())
-    freq = {}
+    freq: Dict[str, int] = {}
     for word in words:
         freq[word] = freq.get(word, 0) + 1
     return freq

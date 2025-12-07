@@ -54,10 +54,11 @@ class ParameterChange:
             }
 
         # Compare old and new parameters
+        assert self.old_params is not None  # Guaranteed by is_new_dimension() check above
         old_dict = self.old_params.parameters.to_dict()
         new_dict = self.new_params.parameters.to_dict()
 
-        changes = {}
+        changes: Dict[str, Any] = {}
         for key in new_dict:
             if key not in old_dict:
                 changes[key] = {"old": None, "new": new_dict[key]}
@@ -110,7 +111,7 @@ class RecalibrationReport:
         self.analysis_summary = analysis_summary
         self.parameter_changes = parameter_changes
         self.timestamp = datetime.now().isoformat()
-        self.metadata = {}
+        self.metadata: Dict[str, Any] = {}
 
     def get_summary(self) -> Dict[str, Any]:
         """Get report summary."""
@@ -219,10 +220,10 @@ class RecalibrationWorkflow:
         self.auto_select_method = auto_select_method
         self.analyzer = DistributionAnalyzer()
         self.deriver = ParameterDeriver(auto_select_method=auto_select_method)
-        self.dataset = None
-        self.analysis = None
-        self.derived_params = None
-        self.old_params = None
+        self.dataset: Optional[ValidationDataset] = None
+        self.analysis: Optional[DistributionAnalysis] = None
+        self.derived_params: Optional[Dict[str, DimensionParameters]] = None
+        self.old_params: Optional[Dict[str, DimensionParameters]] = None
         self.normality_results: Dict[str, NormalityResult] = {}
 
     def load_dataset(self, dataset_path: Path) -> ValidationDataset:
@@ -236,11 +237,10 @@ class RecalibrationWorkflow:
             ValidationDataset instance
         """
         logger.info(f"Loading validation dataset from {dataset_path}")
-        self.dataset = DatasetLoader.load_jsonl(dataset_path)
-        logger.info(
-            f"Loaded {len(self.dataset.documents)} documents " f"(version: {self.dataset.version})"
-        )
-        return self.dataset
+        dataset = DatasetLoader.load_jsonl(dataset_path)
+        self.dataset = dataset
+        logger.info(f"Loaded {len(dataset.documents)} documents " f"(version: {dataset.version})")
+        return dataset
 
     def run_distribution_analysis(
         self, dimension_names: Optional[List[str]] = None
@@ -333,9 +333,10 @@ class RecalibrationWorkflow:
             return None
 
         logger.info(f"Loading existing parameters from {params_path}")
-        self.old_params = ParameterDeriver.load_parameters(params_path)
-        logger.info(f"Loaded parameters for {len(self.old_params)} dimensions")
-        return self.old_params
+        params = ParameterDeriver.load_parameters(params_path)
+        self.old_params = params
+        logger.info(f"Loaded parameters for {len(params)} dimensions")
+        return params
 
     def generate_comparison_report(self) -> RecalibrationReport:
         """
@@ -453,4 +454,5 @@ class RecalibrationWorkflow:
         logger.info("RECALIBRATION WORKFLOW COMPLETE")
         logger.info("=" * 80)
 
+        assert self.derived_params is not None  # Set by derive_parameters()
         return self.derived_params, report

@@ -247,7 +247,8 @@ class ParameterVersionManager:
         try:
             with open(self.active_file) as f:
                 data = yaml.safe_load(f)
-            return data.get("version")
+            version = data.get("version")
+            return str(version) if version is not None else None
         except Exception as e:
             logger.error(f"Could not read current version: {e}")
             return None
@@ -345,7 +346,7 @@ class ParameterVersionManager:
 
         return True
 
-    def _backup_current(self) -> Path:
+    def _backup_current(self) -> Optional[Path]:
         """Backup current active parameters to archive."""
         if not self.active_file.exists():
             return None

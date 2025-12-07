@@ -5,7 +5,7 @@ This module provides comprehensive trend analysis, comparison reports,
 sparkline visualization, and historical journey reporting.
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from writescore.history.tracker import HistoricalScore, ScoreHistory
 
@@ -111,7 +111,7 @@ def generate_dimension_trend_report(history: ScoreHistory, top_n: int = 5) -> st
         return "⚠ No dimension data available"
 
     # Calculate changes for all dimensions
-    dimension_changes = []
+    dimension_changes: List[Dict[str, Any]] = []
     for dim_name in first.dimensions:
         if dim_name not in last.dimensions:
             continue
@@ -157,9 +157,9 @@ def generate_dimension_trend_report(history: ScoreHistory, top_n: int = 5) -> st
         output.append("")
         for dim_name in plateaued[:top_n]:
             if dim_name in last.dimensions:
-                dim = last.dimensions[dim_name]
+                dim_score = last.dimensions[dim_name]
                 output.append(
-                    f"  - {dim_name}: {dim.score:.1f}/{dim.max_score} ({dim.percentage:.0f}%)"
+                    f"  - {dim_name}: {dim_score.score:.1f}/{dim_score.max_score} ({dim_score.percentage:.0f}%)"
                 )
         output.append("")
 
@@ -377,7 +377,7 @@ def generate_comparison_report(history: ScoreHistory, idx1: int, idx2: int) -> s
         output.append("")
 
         # Significant dimension changes (> 2pts)
-        significant_changes = []
+        significant_changes: List[Dict[str, Any]] = []
         for dim_name in score1.dimensions:
             if dim_name not in score2.dimensions:
                 continue
@@ -730,7 +730,7 @@ def generate_raw_metric_trends(
     output.append("")
 
     # Get all available metrics
-    all_metrics = set()
+    all_metrics: Set[str] = set()
     for score in v2_scores:
         all_metrics.update(score.raw_metrics.keys())
 

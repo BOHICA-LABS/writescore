@@ -85,16 +85,17 @@ class DimensionLoader:
             Dict with 'loaded' list and 'failed' dict
             Example: {'loaded': ['perplexity', 'burstiness'], 'failed': {}}
         """
-        results = {"loaded": [], "failed": {}}
+        loaded: List[str] = []
+        failed: Dict[str, str] = {}
 
         for dim_name in dimension_names:
             if dim_name not in DIMENSION_MODULE_MAP:
-                results["failed"][dim_name] = f"Unknown dimension: {dim_name}"
+                failed[dim_name] = f"Unknown dimension: {dim_name}"
                 continue
 
             # Check if dimension is already registered (not just loaded by this instance)
             if DimensionRegistry.has(dim_name) and dim_name in self._loaded_modules:
-                results["loaded"].append(dim_name)
+                loaded.append(dim_name)
                 continue
 
             module_path = DIMENSION_MODULE_MAP[dim_name]
@@ -116,18 +117,16 @@ class DimensionLoader:
 
                 # Verify dimension self-registered
                 if not DimensionRegistry.has(dim_name):
-                    results["failed"][dim_name] = (
-                        "Module loaded but dimension did not self-register"
-                    )
+                    failed[dim_name] = "Module loaded but dimension did not self-register"
                     continue
 
-                results["loaded"].append(dim_name)
+                loaded.append(dim_name)
 
             except Exception as e:
-                results["failed"][dim_name] = str(e)
+                failed[dim_name] = str(e)
                 print(f"Warning: Failed to load dimension '{dim_name}': {e}", file=sys.stderr)
 
-        return results
+        return {"loaded": loaded, "failed": failed}
 
     @classmethod
     def register_custom_profile(cls, profile_name: str, dimensions: List[str]) -> None:

@@ -14,7 +14,7 @@ import statistics
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 # Required dependencies
 from marko import Markdown
@@ -218,7 +218,7 @@ class AIPatternAnalyzer:
             config: Optional AnalysisConfig (uses DEFAULT_CONFIG if not provided)
         """
         self.domain_terms = domain_terms or self.DOMAIN_TERMS_DEFAULT
-        self.lines = []  # Will store line-by-line content for detailed mode
+        self.lines: List[str] = []  # Will store line-by-line content for detailed mode
         self.config = config or DEFAULT_CONFIG
 
         # HTML comment pattern (metadata blocks to ignore)
@@ -226,7 +226,7 @@ class AIPatternAnalyzer:
 
         # Phase 3: AST parser and cache (marko)
         self._markdown_parser = None
-        self._ast_cache = {}
+        self._ast_cache: Dict[str, Any] = {}
 
         # Story 1.4.11: Config-driven dimension loading via DimensionLoader
         # Register custom profiles from config if provided
@@ -390,7 +390,7 @@ class AIPatternAnalyzer:
         for dim_name, dim in self.dimensions.items():
             try:
                 # Prepare kwargs based on dimension needs
-                kwargs = {"config": config}
+                kwargs: Dict[str, Any] = {"config": config}
 
                 # Dimension-specific kwargs
                 if dim_name in ["structure", "formatting"]:
@@ -1495,7 +1495,7 @@ class AIPatternAnalyzer:
                         level=level,
                         text=text,
                         issue_type=issue_type,
-                        suggestion=suggestion,
+                        suggestion=suggestion or "",
                     )
                 )
 
@@ -1506,8 +1506,8 @@ class AIPatternAnalyzer:
         uniform_paragraphs = []
 
         # Split into paragraphs
-        paragraphs = []
-        current_para = []
+        paragraphs: List[Tuple[int, str]] = []
+        current_para: List[str] = []
         current_start_line = 1
 
         for line_num, line in enumerate(self.lines, start=1):
@@ -1649,9 +1649,8 @@ class AIPatternAnalyzer:
                     instances.append(
                         TransitionInstance(
                             line_number=line_num,
-                            phrase=phrase,
+                            transition=phrase,
                             context=context,
-                            problem="Formulaic AI transition (humans use simpler connectives)",
                             suggestions=suggestions[:5],
                         )
                     )

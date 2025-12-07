@@ -43,7 +43,7 @@ import numpy as np
 
 from writescore.core.analysis_config import AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 
 class SemanticCoherenceDimension(DimensionStrategy):
@@ -204,9 +204,9 @@ class SemanticCoherenceDimension(DimensionStrategy):
         return 4.6
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Dimension tier classification."""
-        return "SUPPORTING"
+        return DimensionTier.SUPPORTING
 
     @property
     def description(self) -> str:
@@ -299,7 +299,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         sentences = [s.strip() for s in sentences if s.strip()]
         return sentences
 
-    def _sample_sentences(self, sentences: List[str], max_count: int = None) -> List[str]:
+    def _sample_sentences(self, sentences: List[str], max_count: Optional[int] = None) -> List[str]:
         """
         Sample sentences evenly from document for performance.
 
@@ -370,7 +370,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
     # ========================================================================
 
     def _generate_embeddings(
-        self, texts: List[str], batch_size: int = None
+        self, texts: List[str], batch_size: Optional[int] = None
     ) -> Optional[np.ndarray]:
         """
         Generate embeddings for text list using batch processing.
@@ -391,7 +391,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
         try:
             # Batch encode for performance (5-10× speedup)
-            embeddings = model.encode(
+            embeddings: np.ndarray = model.encode(
                 texts, batch_size=batch_size, show_progress_bar=False, convert_to_numpy=True
             )
             return embeddings
@@ -471,7 +471,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
         # Compute consistency (mean) and smoothness (inverse std)
         mean_sim = np.mean(similarities)
-        std_sim = np.std(similarities)
+        std_sim = float(np.std(similarities))
         smoothness = 1.0 - min(std_sim, 1.0)  # Cap at 1.0
 
         # Weighted combination (from Story 2.3 research)
@@ -539,7 +539,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
         # Compute depth (mean similarity) and consistency (inverse std)
         mean_sim = np.mean(similarities)
-        std_sim = np.std(similarities)
+        std_sim = float(np.std(similarities))
         consistency = 1.0 - min(std_sim, 1.0)
 
         # Weighted combination (from Story 2.3 research)
@@ -575,7 +575,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
         Returns:
             Dict with evidence lists (limited to first 10 examples each)
         """
-        evidence = {"low_cohesion_paragraphs": [], "topic_shifts": [], "weak_transitions": []}
+        evidence: Dict[str, List[str]] = {
+            "low_cohesion_paragraphs": [],
+            "topic_shifts": [],
+            "weak_transitions": [],
+        }
 
         # Collect low cohesion paragraphs (paragraph_cohesion < 0.60)
         if paragraph_cohesion < 0.60:
@@ -741,7 +745,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
         }
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for semantic coherence patterns.

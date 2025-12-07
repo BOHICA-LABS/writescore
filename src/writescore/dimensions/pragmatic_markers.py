@@ -40,7 +40,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 
 class PragmaticMarkersDimension(DimensionStrategy):
@@ -351,9 +351,9 @@ class PragmaticMarkersDimension(DimensionStrategy):
         return 3.7
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "ADVANCED"
+        return DimensionTier.ADVANCED
 
     @property
     def description(self) -> str:
@@ -365,7 +365,11 @@ class PragmaticMarkersDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for pragmatic marker patterns.
@@ -469,7 +473,7 @@ class PragmaticMarkersDimension(DimensionStrategy):
             variety_score * self.HEDGING_WEIGHT_VARIETY
         )
 
-        return score
+        return float(score)
 
     def _score_certainty(self, certainty: Dict[str, Any], certainty_hedge_ratio: float) -> float:
         """
@@ -520,7 +524,7 @@ class PragmaticMarkersDimension(DimensionStrategy):
             + personal_score * self.CERTAINTY_WEIGHT_PERSONAL
         )
 
-        return score
+        return float(score)
 
     def _score_speech_acts(self, speech_acts: Dict[str, Any]) -> float:
         """
@@ -575,7 +579,7 @@ class PragmaticMarkersDimension(DimensionStrategy):
             + personal_score * self.SPEECH_ACTS_WEIGHT_PERSONAL
         )
 
-        return score
+        return float(score)
 
     def calculate_score(self, metrics: Dict[str, Any]) -> float:
         """
@@ -743,7 +747,7 @@ class PragmaticMarkersDimension(DimensionStrategy):
             "pragmatic_balance": pragmatic_balance,
         }
 
-    def _analyze_hedging(self, text: str, total_words: int = None) -> Dict[str, Any]:
+    def _analyze_hedging(self, text: str, total_words: Optional[int] = None) -> Dict[str, Any]:
         """
         Analyze epistemic hedging patterns.
 
@@ -843,7 +847,7 @@ class PragmaticMarkersDimension(DimensionStrategy):
             "epistemic_verbs_count": epistemic_verbs_count,
         }
 
-    def _analyze_certainty(self, text: str, total_words: int = None) -> Dict[str, Any]:
+    def _analyze_certainty(self, text: str, total_words: Optional[int] = None) -> Dict[str, Any]:
         """
         Analyze certainty marker patterns.
 
@@ -899,7 +903,7 @@ class PragmaticMarkersDimension(DimensionStrategy):
             "subjective_percentage": subjective_percentage,
         }
 
-    def _analyze_speech_acts(self, text: str, total_words: int = None) -> Dict[str, Any]:
+    def _analyze_speech_acts(self, text: str, total_words: Optional[int] = None) -> Dict[str, Any]:
         """
         Analyze speech act patterns.
 
@@ -950,7 +954,9 @@ class PragmaticMarkersDimension(DimensionStrategy):
             "personal_percentage": personal_percentage,
         }
 
-    def _analyze_attitude_markers(self, text: str, total_words: int = None) -> Dict[str, Any]:
+    def _analyze_attitude_markers(
+        self, text: str, total_words: Optional[int] = None
+    ) -> Dict[str, Any]:
         """
         Analyze attitude marker patterns.
 
@@ -1001,7 +1007,9 @@ class PragmaticMarkersDimension(DimensionStrategy):
             "variety_score": variety_score,
         }
 
-    def _analyze_likelihood_adverbials(self, text: str, total_words: int = None) -> Dict[str, Any]:
+    def _analyze_likelihood_adverbials(
+        self, text: str, total_words: Optional[int] = None
+    ) -> Dict[str, Any]:
         """
         Analyze likelihood adverbial patterns.
 

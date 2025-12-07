@@ -13,7 +13,7 @@ Version History:
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -237,7 +237,7 @@ class ScoreHistory:
             )
         )
 
-    def get_trend(self) -> Dict[str, str]:
+    def get_trend(self) -> Dict[str, Any]:
         """
         Get aggregate trend direction (backward compatible with v1.0).
 

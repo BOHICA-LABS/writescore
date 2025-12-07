@@ -88,7 +88,7 @@ class AnalysisConfig:
         if dimension_name in self.dimension_overrides:
             override = self.dimension_overrides[dimension_name]
             if "max_chars" in override:
-                return override["max_chars"]
+                return int(override["max_chars"]) if override["max_chars"] is not None else None
 
         # Mode-based logic
         if self.mode == AnalysisMode.FAST:

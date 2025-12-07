@@ -37,7 +37,7 @@ from transformers.utils import logging as transformers_logging
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 transformers_logging.set_verbosity_error()
 
@@ -93,9 +93,9 @@ class PerplexityDimension(DimensionStrategy):
         return 2.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "ADVANCED"
+        return DimensionTier.ADVANCED
 
     @property
     def description(self) -> str:
@@ -234,7 +234,7 @@ class PerplexityDimension(DimensionStrategy):
             raise ValueError("Text must contain printable characters")
 
         tokenizer = self._get_tokenizer()
-        tokens = tokenizer.encode(text, return_tensors="pt")
+        tokens: torch.Tensor = tokenizer.encode(text, return_tensors="pt")
 
         # Validate token length (prevent memory exhaustion)
         if tokens.shape[1] > 50_000:  # ~200k chars, reasonable max
@@ -271,7 +271,7 @@ class PerplexityDimension(DimensionStrategy):
             target_id = target[0, 0].item()
             log_prob = log_probs[target_id].item()
 
-        return log_prob
+        return float(log_prob)
 
     def _calculate_perplexity(self, text: str) -> Tuple[float, float, int]:
         """
@@ -386,7 +386,11 @@ class PerplexityDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text perplexity with configurable modes.

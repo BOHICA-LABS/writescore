@@ -40,7 +40,7 @@ from transformers.utils import logging as transformers_logging
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import HighPredictabilitySegment
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.utils.text_processing import safe_ratio
 
 transformers_logging.set_verbosity_error()
@@ -95,9 +95,9 @@ class PredictabilityDimension(DimensionStrategy):
         return 18.1
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "ADVANCED"
+        return DimensionTier.ADVANCED
 
     @property
     def description(self) -> str:
@@ -109,7 +109,11 @@ class PredictabilityDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze GLTR token predictability with configurable modes.
@@ -494,7 +498,8 @@ class PredictabilityDimension(DimensionStrategy):
             # Remove code blocks
             text = re.sub(r"```[\s\S]*?```", "", text)
 
-            # Tokenize
+            # Tokenize (tokenizer is guaranteed to be loaded after model loading above)
+            assert _perplexity_tokenizer is not None
             tokens = _perplexity_tokenizer.encode(text)
 
             if len(tokens) < 10:
@@ -568,6 +573,9 @@ class PredictabilityDimension(DimensionStrategy):
             if _perplexity_model is None:
                 # Model not loaded yet
                 return []
+
+            # Tokenizer is always loaded when model is loaded
+            assert _perplexity_tokenizer is not None
 
             # Analyze in 50-100 word chunks
             chunk_size = 75  # words

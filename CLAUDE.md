@@ -9,37 +9,37 @@ WriteScore is a writing quality scoring tool with AI pattern detection. It analy
 ## Build & Development Commands
 
 ```bash
-# Install in development mode
-pip install -e .
+# Install dependencies (creates/updates .venv automatically)
+uv sync
 
 # Install with dev dependencies
-pip install -e ".[dev]"
+uv sync --extra dev
 
 # Run all tests
-pytest
+uv run pytest
 
 # Run tests with coverage
-pytest --cov=src/writescore --cov-report=html
+uv run pytest --cov=src/writescore --cov-report=html
 
 # Run specific test file
-pytest tests/unit/dimensions/test_perplexity.py
+uv run pytest tests/unit/dimensions/test_perplexity.py
 
 # Run specific test
-pytest tests/unit/dimensions/test_perplexity.py::test_function_name -v
+uv run pytest tests/unit/dimensions/test_perplexity.py::test_function_name -v
 
 # Skip slow tests
-pytest -m "not slow"
+uv run pytest -m "not slow"
 
 # Run integration tests only
-pytest -m integration
+uv run pytest -m integration
 
 # Lint with ruff
-ruff check src/
+uv run ruff check src/
 
 # CLI usage
-writescore analyze document.md
-writescore analyze document.md --mode full --detailed
-writescore analyze document.md --mode adaptive --show-scores
+uv run writescore analyze document.md
+uv run writescore analyze document.md --mode full --detailed
+uv run writescore analyze document.md --mode adaptive --show-scores
 ```
 
 ## Architecture
@@ -225,11 +225,7 @@ Indicate with either:
 This project uses pre-commit hooks for code quality. Install them:
 
 ```bash
-# Using uv
 uv run pre-commit install && uv run pre-commit install --hook-type commit-msg
-
-# Or using pip
-pip install pre-commit && pre-commit install && pre-commit install --hook-type commit-msg
 ```
 
 **Hooks installed:**

@@ -29,6 +29,7 @@ dependencies = [
     "textstat>=0.7.3",
     "transformers>=4.35.0",
     "torch>=2.0.0",
+    "scikit-learn>=1.3.0",
     "scipy>=1.11.0",
     "scikit-learn>=1.3.0",
     "textacy>=0.13.0",
@@ -43,7 +44,9 @@ dev = [
     "pytest-timeout>=2.2.0",
     "psutil>=5.9.0",
     "ruff>=0.1.0",
+    "pre-commit>=3.5.0",
     "sentence-transformers>=2.0.0",  # Required for figurative_language tests
+    "types-PyYAML>=6.0.0",  # Type stubs for PyYAML
 ]
 semantic = [
     "sentence-transformers>=2.0.0",

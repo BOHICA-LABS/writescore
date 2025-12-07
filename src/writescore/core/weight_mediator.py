@@ -306,7 +306,7 @@ class WeightMediator:
             Sum of all dimension weights
         """
         dimensions = self._get_all_dimensions()
-        return sum(d.weight for d in dimensions)
+        return float(sum(d.weight for d in dimensions))
 
     def validate_weights(self, force: bool = False) -> bool:
         """
@@ -398,7 +398,7 @@ class WeightMediator:
         """
         dimensions = self._get_all_dimensions()
 
-        tier_data = {
+        tier_data: Dict[str, Dict[str, Any]] = {
             "ADVANCED": {"total_weight": 0.0, "dimension_count": 0, "dimensions": []},
             "CORE": {"total_weight": 0.0, "dimension_count": 0, "dimensions": []},
             "SUPPORTING": {"total_weight": 0.0, "dimension_count": 0, "dimensions": []},

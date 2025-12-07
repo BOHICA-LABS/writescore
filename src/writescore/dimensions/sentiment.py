@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 # Lazy load transformers
 _sentiment_pipeline = None
@@ -74,9 +74,9 @@ class SentimentDimension(DimensionStrategy):
         return 15.6
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "SUPPORTING"
+        return DimensionTier.SUPPORTING
 
     @property
     def description(self) -> str:
@@ -88,7 +88,11 @@ class SentimentDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for sentiment variation patterns.

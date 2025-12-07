@@ -11,7 +11,7 @@ Created in Story 2.5 for automatic recalibration infrastructure.
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import yaml
 
@@ -106,10 +106,11 @@ class ParameterLoader:
             )
 
         # Create PercentileParameters container
+        # Cast to str since we've validated they exist above
         params = PercentileParameters(
-            version=version,
-            timestamp=timestamp,
-            validation_dataset_version=validation_dataset_version,
+            version=str(version),
+            timestamp=str(timestamp),
+            validation_dataset_version=str(validation_dataset_version),
             metadata=config_data.get("metadata", {}),
         )
 
@@ -150,6 +151,7 @@ class ParameterLoader:
             ) from e
 
         # Parse parameters based on scoring type
+        parameters: Union[GaussianParameters, MonotonicParameters, ThresholdParameters]
         if scoring_type_enum == ScoringType.GAUSSIAN:
             parameters = cls._parse_gaussian_params(dim_config)
         elif scoring_type_enum == ScoringType.MONOTONIC:
@@ -351,7 +353,7 @@ class ParameterLoader:
     @classmethod
     def _serialize_parameters(cls, params: PercentileParameters) -> Dict[str, Any]:
         """Convert PercentileParameters to dict for YAML serialization."""
-        config_data = {
+        config_data: Dict[str, Any] = {
             "version": params.version,
             "timestamp": params.timestamp,
             "validation_dataset_version": params.validation_dataset_version,
@@ -360,7 +362,7 @@ class ParameterLoader:
         }
 
         for dim_name, dim_params in params.dimensions.items():
-            dim_config = {
+            dim_config: Dict[str, Any] = {
                 "scoring_type": dim_params.scoring_type.value,
             }
 

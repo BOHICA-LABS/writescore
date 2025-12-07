@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from writescore.core.distribution_analyzer import DimensionStatistics, DistributionAnalysis
 from writescore.core.normality import NormalityResult, NormalityTester
@@ -234,12 +234,14 @@ class ParameterDeriver:
             return None
 
         # Initialize normality metadata
-        normality_metadata = {"method_auto_selected": False}
+        normality_metadata: Dict[str, Any] = {"method_auto_selected": False}
 
         # Determine scoring method
         if scoring_method is None:
             if self.auto_select_method and human_stats.values:
                 # Use Shapiro-Wilk normality testing to auto-select method
+                # Normality tester is always initialized when auto_select_method is True
+                assert self.normality_tester is not None
                 normality_result = self.normality_tester.test_normality(
                     human_stats.values, dimension_name
                 )
@@ -280,6 +282,7 @@ class ParameterDeriver:
                 )
 
         # Derive parameters based on method
+        params: Union[GaussianParameters, MonotonicParameters, ThresholdParameters]
         if scoring_method == ScoringMethod.GAUSSIAN:
             params = self._derive_gaussian_parameters(human_stats)
         elif scoring_method == ScoringMethod.MONOTONIC:
@@ -501,6 +504,7 @@ class ParameterDeriver:
             scoring_method = ScoringMethod(param_data["scoring_method"])
 
             # Reconstruct parameter objects
+            params: Union[GaussianParameters, MonotonicParameters, ThresholdParameters]
             if scoring_method == ScoringMethod.GAUSSIAN:
                 params = GaussianParameters(**param_data["parameters"])
             elif scoring_method == ScoringMethod.MONOTONIC:

@@ -214,7 +214,9 @@ class DimensionParameters:
             )
 
         # Validate the actual parameters
-        self.parameters.validate()
+        # The isinstance checks above ensure parameters has validate() method
+        if hasattr(self.parameters, "validate"):
+            self.parameters.validate()
 
 
 @dataclass
@@ -261,8 +263,8 @@ class PercentileParameters:
 
     def get_summary(self) -> Dict[str, Any]:
         """Get summary statistics about parameters."""
-        scoring_type_counts = {}
-        source_counts = {}
+        scoring_type_counts: Dict[str, int] = {}
+        source_counts: Dict[str, int] = {}
 
         for dim_params in self.dimensions.values():
             # Count scoring types

@@ -181,7 +181,11 @@ class DimensionStrategy(ABC):
 
     @abstractmethod
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Perform dimension-specific analysis on text.
@@ -373,7 +377,9 @@ class DimensionStrategy(ABC):
         else:
             return f"(score: {score:.1f})"
 
-    def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> List[Any]:
+    def analyze_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> Union[List[Any], Dict[str, Any]]:
         """
         Optional detailed analysis with line-by-line findings.
 
@@ -385,7 +391,7 @@ class DimensionStrategy(ABC):
             html_comment_checker: Optional HTML comment checker for filtering
 
         Returns:
-            List[Any]: List of issue objects (VocabInstance, SentenceBurstinessIssue, etc.)
+            Union[List[Any], Dict[str, Any]]: List of issue objects or dict of detailed results
                       Default: empty list
 
         Example override:
@@ -453,7 +459,7 @@ class DimensionStrategy(ABC):
     # AST HELPER METHODS (from existing base.py)
     # ========================================================================
 
-    def _get_markdown_parser(self) -> Markdown:
+    def _get_markdown_parser(self) -> Any:
         """
         Lazy-load marko parser singleton.
 
@@ -560,7 +566,10 @@ class DimensionStrategy(ABC):
     # ========================================================================
 
     def _prepare_text(
-        self, text: str, config: Optional[AnalysisConfig] = None, dimension_name: str = None
+        self,
+        text: str,
+        config: Optional[AnalysisConfig] = None,
+        dimension_name: Optional[str] = None,
     ) -> Union[str, List[Tuple[int, str]]]:
         """
         Prepare text based on configuration.
@@ -646,11 +655,11 @@ class DimensionStrategy(ABC):
             return {}
 
         # Collect all keys across all samples
-        all_keys = set()
+        all_keys: set[str] = set()
         for sample in sample_metrics:
             all_keys.update(sample.keys())
 
-        aggregated = {}
+        aggregated: dict[str, Any] = {}
 
         for key in all_keys:
             # Collect all values for this key (skip None)
@@ -701,12 +710,12 @@ class DimensionStrategy(ABC):
             elif isinstance(first_value, dict):
                 # Dict: Recursively aggregate nested dicts
                 # Collect all keys across all nested dicts
-                all_nested_keys = set()
+                all_nested_keys: set[str] = set()
                 for v in values:
                     if isinstance(v, dict):
                         all_nested_keys.update(v.keys())
 
-                merged = {}
+                merged: dict[str, Any] = {}
                 for nested_key in all_nested_keys:
                     # Collect values for this nested key across all samples
                     nested_values = [

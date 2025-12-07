@@ -277,7 +277,9 @@ class DistributionAnalyzer:
             Dict[dimension_name][label][metric_name] = List[values]
         """
         # Structure: dimension -> label -> metric_name -> values
-        values = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+        values: Dict[str, Dict[str, Dict[str, List[float]]]] = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(list))
+        )
 
         # Process each document
         for doc in dataset.documents:
@@ -297,7 +299,11 @@ class DistributionAnalyzer:
                     logger.warning(f"Error analyzing {dim_name} on doc {doc.id}: {e}")
                     continue
 
-        return values
+        # Convert nested defaultdicts to regular dicts for type compatibility
+        return {
+            dim: {label: dict(metrics) for label, metrics in labels.items()}
+            for dim, labels in values.items()
+        }
 
     def _analyze_document(self, dimension_name: str, text: str) -> Dict[str, Any]:
         """Run dimension analyzer on document text."""

@@ -144,7 +144,7 @@ class ScoreShiftReport:
         """Check if the shift is within acceptable bounds."""
         if not self.summary_stats:
             self.calculate_summary()
-        return self.summary_stats.get("is_acceptable", False)
+        return bool(self.summary_stats.get("is_acceptable", False))
 
     def get_flagged_documents(self) -> List[DocumentScoreShift]:
         """Get documents with warning or error level shifts."""

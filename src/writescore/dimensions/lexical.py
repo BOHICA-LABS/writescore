@@ -26,7 +26,7 @@ from nltk.tokenize import word_tokenize
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 
 class LexicalDimension(DimensionStrategy):
@@ -64,9 +64,9 @@ class LexicalDimension(DimensionStrategy):
         return 2.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "SUPPORTING"
+        return DimensionTier.SUPPORTING
 
     @property
     def description(self) -> str:
@@ -108,7 +108,11 @@ class LexicalDimension(DimensionStrategy):
     # ========================================================================
 
     def analyze(
-        self, text: str, lines: List[str] = None, config: Optional[AnalysisConfig] = None, **kwargs
+        self,
+        text: str,
+        lines: Optional[List[str]] = None,
+        config: Optional[AnalysisConfig] = None,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for lexical diversity.
@@ -400,7 +404,7 @@ class LexicalDimension(DimensionStrategy):
         forward = _mtld_direction(words)
         backward = _mtld_direction(words[::-1])
 
-        return (forward + backward) / 2
+        return float((forward + backward) / 2)
 
 
 # Backward compatibility alias

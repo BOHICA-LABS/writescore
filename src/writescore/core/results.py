@@ -504,9 +504,11 @@ class AnalysisResults:
     semantic_topic_consistency: Optional[float] = None  # Topic consistency score (0-1)
     semantic_discourse_flow: Optional[float] = None  # Discourse flow score (0-1)
     semantic_conceptual_depth: Optional[float] = None  # Conceptual depth score (0-1)
-    semantic_low_cohesion_paragraphs: List[str] = None  # Evidence: Paragraphs with low cohesion
-    semantic_topic_shifts: List[str] = None  # Evidence: Locations of topic shifts
-    semantic_weak_transitions: List[str] = None  # Evidence: Weak paragraph transitions
+    semantic_low_cohesion_paragraphs: Optional[List[str]] = (
+        None  # Evidence: Paragraphs with low cohesion
+    )
+    semantic_topic_shifts: Optional[List[str]] = None  # Evidence: Locations of topic shifts
+    semantic_weak_transitions: Optional[List[str]] = None  # Evidence: Weak paragraph transitions
 
     # Legacy/derived scores
     technical_score: str = ""  # Derived from voice dimension

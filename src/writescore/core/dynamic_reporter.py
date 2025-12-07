@@ -277,8 +277,8 @@ class DynamicReporter:
         dimensions = self.registry.get_all()
 
         # Calculate raw tier totals and dimension weights
-        tier_totals = {}
-        dimension_weights = []
+        tier_totals: Dict[str, float] = {}
+        dimension_weights: List[Dict[str, Any]] = []
         total_weight = 0.0
 
         for dim in dimensions:
