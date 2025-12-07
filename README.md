@@ -1,5 +1,9 @@
 # WriteScore
 
+<p align="center">
+  <img src="docs/assets/logo.png" alt="WriteScore Logo" width="200">
+</p>
+
 <!-- Project Info -->
 [![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
