@@ -21,10 +21,10 @@ Open in VS Code and select "Reopen in Container" when prompted.
 ### Option 3: Manual Setup
 
 ```bash
-pip install -e ".[dev]"
-python -m spacy download en_core_web_sm
-pre-commit install
-pre-commit install --hook-type commit-msg
+uv sync --extra dev
+uv run python -m spacy download en_core_web_sm
+uv run pre-commit install
+uv run pre-commit install --hook-type commit-msg
 ```
 
 ## Development Workflow
@@ -111,6 +111,56 @@ When reporting bugs, please include:
 - Update tests for new functionality
 - Ensure all tests pass
 - Update documentation if needed
+
+## Issue and PR Labels
+
+We use a structured label system to categorize and track work. When creating issues or PRs, apply appropriate labels from each category.
+
+### Type Labels (maps to conventional commits)
+
+| Label | Description | Commit Prefix |
+|-------|-------------|---------------|
+| `type: bug` | Bug fix | `fix:` |
+| `type: feature` | New feature | `feat:` |
+| `type: docs` | Documentation | `docs:` |
+| `type: refactor` | Code refactoring | `refactor:` |
+| `type: test` | Test changes | `test:` |
+| `type: perf` | Performance improvement | `perf:` |
+| `type: build` | Build/CI changes | `build:` |
+
+### Scope Labels (agile tracking)
+
+| Label | Description |
+|-------|-------------|
+| `scope: epic` | Multi-story theme or initiative |
+| `scope: story` | User story, usually multiple PRs |
+| `scope: spike` | Time-boxed research or investigation |
+| `scope: tech-debt` | Technical debt to address |
+
+### Area Labels (architecture)
+
+| Label | Description |
+|-------|-------------|
+| `area: cli` | CLI and command interface |
+| `area: core` | Core analyzer and registry |
+| `area: dimensions` | Dimension analyzers |
+| `area: scoring` | Scoring system and calculation |
+
+### Priority Labels
+
+| Label | Description |
+|-------|-------------|
+| `priority: high` | Urgent - address soon |
+| `priority: medium` | Normal priority |
+| `priority: low` | Backlog - address when time permits |
+
+### Label Guidelines
+
+- **Each issue should have exactly one `type:` label** matching the intended commit prefix
+- Apply `area:` labels to indicate which part of the codebase is affected
+- Use `scope:` labels for planning and tracking larger initiatives
+- Use `priority:` labels during triage to indicate urgency
+- `good first issue` and `help wanted` are available for community contributions
 
 ## Adding New Dimensions
 
