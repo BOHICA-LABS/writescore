@@ -1,7 +1,7 @@
 # WriteScore
 
 <p align="center">
-  <img src="docs/assets/logo.png" alt="WriteScore Logo" width="200">
+  <img src="docs/assets/logo.svg" alt="WriteScore Logo" width="200">
 </p>
 
 <!-- Project Info -->
