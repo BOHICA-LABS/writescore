@@ -162,6 +162,24 @@ We use a structured label system to categorize and track work. When creating iss
 - Use `priority:` labels during triage to indicate urgency
 - `good first issue` and `help wanted` are available for community contributions
 
+## Project Board
+
+We track development progress on our [GitHub Project Board](https://github.com/orgs/BOHICA-LABS/projects/1).
+
+| Column | Purpose |
+|--------|---------|
+| **Backlog** | Unprioritized items |
+| **To Do** | Ready to work on |
+| **In Progress** | Currently active |
+| **In Review** | PRs awaiting review |
+| **Done** | Completed |
+
+When you start working on an issue:
+1. Assign yourself to the issue
+2. Move the card to "In Progress"
+3. Create a PR and move to "In Review"
+4. Card auto-moves to "Done" when PR merges
+
 ## Adding New Dimensions
 
 See [docs/architecture.md](docs/architecture.md) for the dimension system architecture. New dimensions should:
