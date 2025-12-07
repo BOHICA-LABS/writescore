@@ -21,6 +21,7 @@ import pytest
 @dataclass
 class SimulatedModelShift:
     """Represents a simulated AI model evolution."""
+
     model_name: str
     metric_shifts: Dict[str, float]  # dimension -> shift amount
     variance_changes: Dict[str, float]  # dimension -> variance multiplier
@@ -34,21 +35,9 @@ class TestAIModelShiftSimulation:
         """Generate baseline human distribution statistics."""
         np.random.seed(42)
         return {
-            "burstiness": {
-                "values": np.random.normal(12.0, 3.0, 500),
-                "mean": 12.0,
-                "stdev": 3.0
-            },
-            "lexical": {
-                "values": np.random.normal(0.65, 0.08, 500),
-                "mean": 0.65,
-                "stdev": 0.08
-            },
-            "sentiment": {
-                "values": np.random.normal(0.10, 0.05, 500),
-                "mean": 0.10,
-                "stdev": 0.05
-            }
+            "burstiness": {"values": np.random.normal(12.0, 3.0, 500), "mean": 12.0, "stdev": 3.0},
+            "lexical": {"values": np.random.normal(0.65, 0.08, 500), "mean": 0.65, "stdev": 0.08},
+            "sentiment": {"values": np.random.normal(0.10, 0.05, 500), "mean": 0.10, "stdev": 0.05},
         }
 
     @pytest.fixture
@@ -56,21 +45,9 @@ class TestAIModelShiftSimulation:
         """Generate baseline AI (GPT-4-like) distribution statistics."""
         np.random.seed(43)
         return {
-            "burstiness": {
-                "values": np.random.normal(7.0, 2.0, 500),
-                "mean": 7.0,
-                "stdev": 2.0
-            },
-            "lexical": {
-                "values": np.random.normal(0.60, 0.05, 500),
-                "mean": 0.60,
-                "stdev": 0.05
-            },
-            "sentiment": {
-                "values": np.random.normal(0.05, 0.02, 500),
-                "mean": 0.05,
-                "stdev": 0.02
-            }
+            "burstiness": {"values": np.random.normal(7.0, 2.0, 500), "mean": 7.0, "stdev": 2.0},
+            "lexical": {"values": np.random.normal(0.60, 0.05, 500), "mean": 0.60, "stdev": 0.05},
+            "sentiment": {"values": np.random.normal(0.05, 0.02, 500), "mean": 0.05, "stdev": 0.02},
         }
 
     def simulate_gpt5_shift(self, base_ai: Dict) -> Dict:
@@ -87,26 +64,25 @@ class TestAIModelShiftSimulation:
             "burstiness": {
                 "values": np.random.normal(8.0, 2.2, 500),  # +15% mean, +10% variance
                 "mean": 8.0,
-                "stdev": 2.2
+                "stdev": 2.2,
             },
             "lexical": {
                 "values": np.random.normal(0.63, 0.06, 500),  # +5% mean
                 "mean": 0.63,
-                "stdev": 0.06
+                "stdev": 0.06,
             },
             "sentiment": {
                 "values": np.random.normal(0.075, 0.03, 500),  # +50% mean
                 "mean": 0.075,
-                "stdev": 0.03
-            }
+                "stdev": 0.03,
+            },
         }
 
     def test_parameter_stability_with_gpt5(self, base_human_distribution, base_ai_distribution):
         """Test that parameters remain stable when GPT-5 is added."""
         # Derive parameters from GPT-4 era
         gpt4_params = self._derive_params_from_distributions(
-            base_human_distribution,
-            base_ai_distribution
+            base_human_distribution, base_ai_distribution
         )
 
         # Simulate GPT-5 data
@@ -117,8 +93,7 @@ class TestAIModelShiftSimulation:
 
         # Derive new parameters
         gpt5_era_params = self._derive_params_from_distributions(
-            base_human_distribution,
-            combined_ai
+            base_human_distribution, combined_ai
         )
 
         # Verify stability: target should change < 10%
@@ -137,24 +112,21 @@ class TestAIModelShiftSimulation:
             "burstiness": {
                 "values": np.random.normal(11.5, 2.9, 500),  # Near human mean
                 "mean": 11.5,
-                "stdev": 2.9
+                "stdev": 2.9,
             },
             "lexical": {
                 "values": np.random.normal(0.64, 0.07, 500),  # Near human
                 "mean": 0.64,
-                "stdev": 0.07
+                "stdev": 0.07,
             },
             "sentiment": {
                 "values": np.random.normal(0.09, 0.04, 500),  # Near human
                 "mean": 0.09,
-                "stdev": 0.04
-            }
+                "stdev": 0.04,
+            },
         }
 
-        params = self._derive_params_from_distributions(
-            base_human_distribution,
-            extreme_ai
-        )
+        params = self._derive_params_from_distributions(base_human_distribution, extreme_ai)
 
         # Even with extreme shift, parameters should be valid
         for dim in ["burstiness", "lexical", "sentiment"]:
@@ -176,7 +148,7 @@ class TestAIModelShiftSimulation:
                 "target": target,
                 "width": width,
                 "human_p50": target,
-                "ai_p50": np.percentile(ai_vals, 50)
+                "ai_p50": np.percentile(ai_vals, 50),
             }
         return params
 
@@ -188,7 +160,7 @@ class TestAIModelShiftSimulation:
             combined[dim] = {
                 "values": all_values,
                 "mean": np.mean(all_values),
-                "stdev": np.std(all_values)
+                "stdev": np.std(all_values),
             }
         return combined
 
@@ -202,7 +174,7 @@ class TestBootstrapValidation:
         np.random.seed(42)
         return {
             "burstiness": np.random.normal(12.0, 3.0, 200),
-            "lexical": np.random.normal(0.65, 0.08, 200)
+            "lexical": np.random.normal(0.65, 0.08, 200),
         }
 
     def test_bootstrap_parameter_variance(self, sample_values):
@@ -233,10 +205,9 @@ class TestBootstrapValidation:
         stable_values = np.random.normal(10.0, 2.0, 200)
 
         # Create unstable dimension (bimodal, high variance)
-        unstable_values = np.concatenate([
-            np.random.normal(5.0, 1.0, 100),
-            np.random.normal(15.0, 1.0, 100)
-        ])
+        unstable_values = np.concatenate(
+            [np.random.normal(5.0, 1.0, 100), np.random.normal(15.0, 1.0, 100)]
+        )
 
         # Bootstrap both
         n_bootstrap = 50
@@ -246,7 +217,9 @@ class TestBootstrapValidation:
         for i in range(n_bootstrap):
             np.random.seed(i)
             stable_sample = np.random.choice(stable_values, size=len(stable_values), replace=True)
-            unstable_sample = np.random.choice(unstable_values, size=len(unstable_values), replace=True)
+            unstable_sample = np.random.choice(
+                unstable_values, size=len(unstable_values), replace=True
+            )
 
             stable_targets.append(np.percentile(stable_sample, 50))
             unstable_targets.append(np.percentile(unstable_sample, 50))
@@ -378,14 +351,16 @@ class TestPerformanceBenchmarks:
             word_count = np.random.randint(100, 500)
             text = " ".join(["word"] * word_count)
 
-            documents.append({
-                "id": f"doc_{i:04d}",
-                "text": text,
-                "label": label,
-                "domain": domain,
-                "ai_model": ai_model,
-                "word_count": word_count
-            })
+            documents.append(
+                {
+                    "id": f"doc_{i:04d}",
+                    "text": text,
+                    "label": label,
+                    "domain": domain,
+                    "ai_model": ai_model,
+                    "word_count": word_count,
+                }
+            )
 
         return documents
 
@@ -411,8 +386,8 @@ class TestPerformanceBenchmarks:
                     "p25": np.percentile(human_values, 25),
                     "p50": np.percentile(human_values, 50),
                     "p75": np.percentile(human_values, 75),
-                    "p90": np.percentile(human_values, 90)
-                }
+                    "p90": np.percentile(human_values, 90),
+                },
             },
             "ai": {
                 "mean": np.mean(ai_values),
@@ -422,9 +397,9 @@ class TestPerformanceBenchmarks:
                     "p25": np.percentile(ai_values, 25),
                     "p50": np.percentile(ai_values, 50),
                     "p75": np.percentile(ai_values, 75),
-                    "p90": np.percentile(ai_values, 90)
-                }
-            }
+                    "p90": np.percentile(ai_values, 90),
+                },
+            },
         }
 
         elapsed = time.time() - start_time
@@ -438,10 +413,22 @@ class TestPerformanceBenchmarks:
 
         # Simulate 16 dimensions
         dimensions = [
-            "burstiness", "lexical", "readability", "sentiment",
-            "voice", "transition", "syntactic", "structure",
-            "perplexity", "predictability", "formatting", "advanced_lexical",
-            "figurative", "semantic", "pragmatic", "ai_vocabulary"
+            "burstiness",
+            "lexical",
+            "readability",
+            "sentiment",
+            "voice",
+            "transition",
+            "syntactic",
+            "structure",
+            "perplexity",
+            "predictability",
+            "formatting",
+            "advanced_lexical",
+            "figurative",
+            "semantic",
+            "pragmatic",
+            "ai_vocabulary",
         ]
 
         start_time = time.time()
@@ -456,7 +443,7 @@ class TestPerformanceBenchmarks:
                 "width": np.std(human_values),
                 "human_p25": np.percentile(human_values, 25),
                 "human_p75": np.percentile(human_values, 75),
-                "ai_p50": np.percentile(ai_values, 50)
+                "ai_p50": np.percentile(ai_values, 50),
             }
 
         elapsed = time.time() - start_time
@@ -514,7 +501,9 @@ class TestAccuracyMaintenance:
         human_mean = np.mean(human_scores)
         ai_mean = np.mean(ai_scores)
 
-        assert human_mean > ai_mean, f"Human mean {human_mean:.1f} should exceed AI mean {ai_mean:.1f}"
+        assert (
+            human_mean > ai_mean
+        ), f"Human mean {human_mean:.1f} should exceed AI mean {ai_mean:.1f}"
 
         # Separation should be meaningful (> 15 points)
         separation = human_mean - ai_mean
@@ -564,27 +553,27 @@ class TestRobustnessReport:
         results = {
             "AI Model Shift Simulation": {
                 "GPT-5 shift": "PASS - Parameters stable within 15%",
-                "Extreme shift": "PASS - Valid parameters derived"
+                "Extreme shift": "PASS - Valid parameters derived",
             },
             "Bootstrap Validation": {
                 "Parameter variance": "PASS - CV < 0.15 for stable dims",
-                "Unstable detection": "PASS - High-variance dims identified"
+                "Unstable detection": "PASS - High-variance dims identified",
             },
             "Edge Cases": {
                 "Insufficient data": "PASS - Handled gracefully",
                 "Missing model": "PASS - Falls back to available data",
                 "Extreme outliers": "PASS - IQR robust to outliers",
-                "Zero variance": "PASS - Uses fallback width"
+                "Zero variance": "PASS - Uses fallback width",
             },
             "Performance": {
                 "Distribution analysis": "PASS - < 1s for 1000 docs",
                 "Parameter derivation": "PASS - < 0.5s for 16 dims",
-                "Memory usage": "PASS - < 1MB for values"
+                "Memory usage": "PASS - < 1MB for values",
             },
             "Accuracy": {
                 "Discrimination": "PASS - Human/AI separation > 15 pts",
-                "F1 score": "PASS - > 0.80 on test set"
-            }
+                "F1 score": "PASS - > 0.80 on test set",
+            },
         }
 
         for category, tests in results.items():

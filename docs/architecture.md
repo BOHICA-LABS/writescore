@@ -1,8 +1,8 @@
 # WriteScore Architecture Document
 
-**Version:** 1.1
+**Version:** 1.2
 **Status:** Active
-**Last Updated:** 2025-12-02
+**Last Updated:** 2025-12-06
 **Product Version:** 6.3.0
 
 ---
@@ -11,6 +11,7 @@
 
 | Change | Date | Version | Description | Author |
 |--------|------|---------|-------------|--------|
+| Epic 6 updates | 2025-12-06 | 1.2 | Added developer environment, CI/CD enhancements, security infrastructure from Epic 6 | SM Agent |
 | Enhanced with codebase analysis | 2025-12-02 | 1.1 | Added data flow, exception hierarchy, detailed component interfaces | SM Agent |
 | Initial Architecture | 2025-11-26 | 1.0 | Reverse-engineered architecture from codebase v6.3.0 | Architect Agent |
 
@@ -97,6 +98,7 @@ spacy>=3.7.0
 textstat>=0.7.3
 transformers>=4.35.0
 torch>=2.0.0
+scikit-learn>=1.3.0
 scipy>=1.11.0
 textacy>=0.13.0
 numpy>=1.24.0
@@ -514,7 +516,19 @@ class ImprovementAction:
 
 ```
 writescore/
-├── .github/workflows/       # CI/CD workflows
+├── .devcontainer/           # VS Code/Codespaces devcontainer
+│   └── devcontainer.json
+├── .github/                 # GitHub configuration
+│   ├── workflows/           # CI/CD workflows
+│   │   ├── ci.yml           # Main CI pipeline
+│   │   ├── codeql.yml       # CodeQL security scanning
+│   │   └── release.yml      # Release automation
+│   ├── dependabot.yml       # Dependency updates
+│   ├── ISSUE_TEMPLATE/      # Issue templates
+│   │   ├── bug_report.yml
+│   │   ├── feature_request.yml
+│   │   └── config.yml
+│   └── PULL_REQUEST_TEMPLATE.md
 ├── docs/                    # Documentation
 │   └── stories/             # Epic and story definitions
 ├── src/writescore/          # Main package
@@ -532,7 +546,11 @@ writescore/
 │   ├── accuracy/            # Accuracy validation
 │   ├── performance/         # Performance benchmarks
 │   └── fixtures/            # Sample documents
+├── Justfile                 # Task runner commands
 ├── pyproject.toml           # Package configuration
+├── CODE_OF_CONDUCT.md       # Contributor Covenant
+├── CONTRIBUTING.md          # Contribution guidelines
+├── SECURITY.md              # Security policy
 └── README.md                # Project overview
 ```
 
@@ -571,7 +589,7 @@ src/writescore/
 | **Deployment Type** | Local pip installation |
 | **Server Infrastructure** | None |
 | **Database** | None (file-based JSON) |
-| **Container Support** | None (could be added) |
+| **Container Support** | VS Code Devcontainer, GitHub Codespaces |
 
 ### 8.2 CI/CD Pipeline
 
@@ -579,14 +597,33 @@ src/writescore/
 
 | Job | Trigger | Steps |
 |-----|---------|-------|
+| **pre-commit** | Push/PR to main | Run all pre-commit hooks |
+| **dependency-review** | PR only | Check for vulnerable dependencies |
 | **lint** | Push/PR to main | ruff check |
-| **test** | Push/PR to main | pytest (Python 3.9, 3.10, 3.12) |
+| **test** | Push/PR to main | pytest (Python 3.9, 3.10, 3.11, 3.12) |
+
+**Caching:**
+- pip packages cached with `pyproject.toml` hash key
+- spaCy model cached with version-specific key
+
+#### CodeQL Workflow (`.github/workflows/codeql.yml`)
+
+| Trigger | Steps |
+|---------|-------|
+| Push/PR to main, Weekly schedule | Python security analysis |
 
 #### Release Workflow (`.github/workflows/release.yml`)
 
 | Trigger | Steps |
 |---------|-------|
 | Tag `v*` | Build → GitHub Release |
+
+#### Dependabot (`.github/dependabot.yml`)
+
+| Ecosystem | Schedule | Notes |
+|-----------|----------|-------|
+| pip | Weekly (Monday) | Dev deps grouped, ML deps grouped |
+| github-actions | Monthly | Workflow action updates |
 
 ### 8.3 Environment Requirements
 
@@ -598,14 +635,105 @@ src/writescore/
 
 ### 8.4 Installation
 
+#### Using Just (Recommended)
+
+```bash
+# Install Just (macOS)
+brew install just
+
+# User install
+just install
+
+# Developer install
+just dev
+```
+
+#### Manual Installation
+
 ```bash
 # Development install
 pip install -e ".[dev]"
 python -m spacy download en_core_web_sm
+pre-commit install
+pre-commit install --hook-type commit-msg
 
 # CLI usage
 writescore analyze document.md
 ```
+
+#### Available Just Commands
+
+| Command | Description |
+|---------|-------------|
+| `just` | List available commands |
+| `just install` | Install package + spacy model |
+| `just dev` | Full dev setup with pre-commit hooks |
+| `just test` | Run unit and integration tests |
+| `just test-fast` | Run tests excluding slow markers |
+| `just lint` | Check code with ruff |
+| `just format` | Format code with ruff |
+| `just coverage` | Generate HTML coverage report |
+| `just clean` | Remove build artifacts |
+
+### 8.5 Developer Environment Options
+
+| Option | Local Install | Docker Required | Best For |
+|--------|:-------------:|:---------------:|----------|
+| **Native (Just)** | Yes | No | Most developers |
+| **Native (Manual)** | Yes | No | Users without Just |
+| **Devcontainer** | No | Yes | Consistent environment |
+| **GitHub Codespaces** | No | No | Cloud development |
+
+#### Devcontainer
+
+The `.devcontainer/devcontainer.json` provides:
+- Python 3.12 base image
+- Just pre-installed
+- VS Code extensions (Python, Ruff, mypy)
+- Auto-runs `just dev` on container creation
+
+```bash
+# VS Code: "Reopen in Container"
+# CLI:
+devcontainer up --workspace-folder .
+devcontainer exec --workspace-folder . just test
+```
+
+#### GitHub Codespaces
+
+```bash
+gh codespace create -r BOHICA-LABS/writescore
+gh codespace ssh
+# Then: just dev
+```
+
+### 8.6 Security Infrastructure
+
+#### Security Scanning
+
+| Tool | Type | Trigger |
+|------|------|---------|
+| **CodeQL** | Static analysis (SAST) | Push, PR, weekly schedule |
+| **Dependency Review** | Vulnerable deps in PRs | Pull requests only |
+| **Secret Scanning** | Leaked credentials | Always (GitHub default) |
+| **Push Protection** | Block secrets in commits | Always (GitHub default) |
+| **ggshield** | Pre-commit secret scan | Local commits |
+
+#### Dependency Management
+
+| Feature | Configuration |
+|---------|---------------|
+| **Dependabot Alerts** | Enabled in repo settings |
+| **Dependabot Security Updates** | Auto-PRs for vulnerable deps |
+| **Dependabot Version Updates** | Weekly pip, monthly Actions |
+
+#### Security Policy
+
+`SECURITY.md` defines:
+- Supported versions
+- Vulnerability reporting via GitHub Private Reporting
+- Response timeline (48h initial, 7d update, 30d resolution)
+- Scope and out-of-scope items
 
 ---
 

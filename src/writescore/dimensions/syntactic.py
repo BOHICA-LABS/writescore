@@ -26,9 +26,9 @@ import spacy
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import SyntacticIssue
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
-nlp_spacy = spacy.load('en_core_web_sm')
+nlp_spacy = spacy.load("en_core_web_sm")
 
 
 class SyntacticDimension(DimensionStrategy):
@@ -65,9 +65,9 @@ class SyntacticDimension(DimensionStrategy):
         return 1.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "ADVANCED"
+        return DimensionTier.ADVANCED
 
     @property
     def description(self) -> str:
@@ -81,9 +81,9 @@ class SyntacticDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze syntactic patterns with configurable modes.
@@ -145,14 +145,16 @@ class SyntacticDimension(DimensionStrategy):
 
         # Add consistent metadata
         return {
-            'syntactic': aggregated,
+            "syntactic": aggregated,
             **aggregated,  # Flatten for backward compatibility
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> List[SyntacticIssue]:
@@ -178,10 +180,10 @@ class SyntacticDimension(DimensionStrategy):
         Returns:
             Tuple of (score_value, score_label)
         """
-        if not analysis_results.get('syntactic'):
+        if not analysis_results.get("syntactic"):
             return (5.0, "UNKNOWN")
 
-        repetition = analysis_results.get('syntactic_repetition_score', 0.5)
+        repetition = analysis_results.get("syntactic_repetition_score", 0.5)
 
         # Lower repetition = more varied (better)
         if repetition <= 0.3:
@@ -225,11 +227,11 @@ class SyntacticDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        syntactic = metrics.get('syntactic')
-        if not syntactic or not syntactic.get('available', True):
+        syntactic = metrics.get("syntactic")
+        if not syntactic or not syntactic.get("available", True):
             return 50.0  # Neutral score for missing/unavailable data
 
-        repetition = syntactic.get('syntactic_repetition_score', 0.5)
+        repetition = syntactic.get("syntactic_repetition_score", 0.5)
 
         # Apply logit transformation to bounded [0,1] metric
         # This handles the constraint that repetition ratio must be in [0,1]
@@ -238,11 +240,7 @@ class SyntacticDimension(DimensionStrategy):
         # Gaussian scoring on transformed value
         # Target μ=-1.0 (corresponds to ratio ≈ 0.27 - low repetition optimal)
         # Width σ=0.8 (Story 2.4.1, AC6)
-        score = self._gaussian_score(
-            value=logit_repetition,
-            target=-1.0,
-            width=0.8
-        )
+        score = self._gaussian_score(value=logit_repetition, target=-1.0, width=0.8)
 
         self._validate_score(score)
         return score
@@ -260,10 +258,10 @@ class SyntacticDimension(DimensionStrategy):
         """
         recommendations = []
 
-        syntactic = metrics.get('syntactic', {})
-        repetition = syntactic.get('syntactic_repetition_score', 0.5)
-        avg_depth = syntactic.get('avg_dependency_depth', 0)
-        subordination = syntactic.get('subordination_index', 0)
+        syntactic = metrics.get("syntactic", {})
+        repetition = syntactic.get("syntactic_repetition_score", 0.5)
+        avg_depth = syntactic.get("avg_dependency_depth", 0)
+        subordination = syntactic.get("subordination_index", 0)
 
         if repetition > 0.5:
             recommendations.append(
@@ -299,10 +297,10 @@ class SyntacticDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -330,7 +328,7 @@ class SyntacticDimension(DimensionStrategy):
         """
         try:
             # Remove code blocks
-            text = re.sub(r'```[\s\S]*?```', '', text)
+            text = re.sub(r"```[\s\S]*?```", "", text)
 
             # Process with spaCy (now processes full text, pre-truncated/sampled by caller)
             doc = nlp_spacy(text)
@@ -346,7 +344,7 @@ class SyntacticDimension(DimensionStrategy):
 
             for sent in doc.sents:
                 # Get POS pattern
-                pos_pattern = ' '.join([token.pos_ for token in sent])
+                pos_pattern = " ".join([token.pos_ for token in sent])
                 sentence_structures.append(pos_pattern)
 
                 # Collect POS tags
@@ -359,11 +357,11 @@ class SyntacticDimension(DimensionStrategy):
                     max_depth = max(max_depth, depth)
 
                     # Count subordinate clauses (advcl, ccomp, xcomp, acl, relcl)
-                    if token.dep_ in ['advcl', 'ccomp', 'xcomp', 'acl', 'relcl']:
+                    if token.dep_ in ["advcl", "ccomp", "xcomp", "acl", "relcl"]:
                         subordinate_clauses += 1
 
                     # Count passive constructions (nsubjpass or auxpass dependencies)
-                    if token.dep_ in ['nsubjpass', 'auxpass']:
+                    if token.dep_ in ["nsubjpass", "auxpass"]:
                         passive_constructions += 1
 
                     # Collect unique lemmas for morphological richness
@@ -374,12 +372,14 @@ class SyntacticDimension(DimensionStrategy):
                 total_clauses += 1
 
             if not sentence_structures:
-                return {'available': False}
+                return {"available": False}
 
             # Calculate syntactic repetition (how many unique patterns)
             unique_structures = len(set(sentence_structures))
             total_structures = len(sentence_structures)
-            repetition_score = 1 - (unique_structures / total_structures) if total_structures > 0 else 0
+            repetition_score = (
+                1 - (unique_structures / total_structures) if total_structures > 0 else 0
+            )
 
             # Calculate POS diversity
             unique_pos = len(set(pos_tags))
@@ -398,18 +398,18 @@ class SyntacticDimension(DimensionStrategy):
             morphological_richness = len(lemmas)
 
             return {
-                'available': True,
-                'syntactic_repetition_score': round(repetition_score, 3),
-                'pos_diversity': round(pos_diversity, 3),
-                'avg_dependency_depth': round(avg_depth, 2),
-                'avg_tree_depth': round(avg_depth, 2),  # Alias for new field name
-                'subordination_index': round(subordination_index, 3),
-                'passive_constructions': passive_constructions,
-                'morphological_richness': morphological_richness
+                "available": True,
+                "syntactic_repetition_score": round(repetition_score, 3),
+                "pos_diversity": round(pos_diversity, 3),
+                "avg_dependency_depth": round(avg_depth, 2),
+                "avg_tree_depth": round(avg_depth, 2),  # Alias for new field name
+                "subordination_index": round(subordination_index, 3),
+                "passive_constructions": passive_constructions,
+                "morphological_richness": morphological_richness,
             }
         except Exception as e:
             print(f"Warning: Syntactic analysis failed: {e}", file=sys.stderr)
-            return {'available': False}
+            return {"available": False}
 
     def _aggregate_syntactic_metrics(self, sample_metrics: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
@@ -431,34 +431,40 @@ class SyntacticDimension(DimensionStrategy):
             Aggregated syntactic metrics dict
         """
         if not sample_metrics:
-            return {'available': False}
+            return {"available": False}
 
         if len(sample_metrics) == 1:
             return sample_metrics[0]
 
         # Extract values for each metric (handle missing keys gracefully)
-        repetition_scores = [m.get('syntactic_repetition_score', 0) for m in sample_metrics]
-        pos_diversities = [m.get('pos_diversity', 0) for m in sample_metrics]
-        avg_depths = [m.get('avg_dependency_depth', 0) for m in sample_metrics]
-        subordination_indices = [m.get('subordination_index', 0) for m in sample_metrics]
+        repetition_scores = [m.get("syntactic_repetition_score", 0) for m in sample_metrics]
+        pos_diversities = [m.get("pos_diversity", 0) for m in sample_metrics]
+        avg_depths = [m.get("avg_dependency_depth", 0) for m in sample_metrics]
+        subordination_indices = [m.get("subordination_index", 0) for m in sample_metrics]
 
         # Counts to sum
-        passive_counts = [m.get('passive_constructions', 0) for m in sample_metrics]
-        morphological_counts = [m.get('morphological_richness', 0) for m in sample_metrics]
+        passive_counts = [m.get("passive_constructions", 0) for m in sample_metrics]
+        morphological_counts = [m.get("morphological_richness", 0) for m in sample_metrics]
 
         # Calculate means
         return {
-            'available': True,
-            'syntactic_repetition_score': round(sum(repetition_scores) / len(repetition_scores), 3),
-            'pos_diversity': round(sum(pos_diversities) / len(pos_diversities), 3),
-            'avg_dependency_depth': round(sum(avg_depths) / len(avg_depths), 2),
-            'avg_tree_depth': round(sum(avg_depths) / len(avg_depths), 2),  # Alias
-            'subordination_index': round(sum(subordination_indices) / len(subordination_indices), 3),
-            'passive_constructions': sum(passive_counts),
-            'morphological_richness': sum(morphological_counts)  # Sum of unique lemmas from each sample
+            "available": True,
+            "syntactic_repetition_score": round(sum(repetition_scores) / len(repetition_scores), 3),
+            "pos_diversity": round(sum(pos_diversities) / len(pos_diversities), 3),
+            "avg_dependency_depth": round(sum(avg_depths) / len(avg_depths), 2),
+            "avg_tree_depth": round(sum(avg_depths) / len(avg_depths), 2),  # Alias
+            "subordination_index": round(
+                sum(subordination_indices) / len(subordination_indices), 3
+            ),
+            "passive_constructions": sum(passive_counts),
+            "morphological_richness": sum(
+                morphological_counts
+            ),  # Sum of unique lemmas from each sample
         }
 
-    def _analyze_syntactic_issues_detailed(self, lines: List[str], html_comment_checker=None) -> List[SyntacticIssue]:
+    def _analyze_syntactic_issues_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[SyntacticIssue]:
         """Detect syntactic complexity issues (passive voice, shallow trees, low subordination)."""
         issues = []
 
@@ -469,7 +475,12 @@ class SyntacticDimension(DimensionStrategy):
                 # Skip HTML comments (metadata), headings, code blocks, and short lines
                 if html_comment_checker and html_comment_checker(line):
                     continue
-                if not stripped or stripped.startswith('#') or stripped.startswith('```') or len(stripped) < 20:
+                if (
+                    not stripped
+                    or stripped.startswith("#")
+                    or stripped.startswith("```")
+                    or len(stripped) < 20
+                ):
                     continue
 
                 # Parse sentences on this line
@@ -481,16 +492,20 @@ class SyntacticDimension(DimensionStrategy):
                         continue
 
                     # Check for passive constructions
-                    has_passive = any(token.dep_ in ['nsubjpass', 'auxpass'] for token in sent)
+                    has_passive = any(token.dep_ in ["nsubjpass", "auxpass"] for token in sent)
                     if has_passive:
-                        issues.append(SyntacticIssue(
-                            line_number=line_num,
-                            sentence=sent_text[:100] + '...' if len(sent_text) > 100 else sent_text,
-                            issue_type='passive',
-                            metric_value=1.0,
-                            problem='Passive voice construction (AI tends to overuse)',
-                            suggestion='Convert to active voice - identify actor and make them the subject'
-                        ))
+                        issues.append(
+                            SyntacticIssue(
+                                line_number=line_num,
+                                sentence=sent_text[:100] + "..."
+                                if len(sent_text) > 100
+                                else sent_text,
+                                issue_type="passive",
+                                metric_value=1.0,
+                                problem="Passive voice construction (AI tends to overuse)",
+                                suggestion="Convert to active voice - identify actor and make them the subject",
+                            )
+                        )
 
                     # Check for shallow dependency trees (depth < 3)
                     max_depth = 0
@@ -503,26 +518,38 @@ class SyntacticDimension(DimensionStrategy):
                         max_depth = max(max_depth, depth)
 
                     if max_depth < 3 and len(sent) > 10:
-                        issues.append(SyntacticIssue(
-                            line_number=line_num,
-                            sentence=sent_text[:100] + '...' if len(sent_text) > 100 else sent_text,
-                            issue_type='shallow',
-                            metric_value=max_depth,
-                            problem=f'Shallow syntax (depth={max_depth}, human avg=4-6)',
-                            suggestion='Add subordinate clauses, relative clauses, or prepositional phrases'
-                        ))
+                        issues.append(
+                            SyntacticIssue(
+                                line_number=line_num,
+                                sentence=sent_text[:100] + "..."
+                                if len(sent_text) > 100
+                                else sent_text,
+                                issue_type="shallow",
+                                metric_value=max_depth,
+                                problem=f"Shallow syntax (depth={max_depth}, human avg=4-6)",
+                                suggestion="Add subordinate clauses, relative clauses, or prepositional phrases",
+                            )
+                        )
 
                     # Check for low subordination (no subordinate clauses)
-                    subordinate_count = sum(1 for token in sent if token.dep_ in ['advcl', 'ccomp', 'xcomp', 'acl', 'relcl'])
+                    subordinate_count = sum(
+                        1
+                        for token in sent
+                        if token.dep_ in ["advcl", "ccomp", "xcomp", "acl", "relcl"]
+                    )
                     if subordinate_count == 0 and len(sent) > 15:
-                        issues.append(SyntacticIssue(
-                            line_number=line_num,
-                            sentence=sent_text[:100] + '...' if len(sent_text) > 100 else sent_text,
-                            issue_type='subordination',
-                            metric_value=0.0,
-                            problem='No subordinate clauses (simple construction)',
-                            suggestion='Add "because", "while", "although", or "when" clauses for complexity'
-                        ))
+                        issues.append(
+                            SyntacticIssue(
+                                line_number=line_num,
+                                sentence=sent_text[:100] + "..."
+                                if len(sent_text) > 100
+                                else sent_text,
+                                issue_type="subordination",
+                                metric_value=0.0,
+                                problem="No subordinate clauses (simple construction)",
+                                suggestion='Add "because", "while", "although", or "when" clauses for complexity',
+                            )
+                        )
 
         except Exception as e:
             print(f"Warning: Syntactic analysis failed: {e}", file=sys.stderr)

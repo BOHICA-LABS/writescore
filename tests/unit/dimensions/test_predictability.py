@@ -75,46 +75,52 @@ class TestDimensionMetadata:
 class TestAnalyzeMethod:
     """Tests for analyze() method - must ONLY collect GLTR metrics."""
 
-    @patch('writescore.dimensions.predictability._perplexity_model')
-    @patch('writescore.dimensions.predictability._perplexity_tokenizer')
+    @patch("writescore.dimensions.predictability._perplexity_model")
+    @patch("writescore.dimensions.predictability._perplexity_tokenizer")
     def test_analyze_returns_gltr_metrics_only(self, mock_tokenizer, mock_model, dimension):
         """Test analyze() collects ONLY GLTR metrics (no HDD, Yule's K, MATTR, etc.)."""
         # Mock GLTR calculation to return fake metrics
-        with patch.object(dimension, '_calculate_gltr_metrics', return_value={
-            'gltr_top10_percentage': 0.55,
-            'gltr_top100_percentage': 0.85,
-            'gltr_top1000_percentage': 0.95,
-            'gltr_mean_rank': 50.0,
-            'gltr_rank_variance': 100.0,
-            'gltr_likelihood': 0.5
-        }):
+        with patch.object(
+            dimension,
+            "_calculate_gltr_metrics",
+            return_value={
+                "gltr_top10_percentage": 0.55,
+                "gltr_top100_percentage": 0.85,
+                "gltr_top1000_percentage": 0.95,
+                "gltr_mean_rank": 50.0,
+                "gltr_rank_variance": 100.0,
+                "gltr_likelihood": 0.5,
+            },
+        ):
             text = "Sample text for GLTR analysis."
             result = dimension.analyze(text)
 
             # Should contain GLTR metrics
-            assert 'gltr_top10_percentage' in result
-            assert 'gltr_top100_percentage' in result
-            assert 'gltr_top1000_percentage' in result
-            assert 'available' in result
+            assert "gltr_top10_percentage" in result
+            assert "gltr_top100_percentage" in result
+            assert "gltr_top1000_percentage" in result
+            assert "available" in result
 
             # Should NOT contain lexical diversity metrics (those belong in AdvancedLexicalDimension)
-            assert 'hdd_score' not in result
-            assert 'yules_k' not in result
-            assert 'mattr' not in result
-            assert 'rttr' not in result
-            assert 'maas_score' not in result
+            assert "hdd_score" not in result
+            assert "yules_k" not in result
+            assert "mattr" not in result
+            assert "rttr" not in result
+            assert "maas_score" not in result
 
     def test_analyze_sets_available_flag(self, dimension):
         """Test analyze() sets 'available' flag."""
-        with patch.object(dimension, '_calculate_gltr_metrics', return_value={'gltr_top10_percentage': 0.55}):
+        with patch.object(
+            dimension, "_calculate_gltr_metrics", return_value={"gltr_top10_percentage": 0.55}
+        ):
             result = dimension.analyze("Sample text")
-            assert 'available' in result
-            assert result['available'] is True
+            assert "available" in result
+            assert result["available"] is True
 
     def test_analyze_handles_empty_text(self, dimension):
         """Test analyze() handles empty text gracefully."""
         result = dimension.analyze("")
-        assert 'available' in result
+        assert "available" in result
         # Should still return a result structure, even if GLTR fails
 
 
@@ -126,10 +132,7 @@ class TestCalculateScoreMethod:
 
         Note: Story 2.4.1 - Monotonic decreasing scoring gives smooth transitions.
         """
-        metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.45
-        }
+        metrics = {"available": True, "gltr_top10_percentage": 0.45}
         score = dimension.calculate_score(metrics)
 
         assert 85.0 <= score <= 100.0  # Very human-like (below threshold_low)
@@ -140,8 +143,8 @@ class TestCalculateScoreMethod:
         Note: Story 2.4.1 - Monotonic decreasing with smooth transition.
         """
         metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.55  # At threshold_low
+            "available": True,
+            "gltr_top10_percentage": 0.55,  # At threshold_low
         }
         score = dimension.calculate_score(metrics)
 
@@ -152,10 +155,7 @@ class TestCalculateScoreMethod:
 
         Note: Story 2.4.1 - Linear zone between thresholds.
         """
-        metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.65
-        }
+        metrics = {"available": True, "gltr_top10_percentage": 0.65}
         score = dimension.calculate_score(metrics)
 
         assert 35.0 <= score <= 50.0  # Borderline (mid-range between thresholds)
@@ -165,19 +165,14 @@ class TestCalculateScoreMethod:
 
         Note: Story 2.4.1 - Asymptotic decline above threshold_high.
         """
-        metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.75
-        }
+        metrics = {"available": True, "gltr_top10_percentage": 0.75}
         score = dimension.calculate_score(metrics)
 
         assert 0.0 <= score <= 35.0  # Strong AI signature (above threshold_high)
 
     def test_score_unavailable_data(self, dimension):
         """Test score when GLTR data unavailable."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         score = dimension.calculate_score(metrics)
 
         assert score == 50.0  # Neutral score for unavailable data
@@ -185,7 +180,7 @@ class TestCalculateScoreMethod:
     def test_score_missing_gltr_uses_default(self, dimension):
         """Test score when gltr_top10_percentage missing uses default."""
         metrics = {
-            'available': True
+            "available": True
             # Missing gltr_top10_percentage - should use default 0.55
         }
         score = dimension.calculate_score(metrics)
@@ -197,10 +192,7 @@ class TestCalculateScoreMethod:
         test_cases = [0.0, 0.25, 0.50, 0.60, 0.70, 0.85, 1.0]
 
         for gltr_value in test_cases:
-            metrics = {
-                'available': True,
-                'gltr_top10_percentage': gltr_value
-            }
+            metrics = {"available": True, "gltr_top10_percentage": gltr_value}
             score = dimension.calculate_score(metrics)
             assert 0.0 <= score <= 100.0
 
@@ -210,46 +202,41 @@ class TestGetRecommendations:
 
     def test_recommendations_for_high_predictability(self, dimension):
         """Test recommendations when GLTR shows high predictability (AI signature)."""
-        metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.75
-        }
+        metrics = {"available": True, "gltr_top10_percentage": 0.75}
         recommendations = dimension.get_recommendations(75.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('predictability' in rec.lower() or 'gltr' in rec.lower() for rec in recommendations)
-        assert any('rewrite' in rec.lower() or 'varied' in rec.lower() for rec in recommendations)
+        assert any(
+            "predictability" in rec.lower() or "gltr" in rec.lower() for rec in recommendations
+        )
+        assert any("rewrite" in rec.lower() or "varied" in rec.lower() for rec in recommendations)
 
     def test_recommendations_for_elevated_predictability(self, dimension):
         """Test recommendations when GLTR shows elevated predictability."""
-        metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.65
-        }
+        metrics = {"available": True, "gltr_top10_percentage": 0.65}
         recommendations = dimension.get_recommendations(50.0, metrics)
 
         assert len(recommendations) > 0
 
     def test_recommendations_for_excellent_score(self, dimension):
         """Test recommendations when GLTR shows excellent unpredictability."""
-        metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.45
-        }
+        metrics = {"available": True, "gltr_top10_percentage": 0.45}
         recommendations = dimension.get_recommendations(100.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('excellent' in rec.lower() or 'human-like' in rec.lower() for rec in recommendations)
+        assert any(
+            "excellent" in rec.lower() or "human-like" in rec.lower() for rec in recommendations
+        )
 
     def test_recommendations_unavailable_data(self, dimension):
         """Test recommendations when GLTR unavailable."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         recommendations = dimension.get_recommendations(50.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('unavailable' in rec.lower() or 'install' in rec.lower() for rec in recommendations)
+        assert any(
+            "unavailable" in rec.lower() or "install" in rec.lower() for rec in recommendations
+        )
 
 
 class TestGetTiers:
@@ -260,20 +247,20 @@ class TestGetTiers:
         tiers = dimension.get_tiers()
 
         assert isinstance(tiers, dict)
-        assert 'excellent' in tiers
-        assert 'good' in tiers
-        assert 'acceptable' in tiers
-        assert 'poor' in tiers
+        assert "excellent" in tiers
+        assert "good" in tiers
+        assert "acceptable" in tiers
+        assert "poor" in tiers
 
     def test_tier_ranges(self, dimension):
         """Test tier ranges are properly defined."""
         tiers = dimension.get_tiers()
 
-        excellent_min, excellent_max = tiers['excellent']
+        excellent_min, excellent_max = tiers["excellent"]
         assert excellent_min == 90.0
         assert excellent_max == 100.0
 
-        poor_min, poor_max = tiers['poor']
+        poor_min, poor_max = tiers["poor"]
         assert poor_min == 0.0
         assert poor_max < 50.0
 
@@ -281,8 +268,8 @@ class TestGetTiers:
 class TestGLTRMetricCalculation:
     """Tests for _calculate_gltr_metrics() helper method."""
 
-    @patch('writescore.dimensions.predictability._perplexity_model', None)
-    @patch('writescore.dimensions.predictability._perplexity_tokenizer', None)
+    @patch("writescore.dimensions.predictability._perplexity_model", None)
+    @patch("writescore.dimensions.predictability._perplexity_tokenizer", None)
     def test_gltr_loads_model_lazily(self, dimension):
         """Test GLTR loads model on first use (lazy loading)."""
         # This would trigger model loading in real scenario
@@ -324,7 +311,7 @@ class TestAnalyzeDetailed:
             "# Header",
             "This is a line of text.",
             "Another line with some content.",
-            "Final line here."
+            "Final line here.",
         ]
 
         result = dimension.analyze_detailed(lines)
@@ -334,14 +321,10 @@ class TestAnalyzeDetailed:
 
     def test_analyze_detailed_respects_html_comment_checker(self, dimension):
         """Test analyze_detailed skips HTML comments."""
-        lines = [
-            "<!-- This is a comment -->",
-            "Real content here.",
-            "<!-- Another comment -->"
-        ]
+        lines = ["<!-- This is a comment -->", "Real content here.", "<!-- Another comment -->"]
 
         def is_html_comment(line):
-            return line.strip().startswith('<!--')
+            return line.strip().startswith("<!--")
 
         result = dimension.analyze_detailed(lines, html_comment_checker=is_html_comment)
 
@@ -368,7 +351,7 @@ class TestTimeoutMechanism:
 
     def test_timeout_wrapper_exists(self, dimension):
         """Test _calculate_gltr_metrics_with_timeout method exists."""
-        assert hasattr(dimension, '_calculate_gltr_metrics_with_timeout')
+        assert hasattr(dimension, "_calculate_gltr_metrics_with_timeout")
         assert callable(dimension._calculate_gltr_metrics_with_timeout)
 
     def test_timeout_returns_none_on_timeout(self, dimension):
@@ -378,9 +361,9 @@ class TestTimeoutMechanism:
 
         def slow_calculation(text):
             time.sleep(2)  # Sleep longer than timeout
-            return {'gltr_top10_percentage': 0.55}
+            return {"gltr_top10_percentage": 0.55}
 
-        with patch.object(dimension, '_calculate_gltr_metrics', side_effect=slow_calculation):
+        with patch.object(dimension, "_calculate_gltr_metrics", side_effect=slow_calculation):
             result = dimension._calculate_gltr_metrics_with_timeout("test text", timeout=1)
 
             # Should timeout and return None
@@ -388,9 +371,9 @@ class TestTimeoutMechanism:
 
     def test_timeout_returns_result_when_fast(self, dimension):
         """Test timeout wrapper returns result when calculation completes in time."""
-        expected_result = {'gltr_top10_percentage': 0.55, 'gltr_likelihood': 0.5}
+        expected_result = {"gltr_top10_percentage": 0.55, "gltr_likelihood": 0.5}
 
-        with patch.object(dimension, '_calculate_gltr_metrics', return_value=expected_result):
+        with patch.object(dimension, "_calculate_gltr_metrics", return_value=expected_result):
             result = dimension._calculate_gltr_metrics_with_timeout("test text", timeout=30)
 
             # Should complete and return result
@@ -398,10 +381,11 @@ class TestTimeoutMechanism:
 
     def test_timeout_handles_exceptions_gracefully(self, dimension):
         """Test timeout wrapper handles exceptions in worker thread."""
+
         def failing_calculation(text):
             raise ValueError("Test exception")
 
-        with patch.object(dimension, '_calculate_gltr_metrics', side_effect=failing_calculation):
+        with patch.object(dimension, "_calculate_gltr_metrics", side_effect=failing_calculation):
             result = dimension._calculate_gltr_metrics_with_timeout("test text", timeout=30)
 
             # Should catch exception and return None
@@ -409,27 +393,31 @@ class TestTimeoutMechanism:
 
     def test_analyze_uses_timeout_wrapper(self, dimension):
         """Test analyze() method uses timeout-protected version."""
-        with patch.object(dimension, '_calculate_gltr_metrics_with_timeout', return_value={
-            'gltr_top10_percentage': 0.55,
-            'gltr_top100_percentage': 0.85,
-            'gltr_top1000_percentage': 0.95,
-            'gltr_mean_rank': 50.0,
-            'gltr_rank_variance': 100.0,
-            'gltr_likelihood': 0.5
-        }) as mock_timeout:
+        with patch.object(
+            dimension,
+            "_calculate_gltr_metrics_with_timeout",
+            return_value={
+                "gltr_top10_percentage": 0.55,
+                "gltr_top100_percentage": 0.85,
+                "gltr_top1000_percentage": 0.95,
+                "gltr_mean_rank": 50.0,
+                "gltr_rank_variance": 100.0,
+                "gltr_likelihood": 0.5,
+            },
+        ) as mock_timeout:
             result = dimension.analyze("Test text")
 
             # Should have called timeout version
             mock_timeout.assert_called()
-            assert result['available'] is True
+            assert result["available"] is True
 
     def test_analyze_handles_timeout_gracefully(self, dimension):
         """Test analyze() returns unavailable when timeout occurs."""
-        with patch.object(dimension, '_calculate_gltr_metrics_with_timeout', return_value=None):
+        with patch.object(dimension, "_calculate_gltr_metrics_with_timeout", return_value=None):
             result = dimension.analyze("Test text")
 
             # Should return unavailable but not crash
-            assert 'available' in result
+            assert "available" in result
             # Result structure may vary based on config mode
 
 
@@ -438,7 +426,7 @@ class TestModelCaching:
 
     def test_clear_model_cache_method_exists(self, dimension):
         """Test clear_model_cache() static method exists."""
-        assert hasattr(PredictabilityDimension, 'clear_model_cache')
+        assert hasattr(PredictabilityDimension, "clear_model_cache")
         assert callable(PredictabilityDimension.clear_model_cache)
 
     def test_clear_model_cache_resets_globals(self, dimension):
@@ -463,12 +451,12 @@ class TestModelCaching:
         import writescore.dimensions.predictability as pred_module
 
         # Verify lock exists
-        assert hasattr(pred_module, '_model_lock')
+        assert hasattr(pred_module, "_model_lock")
         # Verify it's a threading.Lock object
         assert isinstance(pred_module._model_lock, type(threading.Lock()))
 
-    @patch('writescore.dimensions.predictability.AutoModelForCausalLM')
-    @patch('writescore.dimensions.predictability.AutoTokenizer')
+    @patch("writescore.dimensions.predictability.AutoModelForCausalLM")
+    @patch("writescore.dimensions.predictability.AutoTokenizer")
     def test_model_loads_only_once(self, mock_tokenizer_class, mock_model_class, dimension):
         """Test model is loaded only once and reused."""
 
@@ -499,8 +487,8 @@ class TestPerformanceImprovement:
     """Performance tests for caching benefit (Story 1.4.14)."""
 
     @pytest.mark.skipif(
-        not hasattr(pytest, 'skip') or True,  # Skip by default in CI
-        reason="Performance test - run manually to verify caching benefit"
+        not hasattr(pytest, "skip") or True,  # Skip by default in CI
+        reason="Performance test - run manually to verify caching benefit",
     )
     def test_caching_improves_performance(self, dimension):
         """Benchmark: verify model caching provides performance benefit.
@@ -530,15 +518,17 @@ class TestPerformanceImprovement:
         print(f"Speedup: {time1/time2:.1f}x")
 
         # Both should succeed
-        assert result1.get('available') in [True, False]  # May fail if dependencies missing
-        assert result2.get('available') in [True, False]
+        assert result1.get("available") in [True, False]  # May fail if dependencies missing
+        assert result2.get("available") in [True, False]
 
         # If both succeeded, second should be faster
         # (skipping assertion as this is informational)
 
     def test_timeout_configurable(self, dimension):
         """Test timeout parameter is configurable."""
-        with patch.object(dimension, '_calculate_gltr_metrics', return_value={'gltr_top10_percentage': 0.55}):
+        with patch.object(
+            dimension, "_calculate_gltr_metrics", return_value={"gltr_top10_percentage": 0.55}
+        ):
             # Should accept custom timeout
             result = dimension._calculate_gltr_metrics_with_timeout("test", timeout=60)
             assert result is not None
@@ -553,8 +543,8 @@ class TestMonotonicDecreasingScoring:
     def test_calculate_score_at_threshold_high(self, dimension):
         """Test scoring at threshold high (GLTR=55%, human-like)."""
         metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.55  # At threshold high (human boundary)
+            "available": True,
+            "gltr_top10_percentage": 0.55,  # At threshold high (human boundary)
         }
         score = dimension.calculate_score(metrics)
 
@@ -564,8 +554,8 @@ class TestMonotonicDecreasingScoring:
     def test_calculate_score_below_threshold_high(self, dimension):
         """Test scoring below threshold high (GLTR<55%, very human-like)."""
         metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.45  # Below threshold (very human-like)
+            "available": True,
+            "gltr_top10_percentage": 0.45,  # Below threshold (very human-like)
         }
         score = dimension.calculate_score(metrics)
 
@@ -575,8 +565,8 @@ class TestMonotonicDecreasingScoring:
     def test_calculate_score_mid_range(self, dimension):
         """Test scoring in mid-range (GLTR between 55-70%)."""
         metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.625  # Mid-range (62.5%)
+            "available": True,
+            "gltr_top10_percentage": 0.625,  # Mid-range (62.5%)
         }
         score = dimension.calculate_score(metrics)
 
@@ -586,8 +576,8 @@ class TestMonotonicDecreasingScoring:
     def test_calculate_score_at_threshold_low(self, dimension):
         """Test scoring at threshold low (GLTR=70%, AI boundary)."""
         metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.70  # At threshold low (AI boundary)
+            "available": True,
+            "gltr_top10_percentage": 0.70,  # At threshold low (AI boundary)
         }
         score = dimension.calculate_score(metrics)
 
@@ -597,8 +587,8 @@ class TestMonotonicDecreasingScoring:
     def test_calculate_score_above_threshold_low(self, dimension):
         """Test scoring above threshold low (GLTR>70%, strong AI signal)."""
         metrics = {
-            'available': True,
-            'gltr_top10_percentage': 0.80  # Above threshold (AI-like)
+            "available": True,
+            "gltr_top10_percentage": 0.80,  # Above threshold (AI-like)
         }
         score = dimension.calculate_score(metrics)
 
@@ -612,64 +602,51 @@ class TestMonotonicDecreasingScoring:
         scores = []
 
         for gltr in gltr_values:
-            metrics = {
-                'available': True,
-                'gltr_top10_percentage': gltr
-            }
+            metrics = {"available": True, "gltr_top10_percentage": gltr}
             scores.append(dimension.calculate_score(metrics))
 
         # Scores should decrease monotonically (or stay same above threshold_low)
         for i in range(len(scores) - 1):
-            assert scores[i] >= scores[i+1], \
-                f"Score should decrease as GLTR increases: {scores[i]} >= {scores[i+1]} (GLTR {gltr_values[i]} vs {gltr_values[i+1]})"
+            assert (
+                scores[i] >= scores[i + 1]
+            ), f"Score should decrease as GLTR increases: {scores[i]} >= {scores[i+1]} (GLTR {gltr_values[i]} vs {gltr_values[i+1]})"
 
     def test_calculate_score_human_like_range(self, dimension):
         """Test scoring in human-like range (GLTR<55%)."""
         test_values = [0.30, 0.40, 0.50]
 
         for gltr in test_values:
-            metrics = {
-                'available': True,
-                'gltr_top10_percentage': gltr
-            }
+            metrics = {"available": True, "gltr_top10_percentage": gltr}
             score = dimension.calculate_score(metrics)
 
             # Human-like range should score 75-100
-            assert 75.0 <= score <= 100.0, \
-                f"GLTR {gltr} scored {score}, expected 75-100 (human-like)"
+            assert (
+                75.0 <= score <= 100.0
+            ), f"GLTR {gltr} scored {score}, expected 75-100 (human-like)"
 
     def test_calculate_score_ai_like_range(self, dimension):
         """Test scoring in AI-like range (GLTR>70%)."""
         test_values = [0.75, 0.80, 0.90]
 
         for gltr in test_values:
-            metrics = {
-                'available': True,
-                'gltr_top10_percentage': gltr
-            }
+            metrics = {"available": True, "gltr_top10_percentage": gltr}
             score = dimension.calculate_score(metrics)
 
             # AI-like range should score 25.0 (fixed)
-            assert score == 25.0, \
-                f"GLTR {gltr} scored {score}, expected 25.0 (AI-like)"
+            assert score == 25.0, f"GLTR {gltr} scored {score}, expected 25.0 (AI-like)"
 
     def test_calculate_score_validates_range(self, dimension):
         """Test that all scores are in valid 0-100 range."""
         test_values = [0.20, 0.40, 0.55, 0.625, 0.70, 0.80, 0.95]
 
         for gltr in test_values:
-            metrics = {
-                'available': True,
-                'gltr_top10_percentage': gltr
-            }
+            metrics = {"available": True, "gltr_top10_percentage": gltr}
             score = dimension.calculate_score(metrics)
             assert 0.0 <= score <= 100.0, f"Score {score} for GLTR={gltr} out of range"
 
     def test_calculate_score_unavailable_data(self, dimension):
         """Test fallback score when GLTR unavailable."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         score = dimension.calculate_score(metrics)
 
         # Should return neutral 50.0 when data unavailable
@@ -678,7 +655,7 @@ class TestMonotonicDecreasingScoring:
     def test_calculate_score_default_value(self, dimension):
         """Test default GLTR value when metric missing."""
         metrics = {
-            'available': True
+            "available": True
             # Missing 'gltr_top10_percentage'
         }
         score = dimension.calculate_score(metrics)

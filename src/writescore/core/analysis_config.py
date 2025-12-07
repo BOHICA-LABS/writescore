@@ -12,11 +12,12 @@ from typing import Any, Dict, List, Optional, Tuple
 
 class AnalysisMode(str, Enum):
     """Analysis mode controlling document processing strategy."""
-    FAST = "fast"           # Truncate to 2000 chars (current behavior)
-    ADAPTIVE = "adaptive"   # Adapt to document length (recommended)
-    SAMPLING = "sampling"   # Sample N sections, aggregate
-    FULL = "full"          # Analyze entire document
-    STREAMING = "streaming" # Progressive analysis (future)
+
+    FAST = "fast"  # Truncate to 2000 chars (current behavior)
+    ADAPTIVE = "adaptive"  # Adapt to document length (recommended)
+    SAMPLING = "sampling"  # Sample N sections, aggregate
+    FULL = "full"  # Analyze entire document
+    STREAMING = "streaming"  # Progressive analysis (future)
 
 
 @dataclass
@@ -42,6 +43,7 @@ class AnalysisConfig:
         dimensions_to_load: Explicit list of dimensions (overrides profile)
         custom_profiles: User-defined dimension profiles
     """
+
     # Document processing configuration
     mode: AnalysisMode = AnalysisMode.ADAPTIVE
     sampling_sections: int = 5
@@ -85,8 +87,8 @@ class AnalysisConfig:
         # Check for dimension-specific override
         if dimension_name in self.dimension_overrides:
             override = self.dimension_overrides[dimension_name]
-            if 'max_chars' in override:
-                return override['max_chars']
+            if "max_chars" in override:
+                return int(override["max_chars"]) if override["max_chars"] is not None else None
 
         # Mode-based logic
         if self.mode == AnalysisMode.FAST:
@@ -197,9 +199,9 @@ class AnalysisConfig:
                 int(text_length * 0.1),  # Early section
                 int(text_length * 0.4),  # Middle
                 int(text_length * 0.7),  # Late middle
-                max(0, text_length - self.sampling_chars_per_section)  # End
+                max(0, text_length - self.sampling_chars_per_section),  # End
             ]
-            for start_pos in positions[:self.sampling_sections]:
+            for start_pos in positions[: self.sampling_sections]:
                 end_pos = min(start_pos + self.sampling_chars_per_section, text_length)
                 sample_text = text[start_pos:end_pos]
                 samples.append((start_pos, sample_text))
@@ -208,7 +210,8 @@ class AnalysisConfig:
             # Detect section boundaries via headings (# in markdown)
             # Sample from each major section
             import re
-            heading_pattern = re.compile(r'^#{1,3}\s', re.MULTILINE)
+
+            heading_pattern = re.compile(r"^#{1,3}\s", re.MULTILINE)
             heading_positions = [m.start() for m in heading_pattern.finditer(text)]
 
             if len(heading_positions) < 2:
@@ -221,8 +224,10 @@ class AnalysisConfig:
 
             for i in range(sections_to_sample):
                 start_pos = section_starts[i]
-                end_pos = min(start_pos + self.sampling_chars_per_section,
-                             section_starts[i + 1] if i + 1 < len(section_starts) else text_length)
+                end_pos = min(
+                    start_pos + self.sampling_chars_per_section,
+                    section_starts[i + 1] if i + 1 < len(section_starts) else text_length,
+                )
                 sample_text = text[start_pos:end_pos]
                 samples.append((start_pos, sample_text))
         else:

@@ -8539,10 +8539,10 @@ sections:
 
   - id: story-header
     content: |
-      **Epic:** {{epic_name}}  
-      **Story ID:** {{story_id}}  
-      **Priority:** {{High|Medium|Low}}  
-      **Points:** {{story_points}}  
+      **Epic:** {{epic_name}}
+      **Story ID:** {{story_id}}
+      **Priority:** {{High|Medium|Low}}
+      **Points:** {{story_points}}
       **Status:** Draft
 
   - id: description
@@ -11110,10 +11110,10 @@ sections:
 
   - id: story-header
     content: |
-      **Epic:** {{epic_name}}  
-      **Story ID:** {{story_id}}  
-      **Priority:** {{High|Medium|Low}}  
-      **Points:** {{story_points}}  
+      **Epic:** {{epic_name}}
+      **Story ID:** {{story_id}}
+      **Priority:** {{High|Medium|Low}}
+      **Points:** {{story_points}}
       **Status:** Draft
 
   - id: description

@@ -1,0 +1,23 @@
+{
+  "name": "WriteScore Dev",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "sudo curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | sudo bash -s -- --to /usr/local/bin && rm -rf /home/vscode/venv && python -m venv /home/vscode/venv && /home/vscode/venv/bin/pip install -e '.[dev]' && /home/vscode/venv/bin/python -m spacy download en_core_web_sm && /home/vscode/venv/bin/pre-commit install && /home/vscode/venv/bin/pre-commit install --hook-type commit-msg",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "skellock.just",
+        "ms-python.mypy-type-checker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/home/vscode/venv/bin/python",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff"
+      }
+    }
+  }
+}

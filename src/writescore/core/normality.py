@@ -10,7 +10,7 @@ Created in Story 2.5.1 (Shapiro-Wilk Enhancement).
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy import stats
@@ -35,6 +35,7 @@ class NormalityResult:
         confidence: Confidence level in recommendation ('high', 'medium', 'low')
         rationale: Human-readable explanation of the recommendation
     """
+
     dimension_name: str
     is_normal: bool
     p_value: float
@@ -43,22 +44,22 @@ class NormalityResult:
     skewness: float
     kurtosis: float
     recommendation: str
-    confidence: str = 'medium'
-    rationale: str = ''
+    confidence: str = "medium"
+    rationale: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
-            'dimension_name': self.dimension_name,
-            'is_normal': self.is_normal,
-            'p_value': round(self.p_value, 6),
-            'test_statistic': round(self.test_statistic, 6),
-            'sample_size': self.sample_size,
-            'skewness': round(self.skewness, 4),
-            'kurtosis': round(self.kurtosis, 4),
-            'recommendation': self.recommendation,
-            'confidence': self.confidence,
-            'rationale': self.rationale
+            "dimension_name": self.dimension_name,
+            "is_normal": self.is_normal,
+            "p_value": round(self.p_value, 6),
+            "test_statistic": round(self.test_statistic, 6),
+            "sample_size": self.sample_size,
+            "skewness": round(self.skewness, 4),
+            "kurtosis": round(self.kurtosis, 4),
+            "recommendation": self.recommendation,
+            "confidence": self.confidence,
+            "rationale": self.rationale,
         }
 
 
@@ -76,22 +77,22 @@ class NormalityTester:
     """
 
     # Shapiro-Wilk test limits
-    MIN_SAMPLES = 3       # Statistical minimum
+    MIN_SAMPLES = 3  # Statistical minimum
     RECOMMENDED_SAMPLES = 50  # For reliable results
-    MAX_SAMPLES = 5000    # scipy.stats.shapiro limit
+    MAX_SAMPLES = 5000  # scipy.stats.shapiro limit
 
     # Shape thresholds
-    SKEWNESS_SYMMETRIC = 0.5    # |skew| < 0.5 = roughly symmetric
-    SKEWNESS_MODERATE = 1.0     # |skew| < 1.0 = moderately skewed
-    SKEWNESS_HIGH = 2.0         # |skew| > 2.0 = highly skewed
-    KURTOSIS_NORMAL = 1.0       # |kurtosis| < 1.0 = normal-like tails
-    KURTOSIS_HEAVY = 3.0        # |kurtosis| > 3.0 = heavy tails
+    SKEWNESS_SYMMETRIC = 0.5  # |skew| < 0.5 = roughly symmetric
+    SKEWNESS_MODERATE = 1.0  # |skew| < 1.0 = moderately skewed
+    SKEWNESS_HIGH = 2.0  # |skew| > 2.0 = highly skewed
+    KURTOSIS_NORMAL = 1.0  # |kurtosis| < 1.0 = normal-like tails
+    KURTOSIS_HEAVY = 3.0  # |kurtosis| > 3.0 = heavy tails
 
     def __init__(
         self,
         alpha: float = 0.05,
-        min_samples: int = None,
-        max_samples: int = None
+        min_samples: Optional[int] = None,
+        max_samples: Optional[int] = None,
     ):
         """
         Initialize normality tester.
@@ -108,11 +109,7 @@ class NormalityTester:
         self.min_samples = min_samples or self.RECOMMENDED_SAMPLES
         self.max_samples = max_samples or self.MAX_SAMPLES
 
-    def test_normality(
-        self,
-        values: List[float],
-        dimension_name: str
-    ) -> NormalityResult:
+    def test_normality(self, values: List[float], dimension_name: str) -> NormalityResult:
         """
         Test if values follow a normal distribution.
 
@@ -143,9 +140,9 @@ class NormalityTester:
                 sample_size=n,
                 skewness=0.0,
                 kurtosis=0.0,
-                recommendation='gaussian',
-                confidence='low',
-                rationale=f"Insufficient data ({n} samples). Defaulting to Gaussian with IQR-based width."
+                recommendation="gaussian",
+                confidence="low",
+                rationale=f"Insufficient data ({n} samples). Defaulting to Gaussian with IQR-based width.",
             )
 
         # Warn if below recommended sample size
@@ -158,9 +155,7 @@ class NormalityTester:
         # Subsample if too large for Shapiro-Wilk
         original_n = n
         if n > self.max_samples:
-            logger.info(
-                f"{dimension_name}: Subsampling {n} -> {self.max_samples} for Shapiro-Wilk"
-            )
+            logger.info(f"{dimension_name}: Subsampling {n} -> {self.max_samples} for Shapiro-Wilk")
             np.random.seed(42)  # Reproducibility
             arr = np.random.choice(arr, size=self.max_samples, replace=False)
             n = self.max_samples
@@ -178,9 +173,9 @@ class NormalityTester:
                 sample_size=original_n,
                 skewness=0.0,
                 kurtosis=0.0,
-                recommendation='gaussian',
-                confidence='low',
-                rationale=f"Shapiro-Wilk test failed ({e}). Defaulting to Gaussian."
+                recommendation="gaussian",
+                confidence="low",
+                rationale=f"Shapiro-Wilk test failed ({e}). Defaulting to Gaussian.",
             )
 
         # Calculate shape metrics
@@ -211,16 +206,11 @@ class NormalityTester:
             kurtosis=kurtosis,
             recommendation=recommendation,
             confidence=confidence,
-            rationale=rationale
+            rationale=rationale,
         )
 
     def _get_recommendation(
-        self,
-        is_normal: bool,
-        p_value: float,
-        skewness: float,
-        kurtosis: float,
-        dimension_name: str
+        self, is_normal: bool, p_value: float, skewness: float, kurtosis: float, dimension_name: str
     ) -> Tuple[str, str, str]:
         """
         Recommend scoring method based on distribution shape.
@@ -234,76 +224,75 @@ class NormalityTester:
         # Case 1: Strong normality (high p-value, symmetric, normal tails)
         if is_normal and abs_skew < self.SKEWNESS_SYMMETRIC and abs_kurt < self.KURTOSIS_NORMAL:
             return (
-                'gaussian',
-                'high',
+                "gaussian",
+                "high",
                 f"Strong normality: p={p_value:.3f}, symmetric (skew={skewness:.2f}), "
-                f"normal tails (kurtosis={kurtosis:.2f})"
+                f"normal tails (kurtosis={kurtosis:.2f})",
             )
 
         # Case 2: Acceptable normality (passes test, moderate shape)
         if is_normal and abs_skew < self.SKEWNESS_MODERATE:
             return (
-                'gaussian',
-                'medium',
+                "gaussian",
+                "medium",
                 f"Acceptable normality: p={p_value:.3f}, moderate skew ({skewness:.2f}). "
-                "Consider IQR-based width for robustness."
+                "Consider IQR-based width for robustness.",
             )
 
         # Case 3: Heavy tails -> Threshold (robust to outliers)
         if abs_kurt > self.KURTOSIS_HEAVY:
             return (
-                'threshold',
-                'high',
+                "threshold",
+                "high",
                 f"Heavy tails (kurtosis={kurtosis:.2f}). Threshold scoring is more robust "
-                "to extreme values."
+                "to extreme values.",
             )
 
         # Case 4: Strong skewness -> Monotonic
         if abs_skew > self.SKEWNESS_HIGH:
             return (
-                'monotonic',
-                'high',
+                "monotonic",
+                "high",
                 f"Highly skewed distribution (skew={skewness:.2f}). Monotonic scoring "
-                "handles asymmetry better."
+                "handles asymmetry better.",
             )
 
         # Case 5: Moderate skewness -> Monotonic
         if abs_skew > self.SKEWNESS_MODERATE:
             return (
-                'monotonic',
-                'medium',
-                f"Moderately skewed (skew={skewness:.2f}). Monotonic scoring recommended."
+                "monotonic",
+                "medium",
+                f"Moderately skewed (skew={skewness:.2f}). Monotonic scoring recommended.",
             )
 
         # Case 6: Non-normal but not strongly skewed -> Monotonic (safer default)
         if not is_normal:
             return (
-                'monotonic',
-                'medium',
+                "monotonic",
+                "medium",
                 f"Failed normality test (p={p_value:.3f}). Using monotonic scoring "
-                "for non-normal distribution."
+                "for non-normal distribution.",
             )
 
         # Case 7: Borderline normal with elevated kurtosis
         if abs_kurt > self.KURTOSIS_NORMAL:
             return (
-                'gaussian',
-                'low',
+                "gaussian",
+                "low",
                 f"Borderline normal: p={p_value:.3f}, elevated kurtosis ({kurtosis:.2f}). "
-                "Gaussian may work but consider IQR-based width."
+                "Gaussian may work but consider IQR-based width.",
             )
 
         # Default fallback
         return (
-            'gaussian',
-            'medium',
+            "gaussian",
+            "medium",
             f"Default recommendation: p={p_value:.3f}, skew={skewness:.2f}, "
-            f"kurtosis={kurtosis:.2f}"
+            f"kurtosis={kurtosis:.2f}",
         )
 
     def test_all_dimensions(
-        self,
-        dimension_values: Dict[str, List[float]]
+        self, dimension_values: Dict[str, List[float]]
     ) -> Dict[str, NormalityResult]:
         """
         Test normality for multiple dimensions.
@@ -337,9 +326,9 @@ def format_normality_report(results: Dict[str, NormalityResult]) -> str:
     lines.append("")
 
     # Summary counts
-    gaussian_count = sum(1 for r in results.values() if r.recommendation == 'gaussian')
-    monotonic_count = sum(1 for r in results.values() if r.recommendation == 'monotonic')
-    threshold_count = sum(1 for r in results.values() if r.recommendation == 'threshold')
+    gaussian_count = sum(1 for r in results.values() if r.recommendation == "gaussian")
+    monotonic_count = sum(1 for r in results.values() if r.recommendation == "monotonic")
+    threshold_count = sum(1 for r in results.values() if r.recommendation == "threshold")
 
     lines.append("SUMMARY")
     lines.append("-" * 40)
@@ -360,7 +349,9 @@ def format_normality_report(results: Dict[str, NormalityResult]) -> str:
         lines.append(f"  Shapiro-Wilk: W={r.test_statistic:.4f}, p={r.p_value:.4f} [{normal_str}]")
         lines.append(f"  Shape: skewness={r.skewness:.2f}, kurtosis={r.kurtosis:.2f}")
         lines.append(f"  Samples: {r.sample_size}")
-        lines.append(f"  -> Recommendation: {r.recommendation.upper()} (confidence: {r.confidence})")
+        lines.append(
+            f"  -> Recommendation: {r.recommendation.upper()} (confidence: {r.confidence})"
+        )
         lines.append(f"  -> Rationale: {r.rationale}")
 
     lines.append("\n" + "=" * 80)

@@ -18,11 +18,12 @@ repos:
       - id: mypy
         pass_filenames: false
         require_serial: true
-        args: [src/]
+        args: [src/, --ignore-missing-imports]
         additional_dependencies:
           - click>=8.0.0
           - numpy>=1.24.0
           - types-click
+          - types-PyYAML
 
   # Secret scanning
   - repo: https://github.com/gitguardian/ggshield

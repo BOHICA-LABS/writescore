@@ -6,8 +6,26 @@ Thank you for your interest in contributing to WriteScore!
 
 1. Fork the repository
 2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/writescore.git`
-3. Install development dependencies: `pip install -e ".[dev]"`
-4. Download required models: `python -m spacy download en_core_web_sm`
+
+### Option 1: Using Just (Recommended)
+
+```bash
+# Install Just (see README for OS-specific instructions)
+just dev
+```
+
+### Option 2: Using Devcontainer
+
+Open in VS Code and select "Reopen in Container" when prompted.
+
+### Option 3: Manual Setup
+
+```bash
+pip install -e ".[dev]"
+python -m spacy download en_core_web_sm
+pre-commit install
+pre-commit install --hook-type commit-msg
+```
 
 ## Development Workflow
 
@@ -27,7 +45,35 @@ pytest -m "not slow"
 pytest tests/unit/dimensions/test_perplexity.py -v
 ```
 
-### Code Style
+### Secret Scanning (ggshield)
+
+This project uses [GitGuardian's ggshield](https://github.com/GitGuardian/ggshield) for secret detection via pre-commit hook. Setup is required before your first commit:
+
+### Setup (One-time)
+
+1. Create a free account at [gitguardian.com](https://www.gitguardian.com/)
+2. Authenticate locally:
+   ```bash
+   ggshield auth login
+   ```
+
+### Skipping ggshield (Optional)
+
+If you prefer not to use ggshield, you can skip it for individual commits:
+
+```bash
+SKIP=ggshield git commit -m "your message"
+```
+
+Or disable it entirely in your local environment:
+
+```bash
+git config --local hooks.ggshield false
+```
+
+Note: GitHub's built-in secret scanning is also enabled for this repository as a backup.
+
+## Code Style
 
 We use [ruff](https://github.com/astral-sh/ruff) for linting:
 
@@ -78,3 +124,8 @@ See [docs/architecture.md](docs/architecture.md) for the dimension system archit
 ## Questions?
 
 Open an issue for questions or discussion.
+
+## Code of Conduct
+
+This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md).
+Please read it before participating.

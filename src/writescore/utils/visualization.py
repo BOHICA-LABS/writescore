@@ -9,7 +9,12 @@ import shutil
 from typing import List, Optional
 
 
-def generate_sparkline(values: List[float], width: int = 20, min_val: Optional[float] = None, max_val: Optional[float] = None) -> str:
+def generate_sparkline(
+    values: List[float],
+    width: int = 20,
+    min_val: Optional[float] = None,
+    max_val: Optional[float] = None,
+) -> str:
     """
     Generate ASCII sparkline from values.
 
@@ -26,7 +31,7 @@ def generate_sparkline(values: List[float], width: int = 20, min_val: Optional[f
         return ""
 
     # Sparkline characters from low to high
-    chars = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█']
+    chars = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
 
     # Determine range
     if min_val is None:
@@ -47,10 +52,12 @@ def generate_sparkline(values: List[float], width: int = 20, min_val: Optional[f
         char_idx = min(int(normalized * len(chars)), len(chars) - 1)
         sparkline.append(chars[char_idx])
 
-    return ''.join(sparkline)
+    return "".join(sparkline)
 
 
-def create_progress_bar(current: int, total: int, width: int = 50, show_percentage: bool = True) -> str:
+def create_progress_bar(
+    current: int, total: int, width: int = 50, show_percentage: bool = True
+) -> str:
     """
     Create ASCII progress bar.
 
@@ -127,7 +134,7 @@ def create_box(text: str, width: Optional[int] = None, padding: int = 1) -> str:
     Returns:
         Boxed text string
     """
-    lines = text.split('\n')
+    lines = text.split("\n")
 
     if width is None:
         width = max(len(line) for line in lines) + (padding * 2) + 2
@@ -143,10 +150,12 @@ def create_box(text: str, width: Optional[int] = None, padding: int = 1) -> str:
 
     box_lines.append("└" + "─" * inner_width + "┘")
 
-    return '\n'.join(box_lines)
+    return "\n".join(box_lines)
 
 
-def create_table(headers: List[str], rows: List[List[str]], column_widths: Optional[List[int]] = None) -> str:
+def create_table(
+    headers: List[str], rows: List[List[str]], column_widths: Optional[List[int]] = None
+) -> str:
     """
     Create ASCII table.
 
@@ -179,12 +188,16 @@ def create_table(headers: List[str], rows: List[List[str]], column_widths: Optio
 
     # Create rows
     for row in rows:
-        row_line = "│ " + " │ ".join(str(cell).ljust(column_widths[i]) for i, cell in enumerate(row)) + " │"
+        row_line = (
+            "│ "
+            + " │ ".join(str(cell).ljust(column_widths[i]) for i, cell in enumerate(row))
+            + " │"
+        )
         table_lines.append(row_line)
 
     table_lines.append(bottom_border)
 
-    return '\n'.join(table_lines)
+    return "\n".join(table_lines)
 
 
 def colorize(text: str, color: str) -> str:
@@ -199,18 +212,18 @@ def colorize(text: str, color: str) -> str:
         Colorized text with ANSI codes
     """
     colors = {
-        'red': '\033[91m',
-        'green': '\033[92m',
-        'yellow': '\033[93m',
-        'blue': '\033[94m',
-        'magenta': '\033[95m',
-        'cyan': '\033[96m',
-        'white': '\033[97m',
-        'bold': '\033[1m',
-        'reset': '\033[0m'
+        "red": "\033[91m",
+        "green": "\033[92m",
+        "yellow": "\033[93m",
+        "blue": "\033[94m",
+        "magenta": "\033[95m",
+        "cyan": "\033[96m",
+        "white": "\033[97m",
+        "bold": "\033[1m",
+        "reset": "\033[0m",
     }
 
-    color_code = colors.get(color.lower(), colors['reset'])
-    reset_code = colors['reset']
+    color_code = colors.get(color.lower(), colors["reset"])
+    reset_code = colors["reset"]
 
     return f"{color_code}{text}{reset_code}"

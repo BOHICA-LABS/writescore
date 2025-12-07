@@ -61,38 +61,38 @@ class TestAnalyzeSentenceBurstiness:
         """Test basic sentence burstiness analysis."""
         result = analyzer._analyze_sentence_burstiness(text_varied_sentences)
 
-        assert 'total_sentences' in result
-        assert 'mean' in result
-        assert 'stdev' in result
-        assert 'min' in result
-        assert 'max' in result
-        assert 'short' in result
-        assert 'medium' in result
-        assert 'long' in result
-        assert 'lengths' in result
+        assert "total_sentences" in result
+        assert "mean" in result
+        assert "stdev" in result
+        assert "min" in result
+        assert "max" in result
+        assert "short" in result
+        assert "medium" in result
+        assert "long" in result
+        assert "lengths" in result
 
     def test_sentence_burstiness_varied_pattern(self, analyzer, text_varied_sentences):
         """Test high burstiness (varied sentences) detection."""
         result = analyzer._analyze_sentence_burstiness(text_varied_sentences)
 
-        assert result['total_sentences'] > 0
-        assert result['stdev'] > 5  # High variation
-        assert result['min'] < result['max']  # Range of lengths
+        assert result["total_sentences"] > 0
+        assert result["stdev"] > 5  # High variation
+        assert result["min"] < result["max"]  # Range of lengths
 
     def test_sentence_burstiness_uniform_pattern(self, analyzer, text_uniform_sentences):
         """Test low burstiness (uniform sentences) detection."""
         result = analyzer._analyze_sentence_burstiness(text_uniform_sentences)
 
-        assert result['total_sentences'] > 0
-        assert result['stdev'] < 5  # Low variation (AI pattern)
+        assert result["total_sentences"] > 0
+        assert result["stdev"] < 5  # Low variation (AI pattern)
 
     def test_sentence_burstiness_empty_text(self, analyzer):
         """Test sentence burstiness on empty text."""
         result = analyzer._analyze_sentence_burstiness("")
 
-        assert result['total_sentences'] == 0
-        assert result['mean'] == 0
-        assert result['stdev'] == 0
+        assert result["total_sentences"] == 0
+        assert result["mean"] == 0
+        assert result["stdev"] == 0
 
     def test_sentence_burstiness_skips_headings(self, analyzer):
         """Test that headings are skipped."""
@@ -103,7 +103,7 @@ This is a sentence. This is another sentence.
         result = analyzer._analyze_sentence_burstiness(text)
 
         # Should only count body sentences, not heading
-        assert result['total_sentences'] == 2
+        assert result["total_sentences"] == 2
 
 
 class TestAnalyzeParagraphVariation:
@@ -113,11 +113,11 @@ class TestAnalyzeParagraphVariation:
         """Test basic paragraph variation analysis."""
         result = analyzer._analyze_paragraph_variation(text_varied_sentences)
 
-        assert 'total_paragraphs' in result
-        assert 'mean' in result
-        assert 'stdev' in result
-        assert 'min' in result
-        assert 'max' in result
+        assert "total_paragraphs" in result
+        assert "mean" in result
+        assert "stdev" in result
+        assert "min" in result
+        assert "max" in result
 
     def test_paragraph_variation_varied(self, analyzer):
         """Test varied paragraph lengths."""
@@ -131,16 +131,16 @@ This is a very long paragraph with many sentences that goes on for quite a while
 """
         result = analyzer._analyze_paragraph_variation(text)
 
-        assert result['total_paragraphs'] >= 2
-        assert result['stdev'] > 0  # Has variation
-        assert result['min'] < result['max']
+        assert result["total_paragraphs"] >= 2
+        assert result["stdev"] > 0  # Has variation
+        assert result["min"] < result["max"]
 
     def test_paragraph_variation_empty_text(self, analyzer):
         """Test paragraph variation on empty text."""
         result = analyzer._analyze_paragraph_variation("")
 
-        assert result['total_paragraphs'] == 0
-        assert result['mean'] == 0
+        assert result["total_paragraphs"] == 0
+        assert result["mean"] == 0
 
 
 class TestCalculateParagraphCv:
@@ -150,19 +150,19 @@ class TestCalculateParagraphCv:
         """Test basic paragraph CV calculation."""
         result = analyzer._calculate_paragraph_cv(text_uniform_paragraphs)
 
-        assert 'mean_length' in result
-        assert 'stddev' in result
-        assert 'cv' in result
-        assert 'score' in result
-        assert 'assessment' in result
-        assert 'paragraph_count' in result
+        assert "mean_length" in result
+        assert "stddev" in result
+        assert "cv" in result
+        assert "score" in result
+        assert "assessment" in result
+        assert "paragraph_count" in result
 
     def test_paragraph_cv_uniform_ai_pattern(self, analyzer, text_uniform_paragraphs):
         """Test low CV for uniform paragraphs (AI pattern)."""
         result = analyzer._calculate_paragraph_cv(text_uniform_paragraphs)
 
-        assert result['cv'] < 0.4  # Low variation
-        assert result['assessment'] in ['POOR', 'FAIR']
+        assert result["cv"] < 0.4  # Low variation
+        assert result["assessment"] in ["POOR", "FAIR"]
 
     def test_paragraph_cv_varied_human_pattern(self, analyzer):
         """Test high CV for varied paragraphs (human pattern)."""
@@ -176,8 +176,8 @@ Here's another medium-length paragraph that falls somewhere in between the short
 """
         result = analyzer._calculate_paragraph_cv(text)
 
-        assert result['cv'] >= 0.4  # High variation (human-like)
-        assert result['assessment'] in ['GOOD', 'EXCELLENT']
+        assert result["cv"] >= 0.4  # High variation (human-like)
+        assert result["assessment"] in ["GOOD", "EXCELLENT"]
 
     def test_paragraph_cv_insufficient_data(self, analyzer):
         """Test CV calculation with insufficient paragraphs."""
@@ -186,8 +186,8 @@ Here's another medium-length paragraph that falls somewhere in between the short
 One paragraph."""
         result = analyzer._calculate_paragraph_cv(text)
 
-        assert result['assessment'] == 'INSUFFICIENT_DATA'
-        assert result['score'] == 10.0  # Benefit of doubt
+        assert result["assessment"] == "INSUFFICIENT_DATA"
+        assert result["score"] == 10.0  # Benefit of doubt
 
 
 class TestAnalyzeBurstinessIssuesDetailed:
@@ -195,24 +195,24 @@ class TestAnalyzeBurstinessIssuesDetailed:
 
     def test_burstiness_issues_uniform_detection(self, analyzer, text_uniform_sentences):
         """Test detection of uniform sentence lengths."""
-        lines = text_uniform_sentences.split('\n')
+        lines = text_uniform_sentences.split("\n")
         issues = analyzer._analyze_burstiness_issues_detailed(lines)
 
         assert isinstance(issues, list)
         # May detect uniform patterns
         if len(issues) > 0:
             issue = issues[0]
-            assert hasattr(issue, 'start_line')
-            assert hasattr(issue, 'end_line')
-            assert hasattr(issue, 'sentence_count')
-            assert hasattr(issue, 'mean_length')
-            assert hasattr(issue, 'stdev')
-            assert hasattr(issue, 'problem')
-            assert hasattr(issue, 'suggestion')
+            assert hasattr(issue, "start_line")
+            assert hasattr(issue, "end_line")
+            assert hasattr(issue, "sentence_count")
+            assert hasattr(issue, "mean_length")
+            assert hasattr(issue, "stdev")
+            assert hasattr(issue, "problem")
+            assert hasattr(issue, "suggestion")
 
     def test_burstiness_issues_varied_no_issues(self, analyzer, text_varied_sentences):
         """Test that varied text has fewer/no issues."""
-        lines = text_varied_sentences.split('\n')
+        lines = text_varied_sentences.split("\n")
         issues = analyzer._analyze_burstiness_issues_detailed(lines)
 
         assert isinstance(issues, list)
@@ -225,7 +225,7 @@ class TestAnalyzeBurstinessIssuesDetailed:
             "# Heading with uniform sentences here",
             "",
             "Sentence one. Sentence two. Sentence three.",
-            ""
+            "",
         ]
         issues = analyzer._analyze_burstiness_issues_detailed(lines)
 
@@ -240,16 +240,16 @@ class TestAnalyze:
         """Test basic analyze method."""
         result = analyzer.analyze(text_varied_sentences)
 
-        assert 'sentence_burstiness' in result
-        assert 'paragraph_variation' in result
-        assert 'paragraph_cv' in result
+        assert "sentence_burstiness" in result
+        assert "paragraph_variation" in result
+        assert "paragraph_cv" in result
 
     def test_analyze_empty_text(self, analyzer):
         """Test analyze on empty text."""
         result = analyzer.analyze("")
 
-        assert result['sentence_burstiness']['total_sentences'] == 0
-        assert result['paragraph_variation']['total_paragraphs'] == 0
+        assert result["sentence_burstiness"]["total_sentences"] == 0
+        assert result["paragraph_variation"]["total_paragraphs"] == 0
 
 
 class TestAnalyzeDetailed:
@@ -257,7 +257,7 @@ class TestAnalyzeDetailed:
 
     def test_analyze_detailed_basic(self, analyzer, text_uniform_sentences):
         """Test detailed analysis method."""
-        lines = text_uniform_sentences.split('\n')
+        lines = text_uniform_sentences.split("\n")
         result = analyzer.analyze_detailed(lines)
 
         assert isinstance(result, list)
@@ -268,12 +268,7 @@ class TestScore:
 
     def test_score_high_burstiness(self, analyzer):
         """Test score for high burstiness (varied sentences)."""
-        analysis = {
-            'total_sentences': 10,
-            'stdev': 10.0,
-            'short': 3,
-            'long': 2
-        }
+        analysis = {"total_sentences": 10, "stdev": 10.0, "short": 3, "long": 2}
         score, label = analyzer.score(analysis)
 
         assert score == 10.0
@@ -281,12 +276,7 @@ class TestScore:
 
     def test_score_medium_burstiness(self, analyzer):
         """Test score for medium burstiness."""
-        analysis = {
-            'total_sentences': 10,
-            'stdev': 6.0,
-            'short': 2,
-            'long': 1
-        }
+        analysis = {"total_sentences": 10, "stdev": 6.0, "short": 2, "long": 1}
         score, label = analyzer.score(analysis)
 
         assert score == 7.0
@@ -294,12 +284,7 @@ class TestScore:
 
     def test_score_low_burstiness(self, analyzer):
         """Test score for low burstiness (uniform)."""
-        analysis = {
-            'total_sentences': 10,
-            'stdev': 3.5,
-            'short': 1,
-            'long': 0
-        }
+        analysis = {"total_sentences": 10, "stdev": 3.5, "short": 1, "long": 0}
         score, label = analyzer.score(analysis)
 
         assert score == 4.0
@@ -307,12 +292,7 @@ class TestScore:
 
     def test_score_very_low_burstiness(self, analyzer):
         """Test score for very low burstiness."""
-        analysis = {
-            'total_sentences': 10,
-            'stdev': 2.0,
-            'short': 0,
-            'long': 0
-        }
+        analysis = {"total_sentences": 10, "stdev": 2.0, "short": 0, "long": 0}
         score, label = analyzer.score(analysis)
 
         assert score == 2.0
@@ -320,7 +300,7 @@ class TestScore:
 
     def test_score_no_sentences(self, analyzer):
         """Test score with no sentences."""
-        analysis = {'total_sentences': 0}
+        analysis = {"total_sentences": 0}
         score, label = analyzer.score(analysis)
 
         assert score == 0.0
@@ -334,15 +314,16 @@ class TestIntegration:
         """Test complete analysis pipeline."""
         result = analyzer.analyze(text_varied_sentences)
 
-        assert result['sentence_burstiness']['total_sentences'] > 0
-        assert result['paragraph_variation']['total_paragraphs'] > 0
-        assert result['paragraph_cv']['cv'] >= 0
+        assert result["sentence_burstiness"]["total_sentences"] > 0
+        assert result["paragraph_variation"]["total_paragraphs"] > 0
+        assert result["paragraph_cv"]["cv"] >= 0
 
         # Detailed analysis
-        lines = text_varied_sentences.split('\n')
+        lines = text_varied_sentences.split("\n")
         detailed = analyzer.analyze_detailed(lines)
 
         assert isinstance(detailed, list)
+
 
 class TestGaussianScoring:
     """Tests for Gaussian scoring migration (Story 2.4.1, AC3)."""
@@ -350,9 +331,9 @@ class TestGaussianScoring:
     def test_calculate_score_optimal_value(self, analyzer):
         """Test scoring at optimal stdev (μ=15.0) returns near-perfect score."""
         metrics = {
-            'sentence_burstiness': {
-                'total_sentences': 10,
-                'stdev': 15.0  # Optimal target
+            "sentence_burstiness": {
+                "total_sentences": 10,
+                "stdev": 15.0,  # Optimal target
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -367,9 +348,9 @@ class TestGaussianScoring:
         # At μ±1σ, Gaussian function returns exp(-0.5) ≈ 0.606
 
         metrics_low = {
-            'sentence_burstiness': {
-                'total_sentences': 10,
-                'stdev': 10.0  # μ - 1σ
+            "sentence_burstiness": {
+                "total_sentences": 10,
+                "stdev": 10.0,  # μ - 1σ
             }
         }
         score_low = analyzer.calculate_score(metrics_low)
@@ -377,9 +358,9 @@ class TestGaussianScoring:
         assert score_low <= 65.0
 
         metrics_high = {
-            'sentence_burstiness': {
-                'total_sentences': 10,
-                'stdev': 20.0  # μ + 1σ
+            "sentence_burstiness": {
+                "total_sentences": 10,
+                "stdev": 20.0,  # μ + 1σ
             }
         }
         score_high = analyzer.calculate_score(metrics_high)
@@ -389,9 +370,9 @@ class TestGaussianScoring:
     def test_calculate_score_low_variation(self, analyzer):
         """Test scoring for low variation (AI pattern) returns low score."""
         metrics = {
-            'sentence_burstiness': {
-                'total_sentences': 10,
-                'stdev': 3.0  # Very low variation (AI-like)
+            "sentence_burstiness": {
+                "total_sentences": 10,
+                "stdev": 3.0,  # Very low variation (AI-like)
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -403,9 +384,9 @@ class TestGaussianScoring:
     def test_calculate_score_extremely_high_variation(self, analyzer):
         """Test scoring for extremely high variation returns low score."""
         metrics = {
-            'sentence_burstiness': {
-                'total_sentences': 10,
-                'stdev': 30.0  # Extremely high variation (chaotic)
+            "sentence_burstiness": {
+                "total_sentences": 10,
+                "stdev": 30.0,  # Extremely high variation (chaotic)
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -416,12 +397,7 @@ class TestGaussianScoring:
 
     def test_calculate_score_no_sentences(self, analyzer):
         """Test scoring with no sentences returns neutral score."""
-        metrics = {
-            'sentence_burstiness': {
-                'total_sentences': 0,
-                'stdev': 0
-            }
-        }
+        metrics = {"sentence_burstiness": {"total_sentences": 0, "stdev": 0}}
         score = analyzer.calculate_score(metrics)
 
         # Should return neutral 50.0 for insufficient data
@@ -431,30 +407,20 @@ class TestGaussianScoring:
         """Test that score increases monotonically approaching optimal from below."""
         scores = []
         for stdev in [5.0, 10.0, 13.0, 15.0]:
-            metrics = {
-                'sentence_burstiness': {
-                    'total_sentences': 10,
-                    'stdev': stdev
-                }
-            }
+            metrics = {"sentence_burstiness": {"total_sentences": 10, "stdev": stdev}}
             scores.append(analyzer.calculate_score(metrics))
 
         # Scores should increase as we approach optimal (15.0)
         for i in range(len(scores) - 1):
-            assert scores[i] < scores[i+1], f"Score should increase: {scores[i]} < {scores[i+1]}"
+            assert scores[i] < scores[i + 1], f"Score should increase: {scores[i]} < {scores[i+1]}"
 
     def test_calculate_score_monotonicity_above_optimal(self, analyzer):
         """Test that score decreases monotonically moving away from optimal above."""
         scores = []
         for stdev in [15.0, 18.0, 22.0, 28.0]:
-            metrics = {
-                'sentence_burstiness': {
-                    'total_sentences': 10,
-                    'stdev': stdev
-                }
-            }
+            metrics = {"sentence_burstiness": {"total_sentences": 10, "stdev": stdev}}
             scores.append(analyzer.calculate_score(metrics))
 
         # Scores should decrease as we move away from optimal (15.0)
         for i in range(len(scores) - 1):
-            assert scores[i] > scores[i+1], f"Score should decrease: {scores[i]} > {scores[i+1]}"
+            assert scores[i] > scores[i + 1], f"Score should decrease: {scores[i]} > {scores[i+1]}"

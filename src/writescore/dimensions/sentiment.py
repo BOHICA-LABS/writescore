@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 # Lazy load transformers
 _sentiment_pipeline = None
@@ -29,12 +29,13 @@ def get_sentiment_pipeline():
     if _sentiment_pipeline is None:
         from transformers import pipeline
         from transformers.utils import logging as transformers_logging
+
         transformers_logging.set_verbosity_error()
 
         _sentiment_pipeline = pipeline(
-            'sentiment-analysis',
-            model='distilbert-base-uncased-finetuned-sst-2-english',
-            device=-1  # Use CPU
+            "sentiment-analysis",
+            model="distilbert-base-uncased-finetuned-sst-2-english",
+            device=-1,  # Use CPU
         )
     return _sentiment_pipeline
 
@@ -73,9 +74,9 @@ class SentimentDimension(DimensionStrategy):
         return 15.6
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "SUPPORTING"
+        return DimensionTier.SUPPORTING
 
     @property
     def description(self) -> str:
@@ -89,9 +90,9 @@ class SentimentDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for sentiment variation patterns.
@@ -118,7 +119,7 @@ class SentimentDimension(DimensionStrategy):
 
             for _position, sample_text in samples:
                 sentiment_results = self._analyze_sentiment_variance(sample_text)
-                sample_results.append({'sentiment': sentiment_results})
+                sample_results.append({"sentiment": sentiment_results})
 
             # Aggregate metrics from all samples
             aggregated = self._aggregate_sampled_metrics(sample_results)
@@ -129,19 +130,21 @@ class SentimentDimension(DimensionStrategy):
         else:
             analyzed_text = prepared
             sentiment_results = self._analyze_sentiment_variance(analyzed_text)
-            aggregated = {'sentiment': sentiment_results}
+            aggregated = {"sentiment": sentiment_results}
             analyzed_length = len(analyzed_text)
             samples_analyzed = 1
 
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     def score(self, analysis_results: Dict[str, Any]) -> tuple:
@@ -157,8 +160,8 @@ class SentimentDimension(DimensionStrategy):
         Returns:
             Tuple of (score_value, score_label)
         """
-        sentiment = analysis_results.get('sentiment', {})
-        variance = sentiment.get('variance', 0.0)
+        sentiment = analysis_results.get("sentiment", {})
+        variance = sentiment.get("variance", 0.0)
 
         # Thresholds based on research:
         # Human: variance > 0.15
@@ -214,17 +217,13 @@ class SentimentDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        sentiment = metrics.get('sentiment', {})
-        mean_polarity = sentiment.get('mean', 0.0)
+        sentiment = metrics.get("sentiment", {})
+        mean_polarity = sentiment.get("mean", 0.0)
 
         # Gaussian scoring with research-based parameters
         # Target μ=0.0 (neutral), Width σ=0.3 (Story 2.4.1, AC3)
         # _gaussian_score() returns 0-100 scale directly
-        score = self._gaussian_score(
-            value=mean_polarity,
-            target=0.0,
-            width=0.3
-        )
+        score = self._gaussian_score(value=mean_polarity, target=0.0, width=0.3)
 
         self._validate_score(score)
         return score
@@ -242,10 +241,10 @@ class SentimentDimension(DimensionStrategy):
         """
         recommendations = []
 
-        sentiment = metrics.get('sentiment', {})
-        variance = sentiment.get('variance', 0.0)
-        mean = sentiment.get('mean', 0.0)
-        emotionally_flat = sentiment.get('emotionally_flat', False)
+        sentiment = metrics.get("sentiment", {})
+        variance = sentiment.get("variance", 0.0)
+        mean = sentiment.get("mean", 0.0)
+        emotionally_flat = sentiment.get("emotionally_flat", False)
 
         if emotionally_flat or variance < 0.10:
             recommendations.append(
@@ -281,10 +280,10 @@ class SentimentDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (70.0, 89.9),
-            'acceptable': (55.0, 69.9),
-            'poor': (0.0, 54.9)
+            "excellent": (90.0, 100.0),
+            "good": (70.0, 89.9),
+            "acceptable": (55.0, 69.9),
+            "poor": (0.0, 54.9),
         }
 
     # ========================================================================
@@ -301,24 +300,20 @@ class SentimentDimension(DimensionStrategy):
         pipeline = get_sentiment_pipeline()
 
         # Split into paragraphs (more meaningful than sentences)
-        paragraphs = [p.strip() for p in text.split('nn') if len(p.strip()) > 20]
+        paragraphs = [p.strip() for p in text.split("nn") if len(p.strip()) > 20]
 
         if len(paragraphs) < 3:
             # Fallback to sentences if too few paragraphs
             import re
-            sentences = [s.strip() for s in re.split(r'[.!?]+', text) if len(s.strip()) > 20]
+
+            sentences = [s.strip() for s in re.split(r"[.!?]+", text) if len(s.strip()) > 20]
             chunks = sentences[:50]  # Limit for performance
         else:
             chunks = paragraphs[:30]  # Limit for performance
 
         if len(chunks) < 3:
             # Not enough text to analyze variance
-            return {
-                'variance': 0.0,
-                'mean': 0.0,
-                'count': len(chunks),
-                'emotionally_flat': True
-            }
+            return {"variance": 0.0, "mean": 0.0, "count": len(chunks), "emotionally_flat": True}
 
         # Analyze sentiment for each chunk
         # Pipeline returns: [{'label': 'POSITIVE', 'score': 0.9998}]
@@ -330,8 +325,8 @@ class SentimentDimension(DimensionStrategy):
                 result = pipeline(chunk_text)[0]
 
                 # Convert to numeric: POSITIVE = +score, NEGATIVE = -score
-                score = result['score']
-                if result['label'] == 'NEGATIVE':
+                score = result["score"]
+                if result["label"] == "NEGATIVE":
                     score = -score
 
                 sentiments.append(score)
@@ -341,10 +336,10 @@ class SentimentDimension(DimensionStrategy):
 
         if len(sentiments) < 3:
             return {
-                'variance': 0.0,
-                'mean': 0.0,
-                'count': len(sentiments),
-                'emotionally_flat': True
+                "variance": 0.0,
+                "mean": 0.0,
+                "count": len(sentiments),
+                "emotionally_flat": True,
             }
 
         # Calculate variance and mean
@@ -355,11 +350,11 @@ class SentimentDimension(DimensionStrategy):
         emotionally_flat = variance < 0.10
 
         return {
-            'variance': variance,
-            'mean': mean,
-            'count': len(sentiments),
-            'emotionally_flat': emotionally_flat,
-            'scores': sentiments[:10]  # Store first 10 for debugging
+            "variance": variance,
+            "mean": mean,
+            "count": len(sentiments),
+            "emotionally_flat": emotionally_flat,
+            "scores": sentiments[:10],  # Store first 10 for debugging
         }
 
 

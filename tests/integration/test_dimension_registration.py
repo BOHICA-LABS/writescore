@@ -23,11 +23,11 @@ class TestDimensionRegistration:
         assert len(all_dims) == 1
 
         # get() returns the dimension by name
-        registered = DimensionRegistry.get('perplexity')
+        registered = DimensionRegistry.get("perplexity")
 
-        assert registered.dimension_name == 'perplexity'
+        assert registered.dimension_name == "perplexity"
         assert registered.weight == 2.8  # Weight after rebalancing to 100%
-        assert registered.tier == 'ADVANCED'  # ADVANCED tier (requires language model)
+        assert registered.tier == "ADVANCED"  # ADVANCED tier (requires language model)
         assert dim is registered  # Same instance
 
     def test_burstiness_registration(self):
@@ -40,11 +40,11 @@ class TestDimensionRegistration:
         assert len(all_dims) == 1
 
         # get() returns the dimension by name
-        registered = DimensionRegistry.get('burstiness')
+        registered = DimensionRegistry.get("burstiness")
 
-        assert registered.dimension_name == 'burstiness'
+        assert registered.dimension_name == "burstiness"
         assert registered.weight == 5.5  # Weight after rebalancing to 100%
-        assert registered.tier == 'CORE'
+        assert registered.tier == "CORE"
         assert dim is registered  # Same instance
 
     def test_multiple_dimension_registration(self):
@@ -58,8 +58,8 @@ class TestDimensionRegistration:
         assert len(all_dims) == 2
 
         # Verify both dimensions are registered
-        assert DimensionRegistry.get('perplexity') is perp
-        assert DimensionRegistry.get('burstiness') is burst
+        assert DimensionRegistry.get("perplexity") is perp
+        assert DimensionRegistry.get("burstiness") is burst
 
         # Verify total weight
         total_weight = sum(d.weight for d in all_dims)
@@ -76,7 +76,9 @@ class TestDimensionRegistration:
 
         # But registry is idempotent - only one dimension is stored
         all_dims = DimensionRegistry.get_all()
-        assert len(all_dims) == 1, "Registry should store only one dimension despite multiple instantiations"
+        assert (
+            len(all_dims) == 1
+        ), "Registry should store only one dimension despite multiple instantiations"
 
     def test_backward_compatibility_alias(self):
         """Test that backward compatibility aliases work."""
@@ -93,5 +95,5 @@ class TestDimensionRegistration:
         # Verify aliases are actually usable (can instantiate and work the same)
         DimensionRegistry.clear()
         alias_instance = PerplexityAnalyzer()
-        assert alias_instance.dimension_name == 'perplexity'
+        assert alias_instance.dimension_name == "perplexity"
         assert alias_instance.weight == 2.8  # Weight after rebalancing to 100%

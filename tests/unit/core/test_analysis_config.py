@@ -17,6 +17,7 @@ from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig, Anal
 # Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def sample_text_short():
     """Short text < 2000 chars for FAST mode testing."""
@@ -63,6 +64,7 @@ def config_full():
 # Test AnalysisMode Enum
 # ============================================================================
 
+
 def test_analysis_mode_enum_values():
     """Test that AnalysisMode enum has expected values."""
     assert AnalysisMode.FAST == "fast"
@@ -86,6 +88,7 @@ def test_analysis_mode_enum_membership():
 # Test AnalysisConfig Creation
 # ============================================================================
 
+
 def test_config_default_creation():
     """Test creating config with default values."""
     config = AnalysisConfig()
@@ -107,7 +110,7 @@ def test_config_custom_creation():
         sampling_chars_per_section=3000,
         sampling_strategy="weighted",
         max_text_length=100000,
-        dimension_overrides={"predictability": {"max_chars": 5000}}
+        dimension_overrides={"predictability": {"max_chars": 5000}},
     )
     assert config.mode == AnalysisMode.SAMPLING
     assert config.sampling_sections == 10
@@ -126,6 +129,7 @@ def test_default_config_constant():
 # ============================================================================
 # Test get_effective_limit()
 # ============================================================================
+
 
 def test_get_effective_limit_fast_mode_always_2000(config_fast):
     """Test FAST mode always returns 2000 char limit."""
@@ -168,10 +172,7 @@ def test_get_effective_limit_full_mode(config_full):
 def test_get_effective_limit_dimension_override():
     """Test dimension-specific override takes precedence."""
     config = AnalysisConfig(
-        mode=AnalysisMode.FAST,
-        dimension_overrides={
-            "predictability": {"max_chars": 5000}
-        }
+        mode=AnalysisMode.FAST, dimension_overrides={"predictability": {"max_chars": 5000}}
     )
     # Override should take precedence over FAST mode's 2000
     assert config.get_effective_limit("predictability", 10000) == 5000
@@ -182,6 +183,7 @@ def test_get_effective_limit_dimension_override():
 # ============================================================================
 # Test should_use_sampling()
 # ============================================================================
+
 
 def test_should_use_sampling_fast_mode(config_fast):
     """Test FAST mode never samples."""
@@ -216,6 +218,7 @@ def test_should_use_sampling_full_mode(config_full):
 # ============================================================================
 # Test extract_samples() - Even Strategy
 # ============================================================================
+
 
 def test_extract_samples_even_strategy(config_sampling, sample_text_long):
     """Test even sampling strategy produces evenly spaced samples."""
@@ -262,6 +265,7 @@ def test_extract_samples_text_smaller_than_one_sample(config_sampling):
 # Test extract_samples() - Weighted Strategy
 # ============================================================================
 
+
 def test_extract_samples_weighted_strategy(config_sampling, sample_text_long):
     """Test weighted sampling strategy favors beginning/end."""
     config_sampling.sampling_strategy = "weighted"
@@ -285,7 +289,7 @@ def test_extract_samples_weighted_positions():
         mode=AnalysisMode.SAMPLING,
         sampling_strategy="weighted",
         sampling_sections=5,
-        sampling_chars_per_section=2000
+        sampling_chars_per_section=2000,
     )
 
     samples = config.extract_samples(text)
@@ -293,10 +297,10 @@ def test_extract_samples_weighted_positions():
     # Expected positions: 0, 10%, 40%, 70%, end
     expected_positions = [
         0,
-        10000,   # 10% of 100k
-        40000,   # 40% of 100k
-        70000,   # 70% of 100k
-        98000    # 100k - 2000
+        10000,  # 10% of 100k
+        40000,  # 40% of 100k
+        70000,  # 70% of 100k
+        98000,  # 100k - 2000
     ]
 
     assert len(samples) == 5
@@ -307,6 +311,7 @@ def test_extract_samples_weighted_positions():
 # ============================================================================
 # Test extract_samples() - Adaptive Strategy
 # ============================================================================
+
 
 def test_extract_samples_adaptive_with_headings():
     """Test adaptive strategy detects markdown headings."""
@@ -326,7 +331,7 @@ Final section with concluding thoughts."""
         mode=AnalysisMode.SAMPLING,
         sampling_strategy="adaptive",
         sampling_sections=4,
-        sampling_chars_per_section=50
+        sampling_chars_per_section=50,
     )
 
     samples = config.extract_samples(text)
@@ -345,7 +350,7 @@ def test_extract_samples_adaptive_fallback_to_even():
         mode=AnalysisMode.SAMPLING,
         sampling_strategy="adaptive",
         sampling_sections=5,
-        sampling_chars_per_section=2000
+        sampling_chars_per_section=2000,
     )
 
     samples = config.extract_samples(text)
@@ -362,6 +367,7 @@ def test_extract_samples_adaptive_fallback_to_even():
 # ============================================================================
 # Test extract_samples() - Unknown Strategy
 # ============================================================================
+
 
 def test_extract_samples_unknown_strategy_defaults_to_even(config_sampling):
     """Test unknown strategy falls back to even sampling."""
@@ -381,6 +387,7 @@ def test_extract_samples_unknown_strategy_defaults_to_even(config_sampling):
 # ============================================================================
 # Test Integration Scenarios
 # ============================================================================
+
 
 def test_fast_mode_workflow():
     """Test complete workflow for FAST mode."""
@@ -415,9 +422,7 @@ def test_adaptive_mode_workflow_large_doc():
 def test_sampling_mode_workflow():
     """Test complete workflow for SAMPLING mode."""
     config = AnalysisConfig(
-        mode=AnalysisMode.SAMPLING,
-        sampling_sections=3,
-        sampling_strategy="weighted"
+        mode=AnalysisMode.SAMPLING, sampling_sections=3, sampling_strategy="weighted"
     )
     text = "x" * 50000
 

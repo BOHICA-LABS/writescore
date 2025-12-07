@@ -35,6 +35,7 @@ class Document:
         timestamp: When document was added to dataset
         metadata: Additional optional metadata
     """
+
     id: str
     text: str
     label: str  # "human" or "ai"
@@ -77,7 +78,7 @@ class Document:
             "word_count": self.word_count,
             "source": self.source,
             "timestamp": self.timestamp,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     @classmethod
@@ -92,7 +93,7 @@ class Document:
             word_count=data.get("word_count", 0),
             source=data.get("source"),
             timestamp=data.get("timestamp"),
-            metadata=data.get("metadata", {})
+            metadata=data.get("metadata", {}),
         )
 
 
@@ -107,6 +108,7 @@ class ValidationDataset:
         documents: List of Document objects
         metadata: Dataset-level metadata
     """
+
     version: str
     created: str
     documents: List[Document] = field(default_factory=list)
@@ -124,7 +126,7 @@ class ValidationDataset:
                 "version": self.version,
                 "total_documents": 0,
                 "human_documents": 0,
-                "ai_documents": 0
+                "ai_documents": 0,
             }
 
         # Count by label
@@ -135,8 +137,7 @@ class ValidationDataset:
 
         # Count by AI model
         ai_model_counts = Counter(
-            doc.ai_model for doc in self.documents
-            if doc.label == "ai" and doc.ai_model
+            doc.ai_model for doc in self.documents if doc.label == "ai" and doc.ai_model
         )
 
         # Word count statistics
@@ -156,9 +157,9 @@ class ValidationDataset:
             "word_count_stats": {
                 "average": round(avg_words, 1),
                 "min": min_words,
-                "max": max_words
+                "max": max_words,
             },
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
 
     def get_documents_by_label(self, label: str) -> List[Document]:
@@ -173,7 +174,9 @@ class ValidationDataset:
         """Get all documents from specified AI model."""
         return [doc for doc in self.documents if doc.ai_model == ai_model]
 
-    def split_train_test(self, test_ratio: float = 0.2, seed: int = 42) -> Tuple["ValidationDataset", "ValidationDataset"]:
+    def split_train_test(
+        self, test_ratio: float = 0.2, seed: int = 42
+    ) -> Tuple["ValidationDataset", "ValidationDataset"]:
         """
         Split dataset into train and test sets.
 
@@ -185,6 +188,7 @@ class ValidationDataset:
             Tuple of (train_dataset, test_dataset)
         """
         import random
+
         random.seed(seed)
 
         # Shuffle documents
@@ -201,14 +205,14 @@ class ValidationDataset:
             version=f"{self.version}-train",
             created=datetime.now().isoformat(),
             documents=train_docs,
-            metadata={**self.metadata, "split": "train", "parent_version": self.version}
+            metadata={**self.metadata, "split": "train", "parent_version": self.version},
         )
 
         test_dataset = ValidationDataset(
             version=f"{self.version}-test",
             created=datetime.now().isoformat(),
             documents=test_docs,
-            metadata={**self.metadata, "split": "test", "parent_version": self.version}
+            metadata={**self.metadata, "split": "test", "parent_version": self.version},
         )
 
         logger.info(f"Split dataset: {len(train_docs)} train, {len(test_docs)} test")
@@ -275,12 +279,9 @@ class DatasetLoader:
         # Infer version from filename
         version = file_path.stem  # e.g., "v1.0" from "v1.0.jsonl"
 
-        dataset = ValidationDataset(
-            version=version,
-            created=datetime.now().isoformat()
-        )
+        dataset = ValidationDataset(version=version, created=datetime.now().isoformat())
 
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
@@ -318,17 +319,13 @@ class DatasetLoader:
         if metadata_file.exists():
             with open(metadata_file) as f:
                 metadata = json.load(f)
-                version = metadata.get('version', version)
-                created = metadata.get('created', created)
+                version = metadata.get("version", version)
+                created = metadata.get("created", created)
 
-        dataset = ValidationDataset(
-            version=version,
-            created=created,
-            metadata=metadata
-        )
+        dataset = ValidationDataset(version=version, created=created, metadata=metadata)
 
         # Load documents
-        with open(docs_file, encoding='utf-8') as f:
+        with open(docs_file, encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
@@ -347,7 +344,9 @@ class DatasetLoader:
         return dataset
 
     @staticmethod
-    def save_jsonl(dataset: ValidationDataset, output_path: Path, save_metadata: bool = True) -> None:
+    def save_jsonl(
+        dataset: ValidationDataset, output_path: Path, save_metadata: bool = True
+    ) -> None:
         """
         Save dataset to JSON Lines format.
 
@@ -358,7 +357,7 @@ class DatasetLoader:
         """
         dataset.validate()
 
-        if output_path.suffix == '.jsonl':
+        if output_path.suffix == ".jsonl":
             # Save as single file
             DatasetLoader._save_to_jsonl_file(dataset, output_path)
         else:
@@ -370,9 +369,9 @@ class DatasetLoader:
         """Save dataset to single JSONL file."""
         file_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             for doc in dataset.documents:
-                f.write(json.dumps(doc.to_dict(), ensure_ascii=False) + '\n')
+                f.write(json.dumps(doc.to_dict(), ensure_ascii=False) + "\n")
 
         logger.info(f"Saved {len(dataset.documents)} documents to {file_path}")
 
@@ -383,18 +382,15 @@ class DatasetLoader:
 
         # Save documents
         docs_file = dir_path / "documents.jsonl"
-        with open(docs_file, 'w', encoding='utf-8') as f:
+        with open(docs_file, "w", encoding="utf-8") as f:
             for doc in dataset.documents:
-                f.write(json.dumps(doc.to_dict(), ensure_ascii=False) + '\n')
+                f.write(json.dumps(doc.to_dict(), ensure_ascii=False) + "\n")
 
         # Save metadata
         if save_metadata:
             metadata_file = dir_path / "metadata.json"
-            metadata = {
-                **dataset.get_statistics(),
-                "saved": datetime.now().isoformat()
-            }
-            with open(metadata_file, 'w') as f:
+            metadata = {**dataset.get_statistics(), "saved": datetime.now().isoformat()}
+            with open(metadata_file, "w") as f:
                 json.dump(metadata, f, indent=2)
 
             logger.info(f"Saved {len(dataset.documents)} documents and metadata to {dir_path}")
@@ -416,7 +412,7 @@ class DatasetLoader:
 
         for doc in sorted_docs:
             # Hash document ID and text
-            hasher.update(doc.id.encode('utf-8'))
-            hasher.update(doc.text.encode('utf-8'))
+            hasher.update(doc.id.encode("utf-8"))
+            hasher.update(doc.text.encode("utf-8"))
 
         return hasher.hexdigest()[:16]  # First 16 characters

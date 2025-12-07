@@ -29,7 +29,7 @@ import textstat
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 
 class ReadabilityDimension(DimensionStrategy):
@@ -69,9 +69,9 @@ class ReadabilityDimension(DimensionStrategy):
         return 9.2
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "CORE"
+        return DimensionTier.CORE
 
     @property
     def description(self) -> str:
@@ -85,9 +85,9 @@ class ReadabilityDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for readability patterns.
@@ -140,12 +140,14 @@ class ReadabilityDimension(DimensionStrategy):
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     # ========================================================================
@@ -181,21 +183,17 @@ class ReadabilityDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             return 50.0  # Neutral score for unavailable data
 
         # Score on Flesch-Kincaid Grade Level (not Reading Ease)
         # Migrated from Flesch Reading Ease in Story 2.4.1
-        fk_grade = metrics.get('flesch_kincaid_grade', 9.0)
+        fk_grade = metrics.get("flesch_kincaid_grade", 9.0)
 
         # Gaussian scoring with research-based parameters
         # Target μ=9.0, Width σ=2.5 (Story 2.4.1, AC3)
         # _gaussian_score() returns 0-100 scale directly
-        score = self._gaussian_score(
-            value=fk_grade,
-            target=9.0,
-            width=2.5
-        )
+        score = self._gaussian_score(value=fk_grade, target=9.0, width=2.5)
 
         self._validate_score(score)
         return score
@@ -213,14 +211,14 @@ class ReadabilityDimension(DimensionStrategy):
         """
         recommendations = []
 
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             recommendations.append(
                 "Readability analysis unavailable. Install required dependencies: textstat, nltk."
             )
             return recommendations
 
-        flesch = metrics.get('flesch_reading_ease', 60.0)
-        grade = metrics.get('flesch_kincaid_grade', 8.0)
+        flesch = metrics.get("flesch_reading_ease", 60.0)
+        grade = metrics.get("flesch_kincaid_grade", 8.0)
 
         if flesch < 30:
             recommendations.append(
@@ -259,10 +257,10 @@ class ReadabilityDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (70.0, 89.9),
-            'acceptable': (50.0, 69.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (70.0, 89.9),
+            "acceptable": (50.0, 69.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -282,41 +280,41 @@ class ReadabilityDimension(DimensionStrategy):
         - Average word/sentence length
         """
         result = {
-            'flesch_reading_ease': 60.0,  # Default neutral
-            'flesch_kincaid_grade': 8.0,
-            'automated_readability_index': 8.0,
-            'gunning_fog': 8.0,
-            'smog_index': 8.0,
-            'avg_word_length': 0.0,
-            'avg_sentence_length': 0.0,
+            "flesch_reading_ease": 60.0,  # Default neutral
+            "flesch_kincaid_grade": 8.0,
+            "automated_readability_index": 8.0,
+            "gunning_fog": 8.0,
+            "smog_index": 8.0,
+            "avg_word_length": 0.0,
+            "avg_sentence_length": 0.0,
         }
 
         try:
             # Calculate readability metrics
-            result['flesch_reading_ease'] = textstat.flesch_reading_ease(text)
-            result['flesch_kincaid_grade'] = textstat.flesch_kincaid_grade(text)
-            result['automated_readability_index'] = textstat.automated_readability_index(text)
-            result['gunning_fog'] = textstat.gunning_fog(text)
-            result['smog_index'] = textstat.smog_index(text)
+            result["flesch_reading_ease"] = textstat.flesch_reading_ease(text)
+            result["flesch_kincaid_grade"] = textstat.flesch_kincaid_grade(text)
+            result["automated_readability_index"] = textstat.automated_readability_index(text)
+            result["gunning_fog"] = textstat.gunning_fog(text)
+            result["smog_index"] = textstat.smog_index(text)
 
             # Calculate basic statistics
-            words = re.findall(r'\b\w+\b', text)
-            sentences = re.split(r'[.!?]+', text)
+            words = re.findall(r"\b\w+\b", text)
+            sentences = re.split(r"[.!?]+", text)
             sentences = [s for s in sentences if s.strip()]  # Remove empty
 
             if words:
                 total_chars = sum(len(word) for word in words)
-                result['avg_word_length'] = round(total_chars / len(words), 2)
+                result["avg_word_length"] = round(total_chars / len(words), 2)
 
             if sentences and words:
-                result['avg_sentence_length'] = round(len(words) / len(sentences), 2)
+                result["avg_sentence_length"] = round(len(words) / len(sentences), 2)
 
             # Calculate syllables (for additional context)
             try:
                 syllable_count = textstat.syllable_count(text)
-                result['syllable_count'] = syllable_count
+                result["syllable_count"] = syllable_count
                 if words:
-                    result['avg_syllables_per_word'] = round(syllable_count / len(words), 2)
+                    result["avg_syllables_per_word"] = round(syllable_count / len(words), 2)
             except Exception:
                 pass
 

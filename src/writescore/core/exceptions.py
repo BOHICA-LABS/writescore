@@ -107,8 +107,7 @@ class InvalidTierError(AIPatternAnalyzerError):
         self.valid_tiers = valid_tiers
 
     def __repr__(self):
-        return (f"InvalidTierError(tier={self.tier!r}, "
-                f"valid_tiers={self.valid_tiers})")
+        return f"InvalidTierError(tier={self.tier!r}, " f"valid_tiers={self.valid_tiers})"
 
 
 class InvalidWeightError(AIPatternAnalyzerError):
@@ -142,8 +141,7 @@ class InvalidWeightError(AIPatternAnalyzerError):
         self.valid_range = valid_range or (0, 100)
 
     def __repr__(self):
-        return (f"InvalidWeightError(weight={self.weight}, "
-                f"valid_range={self.valid_range})")
+        return f"InvalidWeightError(weight={self.weight}, " f"valid_range={self.valid_range})"
 
 
 class ParameterLoadError(AIPatternAnalyzerError):

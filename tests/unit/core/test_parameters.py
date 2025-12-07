@@ -33,7 +33,7 @@ class TestParameterValue:
             value=10.5,
             source=PercentileSource.PERCENTILE,
             percentile="p50_human",
-            description="Median of human distribution"
+            description="Median of human distribution",
         )
         param.validate()
         assert param.value == 10.5
@@ -43,9 +43,7 @@ class TestParameterValue:
     def test_valid_stdev_parameter(self):
         """Test creating a valid stdev-based parameter."""
         param = ParameterValue(
-            value=2.3,
-            source=PercentileSource.STDEV,
-            description="Standard deviation"
+            value=2.3, source=PercentileSource.STDEV, description="Standard deviation"
         )
         param.validate()
         assert param.value == 2.3
@@ -55,7 +53,7 @@ class TestParameterValue:
         """Test that PERCENTILE source requires percentile attribute."""
         param = ParameterValue(
             value=10.0,
-            source=PercentileSource.PERCENTILE
+            source=PercentileSource.PERCENTILE,
             # Missing percentile attribute
         )
         with pytest.raises(ValueError, match="Percentile source requires percentile"):
@@ -63,10 +61,7 @@ class TestParameterValue:
 
     def test_invalid_value_type(self):
         """Test that non-numeric values are rejected."""
-        param = ParameterValue(
-            value="not_a_number",
-            source=PercentileSource.LITERATURE
-        )
+        param = ParameterValue(value="not_a_number", source=PercentileSource.LITERATURE)
         with pytest.raises(ValueError, match="must be numeric"):
             param.validate()
 
@@ -78,7 +73,7 @@ class TestGaussianParameters:
         """Test creating valid Gaussian parameters."""
         params = GaussianParameters(
             target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-            width=ParameterValue(2.0, PercentileSource.STDEV)
+            width=ParameterValue(2.0, PercentileSource.STDEV),
         )
         params.validate()
         assert params.target.value == 10.0
@@ -88,7 +83,7 @@ class TestGaussianParameters:
         """Test that width must be > 0."""
         params = GaussianParameters(
             target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-            width=ParameterValue(0.0, PercentileSource.STDEV)
+            width=ParameterValue(0.0, PercentileSource.STDEV),
         )
         with pytest.raises(ValueError, match="width must be > 0"):
             params.validate()
@@ -97,7 +92,7 @@ class TestGaussianParameters:
         """Test that negative width is rejected."""
         params = GaussianParameters(
             target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-            width=ParameterValue(-1.0, PercentileSource.STDEV)
+            width=ParameterValue(-1.0, PercentileSource.STDEV),
         )
         with pytest.raises(ValueError, match="width must be > 0"):
             params.validate()
@@ -111,7 +106,7 @@ class TestMonotonicParameters:
         params = MonotonicParameters(
             threshold_low=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human"),
             threshold_high=ParameterValue(0.8, PercentileSource.PERCENTILE, "p75_human"),
-            direction="increasing"
+            direction="increasing",
         )
         params.validate()
         assert params.threshold_low.value == 0.5
@@ -122,7 +117,7 @@ class TestMonotonicParameters:
         """Test that threshold_low must be < threshold_high."""
         params = MonotonicParameters(
             threshold_low=ParameterValue(0.8, PercentileSource.PERCENTILE, "p75_human"),
-            threshold_high=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human")
+            threshold_high=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human"),
         )
         with pytest.raises(ValueError, match="threshold_low .* must be <"):
             params.validate()
@@ -131,7 +126,7 @@ class TestMonotonicParameters:
         """Test that thresholds cannot be equal."""
         params = MonotonicParameters(
             threshold_low=ParameterValue(0.5, PercentileSource.PERCENTILE, "p50_human"),
-            threshold_high=ParameterValue(0.5, PercentileSource.PERCENTILE, "p50_human")
+            threshold_high=ParameterValue(0.5, PercentileSource.PERCENTILE, "p50_human"),
         )
         with pytest.raises(ValueError, match="threshold_low .* must be <"):
             params.validate()
@@ -141,7 +136,7 @@ class TestMonotonicParameters:
         params = MonotonicParameters(
             threshold_low=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human"),
             threshold_high=ParameterValue(0.8, PercentileSource.PERCENTILE, "p75_human"),
-            direction="sideways"  # Invalid
+            direction="sideways",  # Invalid
         )
         with pytest.raises(ValueError, match="Direction must be"):
             params.validate()
@@ -156,10 +151,10 @@ class TestThresholdParameters:
             thresholds=[
                 ParameterValue(2.0, PercentileSource.PERCENTILE, "p25_ai"),
                 ParameterValue(5.0, PercentileSource.PERCENTILE, "p50_combined"),
-                ParameterValue(8.0, PercentileSource.PERCENTILE, "p75_human")
+                ParameterValue(8.0, PercentileSource.PERCENTILE, "p75_human"),
             ],
             labels=["excellent", "good", "concerning", "poor"],
-            scores=[100.0, 75.0, 40.0, 10.0]
+            scores=[100.0, 75.0, 40.0, 10.0],
         )
         params.validate()
         assert len(params.thresholds) == 3
@@ -172,10 +167,10 @@ class TestThresholdParameters:
             thresholds=[
                 ParameterValue(8.0, PercentileSource.PERCENTILE, "p75_human"),
                 ParameterValue(5.0, PercentileSource.PERCENTILE, "p50_combined"),
-                ParameterValue(2.0, PercentileSource.PERCENTILE, "p25_ai")
+                ParameterValue(2.0, PercentileSource.PERCENTILE, "p25_ai"),
             ],
             labels=["excellent", "good", "concerning", "poor"],
-            scores=[100.0, 75.0, 40.0, 10.0]
+            scores=[100.0, 75.0, 40.0, 10.0],
         )
         with pytest.raises(ValueError, match="must be in ascending order"):
             params.validate()
@@ -185,10 +180,10 @@ class TestThresholdParameters:
         params = ThresholdParameters(
             thresholds=[
                 ParameterValue(2.0, PercentileSource.PERCENTILE, "p25_ai"),
-                ParameterValue(5.0, PercentileSource.PERCENTILE, "p50_combined")
+                ParameterValue(5.0, PercentileSource.PERCENTILE, "p50_combined"),
             ],
             labels=["excellent", "good", "concerning"],
-            scores=[100.0, 75.0]  # Only 2 scores for 3 labels
+            scores=[100.0, 75.0],  # Only 2 scores for 3 labels
         )
         with pytest.raises(ValueError, match="must have same length"):
             params.validate()
@@ -198,10 +193,10 @@ class TestThresholdParameters:
         params = ThresholdParameters(
             thresholds=[
                 ParameterValue(2.0, PercentileSource.PERCENTILE, "p25_ai"),
-                ParameterValue(5.0, PercentileSource.PERCENTILE, "p50_combined")
+                ParameterValue(5.0, PercentileSource.PERCENTILE, "p50_combined"),
             ],
             labels=["excellent", "good"],  # Should be 3 labels for 2 thresholds
-            scores=[100.0, 75.0]
+            scores=[100.0, 75.0],
         )
         with pytest.raises(ValueError, match="Expected .* categories"):
             params.validate()
@@ -209,11 +204,9 @@ class TestThresholdParameters:
     def test_score_out_of_range(self):
         """Test that scores must be in [0, 100] range."""
         params = ThresholdParameters(
-            thresholds=[
-                ParameterValue(2.0, PercentileSource.PERCENTILE, "p25_ai")
-            ],
+            thresholds=[ParameterValue(2.0, PercentileSource.PERCENTILE, "p25_ai")],
             labels=["excellent", "poor"],
-            scores=[150.0, 10.0]  # 150 is out of range
+            scores=[150.0, 10.0],  # 150 is out of range
         )
         with pytest.raises(ValueError, match="must be in range"):
             params.validate()
@@ -229,9 +222,9 @@ class TestDimensionParameters:
             scoring_type=ScoringType.GAUSSIAN,
             parameters=GaussianParameters(
                 target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(2.0, PercentileSource.STDEV)
+                width=ParameterValue(2.0, PercentileSource.STDEV),
             ),
-            version="1.0"
+            version="1.0",
         )
         params.validate()
         assert params.dimension_name == "burstiness"
@@ -244,8 +237,8 @@ class TestDimensionParameters:
             scoring_type=ScoringType.GAUSSIAN,
             parameters=MonotonicParameters(  # Wrong type
                 threshold_low=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human"),
-                threshold_high=ParameterValue(0.8, PercentileSource.PERCENTILE, "p75_human")
-            )
+                threshold_high=ParameterValue(0.8, PercentileSource.PERCENTILE, "p75_human"),
+            ),
         )
         with pytest.raises(ValueError, match="Gaussian scoring requires GaussianParameters"):
             params.validate()
@@ -257,9 +250,7 @@ class TestPercentileParameters:
     def test_create_empty_parameters(self):
         """Test creating empty parameter set."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v1.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v1.0"
         )
         assert params.version == "1.0"
         assert len(params.dimensions) == 0
@@ -267,9 +258,7 @@ class TestPercentileParameters:
     def test_add_dimension(self):
         """Test adding a dimension to parameters."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v1.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v1.0"
         )
 
         dim_params = DimensionParameters(
@@ -277,8 +266,8 @@ class TestPercentileParameters:
             scoring_type=ScoringType.GAUSSIAN,
             parameters=GaussianParameters(
                 target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(2.0, PercentileSource.STDEV)
-            )
+                width=ParameterValue(2.0, PercentileSource.STDEV),
+            ),
         )
 
         params.add_dimension(dim_params)
@@ -288,9 +277,7 @@ class TestPercentileParameters:
     def test_get_dimension(self):
         """Test retrieving dimension parameters."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v1.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v1.0"
         )
 
         dim_params = DimensionParameters(
@@ -298,8 +285,8 @@ class TestPercentileParameters:
             scoring_type=ScoringType.GAUSSIAN,
             parameters=GaussianParameters(
                 target=ParameterValue(5.0, PercentileSource.LITERATURE),
-                width=ParameterValue(1.0, PercentileSource.LITERATURE)
-            )
+                width=ParameterValue(1.0, PercentileSource.LITERATURE),
+            ),
         )
 
         params.add_dimension(dim_params)
@@ -314,20 +301,20 @@ class TestPercentileParameters:
     def test_validate_all_dimensions(self):
         """Test validation of all dimensions."""
         params = PercentileParameters(
-            version="1.0",
-            timestamp="2025-11-24T10:00:00Z",
-            validation_dataset_version="v1.0"
+            version="1.0", timestamp="2025-11-24T10:00:00Z", validation_dataset_version="v1.0"
         )
 
         # Add valid dimension
-        params.add_dimension(DimensionParameters(
-            dimension_name="valid",
-            scoring_type=ScoringType.GAUSSIAN,
-            parameters=GaussianParameters(
-                target=ParameterValue(10.0, PercentileSource.LITERATURE),
-                width=ParameterValue(2.0, PercentileSource.LITERATURE)
+        params.add_dimension(
+            DimensionParameters(
+                dimension_name="valid",
+                scoring_type=ScoringType.GAUSSIAN,
+                parameters=GaussianParameters(
+                    target=ParameterValue(10.0, PercentileSource.LITERATURE),
+                    width=ParameterValue(2.0, PercentileSource.LITERATURE),
+                ),
             )
-        ))
+        )
 
         # Should validate successfully
         params.validate()
@@ -338,34 +325,38 @@ class TestPercentileParameters:
             version="1.0",
             timestamp="2025-11-24T10:00:00Z",
             validation_dataset_version="v1.0",
-            metadata={"trigger": "initial"}
+            metadata={"trigger": "initial"},
         )
 
-        params.add_dimension(DimensionParameters(
-            dimension_name="gaussian_dim",
-            scoring_type=ScoringType.GAUSSIAN,
-            parameters=GaussianParameters(
-                target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(2.0, PercentileSource.STDEV)
+        params.add_dimension(
+            DimensionParameters(
+                dimension_name="gaussian_dim",
+                scoring_type=ScoringType.GAUSSIAN,
+                parameters=GaussianParameters(
+                    target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
+                    width=ParameterValue(2.0, PercentileSource.STDEV),
+                ),
             )
-        ))
+        )
 
-        params.add_dimension(DimensionParameters(
-            dimension_name="monotonic_dim",
-            scoring_type=ScoringType.MONOTONIC,
-            parameters=MonotonicParameters(
-                threshold_low=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human"),
-                threshold_high=ParameterValue(0.8, PercentileSource.PERCENTILE, "p75_human")
+        params.add_dimension(
+            DimensionParameters(
+                dimension_name="monotonic_dim",
+                scoring_type=ScoringType.MONOTONIC,
+                parameters=MonotonicParameters(
+                    threshold_low=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human"),
+                    threshold_high=ParameterValue(0.8, PercentileSource.PERCENTILE, "p75_human"),
+                ),
             )
-        ))
+        )
 
         summary = params.get_summary()
-        assert summary['version'] == "1.0"
-        assert summary['total_dimensions'] == 2
-        assert summary['scoring_types']['gaussian'] == 1
-        assert summary['scoring_types']['monotonic'] == 1
-        assert summary['parameter_sources']['percentile'] == 3  # target + 2 thresholds
-        assert summary['parameter_sources']['stdev'] == 1
+        assert summary["version"] == "1.0"
+        assert summary["total_dimensions"] == 2
+        assert summary["scoring_types"]["gaussian"] == 1
+        assert summary["scoring_types"]["monotonic"] == 1
+        assert summary["parameter_sources"]["percentile"] == 3  # target + 2 thresholds
+        assert summary["parameter_sources"]["stdev"] == 1
 
 
 class TestParameterLoader:
@@ -375,14 +366,14 @@ class TestParameterLoader:
         """Test loading fallback parameters."""
         params = ParameterLoader.load(use_fallback=True)
         assert params is not None
-        assert params.version.endswith('-fallback')
+        assert params.version.endswith("-fallback")
         assert len(params.dimensions) >= 2  # burstiness and lexical
 
     def test_load_missing_file_uses_fallback(self):
         """Test that missing config file falls back to defaults."""
         params = ParameterLoader.load(config_path=Path("/nonexistent/path.yaml"))
         assert params is not None
-        assert params.version.endswith('-fallback')
+        assert params.version.endswith("-fallback")
 
     def test_save_and_load_roundtrip(self):
         """Test saving and loading parameters."""
@@ -393,17 +384,19 @@ class TestParameterLoader:
             original = PercentileParameters(
                 version="1.0-test",
                 timestamp=datetime.now().isoformat(),
-                validation_dataset_version="v1.0"
+                validation_dataset_version="v1.0",
             )
 
-            original.add_dimension(DimensionParameters(
-                dimension_name="test_dim",
-                scoring_type=ScoringType.GAUSSIAN,
-                parameters=GaussianParameters(
-                    target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-                    width=ParameterValue(2.0, PercentileSource.STDEV)
+            original.add_dimension(
+                DimensionParameters(
+                    dimension_name="test_dim",
+                    scoring_type=ScoringType.GAUSSIAN,
+                    parameters=GaussianParameters(
+                        target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
+                        width=ParameterValue(2.0, PercentileSource.STDEV),
+                    ),
                 )
-            ))
+            )
 
             # Save
             ParameterLoader.save(original, config_path)
@@ -427,7 +420,7 @@ class TestParameterLoader:
             config_path = Path(tmpdir) / "invalid.yaml"
 
             # Write invalid YAML
-            with open(config_path, 'w') as f:
+            with open(config_path, "w") as f:
                 f.write("{ invalid yaml content [")
 
             with pytest.raises(ParameterLoadError):
@@ -440,8 +433,9 @@ class TestParameterLoader:
 
             # Write incomplete config
             import yaml
-            with open(config_path, 'w') as f:
-                yaml.dump({'version': '1.0'}, f)  # Missing timestamp, validation_dataset_version
+
+            with open(config_path, "w") as f:
+                yaml.dump({"version": "1.0"}, f)  # Missing timestamp, validation_dataset_version
 
             with pytest.raises(ParameterLoadError, match="must include"):
                 ParameterLoader.load(config_path)

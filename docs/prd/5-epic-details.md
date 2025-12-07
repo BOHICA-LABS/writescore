@@ -359,3 +359,127 @@
 8. All links verified working
 
 ---
+
+## 5.6 Epic 6: Developer Experience & Security
+
+**Goal:** Improve developer onboarding with streamlined setup options, enhance CI/CD with caching and validation, and leverage GitHub Advanced Security features available free for public repositories.
+
+### Story 6.1: Fix Installation Issues
+
+**As a** user installing WriteScore via the Quick Start instructions,
+**I want** complete dependency declarations and accurate documentation,
+**so that** the package installs and runs correctly on first try.
+
+**Acceptance Criteria:**
+1. `scikit-learn>=1.3.0` added to pyproject.toml dependencies
+2. README Quick Start includes spaCy model download step
+3. Fresh install via `pip install -e .` succeeds without errors
+4. `writescore analyze` works with all dimensions enabled
+
+---
+
+### Story 6.2: Developer Environment Setup
+
+**As a** user or contributor to WriteScore,
+**I want** streamlined environment setup with choice of native or containerized development,
+**so that** I can start using or contributing quickly.
+
+**Acceptance Criteria:**
+1. Justfile created with common development commands (install, dev, test, lint, format, coverage, clean)
+2. `.devcontainer/devcontainer.json` created for VS Code/GitHub Codespaces
+3. README includes "Getting Started" section with options table (Native Just, Native Manual, Devcontainer, Codespaces)
+4. Brewfile updated to include `just` for macOS developers
+5. Environment-aware tests created that skip based on detected environment
+
+---
+
+### Story 6.3: README Requirements and Troubleshooting
+
+**As a** user evaluating or installing WriteScore,
+**I want** clear system requirements and troubleshooting guidance,
+**so that** I can verify my system is compatible and resolve common issues.
+
+**Acceptance Criteria:**
+1. README includes "Requirements" section (Python, RAM, disk space)
+2. README includes "Troubleshooting" section with common issues
+3. Diagnostic commands documented for "command not found" issues
+4. Solutions documented for slow first run, out of memory, missing models
+
+---
+
+### Story 6.4: CI Pipeline Improvements
+
+**As a** contributor to WriteScore,
+**I want** faster CI builds with security scanning,
+**so that** I get quicker feedback and catch security issues early.
+
+**Acceptance Criteria:**
+1. CI caches pip packages and spaCy model for faster builds
+2. Python 3.11 added to test matrix (alongside 3.9, 3.10, 3.12)
+3. Pre-commit job added to CI to enforce all local hooks
+4. CodeQL workflow created for Python security analysis
+5. Dependency review action added to flag vulnerable dependencies in PRs
+
+---
+
+### Story 6.5: Dependabot and Security Settings
+
+**As a** maintainer of WriteScore,
+**I want** automated dependency updates and a clear security policy,
+**so that** vulnerabilities are patched promptly and security researchers know how to report issues.
+
+**Acceptance Criteria:**
+1. `.github/dependabot.yml` created for pip (weekly) and GitHub Actions (monthly) updates
+2. Dev dependencies grouped to reduce PR noise
+3. `SECURITY.md` created with vulnerability reporting instructions
+4. Dependabot alerts and security updates enabled
+5. Secret scanning and push protection verified (default for public repos)
+
+---
+
+### Story 6.6: README Status Badges
+
+**As a** potential user or contributor evaluating WriteScore,
+**I want** to see at-a-glance status indicators in the README,
+**so that** I can quickly assess project health, security posture, and maintenance activity.
+
+**Acceptance Criteria:**
+1. Badges organized into logical rows (CI/Build, Code Quality, Security, Project Info, Maintenance)
+2. CI badges: GitHub Actions, CodeQL, pre-commit enabled
+3. Quality badges: Codecov coverage, Ruff linter, mypy type-checked
+4. Security badges: Security policy, Dependabot enabled
+5. Maintenance badges: Last commit, open issues, PRs welcome
+6. All badges link to relevant detail pages
+
+---
+
+### Story 6.7: Contributor Experience
+
+**As a** potential contributor to WriteScore,
+**I want** clear community guidelines and structured templates for issues and PRs,
+**so that** I know how to participate appropriately and provide useful information.
+
+**Acceptance Criteria:**
+1. `CODE_OF_CONDUCT.md` created using Contributor Covenant v2.1
+2. `.github/ISSUE_TEMPLATE/bug_report.yml` created with structured form
+3. `.github/ISSUE_TEMPLATE/feature_request.yml` created with structured form
+4. `.github/PULL_REQUEST_TEMPLATE.md` created with description, type, and checklist
+5. `CONTRIBUTING.md` updated to reference Justfile, devcontainer, and Code of Conduct
+
+---
+
+### Story 6.8: Mypy Type Compliance
+
+**As a** contributor to WriteScore,
+**I want** the codebase to pass mypy type checking,
+**so that** type errors are caught early and the pre-commit hook doesn't block commits.
+
+**Acceptance Criteria:**
+1. All implicit Optional errors fixed (parameters with `= None` but no `Optional` type)
+2. All missing type annotations added to untyped variables
+3. All method override signature mismatches fixed in dimension subclasses
+4. Mypy passes with `--ignore-missing-imports` flag
+5. Pre-commit hook no longer requires `SKIP=mypy` to commit
+6. Mypy configuration added to `pyproject.toml`
+
+---

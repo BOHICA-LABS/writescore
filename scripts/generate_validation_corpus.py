@@ -19,21 +19,16 @@ Story: 2.4.1 (Dimension Scoring Optimization)
 """
 
 import argparse
+import hashlib
 import json
 import logging
-import os
-import random
 import sys
-from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 from datetime import datetime
-import hashlib
+from pathlib import Path
+from typing import Dict, Tuple
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -58,7 +53,7 @@ class ValidationCorpusGenerator:
           metadata.json      (corpus metadata and statistics)
     """
 
-    DOMAINS = ['academic', 'social', 'business', 'technical', 'creative']
+    DOMAINS = ["academic", "social", "business", "technical", "creative"]
     DOCS_PER_DOMAIN = 50
     MIN_WORD_COUNT = 200
     MAX_WORD_COUNT = 1000
@@ -74,15 +69,15 @@ class ValidationCorpusGenerator:
         self.output_dir = Path(output_dir)
         self.use_mock = use_mock
         self.metadata: Dict = {
-            'version': '1.0.0',
-            'created': datetime.now().isoformat(),
-            'story': '2.4.1',
-            'purpose': 'Validation corpus for dimension scoring optimization',
-            'total_documents': 0,
-            'human_documents': 0,
-            'ai_documents': 0,
-            'domains': {},
-            'sources': []
+            "version": "1.0.0",
+            "created": datetime.now().isoformat(),
+            "story": "2.4.1",
+            "purpose": "Validation corpus for dimension scoring optimization",
+            "total_documents": 0,
+            "human_documents": 0,
+            "ai_documents": 0,
+            "domains": {},
+            "sources": [],
         }
 
         # Create directory structure
@@ -90,7 +85,7 @@ class ValidationCorpusGenerator:
 
     def _create_directories(self) -> None:
         """Create corpus directory structure."""
-        for author_type in ['human', 'ai']:
+        for author_type in ["human", "ai"]:
             for domain in self.DOMAINS:
                 dir_path = self.output_dir / author_type / domain
                 dir_path.mkdir(parents=True, exist_ok=True)
@@ -114,7 +109,7 @@ class ValidationCorpusGenerator:
         # Save metadata
         self._save_metadata()
 
-        logger.info(f"\n✅ Corpus generation complete!")
+        logger.info("\n✅ Corpus generation complete!")
         logger.info(f"   Total documents: {self.metadata['total_documents']}")
         logger.info(f"   Human: {self.metadata['human_documents']}")
         logger.info(f"   AI: {self.metadata['ai_documents']}")
@@ -150,7 +145,7 @@ class ValidationCorpusGenerator:
                     content, source = self._fetch_human_content(domain)
 
                 # Save document
-                doc_id = self._save_document('human', domain, i, content, source)
+                self._save_document("human", domain, i, content, source)
 
                 if (i + 1) % 10 == 0:
                     logger.info(f"  Generated {i + 1}/{count} human {domain} documents")
@@ -159,7 +154,7 @@ class ValidationCorpusGenerator:
                 logger.error(f"Failed to generate human {domain} document {i}: {e}")
                 continue
 
-        self.metadata['human_documents'] += count
+        self.metadata["human_documents"] += count
 
     def _generate_ai_documents(self, domain: str, count: int) -> None:
         """
@@ -186,7 +181,7 @@ class ValidationCorpusGenerator:
                     content, source = self._generate_ai_content(domain)
 
                 # Save document
-                doc_id = self._save_document('ai', domain, i, content, source)
+                self._save_document("ai", domain, i, content, source)
 
                 if (i + 1) % 10 == 0:
                     logger.info(f"  Generated {i + 1}/{count} AI {domain} documents")
@@ -195,7 +190,7 @@ class ValidationCorpusGenerator:
                 logger.error(f"Failed to generate AI {domain} document {i}: {e}")
                 continue
 
-        self.metadata['ai_documents'] += count
+        self.metadata["ai_documents"] += count
 
     def _fetch_human_content(self, domain: str) -> Tuple[str, str]:
         """
@@ -224,11 +219,11 @@ class ValidationCorpusGenerator:
     def _generate_mock_human_content(self, domain: str, index: int) -> Tuple[str, str]:
         """Generate mock human-written content for testing."""
         templates = {
-            'academic': self._mock_academic_human,
-            'social': self._mock_social_human,
-            'business': self._mock_business_human,
-            'technical': self._mock_technical_human,
-            'creative': self._mock_creative_human
+            "academic": self._mock_academic_human,
+            "social": self._mock_social_human,
+            "business": self._mock_business_human,
+            "technical": self._mock_technical_human,
+            "creative": self._mock_creative_human,
         }
 
         # Get base content
@@ -242,17 +237,17 @@ class ValidationCorpusGenerator:
             word_count = len(content.split())
 
         # Truncate to max limit
-        final_content = content[:self._calculate_char_limit()]
+        final_content = content[: self._calculate_char_limit()]
         return final_content, "mock_human_generator"
 
     def _generate_mock_ai_content(self, domain: str, index: int) -> Tuple[str, str]:
         """Generate mock AI-written content with typical AI characteristics."""
         templates = {
-            'academic': self._mock_academic_ai,
-            'social': self._mock_social_ai,
-            'business': self._mock_business_ai,
-            'technical': self._mock_technical_ai,
-            'creative': self._mock_creative_ai
+            "academic": self._mock_academic_ai,
+            "social": self._mock_social_ai,
+            "business": self._mock_business_ai,
+            "technical": self._mock_technical_ai,
+            "creative": self._mock_creative_ai,
         }
 
         # Get base content
@@ -266,7 +261,7 @@ class ValidationCorpusGenerator:
             word_count = len(content.split())
 
         # Truncate to max limit
-        final_content = content[:self._calculate_char_limit()]
+        final_content = content[: self._calculate_char_limit()]
         return final_content, "mock_ai_generator"
 
     def _calculate_char_limit(self) -> int:
@@ -278,7 +273,7 @@ class ValidationCorpusGenerator:
 
     def _mock_academic_human(self, index: int) -> str:
         """Generate mock human academic text."""
-        return f"""This research examines the relationship between cognitive load and learning
+        return """This research examines the relationship between cognitive load and learning
 outcomes in digital environments. Prior studies have shown mixed results, with some
 researchers finding positive correlations while others report no significant effect.
 Our study addresses these inconsistencies by controlling for multiple confounding
@@ -289,7 +284,7 @@ findings have implications for instructional design in online education."""
 
     def _mock_social_human(self, index: int) -> str:
         """Generate mock human social media style text."""
-        return f"""Just finished reading this incredible book and I can't stop thinking
+        return """Just finished reading this incredible book and I can't stop thinking
 about it! The author's writing style is so unique - it's like she gets inside your head
 and makes you question everything you thought you knew. Has anyone else read it? I'd
 love to hear your thoughts! The ending totally blindsided me (no spoilers though).
@@ -299,7 +294,7 @@ these days? Need some new recommendations!"""
 
     def _mock_business_human(self, index: int) -> str:
         """Generate mock human business writing."""
-        return f"""Following up on our discussion from yesterday's meeting, I wanted to
+        return """Following up on our discussion from yesterday's meeting, I wanted to
 share some thoughts on the Q4 strategy. Looking at the numbers, we're seeing stronger
 than expected growth in the EMEA region, which is great news. However, the APAC
 numbers are a bit concerning - down 12% from last quarter. I think we need to
@@ -309,7 +304,7 @@ with the regional teams. Let me know what times work for everyone."""
 
     def _mock_technical_human(self, index: int) -> str:
         """Generate mock human technical writing."""
-        return f"""To set up the development environment, first clone the repository and
+        return """To set up the development environment, first clone the repository and
 install the dependencies. You'll need Python 3.8 or higher. Run 'pip install -r
 requirements.txt' to get everything set up. The config file is in the root directory
 - you'll want to update the API keys and database credentials. If you run into issues
@@ -319,7 +314,7 @@ Once everything's configured, run the test suite to verify your setup."""
 
     def _mock_creative_human(self, index: int) -> str:
         """Generate mock human creative writing."""
-        return f"""The rain had been falling for three days straight. Sarah watched the
+        return """The rain had been falling for three days straight. Sarah watched the
 droplets race down the window, each one following its own unpredictable path. She
 thought about calling him, but what would she say? The words had all been spoken
 already, hadn't they? Sometimes silence speaks louder than any explanation ever could.
@@ -331,7 +326,7 @@ sort of way. Everything felt melancholy these days."""
 
     def _mock_academic_ai(self, index: int) -> str:
         """Generate mock AI academic text with typical AI patterns."""
-        return f"""It is important to note that the field of cognitive psychology has
+        return """It is important to note that the field of cognitive psychology has
 demonstrated significant advances in recent years. Researchers have increasingly
 focused on understanding the complex interplay between various cognitive processes.
 This comprehensive approach allows for a more nuanced understanding of how learning
@@ -342,7 +337,7 @@ better optimize educational interventions to enhance student success."""
 
     def _mock_social_ai(self, index: int) -> str:
         """Generate mock AI social media style text."""
-        return f"""I recently had the pleasure of reading an absolutely fascinating book
+        return """I recently had the pleasure of reading an absolutely fascinating book
 that truly changed my perspective on this important topic. The author skillfully
 weaves together compelling narratives that resonate deeply with readers. It is clear
 that this work represents a significant contribution to the field. I would highly
@@ -353,7 +348,7 @@ discussions about this important work."""
 
     def _mock_business_ai(self, index: int) -> str:
         """Generate mock AI business writing."""
-        return f"""Upon careful review of the quarterly performance metrics, several key
+        return """Upon careful review of the quarterly performance metrics, several key
 insights emerge that warrant further discussion. It is important to note that the
 EMEA region has demonstrated strong growth patterns, which is certainly encouraging.
 However, it is also worth noting that the APAC region presents certain challenges
@@ -364,7 +359,7 @@ developing effective solutions."""
 
     def _mock_technical_ai(self, index: int) -> str:
         """Generate mock AI technical writing."""
-        return f"""To successfully configure the development environment, it is important
+        return """To successfully configure the development environment, it is important
 to follow these comprehensive steps. First, you will need to clone the repository
 from the version control system. Next, ensure that all necessary dependencies are
 properly installed by executing the package manager commands. It is worth noting that
@@ -375,7 +370,7 @@ By following these guidelines, you can ensure a smooth setup process."""
 
     def _mock_creative_ai(self, index: int) -> str:
         """Generate mock AI creative writing."""
-        return f"""The persistent rainfall had continued unabated for a considerable
+        return """The persistent rainfall had continued unabated for a considerable
 duration. As Sarah observed the window, she contemplated the various droplets as
 they descended along the glass surface. She found herself considering the possibility
 of reaching out, yet uncertainty clouded her judgment regarding the appropriate words
@@ -385,12 +380,7 @@ verbal articulation. The sight of the streetlight illuminating the water created
 aesthetically pleasing, albeit somewhat melancholic, visual experience."""
 
     def _save_document(
-        self,
-        author_type: str,
-        domain: str,
-        index: int,
-        content: str,
-        source: str
+        self, author_type: str, domain: str, index: int, content: str, source: str
     ) -> str:
         """
         Save document to corpus with metadata.
@@ -399,52 +389,50 @@ aesthetically pleasing, albeit somewhat melancholic, visual experience."""
             Document ID (hash)
         """
         # Generate unique document ID
-        doc_id = hashlib.md5(
-            f"{author_type}_{domain}_{index}_{source}".encode()
-        ).hexdigest()[:12]
+        doc_id = hashlib.md5(f"{author_type}_{domain}_{index}_{source}".encode()).hexdigest()[:12]
 
         # Create document metadata
         doc_metadata = {
-            'id': doc_id,
-            'author_type': author_type,
-            'domain': domain,
-            'source': source,
-            'word_count': len(content.split()),
-            'char_count': len(content),
-            'created': datetime.now().isoformat()
+            "id": doc_id,
+            "author_type": author_type,
+            "domain": domain,
+            "source": source,
+            "word_count": len(content.split()),
+            "char_count": len(content),
+            "created": datetime.now().isoformat(),
         }
 
         # Save content
         filename = f"{doc_id}.txt"
         filepath = self.output_dir / author_type / domain / filename
 
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(content)
 
         # Save metadata
         metadata_filename = f"{doc_id}.json"
         metadata_filepath = self.output_dir / author_type / domain / metadata_filename
 
-        with open(metadata_filepath, 'w', encoding='utf-8') as f:
+        with open(metadata_filepath, "w", encoding="utf-8") as f:
             json.dump(doc_metadata, f, indent=2)
 
         # Update corpus metadata
-        if domain not in self.metadata['domains']:
-            self.metadata['domains'][domain] = {'human': 0, 'ai': 0}
+        if domain not in self.metadata["domains"]:
+            self.metadata["domains"][domain] = {"human": 0, "ai": 0}
 
-        self.metadata['domains'][domain][author_type] += 1
-        self.metadata['total_documents'] += 1
+        self.metadata["domains"][domain][author_type] += 1
+        self.metadata["total_documents"] += 1
 
-        if source not in self.metadata['sources']:
-            self.metadata['sources'].append(source)
+        if source not in self.metadata["sources"]:
+            self.metadata["sources"].append(source)
 
         return doc_id
 
     def _save_metadata(self) -> None:
         """Save corpus metadata."""
-        metadata_path = self.output_dir / 'metadata.json'
+        metadata_path = self.output_dir / "metadata.json"
 
-        with open(metadata_path, 'w', encoding='utf-8') as f:
+        with open(metadata_path, "w", encoding="utf-8") as f:
             json.dump(self.metadata, f, indent=2)
 
         logger.info(f"Saved corpus metadata to {metadata_path}")
@@ -453,24 +441,20 @@ aesthetically pleasing, albeit somewhat melancholic, visual experience."""
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description='Generate validation corpus for WriteScore dimension scoring optimization'
+        description="Generate validation corpus for WriteScore dimension scoring optimization"
     )
     parser.add_argument(
-        '--output',
+        "--output",
         type=Path,
-        default=Path('validation_corpus'),
-        help='Output directory for corpus (default: validation_corpus/)'
+        default=Path("validation_corpus"),
+        help="Output directory for corpus (default: validation_corpus/)",
     )
     parser.add_argument(
-        '--mock',
-        action='store_true',
-        help='Use mock/placeholder content for testing (default: False)'
+        "--mock",
+        action="store_true",
+        help="Use mock/placeholder content for testing (default: False)",
     )
-    parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose logging'
-    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
 
     args = parser.parse_args()
 
@@ -478,10 +462,7 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
     # Generate corpus
-    generator = ValidationCorpusGenerator(
-        output_dir=args.output,
-        use_mock=args.mock
-    )
+    generator = ValidationCorpusGenerator(output_dir=args.output, use_mock=args.mock)
 
     try:
         generator.generate_corpus()
@@ -493,5 +474,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

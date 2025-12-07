@@ -2,4 +2,4 @@
 Evidence extraction module (future expansion).
 """
 
-__all__ = []
+__all__: list[str] = []

@@ -43,12 +43,15 @@ class TestDataHelpers:
     def _load_known_ai_text() -> str:
         """Known AI-generated text with expected GLTR ~0.70-0.75."""
         # Highly predictable, repetitive AI-like text
-        return """Artificial intelligence represents a transformative paradigm shift
+        return (
+            """Artificial intelligence represents a transformative paradigm shift
         in computational methodology. It is important to note that machine learning
         algorithms leverage statistical patterns to optimize predictive accuracy.
         Furthermore, deep learning architectures utilize hierarchical representations
         to extract meaningful features from complex datasets. In conclusion, AI systems
-        demonstrate remarkable capabilities across diverse application domains.""" * 100
+        demonstrate remarkable capabilities across diverse application domains."""
+            * 100
+        )
 
     @staticmethod
     def _load_known_human_text() -> str:
@@ -157,9 +160,9 @@ class TestPredictabilityModes:
         long_text = "word " * 50000  # 250k chars
         result = dim.analyze(long_text, config=config)
 
-        assert result['analysis_mode'] == 'fast'
-        assert result['samples_analyzed'] == 1
-        assert result['analyzed_text_length'] <= 2000
+        assert result["analysis_mode"] == "fast"
+        assert result["samples_analyzed"] == 1
+        assert result["analyzed_text_length"] <= 2000
 
     def test_adaptive_mode_samples_long_documents(self, dim):
         """Test ADAPTIVE mode samples 90-page chapters."""
@@ -168,10 +171,10 @@ class TestPredictabilityModes:
         chapter_text = "word " * 36000  # ~180k chars (90 pages)
         result = dim.analyze(chapter_text, config=config)
 
-        assert result['analysis_mode'] == 'adaptive'
-        assert result['samples_analyzed'] >= 5  # Should sample
-        assert result['total_text_length'] == len(chapter_text)
-        assert result['coverage_percentage'] > 5.0  # >5% analyzed
+        assert result["analysis_mode"] == "adaptive"
+        assert result["samples_analyzed"] >= 5  # Should sample
+        assert result["total_text_length"] == len(chapter_text)
+        assert result["coverage_percentage"] > 5.0  # >5% analyzed
 
     def test_full_mode_analyzes_entire_document(self, dim):
         """Test FULL mode processes entire text."""
@@ -180,43 +183,62 @@ class TestPredictabilityModes:
         long_text = "word " * 10000  # ~50k chars
         result = dim.analyze(long_text, config=config)
 
-        assert result['analysis_mode'] == 'full'
-        assert result['analyzed_text_length'] == result['total_text_length']
-        assert result['coverage_percentage'] == 100.0
+        assert result["analysis_mode"] == "full"
+        assert result["analyzed_text_length"] == result["total_text_length"]
+        assert result["coverage_percentage"] == 100.0
 
     @pytest.mark.slow
     def test_sampling_mode_uses_configured_samples(self, dim):
         """Test SAMPLING mode respects sample configuration."""
         config = AnalysisConfig(
-            mode=AnalysisMode.SAMPLING,
-            sampling_sections=7,
-            sampling_chars_per_section=3000
+            mode=AnalysisMode.SAMPLING, sampling_sections=7, sampling_chars_per_section=3000
         )
 
         long_text = "word " * 50000  # 250k chars
         result = dim.analyze(long_text, config=config)
 
-        assert result['analysis_mode'] == 'sampling'
-        assert result['samples_analyzed'] == 7
+        assert result["analysis_mode"] == "sampling"
+        assert result["samples_analyzed"] == 7
         # Each sample ~3000 chars, so total ~21k analyzed
-        assert 18000 <= result['analyzed_text_length'] <= 24000
+        assert 18000 <= result["analyzed_text_length"] <= 24000
 
     def test_aggregate_gltr_metrics_calculates_mean(self, dim):
         """Test GLTR aggregation uses mean."""
         samples = [
-            {'gltr_top10_percentage': 0.50, 'gltr_mean_rank': 40.0, 'gltr_top100_percentage': 0.80, 'gltr_top1000_percentage': 0.95, 'gltr_rank_variance': 100.0, 'gltr_likelihood': 0.5},
-            {'gltr_top10_percentage': 0.60, 'gltr_mean_rank': 50.0, 'gltr_top100_percentage': 0.85, 'gltr_top1000_percentage': 0.96, 'gltr_rank_variance': 120.0, 'gltr_likelihood': 0.6},
-            {'gltr_top10_percentage': 0.70, 'gltr_mean_rank': 60.0, 'gltr_top100_percentage': 0.90, 'gltr_top1000_percentage': 0.97, 'gltr_rank_variance': 140.0, 'gltr_likelihood': 0.7}
+            {
+                "gltr_top10_percentage": 0.50,
+                "gltr_mean_rank": 40.0,
+                "gltr_top100_percentage": 0.80,
+                "gltr_top1000_percentage": 0.95,
+                "gltr_rank_variance": 100.0,
+                "gltr_likelihood": 0.5,
+            },
+            {
+                "gltr_top10_percentage": 0.60,
+                "gltr_mean_rank": 50.0,
+                "gltr_top100_percentage": 0.85,
+                "gltr_top1000_percentage": 0.96,
+                "gltr_rank_variance": 120.0,
+                "gltr_likelihood": 0.6,
+            },
+            {
+                "gltr_top10_percentage": 0.70,
+                "gltr_mean_rank": 60.0,
+                "gltr_top100_percentage": 0.90,
+                "gltr_top1000_percentage": 0.97,
+                "gltr_rank_variance": 140.0,
+                "gltr_likelihood": 0.7,
+            },
         ]
 
         result = dim._aggregate_gltr_metrics(samples)
 
-        assert result['gltr_top10_percentage'] == 0.60  # Mean
-        assert result['gltr_mean_rank'] == 50.0  # Mean
-        assert result['gltr_top100_percentage'] == 0.85  # Mean
-        assert result['gltr_top1000_percentage'] == pytest.approx(0.96, abs=0.01)  # Mean
-        assert result['gltr_rank_variance'] == 120.0  # Mean
-        assert result['gltr_likelihood'] == pytest.approx(0.6, abs=0.01)  # Mean
+        assert result["gltr_top10_percentage"] == 0.60  # Mean
+        assert result["gltr_mean_rank"] == 50.0  # Mean
+        assert result["gltr_top100_percentage"] == 0.85  # Mean
+        assert result["gltr_top1000_percentage"] == pytest.approx(0.96, abs=0.01)  # Mean
+        assert result["gltr_rank_variance"] == 120.0  # Mean
+        assert result["gltr_likelihood"] == pytest.approx(0.6, abs=0.01)  # Mean
 
     def test_metadata_included_in_results(self, dim):
         """Test analysis metadata is included in results."""
@@ -226,12 +248,12 @@ class TestPredictabilityModes:
         result = dim.analyze(text, config=config)
 
         # Check metadata fields
-        assert 'analysis_mode' in result
-        assert 'samples_analyzed' in result
-        assert 'total_text_length' in result
-        assert 'analyzed_text_length' in result
-        assert 'coverage_percentage' in result
-        assert result['total_text_length'] == len(text)
+        assert "analysis_mode" in result
+        assert "samples_analyzed" in result
+        assert "total_text_length" in result
+        assert "analyzed_text_length" in result
+        assert "coverage_percentage" in result
+        assert result["total_text_length"] == len(text)
 
     def test_short_text_uses_full_analysis(self, dim):
         """Test short text (<5k chars) gets full analysis even in ADAPTIVE mode."""
@@ -241,8 +263,8 @@ class TestPredictabilityModes:
         result = dim.analyze(short_text, config=config)
 
         # ADAPTIVE mode on short text should analyze fully
-        assert result['samples_analyzed'] == 1
-        assert result['coverage_percentage'] == 100.0
+        assert result["samples_analyzed"] == 1
+        assert result["coverage_percentage"] == 100.0
 
     def test_empty_text_handles_gracefully(self, dim):
         """Test empty text doesn't crash."""
@@ -250,8 +272,8 @@ class TestPredictabilityModes:
 
         result = dim.analyze("", config=config)
 
-        assert 'available' in result
-        assert result['total_text_length'] == 0
+        assert "available" in result
+        assert result["total_text_length"] == 0
 
     def test_default_config_uses_adaptive(self, dim):
         """Test None config defaults to ADAPTIVE mode."""
@@ -259,4 +281,4 @@ class TestPredictabilityModes:
         result = dim.analyze(text, config=None)
 
         # DEFAULT_CONFIG uses ADAPTIVE mode
-        assert result['analysis_mode'] == 'adaptive'
+        assert result["analysis_mode"] == "adaptive"

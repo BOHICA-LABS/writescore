@@ -1,0 +1,42 @@
+schema: 1
+story: "6.4"
+story_title: "CI Pipeline Improvements"
+gate: PASS
+status_reason: "All file-based acceptance criteria met. CI caching, Python 3.11 matrix, pre-commit job, CodeQL workflow, and dependency review implemented correctly."
+reviewer: "Quinn (Test Architect)"
+updated: "2025-12-06T00:00:00Z"
+
+waiver: { active: false }
+
+top_issues: []
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "Verify CI runs pass on GitHub after merge"
+
+quality_score: 100
+expires: "2025-12-20T00:00:00Z"
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 6, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18]
+    ac_gaps: [5, 7, 15]
+
+nfr_validation:
+  security: { status: PASS, notes: "CodeQL with security-and-quality queries, weekly schedule" }
+  performance: { status: PASS, notes: "Pip and spaCy caching reduces build time" }
+  reliability: { status: PASS, notes: "Matrix testing across 4 Python versions" }
+  maintainability: { status: PASS, notes: "Standard GitHub Actions patterns" }
+
+recommendations:
+  immediate: []
+  future:
+    - action: "Verify cache hits in CI logs after first run"
+      refs: [".github/workflows/ci.yml:58-71"]
+    - action: "Confirm CodeQL alerts appear in Security tab"
+      refs: [".github/workflows/codeql.yml"]
