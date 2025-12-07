@@ -1,0 +1,28 @@
+# CODEOWNERS - Automatically request reviews from code owners
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything not matched below
+*                                   @drbothen
+
+# Core architecture
+/src/writescore/core/               @drbothen
+
+# Dimension analyzers
+/src/writescore/dimensions/         @drbothen
+
+# Scoring system
+/src/writescore/scoring/            @drbothen
+
+# CLI interface
+/src/writescore/cli/                @drbothen
+
+# Documentation
+/docs/                              @drbothen
+/*.md                               @drbothen
+
+# CI/CD and GitHub configuration
+/.github/                           @drbothen
+
+# Build and project configuration
+/pyproject.toml                     @drbothen
+/Justfile                           @drbothen
