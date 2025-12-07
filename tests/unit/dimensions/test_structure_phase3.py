@@ -29,6 +29,7 @@ def analyzer():
 # Heading Length Analysis Tests - Lines 496-571
 # ========================================================================
 
+
 class TestHeadingLengthAnalysis:
     """Tests for _calculate_heading_length_analysis - Lines 556-561."""
 
@@ -42,9 +43,9 @@ class TestHeadingLengthAnalysis:
         result = analyzer._calculate_heading_length_analysis(text)
 
         # (8 + 7 + 9) / 3 = 8.0, which is in GOOD range (>7, <=9)
-        assert 7.0 < result['avg_length'] <= 9.0
-        assert result['score'] == 7.0  # Line 557
-        assert result['assessment'] == 'GOOD'
+        assert 7.0 < result["avg_length"] <= 9.0
+        assert result["score"] == 7.0  # Line 557
+        assert result["assessment"] == "GOOD"
 
     def test_heading_length_fair_range(self, analyzer):
         """Test FAIR scoring (avg 9-11 words) - Line 559."""
@@ -56,9 +57,9 @@ class TestHeadingLengthAnalysis:
         result = analyzer._calculate_heading_length_analysis(text)
 
         # (11 + 12 + 10) / 3 = 11.0, which is in FAIR range (>9, <=11)
-        assert 9.0 < result['avg_length'] <= 11.0
-        assert result['score'] == 4.0  # Line 559
-        assert result['assessment'] == 'FAIR'
+        assert 9.0 < result["avg_length"] <= 11.0
+        assert result["score"] == 4.0  # Line 559
+        assert result["assessment"] == "FAIR"
 
     def test_heading_length_poor_verbose(self, analyzer):
         """Test POOR scoring (avg >11 words) - Line 561."""
@@ -68,14 +69,15 @@ class TestHeadingLengthAnalysis:
 """
         result = analyzer._calculate_heading_length_analysis(text)
 
-        assert result['avg_length'] > 11.0
-        assert result['score'] == 0.0  # Line 561
-        assert result['assessment'] == 'POOR'
+        assert result["avg_length"] > 11.0
+        assert result["score"] == 0.0  # Line 561
+        assert result["assessment"] == "POOR"
 
 
 # ========================================================================
 # Subsection Asymmetry Tests - Lines 573-664
 # ========================================================================
+
 
 class TestSubsectionAsymmetry:
     """Tests for _calculate_subsection_asymmetry - Lines 619-630, 651, 653."""
@@ -99,8 +101,8 @@ class TestSubsectionAsymmetry:
         result = analyzer._calculate_subsection_asymmetry(text)
 
         # Should count: Section 1 has 2, Section 2 has 3, Section 3 has 1
-        assert result['subsection_counts'] == [2, 3, 1]
-        assert result['section_count'] == 3
+        assert result["subsection_counts"] == [2, 3, 1]
+        assert result["section_count"] == 3
 
     def test_subsection_asymmetry_h1_resets(self, analyzer):
         """Test H1 resets section counting - Lines 619-623."""
@@ -123,7 +125,7 @@ class TestSubsectionAsymmetry:
         result = analyzer._calculate_subsection_asymmetry(text)
 
         # Should count: Section 1 has 2 (before H1 reset), Section 2 has 1, Section 3 has 3
-        assert result['subsection_counts'] == [2, 1, 3]
+        assert result["subsection_counts"] == [2, 1, 3]
 
     def test_subsection_asymmetry_good_score(self, analyzer):
         """Test GOOD scoring (CV 0.4-0.6) - Line 651."""
@@ -142,9 +144,9 @@ class TestSubsectionAsymmetry:
         result = analyzer._calculate_subsection_asymmetry(text)
 
         # Subsections: [1, 2, 3], CV should be in GOOD range
-        assert 0.4 <= result['cv'] < 0.6
-        assert result['score'] == 5.0  # Line 651
-        assert result['assessment'] == 'GOOD'
+        assert 0.4 <= result["cv"] < 0.6
+        assert result["score"] == 5.0  # Line 651
+        assert result["assessment"] == "GOOD"
 
     def test_subsection_asymmetry_fair_score(self, analyzer):
         """Test FAIR scoring (CV 0.2-0.4) - Line 653."""
@@ -164,9 +166,9 @@ class TestSubsectionAsymmetry:
         result = analyzer._calculate_subsection_asymmetry(text)
 
         # Subsections: [2, 2, 3], CV should be in FAIR range
-        assert 0.2 <= result['cv'] < 0.4
-        assert result['score'] == 3.0  # Line 653
-        assert result['assessment'] == 'FAIR'
+        assert 0.2 <= result["cv"] < 0.4
+        assert result["score"] == 3.0  # Line 653
+        assert result["assessment"] == "FAIR"
 
     def test_subsection_last_section_capture(self, analyzer):
         """Test last section is captured - Lines 626-627."""
@@ -180,13 +182,14 @@ class TestSubsectionAsymmetry:
         result = analyzer._calculate_subsection_asymmetry(text)
 
         # Should capture both sections, including the last one
-        assert len(result['subsection_counts']) == 2
-        assert result['subsection_counts'] == [1, 2]
+        assert len(result["subsection_counts"]) == 2
+        assert result["subsection_counts"] == [1, 2]
 
 
 # ========================================================================
 # Heading Depth Variance Tests - Lines 666-729
 # ========================================================================
+
 
 class TestHeadingDepthVariance:
     """Tests for _calculate_heading_depth_variance - Lines 711, 719."""
@@ -203,11 +206,11 @@ class TestHeadingDepthVariance:
 """
         result = analyzer._calculate_heading_depth_variance(text)
 
-        assert result['has_lateral'] is True  # H2→H2
-        assert result['has_jumps'] is True    # H3→H1 (jump up)
-        assert result['pattern'] == 'VARIED'  # Line 711
-        assert result['score'] == 6.0
-        assert result['assessment'] == 'EXCELLENT'
+        assert result["has_lateral"] is True  # H2→H2
+        assert result["has_jumps"] is True  # H3→H1 (jump up)
+        assert result["pattern"] == "VARIED"  # Line 711
+        assert result["score"] == 6.0
+        assert result["assessment"] == "EXCELLENT"
 
     def test_heading_depth_variance_rigid_poor(self, analyzer):
         """Test RIGID/POOR pattern (sequential only, deep) - Line 719."""
@@ -221,17 +224,18 @@ class TestHeadingDepthVariance:
         result = analyzer._calculate_heading_depth_variance(text)
 
         # Only sequential transitions, max_depth >= 4
-        assert result['max_depth'] >= 4
-        assert result['has_lateral'] is False
-        assert result['has_jumps'] is False
+        assert result["max_depth"] >= 4
+        assert result["has_lateral"] is False
+        assert result["has_jumps"] is False
         # This should trigger the POOR branch - Line 719
-        assert result['score'] == 0.0  # Line 719
-        assert result['assessment'] == 'POOR'
+        assert result["score"] == 0.0  # Line 719
+        assert result["assessment"] == "POOR"
 
 
 # ========================================================================
 # Blockquote Pattern Tests - Lines 819-911
 # ========================================================================
+
 
 class TestBlockquotePatterns:
     """Tests for _analyze_blockquote_patterns - Lines 830-843, 871-875, 909."""
@@ -250,9 +254,9 @@ class TestBlockquotePatterns:
 
         # 2 quotes / 2 pages = 1 per page (EXCELLENT) or 2-3 range (GOOD)
         # Lines 833-843 cover fallback scoring
-        assert result['total_blockquotes'] == 2
-        assert 'per_page' in result
-        assert result['score'] > 0  # Line 837 or 835
+        assert result["total_blockquotes"] == 2
+        assert "per_page" in result
+        assert result["score"] > 0  # Line 837 or 835
 
         analyzer._parse_to_ast = original_parse
 
@@ -269,9 +273,9 @@ class TestBlockquotePatterns:
         result = analyzer._analyze_blockquote_patterns(text, word_count)
 
         # 4 quotes / 1 page = 4 per page (FAIR range)
-        assert result['per_page'] >= 3
-        assert result['score'] == 4.0  # Line 840
-        assert result['assessment'] == 'FAIR'
+        assert result["per_page"] >= 3
+        assert result["score"] == 4.0  # Line 840
+        assert result["assessment"] == "FAIR"
 
         analyzer._parse_to_ast = original_parse
 
@@ -288,9 +292,9 @@ class TestBlockquotePatterns:
         result = analyzer._analyze_blockquote_patterns(text, word_count)
 
         # 6 quotes / 1 page = 6 per page (POOR - >4 per page)
-        assert result['per_page'] > 4
-        assert result['score'] == 0.0  # Line 843
-        assert result['assessment'] == 'POOR'
+        assert result["per_page"] > 4
+        assert result["score"] == 0.0  # Line 843
+        assert result["assessment"] == "POOR"
 
         analyzer._parse_to_ast = original_parse
 
@@ -313,9 +317,9 @@ More content here.
         result = analyzer._analyze_blockquote_patterns(text, word_count)
 
         # Should have 2 blockquotes, moderate clustering
-        if result.get('total_blockquotes', 0) > 0:
+        if result.get("total_blockquotes", 0) > 0:
             # Lines 870-877 cover AST scoring
-            assert 'section_start_clustering' in result
+            assert "section_start_clustering" in result
 
     def test_blockquote_ast_fair_clustering(self, analyzer):
         """Test AST-based FAIR scoring - Line 875."""
@@ -340,17 +344,21 @@ More text.
         result = analyzer._analyze_blockquote_patterns(text, word_count)
 
         # High density triggers FAIR or POOR
-        if result.get('per_page', 0) > 3:
-            assert result['score'] <= 4.0  # Line 875 or 877
+        if result.get("per_page", 0) > 3:
+            assert result["score"] <= 4.0  # Line 875 or 877
 
     def test_section_start_blockquotes_reset_after_100_words(self, analyzer):
         """Test section reset after 100 words - Line 909."""
-        text = """## Section 1
+        text = (
+            """## Section 1
 
-""" + ("word " * 150) + """
+"""
+            + ("word " * 150)
+            + """
 
 > Late blockquote after 100 words
 """
+        )
         ast = analyzer._parse_to_ast(text)
         if ast:
             count = analyzer._count_section_start_blockquotes(ast)
@@ -362,6 +370,7 @@ More text.
 # ========================================================================
 # Link Anchor Quality Tests - Lines 913-1033
 # ========================================================================
+
 
 class TestLinkAnchorQuality:
     """Tests for _analyze_link_anchor_quality - Lines 924, 952, 960, 970, 989-1025."""
@@ -378,8 +387,8 @@ class TestLinkAnchorQuality:
         result = analyzer._analyze_link_anchor_quality(text, word_count)
 
         # Should call fallback - Line 924
-        assert 'total_links' in result
-        assert result['total_links'] >= 1
+        assert "total_links" in result
+        assert result["total_links"] >= 1
 
         analyzer._parse_to_ast = original_parse
 
@@ -395,9 +404,9 @@ class TestLinkAnchorQuality:
         result = analyzer._analyze_link_anchor_quality_regex(text, word_count)
 
         # Generic ratio < 0.10 triggers EXCELLENT
-        assert result['generic_ratio'] < 0.10
-        assert result['score'] == 8.0  # Line 1017
-        assert result['assessment'] == 'EXCELLENT'
+        assert result["generic_ratio"] < 0.10
+        assert result["score"] == 8.0  # Line 1017
+        assert result["assessment"] == "EXCELLENT"
 
     def test_link_anchor_regex_good(self, analyzer):
         """Test regex fallback GOOD scoring - Lines 1018-1019."""
@@ -414,9 +423,9 @@ class TestLinkAnchorQuality:
 
         # Generic ratio 0.10-0.25 triggers GOOD
         # 1 generic out of 5 = 0.20 (safely in GOOD range)
-        assert 0.10 <= result['generic_ratio'] < 0.25
-        assert result['score'] == 6.0  # Line 1019
-        assert result['assessment'] == 'GOOD'
+        assert 0.10 <= result["generic_ratio"] < 0.25
+        assert result["score"] == 6.0  # Line 1019
+        assert result["assessment"] == "GOOD"
 
     def test_link_anchor_regex_fair(self, analyzer):
         """Test regex fallback FAIR scoring - Lines 1020-1021."""
@@ -432,9 +441,9 @@ class TestLinkAnchorQuality:
 
         # Generic ratio 0.25-0.50 triggers FAIR
         # 3 generic out of 4 = 0.75, but test with 2/4 = 0.5
-        if 0.25 <= result['generic_ratio'] < 0.50:
-            assert result['score'] == 3.0  # Line 1021
-            assert result['assessment'] == 'FAIR'
+        if 0.25 <= result["generic_ratio"] < 0.50:
+            assert result["score"] == 3.0  # Line 1021
+            assert result["assessment"] == "FAIR"
 
     def test_link_anchor_regex_poor(self, analyzer):
         """Test regex fallback POOR scoring - Lines 1022-1023."""
@@ -450,9 +459,9 @@ class TestLinkAnchorQuality:
 
         # Generic ratio >= 0.50 triggers POOR
         # All 4 are generic = 1.0
-        assert result['generic_ratio'] >= 0.50
-        assert result['score'] == 0.0  # Line 1023
-        assert result['assessment'] == 'POOR'
+        assert result["generic_ratio"] >= 0.50
+        assert result["score"] == 0.0  # Line 1023
+        assert result["assessment"] == "POOR"
 
     def test_link_anchor_ast_empty_anchor(self, analyzer):
         """Test AST with empty anchor text - Line 952."""
@@ -463,8 +472,8 @@ class TestLinkAnchorQuality:
         result = analyzer._analyze_link_anchor_quality(text, word_count)
 
         # Should handle links properly
-        if result['total_links'] > 0:
-            assert 'generic_ratio' in result
+        if result["total_links"] > 0:
+            assert "generic_ratio" in result
 
     def test_link_anchor_ast_generic_detection(self, analyzer):
         """Test AST generic pattern detection - Lines 955-961."""
@@ -478,9 +487,9 @@ class TestLinkAnchorQuality:
         result = analyzer._analyze_link_anchor_quality(text, word_count)
 
         # Should detect 2 generic out of 3 links
-        if result['total_links'] == 3:
-            assert result['generic_count'] >= 2  # Line 959-961
-            assert 'generic_examples' in result
+        if result["total_links"] == 3:
+            assert result["generic_count"] >= 2  # Line 959-961
+            assert "generic_examples" in result
 
     def test_link_anchor_ast_good_scoring(self, analyzer):
         """Test AST GOOD scoring - Line 970."""
@@ -496,14 +505,15 @@ class TestLinkAnchorQuality:
         result = analyzer._analyze_link_anchor_quality(text, word_count)
 
         # 1 generic out of 5 = 0.20, should trigger GOOD
-        if 0.10 <= result.get('generic_ratio', 0) < 0.25:
-            assert result['score'] == 6.0  # Line 970
-            assert result['assessment'] == 'GOOD'
+        if 0.10 <= result.get("generic_ratio", 0) < 0.25:
+            assert result["score"] == 6.0  # Line 970
+            assert result["assessment"] == "GOOD"
 
 
 # ========================================================================
 # Enhanced List Structure Tests - Lines 1035-1109
 # ========================================================================
+
 
 class TestEnhancedListStructure:
     """Tests for _analyze_enhanced_list_structure_ast - Lines 1046, 1061-1082, 1095-1098."""
@@ -518,8 +528,8 @@ class TestEnhancedListStructure:
 
         result = analyzer._analyze_enhanced_list_structure_ast(text)
 
-        assert result['score'] == 8.0  # Line 1046
-        assert result['assessment'] == 'AST_UNAVAILABLE'
+        assert result["score"] == 8.0  # Line 1046
+        assert result["assessment"] == "AST_UNAVAILABLE"
 
         analyzer._parse_to_ast = original_parse
 
@@ -539,7 +549,7 @@ class TestEnhancedListStructure:
 
         # Should analyze nested structure
         # Lines 1060-1064 handle child list counting
-        assert 'symmetry_score' in result
+        assert "symmetry_score" in result
 
     def test_enhanced_list_symmetry_calculation(self, analyzer):
         """Test symmetry CV calculation - Lines 1067-1071."""
@@ -557,9 +567,9 @@ class TestEnhancedListStructure:
         result = analyzer._analyze_enhanced_list_structure_ast(text)
 
         # Perfect symmetry (all have 2 children) should trigger lines 1068-1071
-        if result.get('symmetry_score') is not None:
+        if result.get("symmetry_score") is not None:
             # Low CV = high symmetry
-            assert 'symmetry_score' in result
+            assert "symmetry_score" in result
 
     def test_enhanced_list_item_length_analysis(self, analyzer):
         """Test list item length calculation - Lines 1079-1084."""
@@ -571,8 +581,8 @@ class TestEnhancedListStructure:
         result = analyzer._analyze_enhanced_list_structure_ast(text)
 
         # Should calculate item lengths - Lines 1079-1088
-        assert 'avg_item_length' in result
-        assert 'item_length_cv' in result
+        assert "avg_item_length" in result
+        assert "item_length_cv" in result
 
     def test_enhanced_list_fair_scoring(self, analyzer):
         """Test FAIR scoring - Lines 1095-1096."""
@@ -589,9 +599,9 @@ class TestEnhancedListStructure:
 
         # Moderate symmetry should trigger FAIR
         # Lines 1095-1096
-        if 0.4 <= result.get('symmetry_score', 0) < 0.7:
-            assert result['score'] == 3.0  # Line 1096
-            assert result['assessment'] == 'FAIR'
+        if 0.4 <= result.get("symmetry_score", 0) < 0.7:
+            assert result["score"] == 3.0  # Line 1096
+            assert result["assessment"] == "FAIR"
 
     def test_enhanced_list_poor_scoring(self, analyzer):
         """Test POOR scoring (high symmetry) - Lines 1097-1098."""
@@ -609,14 +619,15 @@ class TestEnhancedListStructure:
         result = analyzer._analyze_enhanced_list_structure_ast(text)
 
         # High symmetry (≥0.7) should trigger POOR
-        if result.get('symmetry_score', 0) >= 0.7:
-            assert result['score'] == 0.0  # Line 1098
-            assert result['assessment'] == 'POOR'
+        if result.get("symmetry_score", 0) >= 0.7:
+            assert result["score"] == 0.0  # Line 1098
+            assert result["assessment"] == "POOR"
 
 
 # ========================================================================
 # Code Block Pattern Tests - Lines 1111-1203
 # ========================================================================
+
 
 class TestCodeBlockPatterns:
     """Tests for _analyze_code_block_patterns_ast - Lines 1122, 1137-1139, 1151-1157, 1172-1195."""
@@ -632,7 +643,7 @@ class TestCodeBlockPatterns:
         result = analyzer._analyze_code_block_patterns_ast(text)
 
         # Should call fallback - Line 1122
-        assert 'total_blocks' in result
+        assert "total_blocks" in result
 
         analyzer._parse_to_ast = original_parse
 
@@ -646,7 +657,7 @@ print('world')
 
         # Should process code block children
         # Lines 1136-1143 handle different children types
-        assert result['total_blocks'] >= 1
+        assert result["total_blocks"] >= 1
 
     def test_code_block_ast_good_scoring(self, analyzer):
         """Test GOOD scoring (70-90% lang ratio) - Lines 1152-1153."""
@@ -665,9 +676,9 @@ no language
         result = analyzer._analyze_code_block_patterns_ast(text)
 
         # 2 out of 3 with language = 0.67 (GOOD range)
-        if 0.7 <= result.get('language_declaration_ratio', 0) < 0.9:
-            assert result['score'] == 3.0  # Line 1153
-            assert result['assessment'] == 'GOOD'
+        if 0.7 <= result.get("language_declaration_ratio", 0) < 0.9:
+            assert result["score"] == 3.0  # Line 1153
+            assert result["assessment"] == "GOOD"
 
     def test_code_block_ast_fair_scoring(self, analyzer):
         """Test FAIR scoring (50-70% lang ratio) - Lines 1154-1155."""
@@ -682,9 +693,9 @@ no lang
         result = analyzer._analyze_code_block_patterns_ast(text)
 
         # 1 out of 2 = 0.50 (FAIR range)
-        if 0.5 <= result.get('language_declaration_ratio', 0) < 0.7:
-            assert result['score'] == 2.0  # Line 1155
-            assert result['assessment'] == 'FAIR'
+        if 0.5 <= result.get("language_declaration_ratio", 0) < 0.7:
+            assert result["score"] == 2.0  # Line 1155
+            assert result["assessment"] == "FAIR"
 
     def test_code_block_ast_poor_scoring(self, analyzer):
         """Test POOR scoring (<50% lang ratio) - Lines 1156-1157."""
@@ -703,9 +714,9 @@ no lang 2
         result = analyzer._analyze_code_block_patterns_ast(text)
 
         # 1 out of 3 = 0.33 (POOR range)
-        if result.get('language_declaration_ratio', 0) < 0.5:
-            assert result['score'] == 0.0  # Line 1157
-            assert result['assessment'] == 'POOR'
+        if result.get("language_declaration_ratio", 0) < 0.5:
+            assert result["score"] == 0.0  # Line 1157
+            assert result["assessment"] == "POOR"
 
     def test_code_block_regex_excellent(self, analyzer):
         """Test regex fallback EXCELLENT scoring - Lines 1186-1187."""
@@ -723,9 +734,9 @@ let c = 3
         result = analyzer._analyze_code_block_patterns_regex(text)
 
         # 100% with language, varied lengths should trigger EXCELLENT
-        if result.get('language_declaration_ratio', 0) >= 0.9 and result.get('length_cv', 0) > 0.4:
-            assert result['score'] == 4.0  # Line 1187
-            assert result['assessment'] == 'EXCELLENT'
+        if result.get("language_declaration_ratio", 0) >= 0.9 and result.get("length_cv", 0) > 0.4:
+            assert result["score"] == 4.0  # Line 1187
+            assert result["assessment"] == "EXCELLENT"
 
     def test_code_block_regex_good(self, analyzer):
         """Test regex fallback GOOD scoring - Lines 1188-1189."""
@@ -744,9 +755,9 @@ no lang
         result = analyzer._analyze_code_block_patterns_regex(text)
 
         # 2/3 = 0.67 should trigger GOOD
-        if 0.7 <= result.get('language_declaration_ratio', 0) < 0.9:
-            assert result['score'] == 3.0  # Line 1189
-            assert result['assessment'] == 'GOOD'
+        if 0.7 <= result.get("language_declaration_ratio", 0) < 0.9:
+            assert result["score"] == 3.0  # Line 1189
+            assert result["assessment"] == "GOOD"
 
     def test_code_block_regex_fair(self, analyzer):
         """Test regex fallback FAIR scoring - Lines 1190-1191."""
@@ -761,9 +772,9 @@ no lang
         result = analyzer._analyze_code_block_patterns_regex(text)
 
         # 1/2 = 0.50 should trigger FAIR
-        if 0.5 <= result.get('language_declaration_ratio', 0) < 0.7:
-            assert result['score'] == 2.0  # Line 1191
-            assert result['assessment'] == 'FAIR'
+        if 0.5 <= result.get("language_declaration_ratio", 0) < 0.7:
+            assert result["score"] == 2.0  # Line 1191
+            assert result["assessment"] == "FAIR"
 
     def test_code_block_regex_poor(self, analyzer):
         """Test regex fallback POOR scoring - Lines 1192-1193."""
@@ -778,6 +789,6 @@ no lang 2
         result = analyzer._analyze_code_block_patterns_regex(text)
 
         # 0% with language should trigger POOR
-        assert result['language_declaration_ratio'] < 0.5
-        assert result['score'] == 0.0  # Line 1193
-        assert result['assessment'] == 'POOR'
+        assert result["language_declaration_ratio"] < 0.5
+        assert result["score"] == 0.0  # Line 1193
+        assert result["assessment"] == "POOR"

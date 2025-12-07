@@ -16,45 +16,45 @@ class TestNormalityResult:
     def test_basic_creation(self):
         """Test creating a NormalityResult with required fields."""
         result = NormalityResult(
-            dimension_name='burstiness',
+            dimension_name="burstiness",
             is_normal=True,
             p_value=0.25,
             test_statistic=0.98,
             sample_size=100,
             skewness=0.1,
             kurtosis=-0.2,
-            recommendation='gaussian'
+            recommendation="gaussian",
         )
 
-        assert result.dimension_name == 'burstiness'
+        assert result.dimension_name == "burstiness"
         assert result.is_normal is True
         assert result.p_value == 0.25
-        assert result.recommendation == 'gaussian'
-        assert result.confidence == 'medium'  # Default
+        assert result.recommendation == "gaussian"
+        assert result.confidence == "medium"  # Default
 
     def test_to_dict(self):
         """Test converting NormalityResult to dictionary."""
         result = NormalityResult(
-            dimension_name='lexical',
+            dimension_name="lexical",
             is_normal=False,
             p_value=0.001,
             test_statistic=0.85,
             sample_size=500,
             skewness=1.5,
             kurtosis=2.0,
-            recommendation='monotonic',
-            confidence='high',
-            rationale='Highly skewed distribution'
+            recommendation="monotonic",
+            confidence="high",
+            rationale="Highly skewed distribution",
         )
 
         d = result.to_dict()
 
-        assert d['dimension_name'] == 'lexical'
-        assert d['is_normal'] is False
-        assert d['p_value'] == 0.001
-        assert d['recommendation'] == 'monotonic'
-        assert d['confidence'] == 'high'
-        assert 'skewed' in d['rationale'].lower()
+        assert d["dimension_name"] == "lexical"
+        assert d["is_normal"] is False
+        assert d["p_value"] == 0.001
+        assert d["recommendation"] == "monotonic"
+        assert d["confidence"] == "high"
+        assert "skewed" in d["rationale"].lower()
 
 
 class TestNormalityTester:
@@ -80,11 +80,11 @@ class TestNormalityTester:
         normal_data = np.random.normal(loc=10, scale=2, size=200)
 
         tester = NormalityTester()
-        result = tester.test_normality(normal_data.tolist(), 'test_dim')
+        result = tester.test_normality(normal_data.tolist(), "test_dim")
 
         assert result.is_normal is True
         assert result.p_value > 0.05
-        assert result.recommendation == 'gaussian'
+        assert result.recommendation == "gaussian"
 
     def test_skewed_distribution_detected(self):
         """Test that skewed data recommends monotonic scoring."""
@@ -93,11 +93,11 @@ class TestNormalityTester:
         skewed_data = np.random.exponential(scale=5, size=200)
 
         tester = NormalityTester()
-        result = tester.test_normality(skewed_data.tolist(), 'test_dim')
+        result = tester.test_normality(skewed_data.tolist(), "test_dim")
 
         # Exponential distribution is highly skewed
         assert abs(result.skewness) > 1.0
-        assert result.recommendation in ['monotonic', 'threshold']
+        assert result.recommendation in ["monotonic", "threshold"]
 
     def test_heavy_tailed_distribution(self):
         """Test that heavy-tailed data recommends threshold scoring."""
@@ -106,7 +106,7 @@ class TestNormalityTester:
         heavy_tailed = stats.t.rvs(df=3, size=200)
 
         tester = NormalityTester()
-        result = tester.test_normality(heavy_tailed.tolist(), 'test_dim')
+        result = tester.test_normality(heavy_tailed.tolist(), "test_dim")
 
         # t-distribution with df=3 has heavy tails (high kurtosis)
         assert result.kurtosis > 1.0
@@ -114,20 +114,20 @@ class TestNormalityTester:
     def test_insufficient_data_fallback(self):
         """Test fallback for insufficient data."""
         tester = NormalityTester()
-        result = tester.test_normality([1.0, 2.0], 'test_dim')
+        result = tester.test_normality([1.0, 2.0], "test_dim")
 
-        assert result.confidence == 'low'
-        assert result.recommendation == 'gaussian'  # Conservative default
-        assert 'insufficient' in result.rationale.lower()
+        assert result.confidence == "low"
+        assert result.recommendation == "gaussian"  # Conservative default
+        assert "insufficient" in result.rationale.lower()
 
     def test_handles_nan_values(self):
         """Test that NaN values are handled gracefully."""
         np.random.seed(42)
         data = np.random.normal(loc=10, scale=2, size=100).tolist()
-        data.extend([float('nan'), float('nan')])
+        data.extend([float("nan"), float("nan")])
 
         tester = NormalityTester()
-        result = tester.test_normality(data, 'test_dim')
+        result = tester.test_normality(data, "test_dim")
 
         # Should work, NaN values filtered out
         assert result.sample_size == 100
@@ -136,10 +136,10 @@ class TestNormalityTester:
         """Test that Inf values are handled gracefully."""
         np.random.seed(42)
         data = np.random.normal(loc=10, scale=2, size=100).tolist()
-        data.extend([float('inf'), float('-inf')])
+        data.extend([float("inf"), float("-inf")])
 
         tester = NormalityTester()
-        result = tester.test_normality(data, 'test_dim')
+        result = tester.test_normality(data, "test_dim")
 
         # Should work, Inf values filtered out
         assert result.sample_size == 100
@@ -150,7 +150,7 @@ class TestNormalityTester:
         large_data = np.random.normal(loc=10, scale=2, size=10000)
 
         tester = NormalityTester(max_samples=1000)
-        result = tester.test_normality(large_data.tolist(), 'test_dim')
+        result = tester.test_normality(large_data.tolist(), "test_dim")
 
         # Original size stored, but test used subsample
         assert result.sample_size == 10000
@@ -159,23 +159,23 @@ class TestNormalityTester:
     def test_empty_list_handling(self):
         """Test handling of empty list."""
         tester = NormalityTester()
-        result = tester.test_normality([], 'test_dim')
+        result = tester.test_normality([], "test_dim")
 
-        assert result.confidence == 'low'
+        assert result.confidence == "low"
         assert result.sample_size == 0
 
     def test_single_value_handling(self):
         """Test handling of single value."""
         tester = NormalityTester()
-        result = tester.test_normality([5.0], 'test_dim')
+        result = tester.test_normality([5.0], "test_dim")
 
-        assert result.confidence == 'low'
+        assert result.confidence == "low"
         assert result.sample_size == 1
 
     def test_all_same_values(self):
         """Test handling of constant values."""
         tester = NormalityTester()
-        result = tester.test_normality([5.0] * 100, 'test_dim')
+        result = tester.test_normality([5.0] * 100, "test_dim")
 
         # Constant data has zero variance - should handle gracefully
         assert result.sample_size == 100
@@ -191,12 +191,12 @@ class TestNormalityTesterRecommendations:
         normal_data = np.random.normal(loc=50, scale=10, size=500)
 
         tester = NormalityTester()
-        result = tester.test_normality(normal_data.tolist(), 'test_dim')
+        result = tester.test_normality(normal_data.tolist(), "test_dim")
 
         # Very normal data should give high confidence
         if result.is_normal and abs(result.skewness) < 0.5 and abs(result.kurtosis) < 1.0:
-            assert result.confidence == 'high'
-            assert result.recommendation == 'gaussian'
+            assert result.confidence == "high"
+            assert result.recommendation == "gaussian"
 
     def test_moderate_skewness_monotonic(self):
         """Test that moderate skewness recommends monotonic."""
@@ -205,11 +205,11 @@ class TestNormalityTesterRecommendations:
         data = np.random.gamma(shape=4, scale=2, size=200)
 
         tester = NormalityTester()
-        result = tester.test_normality(data.tolist(), 'test_dim')
+        result = tester.test_normality(data.tolist(), "test_dim")
 
         # Gamma with shape=4 has moderate skewness
         if abs(result.skewness) > 1.0:
-            assert result.recommendation in ['monotonic', 'threshold']
+            assert result.recommendation in ["monotonic", "threshold"]
 
 
 class TestNormalityTesterAllDimensions:
@@ -220,21 +220,21 @@ class TestNormalityTesterAllDimensions:
         np.random.seed(42)
 
         dimension_values = {
-            'normal_dim': np.random.normal(10, 2, 100).tolist(),
-            'skewed_dim': np.random.exponential(5, 100).tolist(),
-            'uniform_dim': np.random.uniform(0, 10, 100).tolist()
+            "normal_dim": np.random.normal(10, 2, 100).tolist(),
+            "skewed_dim": np.random.exponential(5, 100).tolist(),
+            "uniform_dim": np.random.uniform(0, 10, 100).tolist(),
         }
 
         tester = NormalityTester()
         results = tester.test_all_dimensions(dimension_values)
 
         assert len(results) == 3
-        assert 'normal_dim' in results
-        assert 'skewed_dim' in results
-        assert 'uniform_dim' in results
+        assert "normal_dim" in results
+        assert "skewed_dim" in results
+        assert "uniform_dim" in results
 
         # Normal dim should be detected as normal
-        assert results['normal_dim'].is_normal is True
+        assert results["normal_dim"].is_normal is True
 
     def test_empty_dimensions_dict(self):
         """Test handling of empty dimensions dictionary."""
@@ -251,69 +251,69 @@ class TestFormatNormalityReport:
         """Test formatting empty results."""
         report = format_normality_report({})
 
-        assert 'NORMALITY TEST REPORT' in report
-        assert 'Total dimensions tested: 0' in report
+        assert "NORMALITY TEST REPORT" in report
+        assert "Total dimensions tested: 0" in report
 
     def test_single_dimension_report(self):
         """Test formatting single dimension result."""
         results = {
-            'burstiness': NormalityResult(
-                dimension_name='burstiness',
+            "burstiness": NormalityResult(
+                dimension_name="burstiness",
                 is_normal=True,
                 p_value=0.25,
                 test_statistic=0.98,
                 sample_size=100,
                 skewness=0.1,
                 kurtosis=-0.2,
-                recommendation='gaussian',
-                confidence='high',
-                rationale='Strong normality detected'
+                recommendation="gaussian",
+                confidence="high",
+                rationale="Strong normality detected",
             )
         }
 
         report = format_normality_report(results)
 
-        assert 'BURSTINESS' in report
-        assert 'GAUSSIAN' in report
-        assert 'high' in report.lower()
-        assert '0.25' in report  # p-value
+        assert "BURSTINESS" in report
+        assert "GAUSSIAN" in report
+        assert "high" in report.lower()
+        assert "0.25" in report  # p-value
 
     def test_multiple_dimensions_report(self):
         """Test formatting multiple dimension results."""
         results = {
-            'burstiness': NormalityResult(
-                dimension_name='burstiness',
+            "burstiness": NormalityResult(
+                dimension_name="burstiness",
                 is_normal=True,
                 p_value=0.25,
                 test_statistic=0.98,
                 sample_size=100,
                 skewness=0.1,
                 kurtosis=-0.2,
-                recommendation='gaussian',
-                confidence='high',
-                rationale='Strong normality'
+                recommendation="gaussian",
+                confidence="high",
+                rationale="Strong normality",
             ),
-            'lexical': NormalityResult(
-                dimension_name='lexical',
+            "lexical": NormalityResult(
+                dimension_name="lexical",
                 is_normal=False,
                 p_value=0.001,
                 test_statistic=0.85,
                 sample_size=100,
                 skewness=1.5,
                 kurtosis=2.0,
-                recommendation='monotonic',
-                confidence='high',
-                rationale='Highly skewed'
-            )
+                recommendation="monotonic",
+                confidence="high",
+                rationale="Highly skewed",
+            ),
         }
 
         report = format_normality_report(results)
 
-        assert 'Total dimensions tested: 2' in report
-        assert 'Recommended Gaussian: 1' in report
-        assert 'Recommended Monotonic: 1' in report
-        assert 'BURSTINESS' in report
-        assert 'LEXICAL' in report
+        assert "Total dimensions tested: 2" in report
+        assert "Recommended Gaussian: 1" in report
+        assert "Recommended Monotonic: 1" in report
+        assert "BURSTINESS" in report
+        assert "LEXICAL" in report
 
 
 class TestParameterDeriverAutoSelect:
@@ -346,29 +346,26 @@ class TestParameterDeriverAutoSelect:
 
         # Create mock analysis with raw values
         human_stats = DimensionStatistics(
-            dimension_name='test_dim',
-            metric_name='variance',
-            values=np.random.normal(10, 2, 100).tolist()
+            dimension_name="test_dim",
+            metric_name="variance",
+            values=np.random.normal(10, 2, 100).tolist(),
         )
         human_stats.compute()
 
-        analysis = DistributionAnalysis(
-            dataset_version='test',
-            timestamp='2025-01-01'
-        )
-        analysis.add_dimension_stats('test_dim', 'human', human_stats)
+        analysis = DistributionAnalysis(dataset_version="test", timestamp="2025-01-01")
+        analysis.add_dimension_stats("test_dim", "human", human_stats)
 
         # Derive with auto-select
         deriver = ParameterDeriver(auto_select_method=True)
-        params = deriver.derive_dimension_parameters(analysis, 'test_dim')
+        params = deriver.derive_dimension_parameters(analysis, "test_dim")
 
         # Check that normality results were stored
         normality_results = deriver.get_normality_results()
-        assert 'test_dim' in normality_results
+        assert "test_dim" in normality_results
 
         # Check metadata has normality info
-        assert params.metadata.get('method_auto_selected') is True
-        assert 'normality_p_value' in params.metadata
+        assert params.metadata.get("method_auto_selected") is True
+        assert "normality_p_value" in params.metadata
 
 
 class TestRecalibrationWorkflowAutoSelect:
@@ -411,7 +408,7 @@ class TestNormalityTesterEdgeCases:
         data = np.random.normal(loc=-100, scale=20, size=100)
 
         tester = NormalityTester()
-        result = tester.test_normality(data.tolist(), 'test_dim')
+        result = tester.test_normality(data.tolist(), "test_dim")
 
         assert result.sample_size == 100
         assert result.is_normal is True
@@ -422,7 +419,7 @@ class TestNormalityTesterEdgeCases:
         data = np.random.normal(loc=0.001, scale=0.0001, size=100)
 
         tester = NormalityTester()
-        result = tester.test_normality(data.tolist(), 'test_dim')
+        result = tester.test_normality(data.tolist(), "test_dim")
 
         assert result.sample_size == 100
 
@@ -432,7 +429,7 @@ class TestNormalityTesterEdgeCases:
         data = np.random.normal(loc=1e10, scale=1e8, size=100)
 
         tester = NormalityTester()
-        result = tester.test_normality(data.tolist(), 'test_dim')
+        result = tester.test_normality(data.tolist(), "test_dim")
 
         assert result.sample_size == 100
 
@@ -442,7 +439,7 @@ class TestNormalityTesterEdgeCases:
         data = np.random.normal(loc=0, scale=10, size=100)
 
         tester = NormalityTester()
-        result = tester.test_normality(data.tolist(), 'test_dim')
+        result = tester.test_normality(data.tolist(), "test_dim")
 
         assert result.sample_size == 100
         assert result.is_normal is True
@@ -456,8 +453,8 @@ class TestNormalityTesterEdgeCases:
         data2 = np.random.normal(10, 2, 200).tolist()
 
         tester = NormalityTester()
-        result1 = tester.test_normality(data1, 'test_dim')
-        result2 = tester.test_normality(data2, 'test_dim')
+        result1 = tester.test_normality(data1, "test_dim")
+        result2 = tester.test_normality(data2, "test_dim")
 
         assert result1.p_value == result2.p_value
         assert result1.recommendation == result2.recommendation

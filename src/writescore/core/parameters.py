@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class ScoringType(str, Enum):
     """Valid scoring algorithm types for dimensions."""
+
     GAUSSIAN = "gaussian"
     MONOTONIC = "monotonic"
     THRESHOLD = "threshold"
@@ -25,6 +26,7 @@ class ScoringType(str, Enum):
 
 class PercentileSource(str, Enum):
     """Source type for parameter values."""
+
     PERCENTILE = "percentile"  # Derived from percentile (e.g., p50_human)
     STDEV = "stdev"  # Derived from standard deviation
     IQR = "iqr"  # Derived from interquartile range
@@ -43,6 +45,7 @@ class ParameterValue:
         percentile: Which percentile was used (if source=PERCENTILE), e.g., "p50_human"
         description: Human-readable description
     """
+
     value: float
     source: PercentileSource
     percentile: Optional[str] = None
@@ -70,6 +73,7 @@ class GaussianParameters:
         target: Optimal value (typically p50 of human distribution)
         width: Spread/tolerance (typically stdev or IQR/1.35)
     """
+
     target: ParameterValue
     width: ParameterValue
 
@@ -95,6 +99,7 @@ class MonotonicParameters:
         threshold_high: Upper threshold (typically p75 of human)
         direction: "increasing" (higher is better) or "decreasing" (lower is better)
     """
+
     threshold_low: ParameterValue
     threshold_high: ParameterValue
     direction: str = "increasing"
@@ -111,7 +116,9 @@ class MonotonicParameters:
             )
 
         if self.direction not in ("increasing", "decreasing"):
-            raise ValueError(f"Direction must be 'increasing' or 'decreasing', got '{self.direction}'")
+            raise ValueError(
+                f"Direction must be 'increasing' or 'decreasing', got '{self.direction}'"
+            )
 
 
 @dataclass
@@ -126,6 +133,7 @@ class ThresholdParameters:
         labels: Labels for each category (e.g., ["excellent", "good", "concerning", "poor"])
         scores: Score for each category (e.g., [100, 75, 40, 10])
     """
+
     thresholds: List[ParameterValue]
     labels: List[str]
     scores: List[float]
@@ -175,6 +183,7 @@ class DimensionParameters:
         timestamp: When these parameters were derived
         notes: Optional notes about derivation or special handling
     """
+
     dimension_name: str
     scoring_type: ScoringType
     parameters: Any  # Union[GaussianParameters, MonotonicParameters, ThresholdParameters]
@@ -189,8 +198,7 @@ class DimensionParameters:
         if self.scoring_type == ScoringType.GAUSSIAN:
             if not isinstance(self.parameters, GaussianParameters):
                 raise ValueError(
-                    f"Gaussian scoring requires GaussianParameters, "
-                    f"got {type(self.parameters)}"
+                    f"Gaussian scoring requires GaussianParameters, " f"got {type(self.parameters)}"
                 )
         elif self.scoring_type == ScoringType.MONOTONIC:
             if not isinstance(self.parameters, MonotonicParameters):
@@ -198,14 +206,17 @@ class DimensionParameters:
                     f"Monotonic scoring requires MonotonicParameters, "
                     f"got {type(self.parameters)}"
                 )
-        elif self.scoring_type == ScoringType.THRESHOLD and not isinstance(self.parameters, ThresholdParameters):
+        elif self.scoring_type == ScoringType.THRESHOLD and not isinstance(
+            self.parameters, ThresholdParameters
+        ):
             raise ValueError(
-                f"Threshold scoring requires ThresholdParameters, "
-                f"got {type(self.parameters)}"
+                f"Threshold scoring requires ThresholdParameters, " f"got {type(self.parameters)}"
             )
 
         # Validate the actual parameters
-        self.parameters.validate()
+        # The isinstance checks above ensure parameters has validate() method
+        if hasattr(self.parameters, "validate"):
+            self.parameters.validate()
 
 
 @dataclass
@@ -223,6 +234,7 @@ class PercentileParameters:
         dimensions: Dict mapping dimension name to DimensionParameters
         metadata: Additional metadata (recalibration trigger, notes, etc.)
     """
+
     version: str
     timestamp: str
     validation_dataset_version: str
@@ -251,8 +263,8 @@ class PercentileParameters:
 
     def get_summary(self) -> Dict[str, Any]:
         """Get summary statistics about parameters."""
-        scoring_type_counts = {}
-        source_counts = {}
+        scoring_type_counts: Dict[str, int] = {}
+        source_counts: Dict[str, int] = {}
 
         for dim_params in self.dimensions.values():
             # Count scoring types
@@ -265,8 +277,10 @@ class PercentileParameters:
                     source = param_value.source.value
                     source_counts[source] = source_counts.get(source, 0) + 1
             elif isinstance(dim_params.parameters, MonotonicParameters):
-                for param_value in [dim_params.parameters.threshold_low,
-                                   dim_params.parameters.threshold_high]:
+                for param_value in [
+                    dim_params.parameters.threshold_low,
+                    dim_params.parameters.threshold_high,
+                ]:
                     source = param_value.source.value
                     source_counts[source] = source_counts.get(source, 0) + 1
             elif isinstance(dim_params.parameters, ThresholdParameters):
@@ -281,5 +295,5 @@ class PercentileParameters:
             "total_dimensions": len(self.dimensions),
             "scoring_types": scoring_type_counts,
             "parameter_sources": source_counts,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }

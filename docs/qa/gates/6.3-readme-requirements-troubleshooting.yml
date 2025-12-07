@@ -1,0 +1,37 @@
+schema: 1
+story: "6.3"
+story_title: "README Requirements and Troubleshooting Sections"
+gate: PASS
+status_reason: "All acceptance criteria met. Requirements table and comprehensive troubleshooting section added with correct ordering."
+reviewer: "Quinn (Test Architect)"
+updated: "2025-12-06T00:00:00Z"
+
+waiver: { active: false }
+
+top_issues: []
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []
+
+quality_score: 100
+expires: "2025-12-20T00:00:00Z"
+
+evidence:
+  tests_reviewed: 0
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    ac_gaps: []
+
+nfr_validation:
+  security: { status: PASS, notes: "Documentation only - no security impact" }
+  performance: { status: PASS, notes: "Documents --mode fast for memory-constrained systems" }
+  reliability: { status: PASS, notes: "Comprehensive troubleshooting aids user success" }
+  maintainability: { status: PASS, notes: "Clear section organization" }
+
+recommendations:
+  immediate: []
+  future: []

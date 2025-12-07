@@ -36,7 +36,7 @@ def load_corpus() -> List[Dict]:
     corpus_path = Path(__file__).parent.parent / "fixtures" / "regression_corpus.json"
     with open(corpus_path) as f:
         data = json.load(f)
-    return data['samples']
+    return data["samples"]
 
 
 def load_baselines() -> Dict:
@@ -44,7 +44,7 @@ def load_baselines() -> Dict:
     baseline_path = Path(__file__).parent.parent / "fixtures" / "baseline_scores.json"
     with open(baseline_path) as f:
         data = json.load(f)
-    return data['baselines']
+    return data["baselines"]
 
 
 def calculate_variance_percentage(baseline: float, current: float) -> float:
@@ -87,32 +87,32 @@ class TestScoringRegression:
         self.corpus = load_corpus()
         self.baselines = load_baselines()
         self.dimensions = {
-            'predictability': PredictabilityDimension(),
-            'advanced_lexical': AdvancedLexicalDimension(),
-            'readability': ReadabilityDimension(),
-            'transition_marker': TransitionMarkerDimension(),
-            'perplexity': PerplexityDimension(),
-            'burstiness': BurstinessDimension(),
-            'structure': StructureDimension(),
-            'formatting': FormattingDimension(),
-            'voice': VoiceDimension(),
-            'lexical': LexicalDimension(),
-            'sentiment': SentimentDimension(),
-            'syntactic': SyntacticDimension(),
-            'figurative_language': FigurativeLanguageDimension()
+            "predictability": PredictabilityDimension(),
+            "advanced_lexical": AdvancedLexicalDimension(),
+            "readability": ReadabilityDimension(),
+            "transition_marker": TransitionMarkerDimension(),
+            "perplexity": PerplexityDimension(),
+            "burstiness": BurstinessDimension(),
+            "structure": StructureDimension(),
+            "formatting": FormattingDimension(),
+            "voice": VoiceDimension(),
+            "lexical": LexicalDimension(),
+            "sentiment": SentimentDimension(),
+            "syntactic": SyntacticDimension(),
+            "figurative_language": FigurativeLanguageDimension(),
         }
 
     def test_predictability_scoring_regression(self):
         """Test PredictabilityDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['predictability']
+        dimension = self.dimensions["predictability"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
             # Get baseline score
-            baseline_score = self.baselines[sample_id]['predictability']
+            baseline_score = self.baselines[sample_id]["predictability"]
 
             # Calculate current score
             metrics = dimension.analyze(text)
@@ -133,14 +133,14 @@ class TestScoringRegression:
 
     def test_advanced_lexical_scoring_regression(self):
         """Test AdvancedLexicalDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['advanced_lexical']
+        dimension = self.dimensions["advanced_lexical"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['advanced_lexical']
+            baseline_score = self.baselines[sample_id]["advanced_lexical"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -154,18 +154,20 @@ class TestScoringRegression:
             )
 
         avg_variance = sum(variances) / len(variances)
-        print(f"\n✅ AdvancedLexical: Average variance {avg_variance:.2f}% (≤{VARIANCE_THRESHOLD}%)")
+        print(
+            f"\n✅ AdvancedLexical: Average variance {avg_variance:.2f}% (≤{VARIANCE_THRESHOLD}%)"
+        )
 
     def test_readability_scoring_regression(self):
         """Test ReadabilityDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['readability']
+        dimension = self.dimensions["readability"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['readability']
+            baseline_score = self.baselines[sample_id]["readability"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -183,14 +185,14 @@ class TestScoringRegression:
 
     def test_transition_marker_scoring_regression(self):
         """Test TransitionMarkerDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['transition_marker']
+        dimension = self.dimensions["transition_marker"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['transition_marker']
+            baseline_score = self.baselines[sample_id]["transition_marker"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -204,18 +206,20 @@ class TestScoringRegression:
             )
 
         avg_variance = sum(variances) / len(variances)
-        print(f"\n✅ TransitionMarker: Average variance {avg_variance:.2f}% (≤{VARIANCE_THRESHOLD}%)")
+        print(
+            f"\n✅ TransitionMarker: Average variance {avg_variance:.2f}% (≤{VARIANCE_THRESHOLD}%)"
+        )
 
     def test_perplexity_scoring_regression(self):
         """Test PerplexityDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['perplexity']
+        dimension = self.dimensions["perplexity"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['perplexity']
+            baseline_score = self.baselines[sample_id]["perplexity"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -233,14 +237,14 @@ class TestScoringRegression:
 
     def test_burstiness_scoring_regression(self):
         """Test BurstinessDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['burstiness']
+        dimension = self.dimensions["burstiness"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['burstiness']
+            baseline_score = self.baselines[sample_id]["burstiness"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -258,14 +262,14 @@ class TestScoringRegression:
 
     def test_structure_scoring_regression(self):
         """Test StructureDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['structure']
+        dimension = self.dimensions["structure"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['structure']
+            baseline_score = self.baselines[sample_id]["structure"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -283,14 +287,14 @@ class TestScoringRegression:
 
     def test_formatting_scoring_regression(self):
         """Test FormattingDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['formatting']
+        dimension = self.dimensions["formatting"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['formatting']
+            baseline_score = self.baselines[sample_id]["formatting"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -308,14 +312,14 @@ class TestScoringRegression:
 
     def test_voice_scoring_regression(self):
         """Test VoiceDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['voice']
+        dimension = self.dimensions["voice"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['voice']
+            baseline_score = self.baselines[sample_id]["voice"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -333,14 +337,14 @@ class TestScoringRegression:
 
     def test_lexical_scoring_regression(self):
         """Test LexicalDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['lexical']
+        dimension = self.dimensions["lexical"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['lexical']
+            baseline_score = self.baselines[sample_id]["lexical"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -358,14 +362,14 @@ class TestScoringRegression:
 
     def test_sentiment_scoring_regression(self):
         """Test SentimentDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['sentiment']
+        dimension = self.dimensions["sentiment"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['sentiment']
+            baseline_score = self.baselines[sample_id]["sentiment"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -383,14 +387,14 @@ class TestScoringRegression:
 
     def test_syntactic_scoring_regression(self):
         """Test SyntacticDimension scores match baseline (≤5% variance)."""
-        dimension = self.dimensions['syntactic']
+        dimension = self.dimensions["syntactic"]
         variances = []
 
         for sample in self.corpus:
-            sample_id = sample['id']
-            text = sample['text']
+            sample_id = sample["id"]
+            text = sample["text"]
 
-            baseline_score = self.baselines[sample_id]['syntactic']
+            baseline_score = self.baselines[sample_id]["syntactic"]
 
             metrics = dimension.analyze(text)
             current_score = dimension.calculate_score(metrics)
@@ -418,8 +422,8 @@ class TestScoringRegression:
             variances = []
 
             for sample in self.corpus:
-                sample_id = sample['id']
-                text = sample['text']
+                sample_id = sample["id"]
+                text = sample["text"]
 
                 baseline_score = self.baselines[sample_id][dim_name]
 
@@ -431,10 +435,7 @@ class TestScoringRegression:
 
             avg_variance = sum(variances) / len(variances)
             max_variance = max(variances)
-            dimension_variances[dim_name] = {
-                'avg': avg_variance,
-                'max': max_variance
-            }
+            dimension_variances[dim_name] = {"avg": avg_variance, "max": max_variance}
 
             status = "✅" if max_variance <= VARIANCE_THRESHOLD else "❌"
             print(f"{status} {dim_name:20s} Avg: {avg_variance:5.2f}%  Max: {max_variance:5.2f}%")
@@ -443,6 +444,6 @@ class TestScoringRegression:
 
         # Assert all dimensions within threshold
         for dim_name, stats in dimension_variances.items():
-            assert stats['max'] <= VARIANCE_THRESHOLD, (
-                f"{dim_name}: Max variance {stats['max']:.2f}% exceeds threshold {VARIANCE_THRESHOLD}%"
-            )
+            assert (
+                stats["max"] <= VARIANCE_THRESHOLD
+            ), f"{dim_name}: Max variance {stats['max']:.2f}% exceeds threshold {VARIANCE_THRESHOLD}%"

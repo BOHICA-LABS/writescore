@@ -37,17 +37,20 @@ import pytest
 
 # Skip all tests if validation dataset not available
 VALIDATION_DIR = Path(__file__).parent.parent / "fixtures" / "validation_corpus"
-VALIDATION_AVAILABLE = VALIDATION_DIR.exists() and (VALIDATION_DIR / "validation_labels.json").exists()
+VALIDATION_AVAILABLE = (
+    VALIDATION_DIR.exists() and (VALIDATION_DIR / "validation_labels.json").exists()
+)
 
 skip_if_no_validation = pytest.mark.skipif(
     not VALIDATION_AVAILABLE,
-    reason="Validation corpus not available. See docs for setup instructions."
+    reason="Validation corpus not available. See docs for setup instructions.",
 )
 
 
 @dataclass
 class PerformanceMetrics:
     """Container for performance metrics."""
+
     accuracy: float
     precision: float
     recall: float
@@ -83,7 +86,7 @@ class ValidationCorpusLoader:
         with open(self.labels_file) as f:
             data = json.load(f)
 
-        self.labels = data.get('documents', {})
+        self.labels = data.get("documents", {})
 
     def get_documents(self, domain: str = None) -> List[Tuple[Path, Dict]]:
         """
@@ -98,7 +101,7 @@ class ValidationCorpusLoader:
         documents = []
 
         for filename, label_data in self.labels.items():
-            if domain and label_data.get('domain') != domain:
+            if domain and label_data.get("domain") != domain:
                 continue
 
             doc_path = self.corpus_dir / filename
@@ -118,7 +121,7 @@ class ValidationCorpusLoader:
         Returns:
             Label: 'human', 'ai', or 'mixed'
         """
-        return self.labels.get(filename, {}).get('label', 'unknown')
+        return self.labels.get(filename, {}).get("label", "unknown")
 
 
 class PerformanceEvaluator:
@@ -137,7 +140,7 @@ class PerformanceEvaluator:
     def calculate_metrics(
         self,
         predictions: List[Tuple[float, str]],  # (detection_risk, ground_truth)
-        domain: str = "all"
+        domain: str = "all",
     ) -> PerformanceMetrics:
         """
         Calculate performance metrics.
@@ -154,12 +157,12 @@ class PerformanceEvaluator:
         for detection_risk, ground_truth in predictions:
             predicted_ai = detection_risk > self.threshold
 
-            if ground_truth == 'ai':
+            if ground_truth == "ai":
                 if predicted_ai:
                     tp += 1  # Correctly identified AI
                 else:
                     fn += 1  # Missed AI (false negative)
-            elif ground_truth == 'human':
+            elif ground_truth == "human":
                 if predicted_ai:
                     fp += 1  # Human flagged as AI (false positive)
                 else:
@@ -193,22 +196,27 @@ class PerformanceEvaluator:
             true_positives=tp,
             false_positives=fp,
             true_negatives=tn,
-            false_negatives=fn
+            false_negatives=fn,
         )
 
     def _empty_metrics(self) -> PerformanceMetrics:
         """Return empty metrics for edge cases."""
         return PerformanceMetrics(
-            accuracy=0.0, precision=0.0, recall=0.0, f1_score=0.0,
-            fpr=0.0, fnr=0.0, auc_roc=0.0,
-            true_positives=0, false_positives=0,
-            true_negatives=0, false_negatives=0
+            accuracy=0.0,
+            precision=0.0,
+            recall=0.0,
+            f1_score=0.0,
+            fpr=0.0,
+            fnr=0.0,
+            auc_roc=0.0,
+            true_positives=0,
+            false_positives=0,
+            true_negatives=0,
+            false_negatives=0,
         )
 
     def compare_performance(
-        self,
-        baseline_metrics: PerformanceMetrics,
-        optimized_metrics: PerformanceMetrics
+        self, baseline_metrics: PerformanceMetrics, optimized_metrics: PerformanceMetrics
     ) -> Dict[str, float]:
         """
         Compare baseline vs optimized performance.
@@ -221,12 +229,12 @@ class PerformanceEvaluator:
             Dict with improvement deltas
         """
         return {
-            'accuracy_delta': optimized_metrics.accuracy - baseline_metrics.accuracy,
-            'f1_delta': optimized_metrics.f1_score - baseline_metrics.f1_score,
-            'fpr_delta': baseline_metrics.fpr - optimized_metrics.fpr,  # Lower is better
-            'fnr_delta': baseline_metrics.fnr - optimized_metrics.fnr,  # Lower is better
-            'precision_delta': optimized_metrics.precision - baseline_metrics.precision,
-            'recall_delta': optimized_metrics.recall - baseline_metrics.recall
+            "accuracy_delta": optimized_metrics.accuracy - baseline_metrics.accuracy,
+            "f1_delta": optimized_metrics.f1_score - baseline_metrics.f1_score,
+            "fpr_delta": baseline_metrics.fpr - optimized_metrics.fpr,  # Lower is better
+            "fnr_delta": baseline_metrics.fnr - optimized_metrics.fnr,  # Lower is better
+            "precision_delta": optimized_metrics.precision - baseline_metrics.precision,
+            "recall_delta": optimized_metrics.recall - baseline_metrics.recall,
         }
 
 
@@ -239,7 +247,7 @@ class TestValidationCorpusLoader:
         loader = ValidationCorpusLoader(VALIDATION_DIR)
 
         assert len(loader.labels) > 0
-        assert all('label' in v for v in loader.labels.values())
+        assert all("label" in v for v in loader.labels.values())
 
     def test_get_documents_all(self):
         """Test getting all documents."""
@@ -249,17 +257,17 @@ class TestValidationCorpusLoader:
         assert len(docs) > 0
         for doc_path, label_data in docs:
             assert doc_path.exists()
-            assert 'label' in label_data
+            assert "label" in label_data
 
     def test_get_documents_by_domain(self):
         """Test filtering documents by domain."""
         loader = ValidationCorpusLoader(VALIDATION_DIR)
 
-        for domain in ['academic', 'social_media', 'business', 'creative']:
+        for domain in ["academic", "social_media", "business", "creative"]:
             docs = loader.get_documents(domain=domain)
             # May be 0 if domain not in corpus
             if len(docs) > 0:
-                assert all(d[1].get('domain') == domain for d in docs)
+                assert all(d[1].get("domain") == domain for d in docs)
 
     def test_get_ground_truth(self):
         """Test getting ground truth for document."""
@@ -269,7 +277,7 @@ class TestValidationCorpusLoader:
             first_filename = list(loader.labels.keys())[0]
             label = loader.get_ground_truth(first_filename)
 
-            assert label in ['human', 'ai', 'mixed']
+            assert label in ["human", "ai", "mixed"]
 
 
 class TestPerformanceEvaluator:
@@ -280,10 +288,10 @@ class TestPerformanceEvaluator:
         evaluator = PerformanceEvaluator(threshold=50.0)
 
         predictions = [
-            (70.0, 'ai'),    # Correct: high risk = AI
-            (80.0, 'ai'),    # Correct
-            (30.0, 'human'), # Correct: low risk = human
-            (20.0, 'human')  # Correct
+            (70.0, "ai"),  # Correct: high risk = AI
+            (80.0, "ai"),  # Correct
+            (30.0, "human"),  # Correct: low risk = human
+            (20.0, "human"),  # Correct
         ]
 
         metrics = evaluator.calculate_metrics(predictions)
@@ -298,8 +306,8 @@ class TestPerformanceEvaluator:
         evaluator = PerformanceEvaluator(threshold=50.0)
 
         predictions = [
-            (70.0, 'human'),  # FP: high risk but human
-            (80.0, 'human'),  # FP
+            (70.0, "human"),  # FP: high risk but human
+            (80.0, "human"),  # FP
         ]
 
         metrics = evaluator.calculate_metrics(predictions)
@@ -313,8 +321,8 @@ class TestPerformanceEvaluator:
         evaluator = PerformanceEvaluator(threshold=50.0)
 
         predictions = [
-            (30.0, 'ai'),  # FN: low risk but AI
-            (20.0, 'ai'),  # FN
+            (30.0, "ai"),  # FN: low risk but AI
+            (20.0, "ai"),  # FN
         ]
 
         metrics = evaluator.calculate_metrics(predictions)
@@ -328,10 +336,10 @@ class TestPerformanceEvaluator:
         evaluator = PerformanceEvaluator(threshold=50.0)
 
         predictions = [
-            (70.0, 'ai'),    # TP
-            (30.0, 'human'), # TN
-            (80.0, 'human'), # FP
-            (20.0, 'ai')     # FN
+            (70.0, "ai"),  # TP
+            (30.0, "human"),  # TN
+            (80.0, "human"),  # FP
+            (20.0, "ai"),  # FN
         ]
 
         metrics = evaluator.calculate_metrics(predictions)
@@ -347,23 +355,39 @@ class TestPerformanceEvaluator:
         evaluator = PerformanceEvaluator()
 
         baseline = PerformanceMetrics(
-            accuracy=0.70, precision=0.65, recall=0.75, f1_score=0.70,
-            fpr=0.25, fnr=0.30, auc_roc=0.72,
-            true_positives=0, false_positives=0, true_negatives=0, false_negatives=0
+            accuracy=0.70,
+            precision=0.65,
+            recall=0.75,
+            f1_score=0.70,
+            fpr=0.25,
+            fnr=0.30,
+            auc_roc=0.72,
+            true_positives=0,
+            false_positives=0,
+            true_negatives=0,
+            false_negatives=0,
         )
 
         optimized = PerformanceMetrics(
-            accuracy=0.85, precision=0.82, recall=0.88, f1_score=0.85,
-            fpr=0.12, fnr=0.15, auc_roc=0.86,
-            true_positives=0, false_positives=0, true_negatives=0, false_negatives=0
+            accuracy=0.85,
+            precision=0.82,
+            recall=0.88,
+            f1_score=0.85,
+            fpr=0.12,
+            fnr=0.15,
+            auc_roc=0.86,
+            true_positives=0,
+            false_positives=0,
+            true_negatives=0,
+            false_negatives=0,
         )
 
         deltas = evaluator.compare_performance(baseline, optimized)
 
-        assert deltas['accuracy_delta'] > 0  # Improved
-        assert deltas['f1_delta'] > 0        # Improved
-        assert deltas['fpr_delta'] > 0       # Reduced (better)
-        assert deltas['fnr_delta'] > 0       # Reduced (better)
+        assert deltas["accuracy_delta"] > 0  # Improved
+        assert deltas["f1_delta"] > 0  # Improved
+        assert deltas["fpr_delta"] > 0  # Reduced (better)
+        assert deltas["fnr_delta"] > 0  # Reduced (better)
 
 
 @skip_if_no_validation

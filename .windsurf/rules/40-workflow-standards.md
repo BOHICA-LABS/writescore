@@ -37,14 +37,14 @@ Instructions for invoking the workflow: `/[workflow-name]`
    ```
    Example command or action
    ```
-   
+
    a. Sub-step instruction
    b. Sub-step instruction
-   
+
 2. Second step instruction
    a. Sub-step instruction
    b. Sub-step instruction
-   
+
 3. Verification step
    ```
    Verification command

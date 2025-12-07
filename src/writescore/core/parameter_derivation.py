@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from writescore.core.distribution_analyzer import DimensionStatistics, DistributionAnalysis
 from writescore.core.normality import NormalityResult, NormalityTester
@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class ScoringMethod(Enum):
     """Scoring method type for dimension."""
+
     GAUSSIAN = "gaussian"  # Bell curve centered on human median
     MONOTONIC = "monotonic"  # Linear increase/decrease
     THRESHOLD = "threshold"  # Discrete category boundaries
@@ -38,16 +39,17 @@ class GaussianParameters:
         width: Spread/tolerance (stdev or IQR-based)
         method: Derivation method used ('stdev' or 'iqr')
     """
+
     target: float
     width: float
-    method: str = 'stdev'
+    method: str = "stdev"
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
-            'target': round(self.target, 4),
-            'width': round(self.width, 4),
-            'method': self.method
+            "target": round(self.target, 4),
+            "width": round(self.width, 4),
+            "method": self.method,
         }
 
 
@@ -61,6 +63,7 @@ class MonotonicParameters:
         threshold_high: Upper boundary (human p75)
         inverted: Whether higher values indicate AI-like behavior
     """
+
     threshold_low: float
     threshold_high: float
     inverted: bool = False
@@ -68,9 +71,9 @@ class MonotonicParameters:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         return {
-            'threshold_low': round(self.threshold_low, 4),
-            'threshold_high': round(self.threshold_high, 4),
-            'inverted': self.inverted
+            "threshold_low": round(self.threshold_low, 4),
+            "threshold_high": round(self.threshold_high, 4),
+            "inverted": self.inverted,
         }
 
 
@@ -87,13 +90,12 @@ class ThresholdParameters:
                 'acceptable_poor': 0.25  # ai p25
             }
     """
+
     boundaries: Dict[str, float] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
-        return {
-            'boundaries': {k: round(v, 4) for k, v in self.boundaries.items()}
-        }
+        return {"boundaries": {k: round(v, 4) for k, v in self.boundaries.items()}}
 
 
 @dataclass
@@ -107,6 +109,7 @@ class DimensionParameters:
         parameters: Actual parameter values (GaussianParameters, MonotonicParameters, or ThresholdParameters)
         metadata: Additional metadata (distribution stats, derivation info)
     """
+
     dimension_name: str
     scoring_method: ScoringMethod
     parameters: Any  # GaussianParameters | MonotonicParameters | ThresholdParameters
@@ -115,10 +118,10 @@ class DimensionParameters:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
-            'dimension_name': self.dimension_name,
-            'scoring_method': self.scoring_method.value,
-            'parameters': self.parameters.to_dict(),
-            'metadata': self.metadata
+            "dimension_name": self.dimension_name,
+            "scoring_method": self.scoring_method.value,
+            "parameters": self.parameters.to_dict(),
+            "metadata": self.metadata,
         }
 
 
@@ -145,34 +148,34 @@ class ParameterDeriver:
                            Only used when auto_select_method=True.
         """
         self.auto_select_method = auto_select_method
-        self.normality_tester = NormalityTester(alpha=normality_alpha) if auto_select_method else None
+        self.normality_tester = (
+            NormalityTester(alpha=normality_alpha) if auto_select_method else None
+        )
         self.normality_results: Dict[str, NormalityResult] = {}  # Cache results
 
         # Map dimension names to their preferred scoring methods
         # Used when auto_select_method=False, or as fallback
         self.default_scoring_methods = {
-            'burstiness': ScoringMethod.GAUSSIAN,
-            'sentiment': ScoringMethod.GAUSSIAN,
-            'lexical': ScoringMethod.MONOTONIC,
-            'perplexity': ScoringMethod.MONOTONIC,
-            'readability': ScoringMethod.THRESHOLD,
-            'syntactic': ScoringMethod.GAUSSIAN,
-            'structure': ScoringMethod.GAUSSIAN,
-            'transition_marker': ScoringMethod.MONOTONIC,
-            'voice': ScoringMethod.MONOTONIC,
-            'formatting': ScoringMethod.THRESHOLD,
-            'semantic_coherence': ScoringMethod.GAUSSIAN,
-            'pragmatic_markers': ScoringMethod.GAUSSIAN,
-            'ai_vocabulary': ScoringMethod.MONOTONIC,
-            'advanced_lexical': ScoringMethod.MONOTONIC,
-            'predictability': ScoringMethod.MONOTONIC,
-            'figurative_language': ScoringMethod.GAUSSIAN
+            "burstiness": ScoringMethod.GAUSSIAN,
+            "sentiment": ScoringMethod.GAUSSIAN,
+            "lexical": ScoringMethod.MONOTONIC,
+            "perplexity": ScoringMethod.MONOTONIC,
+            "readability": ScoringMethod.THRESHOLD,
+            "syntactic": ScoringMethod.GAUSSIAN,
+            "structure": ScoringMethod.GAUSSIAN,
+            "transition_marker": ScoringMethod.MONOTONIC,
+            "voice": ScoringMethod.MONOTONIC,
+            "formatting": ScoringMethod.THRESHOLD,
+            "semantic_coherence": ScoringMethod.GAUSSIAN,
+            "pragmatic_markers": ScoringMethod.GAUSSIAN,
+            "ai_vocabulary": ScoringMethod.MONOTONIC,
+            "advanced_lexical": ScoringMethod.MONOTONIC,
+            "predictability": ScoringMethod.MONOTONIC,
+            "figurative_language": ScoringMethod.GAUSSIAN,
         }
 
     def derive_all_parameters(
-        self,
-        analysis: DistributionAnalysis,
-        dimension_names: Optional[List[str]] = None
+        self, analysis: DistributionAnalysis, dimension_names: Optional[List[str]] = None
     ) -> Dict[str, DimensionParameters]:
         """
         Derive parameters for all dimensions in analysis.
@@ -207,7 +210,7 @@ class ParameterDeriver:
         self,
         analysis: DistributionAnalysis,
         dimension_name: str,
-        scoring_method: Optional[ScoringMethod] = None
+        scoring_method: Optional[ScoringMethod] = None,
     ) -> Optional[DimensionParameters]:
         """
         Derive parameters for a single dimension.
@@ -222,24 +225,25 @@ class ParameterDeriver:
             DimensionParameters or None if derivation fails
         """
         # Get statistics for this dimension
-        human_stats = analysis.get_dimension_stats(dimension_name, 'human')
-        ai_stats = analysis.get_dimension_stats(dimension_name, 'ai')
-        combined_stats = analysis.get_dimension_stats(dimension_name, 'combined')
+        human_stats = analysis.get_dimension_stats(dimension_name, "human")
+        ai_stats = analysis.get_dimension_stats(dimension_name, "ai")
+        combined_stats = analysis.get_dimension_stats(dimension_name, "combined")
 
         if not human_stats:
             logger.warning(f"No human statistics for {dimension_name}, cannot derive parameters")
             return None
 
         # Initialize normality metadata
-        normality_metadata = {'method_auto_selected': False}
+        normality_metadata: Dict[str, Any] = {"method_auto_selected": False}
 
         # Determine scoring method
         if scoring_method is None:
             if self.auto_select_method and human_stats.values:
                 # Use Shapiro-Wilk normality testing to auto-select method
+                # Normality tester is always initialized when auto_select_method is True
+                assert self.normality_tester is not None
                 normality_result = self.normality_tester.test_normality(
-                    human_stats.values,
-                    dimension_name
+                    human_stats.values, dimension_name
                 )
 
                 # Cache the result
@@ -247,24 +251,23 @@ class ParameterDeriver:
 
                 # Map recommendation string to ScoringMethod enum
                 method_map = {
-                    'gaussian': ScoringMethod.GAUSSIAN,
-                    'monotonic': ScoringMethod.MONOTONIC,
-                    'threshold': ScoringMethod.THRESHOLD
+                    "gaussian": ScoringMethod.GAUSSIAN,
+                    "monotonic": ScoringMethod.MONOTONIC,
+                    "threshold": ScoringMethod.THRESHOLD,
                 }
                 scoring_method = method_map.get(
-                    normality_result.recommendation,
-                    ScoringMethod.GAUSSIAN
+                    normality_result.recommendation, ScoringMethod.GAUSSIAN
                 )
 
                 # Store normality info in metadata
                 normality_metadata = {
-                    'method_auto_selected': True,
-                    'normality_p_value': normality_result.p_value,
-                    'normality_is_normal': normality_result.is_normal,
-                    'normality_skewness': normality_result.skewness,
-                    'normality_kurtosis': normality_result.kurtosis,
-                    'normality_confidence': normality_result.confidence,
-                    'normality_rationale': normality_result.rationale
+                    "method_auto_selected": True,
+                    "normality_p_value": normality_result.p_value,
+                    "normality_is_normal": normality_result.is_normal,
+                    "normality_skewness": normality_result.skewness,
+                    "normality_kurtosis": normality_result.kurtosis,
+                    "normality_confidence": normality_result.confidence,
+                    "normality_rationale": normality_result.rationale,
                 }
 
                 logger.info(
@@ -275,10 +278,11 @@ class ParameterDeriver:
                 # Fall back to hardcoded defaults
                 scoring_method = self.default_scoring_methods.get(
                     dimension_name,
-                    ScoringMethod.GAUSSIAN  # Default fallback
+                    ScoringMethod.GAUSSIAN,  # Default fallback
                 )
 
         # Derive parameters based on method
+        params: Union[GaussianParameters, MonotonicParameters, ThresholdParameters]
         if scoring_method == ScoringMethod.GAUSSIAN:
             params = self._derive_gaussian_parameters(human_stats)
         elif scoring_method == ScoringMethod.MONOTONIC:
@@ -291,18 +295,15 @@ class ParameterDeriver:
 
         # Build metadata
         metadata = {
-            'human_p50': human_stats.median,
-            'human_p25': human_stats.percentiles['p25'],
-            'human_p75': human_stats.percentiles['p75'],
-            'human_stdev': human_stats.stdev,
-            'human_count': human_stats.count
+            "human_p50": human_stats.median,
+            "human_p25": human_stats.percentiles["p25"],
+            "human_p75": human_stats.percentiles["p75"],
+            "human_stdev": human_stats.stdev,
+            "human_count": human_stats.count,
         }
 
         if ai_stats:
-            metadata.update({
-                'ai_p50': ai_stats.median,
-                'ai_count': ai_stats.count
-            })
+            metadata.update({"ai_p50": ai_stats.median, "ai_count": ai_stats.count})
 
         # Add normality testing metadata
         metadata.update(normality_metadata)
@@ -311,7 +312,7 @@ class ParameterDeriver:
             dimension_name=dimension_name,
             scoring_method=scoring_method,
             parameters=params,
-            metadata=metadata
+            metadata=metadata,
         )
 
     def get_normality_results(self) -> Dict[str, NormalityResult]:
@@ -324,10 +325,7 @@ class ParameterDeriver:
         """
         return self.normality_results
 
-    def _derive_gaussian_parameters(
-        self,
-        human_stats: DimensionStatistics
-    ) -> GaussianParameters:
+    def _derive_gaussian_parameters(self, human_stats: DimensionStatistics) -> GaussianParameters:
         """
         Derive Gaussian parameters from human distribution.
 
@@ -344,25 +342,25 @@ class ParameterDeriver:
         # Use standard deviation if available
         if human_stats.stdev > 0:
             width = human_stats.stdev
-            method = 'stdev'
+            method = "stdev"
         else:
             # Fallback to IQR-based width
             # IQR / 1.35 approximates stdev for normal distribution
             iqr = human_stats.iqr
             width = iqr / 1.35 if iqr > 0 else 1.0
-            method = 'iqr'
+            method = "iqr"
 
         # Sanity check: width must be positive
         if width <= 0:
-            logger.warning(f"Invalid width {width} for {human_stats.dimension_name}, using fallback")
+            logger.warning(
+                f"Invalid width {width} for {human_stats.dimension_name}, using fallback"
+            )
             width = abs(target * 0.15) if target != 0 else 1.0
 
         return GaussianParameters(target=target, width=width, method=method)
 
     def _derive_monotonic_parameters(
-        self,
-        human_stats: DimensionStatistics,
-        ai_stats: Optional[DimensionStatistics] = None
+        self, human_stats: DimensionStatistics, ai_stats: Optional[DimensionStatistics] = None
     ) -> MonotonicParameters:
         """
         Derive monotonic parameters from human distribution.
@@ -376,8 +374,8 @@ class ParameterDeriver:
         Returns:
             MonotonicParameters
         """
-        threshold_low = human_stats.percentiles['p25']
-        threshold_high = human_stats.percentiles['p75']
+        threshold_low = human_stats.percentiles["p25"]
+        threshold_high = human_stats.percentiles["p75"]
 
         # Determine if inverted (higher = more AI-like)
         # If AI median > human median, then higher values indicate AI behavior
@@ -402,16 +400,14 @@ class ParameterDeriver:
                 threshold_high = human_stats.median + spread
 
         return MonotonicParameters(
-            threshold_low=threshold_low,
-            threshold_high=threshold_high,
-            inverted=inverted
+            threshold_low=threshold_low, threshold_high=threshold_high, inverted=inverted
         )
 
     def _derive_threshold_parameters(
         self,
         human_stats: DimensionStatistics,
         ai_stats: Optional[DimensionStatistics],
-        combined_stats: Optional[DimensionStatistics]
+        combined_stats: Optional[DimensionStatistics],
     ) -> ThresholdParameters:
         """
         Derive threshold parameters for discrete categories.
@@ -430,35 +426,35 @@ class ParameterDeriver:
         boundaries = {}
 
         # Excellent/Good boundary: human p75
-        boundaries['excellent_good'] = human_stats.percentiles['p75']
+        boundaries["excellent_good"] = human_stats.percentiles["p75"]
 
         # Good/Acceptable boundary: combined p50 or human p50
         if combined_stats:
-            boundaries['good_acceptable'] = combined_stats.percentiles['p50']
+            boundaries["good_acceptable"] = combined_stats.percentiles["p50"]
         else:
-            boundaries['good_acceptable'] = human_stats.percentiles['p50']
+            boundaries["good_acceptable"] = human_stats.percentiles["p50"]
 
         # Acceptable/Poor boundary: AI p25 or human p25
         if ai_stats:
-            boundaries['acceptable_poor'] = ai_stats.percentiles['p25']
+            boundaries["acceptable_poor"] = ai_stats.percentiles["p25"]
         else:
-            boundaries['acceptable_poor'] = human_stats.percentiles['p25']
+            boundaries["acceptable_poor"] = human_stats.percentiles["p25"]
 
         # Sanity check: ensure proper ordering
         vals = [
-            boundaries['excellent_good'],
-            boundaries['good_acceptable'],
-            boundaries['acceptable_poor']
+            boundaries["excellent_good"],
+            boundaries["good_acceptable"],
+            boundaries["acceptable_poor"],
         ]
 
-        if not all(vals[i] > vals[i+1] for i in range(len(vals)-1)):
+        if not all(vals[i] > vals[i + 1] for i in range(len(vals) - 1)):
             logger.warning(
                 f"Threshold boundaries not properly ordered for {human_stats.dimension_name}: {vals}"
             )
             # Use quartiles as fallback
-            boundaries['excellent_good'] = human_stats.percentiles['p75']
-            boundaries['good_acceptable'] = human_stats.percentiles['p50']
-            boundaries['acceptable_poor'] = human_stats.percentiles['p25']
+            boundaries["excellent_good"] = human_stats.percentiles["p75"]
+            boundaries["good_acceptable"] = human_stats.percentiles["p50"]
+            boundaries["acceptable_poor"] = human_stats.percentiles["p25"]
 
         return ThresholdParameters(boundaries=boundaries)
 
@@ -466,7 +462,7 @@ class ParameterDeriver:
         self,
         parameters: Dict[str, DimensionParameters],
         output_path: Path,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Save derived parameters to JSON file.
@@ -479,15 +475,12 @@ class ParameterDeriver:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         data = {
-            'version': '2.5',
-            'metadata': metadata or {},
-            'parameters': {
-                name: params.to_dict()
-                for name, params in parameters.items()
-            }
+            "version": "2.5",
+            "metadata": metadata or {},
+            "parameters": {name: params.to_dict() for name, params in parameters.items()},
         }
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(data, f, indent=2)
 
         logger.info(f"Saved {len(parameters)} parameter sets to {output_path}")
@@ -507,16 +500,17 @@ class ParameterDeriver:
             data = json.load(f)
 
         parameters = {}
-        for name, param_data in data['parameters'].items():
-            scoring_method = ScoringMethod(param_data['scoring_method'])
+        for name, param_data in data["parameters"].items():
+            scoring_method = ScoringMethod(param_data["scoring_method"])
 
             # Reconstruct parameter objects
+            params: Union[GaussianParameters, MonotonicParameters, ThresholdParameters]
             if scoring_method == ScoringMethod.GAUSSIAN:
-                params = GaussianParameters(**param_data['parameters'])
+                params = GaussianParameters(**param_data["parameters"])
             elif scoring_method == ScoringMethod.MONOTONIC:
-                params = MonotonicParameters(**param_data['parameters'])
+                params = MonotonicParameters(**param_data["parameters"])
             elif scoring_method == ScoringMethod.THRESHOLD:
-                params = ThresholdParameters(**param_data['parameters'])
+                params = ThresholdParameters(**param_data["parameters"])
             else:
                 logger.warning(f"Unknown scoring method for {name}: {scoring_method}")
                 continue
@@ -525,7 +519,7 @@ class ParameterDeriver:
                 dimension_name=name,
                 scoring_method=scoring_method,
                 parameters=params,
-                metadata=param_data.get('metadata', {})
+                metadata=param_data.get("metadata", {}),
             )
 
         logger.info(f"Loaded {len(parameters)} parameter sets from {input_path}")

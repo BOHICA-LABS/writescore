@@ -3,7 +3,6 @@ Tests for SentimentDimension - Sentiment variance analysis.
 Story 1.4.6 - Adding missing test file for sentiment dimension.
 """
 
-
 import pytest
 
 from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
@@ -89,13 +88,13 @@ class TestAnalyzeMethod:
         """Test analyze() returns sentiment variance metrics."""
         result = dimension.analyze(varied_sentiment_text)
 
-        assert 'sentiment' in result
-        assert 'available' in result
-        assert result['available'] is True
+        assert "sentiment" in result
+        assert "available" in result
+        assert result["available"] is True
 
-        sentiment = result['sentiment']
-        assert 'variance' in sentiment
-        assert 'mean' in sentiment
+        sentiment = result["sentiment"]
+        assert "variance" in sentiment
+        assert "mean" in sentiment
 
     def test_analyze_accepts_config_parameter(self, dimension, varied_sentiment_text):
         """Test analyze() accepts config parameter (Story 1.4.6)."""
@@ -104,35 +103,35 @@ class TestAnalyzeMethod:
         # Should not raise error
         result = dimension.analyze(varied_sentiment_text, config=config)
 
-        assert 'sentiment' in result
-        assert 'available' in result
+        assert "sentiment" in result
+        assert "available" in result
 
     def test_analyze_with_config_none(self, dimension, varied_sentiment_text):
         """Test analyze() works with config=None."""
         result = dimension.analyze(varied_sentiment_text, config=None)
 
-        assert 'sentiment' in result
-        assert 'available' in result
+        assert "sentiment" in result
+        assert "available" in result
 
     def test_analyze_high_variance_text(self, dimension, varied_sentiment_text):
         """Test analyze() detects high sentiment variance."""
         result = dimension.analyze(varied_sentiment_text)
 
-        sentiment = result['sentiment']
+        sentiment = result["sentiment"]
         # Varied text should have higher variance
-        assert sentiment['variance'] > 0.0
+        assert sentiment["variance"] > 0.0
 
     def test_analyze_handles_empty_text(self, dimension):
         """Test analyze() handles empty text gracefully."""
         result = dimension.analyze("")
 
-        assert 'available' in result
+        assert "available" in result
         # May be True or False depending on implementation
 
     def test_analyze_sets_available_flag(self, dimension, neutral_text):
         """Test analyze() sets 'available' flag."""
         result = dimension.analyze(neutral_text)
-        assert 'available' in result
+        assert "available" in result
 
 
 class TestCalculateScoreMethod:
@@ -140,13 +139,7 @@ class TestCalculateScoreMethod:
 
     def test_score_high_variance_gives_high_score(self, dimension):
         """Test high sentiment variance (≥0.20) gives excellent score (100)."""
-        metrics = {
-            'sentiment': {
-                'variance': 0.25,
-                'mean': 0.0
-            },
-            'available': True
-        }
+        metrics = {"sentiment": {"variance": 0.25, "mean": 0.0}, "available": True}
         score = dimension.calculate_score(metrics)
 
         assert score == 100.0
@@ -158,11 +151,11 @@ class TestCalculateScoreMethod:
         Target μ=0.0, width σ=0.3
         """
         metrics = {
-            'sentiment': {
-                'variance': 0.17,
-                'mean': 0.05  # Slightly positive, within 1σ
+            "sentiment": {
+                "variance": 0.17,
+                "mean": 0.05,  # Slightly positive, within 1σ
             },
-            'available': True
+            "available": True,
         }
         score = dimension.calculate_score(metrics)
 
@@ -174,11 +167,11 @@ class TestCalculateScoreMethod:
         AI text shows positive bias (+0.1 to +0.2 mean polarity).
         """
         metrics = {
-            'sentiment': {
-                'variance': 0.12,
-                'mean': 0.25  # Just outside 1σ (0.3)
+            "sentiment": {
+                "variance": 0.12,
+                "mean": 0.25,  # Just outside 1σ (0.3)
             },
-            'available': True
+            "available": True,
         }
         score = dimension.calculate_score(metrics)
 
@@ -190,11 +183,11 @@ class TestCalculateScoreMethod:
         Strong AI signal - far from neutral target.
         """
         metrics = {
-            'sentiment': {
-                'variance': 0.07,
-                'mean': 0.5  # ~1.7σ from target
+            "sentiment": {
+                "variance": 0.07,
+                "mean": 0.5,  # ~1.7σ from target
             },
-            'available': True
+            "available": True,
         }
         score = dimension.calculate_score(metrics)
 
@@ -206,11 +199,11 @@ class TestCalculateScoreMethod:
         Extreme deviation from neutral target.
         """
         metrics = {
-            'sentiment': {
-                'variance': 0.02,
-                'mean': -0.6  # ~2σ from target
+            "sentiment": {
+                "variance": 0.02,
+                "mean": -0.6,  # ~2σ from target
             },
-            'available': True
+            "available": True,
         }
         score = dimension.calculate_score(metrics)
 
@@ -218,13 +211,7 @@ class TestCalculateScoreMethod:
 
     def test_score_validates_range(self, dimension):
         """Test calculate_score validates 0-100 range."""
-        metrics = {
-            'sentiment': {
-                'variance': 0.25,
-                'mean': 0.0
-            },
-            'available': True
-        }
+        metrics = {"sentiment": {"variance": 0.25, "mean": 0.0}, "available": True}
         score = dimension.calculate_score(metrics)
 
         assert 0.0 <= score <= 100.0
@@ -235,13 +222,7 @@ class TestGetRecommendationsMethod:
 
     def test_recommendations_for_low_variance(self, dimension):
         """Test recommendations generated for low variance (AI signature)."""
-        metrics = {
-            'sentiment': {
-                'variance': 0.05,
-                'mean': 0.0,
-                'emotionally_flat': True
-            }
-        }
+        metrics = {"sentiment": {"variance": 0.05, "mean": 0.0, "emotionally_flat": True}}
         score = 50.0
 
         recommendations = dimension.get_recommendations(score, metrics)
@@ -249,18 +230,12 @@ class TestGetRecommendationsMethod:
         assert isinstance(recommendations, list)
         assert len(recommendations) > 0
         # Should mention variance/variation/emotion
-        rec_text = ' '.join(recommendations).lower()
-        assert any(term in rec_text for term in ['variance', 'variation', 'emotion', 'sentiment'])
+        rec_text = " ".join(recommendations).lower()
+        assert any(term in rec_text for term in ["variance", "variation", "emotion", "sentiment"])
 
     def test_recommendations_for_high_variance(self, dimension):
         """Test fewer/no recommendations for high variance (human-like)."""
-        metrics = {
-            'sentiment': {
-                'variance': 0.25,
-                'mean': 0.0,
-                'emotionally_flat': False
-            }
-        }
+        metrics = {"sentiment": {"variance": 0.25, "mean": 0.0, "emotionally_flat": False}}
         score = 100.0
 
         recommendations = dimension.get_recommendations(score, metrics)
@@ -277,10 +252,10 @@ class TestGetTiersMethod:
         tiers = dimension.get_tiers()
 
         assert isinstance(tiers, dict)
-        assert 'excellent' in tiers
-        assert 'good' in tiers
-        assert 'acceptable' in tiers
-        assert 'poor' in tiers
+        assert "excellent" in tiers
+        assert "good" in tiers
+        assert "acceptable" in tiers
+        assert "poor" in tiers
 
     def test_tier_ranges_are_valid(self, dimension):
         """Test tier ranges don't overlap and cover 0-100."""
@@ -300,8 +275,8 @@ class TestBackwardCompatibility:
         # Simulate old code that doesn't pass config
         result = dimension.analyze(neutral_text)
 
-        assert 'sentiment' in result
-        assert 'available' in result
+        assert "sentiment" in result
+        assert "available" in result
 
     def test_config_none_identical_to_no_config(self, dimension, neutral_text):
         """Test config=None produces identical results to no config."""
@@ -309,9 +284,9 @@ class TestBackwardCompatibility:
         result2 = dimension.analyze(neutral_text, config=None)
 
         # Should produce same results
-        assert result1['available'] == result2['available']
-        if result1['available'] and result2['available']:
-            assert result1['sentiment']['variance'] == result2['sentiment']['variance']
+        assert result1["available"] == result2["available"]
+        if result1["available"] and result2["available"]:
+            assert result1["sentiment"]["variance"] == result2["sentiment"]["variance"]
 
 
 class TestGaussianScoring:
@@ -320,9 +295,9 @@ class TestGaussianScoring:
     def test_calculate_score_optimal_neutral_polarity(self, dimension):
         """Test scoring at optimal neutral polarity (μ=0.0) returns near-perfect score."""
         metrics = {
-            'sentiment': {
-                'mean': 0.0,  # Optimal neutral target
-                'variance': 0.10
+            "sentiment": {
+                "mean": 0.0,  # Optimal neutral target
+                "variance": 0.10,
             }
         }
         score = dimension.calculate_score(metrics)
@@ -337,9 +312,9 @@ class TestGaussianScoring:
         # At μ±1σ, Gaussian function returns exp(-0.5) ≈ 0.606
 
         metrics_negative = {
-            'sentiment': {
-                'mean': -0.3,  # μ - 1σ
-                'variance': 0.10
+            "sentiment": {
+                "mean": -0.3,  # μ - 1σ
+                "variance": 0.10,
             }
         }
         score_negative = dimension.calculate_score(metrics_negative)
@@ -347,9 +322,9 @@ class TestGaussianScoring:
         assert score_negative <= 65.0
 
         metrics_positive = {
-            'sentiment': {
-                'mean': 0.3,  # μ + 1σ
-                'variance': 0.10
+            "sentiment": {
+                "mean": 0.3,  # μ + 1σ
+                "variance": 0.10,
             }
         }
         score_positive = dimension.calculate_score(metrics_positive)
@@ -360,9 +335,9 @@ class TestGaussianScoring:
         """Test scoring for AI positive bias (+0.15) returns moderate score."""
         # Research notes AI shows +0.1 to +0.2 positive bias
         metrics = {
-            'sentiment': {
-                'mean': 0.15,  # AI positive bias
-                'variance': 0.10
+            "sentiment": {
+                "mean": 0.15,  # AI positive bias
+                "variance": 0.10,
             }
         }
         score = dimension.calculate_score(metrics)
@@ -375,9 +350,9 @@ class TestGaussianScoring:
     def test_calculate_score_strong_positive_bias(self, dimension):
         """Test scoring for strong positive bias returns low score."""
         metrics = {
-            'sentiment': {
-                'mean': 0.6,  # Strong positive bias
-                'variance': 0.10
+            "sentiment": {
+                "mean": 0.6,  # Strong positive bias
+                "variance": 0.10,
             }
         }
         score = dimension.calculate_score(metrics)
@@ -389,9 +364,9 @@ class TestGaussianScoring:
     def test_calculate_score_strong_negative_bias(self, dimension):
         """Test scoring for strong negative bias returns low score."""
         metrics = {
-            'sentiment': {
-                'mean': -0.6,  # Strong negative bias
-                'variance': 0.10
+            "sentiment": {
+                "mean": -0.6,  # Strong negative bias
+                "variance": 0.10,
             }
         }
         score = dimension.calculate_score(metrics)
@@ -401,20 +376,10 @@ class TestGaussianScoring:
 
     def test_calculate_score_symmetric_around_neutral(self, dimension):
         """Test that positive and negative deviations score similarly."""
-        metrics_pos = {
-            'sentiment': {
-                'mean': 0.2,
-                'variance': 0.10
-            }
-        }
+        metrics_pos = {"sentiment": {"mean": 0.2, "variance": 0.10}}
         score_pos = dimension.calculate_score(metrics_pos)
 
-        metrics_neg = {
-            'sentiment': {
-                'mean': -0.2,
-                'variance': 0.10
-            }
-        }
+        metrics_neg = {"sentiment": {"mean": -0.2, "variance": 0.10}}
         score_neg = dimension.calculate_score(metrics_neg)
 
         # Gaussian is symmetric, so both should score identically
@@ -424,14 +389,9 @@ class TestGaussianScoring:
         """Test that score decreases monotonically moving away from neutral."""
         scores = []
         for polarity in [0.0, 0.1, 0.3, 0.5]:
-            metrics = {
-                'sentiment': {
-                    'mean': polarity,
-                    'variance': 0.10
-                }
-            }
+            metrics = {"sentiment": {"mean": polarity, "variance": 0.10}}
             scores.append(dimension.calculate_score(metrics))
 
         # Scores should decrease as we move away from neutral (0.0)
         for i in range(len(scores) - 1):
-            assert scores[i] > scores[i+1], f"Score should decrease: {scores[i]} > {scores[i+1]}"
+            assert scores[i] > scores[i + 1], f"Score should decrease: {scores[i]} > {scores[i+1]}"

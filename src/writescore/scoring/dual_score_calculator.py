@@ -38,10 +38,12 @@ from writescore.scoring.score_normalization import get_normalizer
 logger = logging.getLogger(__name__)
 
 
-def calculate_dual_score(results: AnalysisResults,
-                        detection_target: float = 30.0,
-                        quality_target: float = 85.0,
-                        config: Optional[Any] = None) -> DualScore:
+def calculate_dual_score(
+    results: AnalysisResults,
+    detection_target: float = 30.0,
+    quality_target: float = 85.0,
+    config: Optional[Any] = None,
+) -> DualScore:
     """
     Calculate dual scores using DimensionRegistry for dynamic dimension discovery.
 
@@ -83,8 +85,9 @@ def calculate_dual_score(results: AnalysisResults,
     improvements = _generate_improvements(dimension_scores, results)
 
     # PHASE 5: Build optimization path (sorted by ROI)
-    path = _build_optimization_path(improvements, detection_risk, detection_target,
-                                   quality_score, quality_target)
+    path = _build_optimization_path(
+        improvements, detection_risk, detection_target, quality_score, quality_target
+    )
 
     # PHASE 6: Calculate interpretations and effort
     detection_interp = _interpret_detection(detection_risk)
@@ -109,11 +112,13 @@ def calculate_dual_score(results: AnalysisResults,
         estimated_effort=effort,
         timestamp=timestamp,
         file_path=results.file_path,
-        total_words=results.total_words
+        total_words=results.total_words,
     )
 
 
-def _build_dimension_scores(results: AnalysisResults, config: Optional[Any] = None) -> List[Tuple[Any, ScoreDimension]]:
+def _build_dimension_scores(
+    results: AnalysisResults, config: Optional[Any] = None
+) -> List[Tuple[Any, ScoreDimension]]:
     """
     Build ScoreDimension objects for all registered dimensions.
 
@@ -133,7 +138,7 @@ def _build_dimension_scores(results: AnalysisResults, config: Optional[Any] = No
     dimension_scores = []
 
     # Check if normalization is enabled
-    enable_normalization = getattr(config, 'enable_score_normalization', True) if config else True
+    enable_normalization = getattr(config, "enable_score_normalization", True) if config else True
 
     # Get normalizer (only loads stats if normalization enabled)
     normalizer = get_normalizer(enabled=enable_normalization)
@@ -182,7 +187,7 @@ def _build_dimension_scores(results: AnalysisResults, config: Optional[Any] = No
 
         # Handle selective loading (dimension not loaded)
         # Note: Using `== False` intentionally - None means "not set" (available), False means explicitly unavailable
-        if not metrics or metrics.get('available') == False:  # noqa: E712
+        if not metrics or metrics.get("available") == False:  # noqa: E712
             # Create placeholder ScoreDimension with 0 contribution
             score_dim = ScoreDimension(
                 name=dim.description,
@@ -192,7 +197,7 @@ def _build_dimension_scores(results: AnalysisResults, config: Optional[Any] = No
                 impact="NONE",
                 gap=effective_weight,
                 raw_value=None,
-                recommendation=None
+                recommendation=None,
             )
             dimension_scores.append((dim, score_dim))
             continue
@@ -200,8 +205,8 @@ def _build_dimension_scores(results: AnalysisResults, config: Optional[Any] = No
         # Calculate score using dimension's calculate_score method
         try:
             # Check if a pre-calculated score is available (for testing/backward compat)
-            if 'score' in metrics and isinstance(metrics['score'], (int, float)):
-                raw_score = float(metrics['score'])  # Use pre-calculated score
+            if "score" in metrics and isinstance(metrics["score"], (int, float)):
+                raw_score = float(metrics["score"])  # Use pre-calculated score
             else:
                 raw_score = dim.calculate_score(metrics)  # Calculate from metrics
 
@@ -240,7 +245,7 @@ def _build_dimension_scores(results: AnalysisResults, config: Optional[Any] = No
                 impact=impact,
                 gap=gap,
                 raw_value=raw_value,
-                recommendation=recommendation
+                recommendation=recommendation,
             )
 
             dimension_scores.append((dim, score_dim))
@@ -256,14 +261,16 @@ def _build_dimension_scores(results: AnalysisResults, config: Optional[Any] = No
                 impact="NONE",
                 gap=effective_weight,
                 raw_value=None,
-                recommendation=f"Error: {str(e)}"
+                recommendation=f"Error: {str(e)}",
             )
             dimension_scores.append((dim, score_dim))
 
     return dimension_scores
 
 
-def _build_score_categories(dimension_scores: List[Tuple[Any, ScoreDimension]]) -> List[ScoreCategory]:
+def _build_score_categories(
+    dimension_scores: List[Tuple[Any, ScoreDimension]],
+) -> List[ScoreCategory]:
     """
     Group dimensions by tier into ScoreCategory objects.
 
@@ -281,22 +288,22 @@ def _build_score_categories(dimension_scores: List[Tuple[Any, ScoreDimension]]) 
     """
     # Group by tier
     tier_groups: Dict[str, List[ScoreDimension]] = {
-        'ADVANCED': [],
-        'CORE': [],
-        'SUPPORTING': [],
-        'STRUCTURAL': []
+        "ADVANCED": [],
+        "CORE": [],
+        "SUPPORTING": [],
+        "STRUCTURAL": [],
     }
 
     tier_weights: Dict[str, float] = {
-        'ADVANCED': 0.0,
-        'CORE': 0.0,
-        'SUPPORTING': 0.0,
-        'STRUCTURAL': 0.0
+        "ADVANCED": 0.0,
+        "CORE": 0.0,
+        "SUPPORTING": 0.0,
+        "STRUCTURAL": 0.0,
     }
 
     for dim, score_dim in dimension_scores:
         # Handle both enum and string tier values
-        tier_name = dim.tier.value if hasattr(dim.tier, 'value') else dim.tier
+        tier_name = dim.tier.value if hasattr(dim.tier, "value") else dim.tier
         tier_groups[tier_name].append(score_dim)
         tier_weights[tier_name] += dim.weight
 
@@ -304,13 +311,13 @@ def _build_score_categories(dimension_scores: List[Tuple[Any, ScoreDimension]]) 
     categories = []
 
     tier_display_names = {
-        'ADVANCED': 'Advanced Detection',
-        'CORE': 'Core Patterns',
-        'SUPPORTING': 'Supporting Indicators',
-        'STRUCTURAL': 'Structural Patterns'
+        "ADVANCED": "Advanced Detection",
+        "CORE": "Core Patterns",
+        "SUPPORTING": "Supporting Indicators",
+        "STRUCTURAL": "Structural Patterns",
     }
 
-    for tier_name in ['ADVANCED', 'CORE', 'SUPPORTING', 'STRUCTURAL']:
+    for tier_name in ["ADVANCED", "CORE", "SUPPORTING", "STRUCTURAL"]:
         dimensions = tier_groups[tier_name]
         max_total = tier_weights[tier_name]
         total = sum(d.score for d in dimensions)
@@ -321,7 +328,7 @@ def _build_score_categories(dimension_scores: List[Tuple[Any, ScoreDimension]]) 
             total=total,
             max_total=max_total,
             percentage=percentage,
-            dimensions=dimensions
+            dimensions=dimensions,
         )
         categories.append(category)
 
@@ -357,8 +364,9 @@ def _calculate_overall_scores(categories: List[ScoreCategory]) -> Tuple[float, f
     return detection_risk, quality_score
 
 
-def _generate_improvements(dimension_scores: List[Tuple[Any, ScoreDimension]],
-                          results: AnalysisResults) -> List[ImprovementAction]:
+def _generate_improvements(
+    dimension_scores: List[Tuple[Any, ScoreDimension]], results: AnalysisResults
+) -> List[ImprovementAction]:
     """
     Generate improvement actions for all dimensions with gaps.
 
@@ -386,13 +394,13 @@ def _generate_improvements(dimension_scores: List[Tuple[Any, ScoreDimension]],
                 impact_level=score_dim.impact,
                 action=score_dim.recommendation,
                 effort_level=effort,
-                line_references=[]  # Could be enhanced with detailed analysis results
+                line_references=[],  # Could be enhanced with detailed analysis results
             )
             improvements.append(improvement)
             priority += 1
 
     # Sort by impact (HIGH > MEDIUM > LOW > NONE) and then by potential gain
-    impact_order = {'HIGH': 0, 'MEDIUM': 1, 'LOW': 2, 'NONE': 3}
+    impact_order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2, "NONE": 3}
     improvements.sort(key=lambda x: (impact_order.get(x.impact_level, 3), -x.potential_gain))
 
     # Re-assign priorities after sorting
@@ -402,9 +410,13 @@ def _generate_improvements(dimension_scores: List[Tuple[Any, ScoreDimension]],
     return improvements
 
 
-def _build_optimization_path(improvements: List[ImprovementAction],
-                            current_detection: float, target_detection: float,
-                            current_quality: float, target_quality: float) -> List[ImprovementAction]:
+def _build_optimization_path(
+    improvements: List[ImprovementAction],
+    current_detection: float,
+    target_detection: float,
+    current_quality: float,
+    target_quality: float,
+) -> List[ImprovementAction]:
     """
     Build optimization path sorted by ROI (impact / effort).
 
@@ -426,16 +438,19 @@ def _build_optimization_path(improvements: List[ImprovementAction],
     quality_gap = target_quality - current_quality
 
     # Filter to high-impact improvements that can close the gap
-    path = [imp for imp in improvements if imp.impact_level in ['HIGH', 'MEDIUM']]
+    path = [imp for imp in improvements if imp.impact_level in ["HIGH", "MEDIUM"]]
 
     # Sort by ROI: impact_weight / effort_weight
-    effort_weights = {'LOW': 1, 'MEDIUM': 2, 'HIGH': 3}
-    impact_weights = {'HIGH': 3, 'MEDIUM': 2, 'LOW': 1, 'NONE': 0}
+    effort_weights = {"LOW": 1, "MEDIUM": 2, "HIGH": 3}
+    impact_weights = {"HIGH": 3, "MEDIUM": 2, "LOW": 1, "NONE": 0}
 
-    path.sort(key=lambda x: (
-        impact_weights.get(x.impact_level, 0) / effort_weights.get(x.effort_level, 2),
-        -x.potential_gain
-    ), reverse=True)
+    path.sort(
+        key=lambda x: (
+            impact_weights.get(x.impact_level, 0) / effort_weights.get(x.effort_level, 2),
+            -x.potential_gain,
+        ),
+        reverse=True,
+    )
 
     # Build path to reach target (100% of gap)
     cumulative_gain = 0.0
@@ -454,6 +469,7 @@ def _build_optimization_path(improvements: List[ImprovementAction],
 # ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
+
 
 def _calculate_impact(gap: float, max_points: float) -> str:
     """Calculate impact level based on gap and point weight."""
@@ -502,17 +518,31 @@ def _estimate_effort(dimension_name: str, gap: float) -> str:
         Effort level: 'LOW', 'MEDIUM', or 'HIGH'
     """
     easy_fixes = [
-        "Formatting Patterns", "Stylometric Markers", "Heading Hierarchy",
-        "Bold/Italic Patterns", "Punctuation Clustering", "Whitespace Patterns",
-        "Blockquote Distribution", "Link Anchor Text", "Punctuation Spacing",
-        "List Symmetry (AST)", "Code Block Patterns"
+        "Formatting Patterns",
+        "Stylometric Markers",
+        "Heading Hierarchy",
+        "Bold/Italic Patterns",
+        "Punctuation Clustering",
+        "Whitespace Patterns",
+        "Blockquote Distribution",
+        "Link Anchor Text",
+        "Punctuation Spacing",
+        "List Symmetry (AST)",
+        "Code Block Patterns",
     ]
     medium_fixes = [
-        "Burstiness (Sentence Variation)", "Perplexity (Vocabulary)",
-        "Structure & Organization", "Voice & Authenticity", "Technical Depth",
-        "List Usage Patterns", "List Nesting Depth", "Heading Length Variance",
-        "Heading Depth Navigation", "Paragraph Length Variance",
-        "H2 Section Length Variance", "H3/H4 Subsection Asymmetry"
+        "Burstiness (Sentence Variation)",
+        "Perplexity (Vocabulary)",
+        "Structure & Organization",
+        "Voice & Authenticity",
+        "Technical Depth",
+        "List Usage Patterns",
+        "List Nesting Depth",
+        "Heading Length Variance",
+        "Heading Depth Navigation",
+        "Paragraph Length Variance",
+        "H2 Section Length Variance",
+        "H3/H4 Subsection Asymmetry",
     ]
 
     if dimension_name in easy_fixes:
@@ -583,18 +613,18 @@ def _extract_primary_metric(metrics: Dict[str, Any], dimension_name: str) -> Opt
     """
     # Map dimension names to their primary display metric
     primary_metrics = {
-        'predictability': 'gltr_top10_percentage',
-        'perplexity': 'ai_vocabulary_per_1k',
-        'burstiness': 'sentence_stdev',
-        'structure': 'heading_parallelism_score',
-        'formatting': 'em_dashes_per_page',
-        'voice': 'first_person_count',
-        'readability': 'flesch_reading_ease',
-        'lexical': 'unique_word_ratio',
-        'sentiment': 'sentiment_flatness_score',
-        'syntactic': 'subordination_index',
-        'advanced_lexical': 'hdd_score',
-        'transition_marker': 'transition_marker_density'
+        "predictability": "gltr_top10_percentage",
+        "perplexity": "ai_vocabulary_per_1k",
+        "burstiness": "sentence_stdev",
+        "structure": "heading_parallelism_score",
+        "formatting": "em_dashes_per_page",
+        "voice": "first_person_count",
+        "readability": "flesch_reading_ease",
+        "lexical": "unique_word_ratio",
+        "sentiment": "sentiment_flatness_score",
+        "syntactic": "subordination_index",
+        "advanced_lexical": "hdd_score",
+        "transition_marker": "transition_marker_density",
     }
 
     primary_key = primary_metrics.get(dimension_name)

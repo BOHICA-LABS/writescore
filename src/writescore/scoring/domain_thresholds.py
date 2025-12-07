@@ -16,11 +16,12 @@ Research sources:
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Tuple
+from typing import Dict, Optional, Tuple
 
 
 class DocumentDomain(Enum):
     """Document type classification for threshold application."""
+
     ACADEMIC = "academic"
     TECHNICAL = "technical"
     BUSINESS = "business"
@@ -31,13 +32,14 @@ class DocumentDomain(Enum):
 @dataclass
 class HierarchyThresholds:
     """Thresholds for a specific heading level."""
+
     # Coefficient of Variation (CV) thresholds
     cv_human_min: float  # Minimum CV typically seen in human writing
-    cv_ai_max: float     # Maximum CV typically seen in AI writing
-    cv_threshold: float   # Decision boundary (50% confidence point)
+    cv_ai_max: float  # Maximum CV typically seen in AI writing
+    cv_threshold: float  # Decision boundary (50% confidence point)
 
     # Scoring parameters
-    max_score: float     # Maximum points for this level
+    max_score: float  # Maximum points for this level
 
     def __post_init__(self):
         """Validate threshold consistency."""
@@ -49,6 +51,7 @@ class HierarchyThresholds:
 @dataclass
 class DomainConfig:
     """Complete configuration for a document domain."""
+
     name: str
     description: str
 
@@ -76,177 +79,112 @@ class DomainConfig:
 ACADEMIC_CONFIG = DomainConfig(
     name="academic",
     description="Academic papers (IMRaD format, research articles)",
-
     # H2 Section Length CV (Introduction, Methods, Results, Discussion)
     # Research: Human 0.35-0.55, AI 0.12-0.28, Threshold ~0.30-0.35
     h2_section_length=HierarchyThresholds(
-        cv_human_min=0.35,
-        cv_ai_max=0.28,
-        cv_threshold=0.32,
-        max_score=10.0
+        cv_human_min=0.35, cv_ai_max=0.28, cv_threshold=0.32, max_score=10.0
     ),
-
     # H3 Subsection Count CV (subsections per major section)
     # Research: Human 0.50-0.75, AI 0.15-0.35, Threshold ~0.40
     h3_subsection_count=HierarchyThresholds(
-        cv_human_min=0.50,
-        cv_ai_max=0.35,
-        cv_threshold=0.42,
-        max_score=8.0
+        cv_human_min=0.50, cv_ai_max=0.35, cv_threshold=0.42, max_score=8.0
     ),
-
     # H4 Subsection Count CV (deeper nesting)
     # Research: Human 0.45+, AI 0.15-0.30, Threshold ~0.35
     h4_subsection_count=HierarchyThresholds(
-        cv_human_min=0.45,
-        cv_ai_max=0.30,
-        cv_threshold=0.37,
-        max_score=6.0
+        cv_human_min=0.45, cv_ai_max=0.30, cv_threshold=0.37, max_score=6.0
     ),
-
     # Multi-level weights (research-backed: emphasize H2 organizational decisions)
     weight_h2=0.50,
     weight_h3=0.35,
-    weight_h4=0.15
+    weight_h4=0.15,
 )
 
 TECHNICAL_CONFIG = DomainConfig(
     name="technical",
     description="Technical documentation (API docs, manuals, guides)",
-
     # H2 Section Length CV (standardized section templates)
     # Research: Human 0.08-0.18, AI 0.04-0.12, Threshold ~0.12-0.15
     h2_section_length=HierarchyThresholds(
-        cv_human_min=0.08,
-        cv_ai_max=0.12,
-        cv_threshold=0.13,
-        max_score=10.0
+        cv_human_min=0.08, cv_ai_max=0.12, cv_threshold=0.13, max_score=10.0
     ),
-
     # H3 Subsection Count CV (more variation at H3 level)
     # Research: Human 0.15-0.30, AI 0.05-0.15, Threshold ~0.18
     h3_subsection_count=HierarchyThresholds(
-        cv_human_min=0.15,
-        cv_ai_max=0.15,
-        cv_threshold=0.18,
-        max_score=8.0
+        cv_human_min=0.15, cv_ai_max=0.15, cv_threshold=0.18, max_score=8.0
     ),
-
     # H4 Subsection Count CV
     h4_subsection_count=HierarchyThresholds(
-        cv_human_min=0.20,
-        cv_ai_max=0.12,
-        cv_threshold=0.16,
-        max_score=6.0
+        cv_human_min=0.20, cv_ai_max=0.12, cv_threshold=0.16, max_score=6.0
     ),
-
     # Multi-level weights (emphasize H3 where variation emerges)
     weight_h2=0.30,
     weight_h3=0.50,
-    weight_h4=0.20
+    weight_h4=0.20,
 )
 
 BUSINESS_CONFIG = DomainConfig(
     name="business",
     description="Business documents (reports, proposals, white papers)",
-
     # H2 Section Length CV (moderate standardization)
     # Research: Human 0.25-0.45, AI 0.10-0.22, Threshold ~0.25-0.30
     h2_section_length=HierarchyThresholds(
-        cv_human_min=0.25,
-        cv_ai_max=0.22,
-        cv_threshold=0.27,
-        max_score=10.0
+        cv_human_min=0.25, cv_ai_max=0.22, cv_threshold=0.27, max_score=10.0
     ),
-
     # H3 Subsection Count CV
     # Research: Human 0.40-0.65, AI 0.15-0.30, Threshold ~0.32
     h3_subsection_count=HierarchyThresholds(
-        cv_human_min=0.40,
-        cv_ai_max=0.30,
-        cv_threshold=0.35,
-        max_score=8.0
+        cv_human_min=0.40, cv_ai_max=0.30, cv_threshold=0.35, max_score=8.0
     ),
-
     # H4 Subsection Count CV
     h4_subsection_count=HierarchyThresholds(
-        cv_human_min=0.35,
-        cv_ai_max=0.20,
-        cv_threshold=0.28,
-        max_score=6.0
+        cv_human_min=0.35, cv_ai_max=0.20, cv_threshold=0.28, max_score=6.0
     ),
-
     # Multi-level weights (balanced across levels)
     weight_h2=0.40,
     weight_h3=0.40,
-    weight_h4=0.20
+    weight_h4=0.20,
 )
 
 TUTORIAL_CONFIG = DomainConfig(
     name="tutorial",
     description="Tutorial and educational content (how-to guides, courses)",
-
     # H2 Section Length CV (step-based structure)
     # Research: Human 0.15-0.35, AI 0.08-0.18, Threshold ~0.20
     h2_section_length=HierarchyThresholds(
-        cv_human_min=0.15,
-        cv_ai_max=0.18,
-        cv_threshold=0.20,
-        max_score=10.0
+        cv_human_min=0.15, cv_ai_max=0.18, cv_threshold=0.20, max_score=10.0
     ),
-
     # H3 Subsection Count CV (consistent subsection structure)
     # Research: Human 0.10-0.25, AI 0.05-0.15, Threshold ~0.15
     h3_subsection_count=HierarchyThresholds(
-        cv_human_min=0.10,
-        cv_ai_max=0.15,
-        cv_threshold=0.15,
-        max_score=8.0
+        cv_human_min=0.10, cv_ai_max=0.15, cv_threshold=0.15, max_score=8.0
     ),
-
     # H4 Subsection Count CV
     h4_subsection_count=HierarchyThresholds(
-        cv_human_min=0.15,
-        cv_ai_max=0.10,
-        cv_threshold=0.12,
-        max_score=6.0
+        cv_human_min=0.15, cv_ai_max=0.10, cv_threshold=0.12, max_score=6.0
     ),
-
     # Multi-level weights (balanced, structural signal weaker in tutorials)
     weight_h2=0.40,
     weight_h3=0.40,
-    weight_h4=0.20
+    weight_h4=0.20,
 )
 
 GENERAL_CONFIG = DomainConfig(
     name="general",
     description="General content (fallback when domain unknown)",
-
     # Use moderate thresholds between academic and business
     h2_section_length=HierarchyThresholds(
-        cv_human_min=0.30,
-        cv_ai_max=0.25,
-        cv_threshold=0.30,
-        max_score=10.0
+        cv_human_min=0.30, cv_ai_max=0.25, cv_threshold=0.30, max_score=10.0
     ),
-
     h3_subsection_count=HierarchyThresholds(
-        cv_human_min=0.45,
-        cv_ai_max=0.30,
-        cv_threshold=0.38,
-        max_score=8.0
+        cv_human_min=0.45, cv_ai_max=0.30, cv_threshold=0.38, max_score=8.0
     ),
-
     h4_subsection_count=HierarchyThresholds(
-        cv_human_min=0.40,
-        cv_ai_max=0.25,
-        cv_threshold=0.32,
-        max_score=6.0
+        cv_human_min=0.40, cv_ai_max=0.25, cv_threshold=0.32, max_score=6.0
     ),
-
     weight_h2=0.45,
     weight_h3=0.35,
-    weight_h4=0.20
+    weight_h4=0.20,
 )
 
 # Domain registry
@@ -287,7 +225,7 @@ def calculate_cv_score(cv: float, thresholds: HierarchyThresholds) -> Tuple[floa
     elif overlap > 0.08:
         beta = 12.0  # Moderate transition
     else:
-        beta = 6.0   # Gradual transition (substantial overlap)
+        beta = 6.0  # Gradual transition (substantial overlap)
 
     # Calculate probability of human authorship
     exponent = -beta * (cv - thresholds.cv_threshold)
@@ -312,10 +250,10 @@ def calculate_cv_score(cv: float, thresholds: HierarchyThresholds) -> Tuple[floa
 
 
 def calculate_combined_structure_score(
-    section_length_cv: float = None,
-    h3_subsection_cv: float = None,
-    h4_subsection_cv: float = None,
-    domain: DocumentDomain = DocumentDomain.GENERAL
+    section_length_cv: Optional[float] = None,
+    h3_subsection_cv: Optional[float] = None,
+    h4_subsection_cv: Optional[float] = None,
+    domain: DocumentDomain = DocumentDomain.GENERAL,
 ) -> Dict:
     """
     Calculate multi-level combined structural score using domain-specific thresholds.
@@ -358,28 +296,19 @@ def calculate_combined_structure_score(
     # Calculate individual scores for each level
     # Use neutral score (50% of max) for insufficient data (None values)
     if section_length_cv is not None:
-        h2_score, h2_assessment = calculate_cv_score(
-            section_length_cv,
-            config.h2_section_length
-        )
+        h2_score, h2_assessment = calculate_cv_score(section_length_cv, config.h2_section_length)
     else:
         h2_score = config.h2_section_length.max_score * 0.5
         h2_assessment = "INSUFFICIENT_DATA"
 
     if h3_subsection_cv is not None:
-        h3_score, h3_assessment = calculate_cv_score(
-            h3_subsection_cv,
-            config.h3_subsection_count
-        )
+        h3_score, h3_assessment = calculate_cv_score(h3_subsection_cv, config.h3_subsection_count)
     else:
         h3_score = config.h3_subsection_count.max_score * 0.5
         h3_assessment = "INSUFFICIENT_DATA"
 
     if h4_subsection_cv is not None:
-        h4_score, h4_assessment = calculate_cv_score(
-            h4_subsection_cv,
-            config.h4_subsection_count
-        )
+        h4_score, h4_assessment = calculate_cv_score(h4_subsection_cv, config.h4_subsection_count)
     else:
         h4_score = config.h4_subsection_count.max_score * 0.5
         h4_assessment = "INSUFFICIENT_DATA"
@@ -393,9 +322,11 @@ def calculate_combined_structure_score(
     combined_score = weighted_h2 + weighted_h3 + weighted_h4
 
     # Calculate overall probability of human authorship
-    max_possible = (config.h2_section_length.max_score * config.weight_h2 +
-                    config.h3_subsection_count.max_score * config.weight_h3 +
-                    config.h4_subsection_count.max_score * config.weight_h4)
+    max_possible = (
+        config.h2_section_length.max_score * config.weight_h2
+        + config.h3_subsection_count.max_score * config.weight_h3
+        + config.h4_subsection_count.max_score * config.weight_h4
+    )
 
     prob_human = combined_score / max_possible if max_possible > 0 else 0.0
 
@@ -412,19 +343,19 @@ def calculate_combined_structure_score(
         combined_assessment = "VERY_POOR"
 
     return {
-        'combined_score': round(combined_score, 1),
-        'combined_assessment': combined_assessment,
-        'domain': domain.value,
-        'breakdown': {
-            'h2_score': h2_score,
-            'h2_assessment': h2_assessment,
-            'h2_weight': config.weight_h2,
-            'h3_score': h3_score,
-            'h3_assessment': h3_assessment,
-            'h3_weight': config.weight_h3,
-            'h4_score': h4_score,
-            'h4_assessment': h4_assessment,
-            'h4_weight': config.weight_h4
+        "combined_score": round(combined_score, 1),
+        "combined_assessment": combined_assessment,
+        "domain": domain.value,
+        "breakdown": {
+            "h2_score": h2_score,
+            "h2_assessment": h2_assessment,
+            "h2_weight": config.weight_h2,
+            "h3_score": h3_score,
+            "h3_assessment": h3_assessment,
+            "h3_weight": config.weight_h3,
+            "h4_score": h4_score,
+            "h4_assessment": h4_assessment,
+            "h4_weight": config.weight_h4,
         },
-        'prob_human': round(prob_human, 3)
+        "prob_human": round(prob_human, 3),
     }

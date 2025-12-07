@@ -10314,12 +10314,12 @@ sections:
 
   - id: story-header
     content: |
-      **Epic:** {{epic_name}}  
-      **Story ID:** {{story_id}}  
-      **Priority:** {{High|Medium|Low}}  
-      **Points:** {{story_points}}  
+      **Epic:** {{epic_name}}
+      **Story ID:** {{story_id}}
+      **Priority:** {{High|Medium|Low}}
+      **Points:** {{story_points}}
       **Status:** Draft
-      **Language:** {{GDScript|C#|Both}}  
+      **Language:** {{GDScript|C#|Both}}
       **Performance Target:** 60+ FPS
 
   - id: description
@@ -10417,16 +10417,16 @@ sections:
           public partial class {{ClassName}} : {{Node2D|Control|Node3D}}
           {
               [Export] public {{type}} {{PropertyName}} { get; set; }
-              
+
               [Signal]
               public delegate void {{SignalName}}EventHandler({{params}});
-              
+
               public override void _Ready()
               {
                   // TDD: Write GoDotTest tests first
                   // No LINQ in hot paths
               }
-              
+
               public override void _PhysicsProcess(double delta)
               {
                   // Optimize for 60+ FPS, no allocations
@@ -10733,7 +10733,7 @@ examples:
         severity: high  # ONLY: low|medium|high
         finding: "Frame rate drops to 45 FPS during particle spawning"
         suggested_action: "Implement object pooling for particle systems"
-      - id: "TDD-001"  
+      - id: "TDD-001"
         severity: high
         finding: "No GUT tests for player controller despite GDScript implementation"
         suggested_action: "Add GUT test coverage before marking story complete"
@@ -10782,7 +10782,7 @@ optional_fields_examples:
       - at: "2025-01-12T10:00:00Z"
         gate: FAIL
         note: "Initial review - FPS dropped to 45, no GUT tests"
-      - at: "2025-01-12T15:00:00Z"  
+      - at: "2025-01-12T15:00:00Z"
         gate: CONCERNS
         note: "GUT tests added, FPS improved to 58 - needs object pooling"
 
@@ -10860,21 +10860,21 @@ gate_decision_rules: |
      - Memory leaks detected (signals not cleaned up)
      - Wrong language choice causing performance issues
      - Object pooling missing for frequently spawned entities
-     
+
   2. CONCERNS CONDITIONS:
      - Performance between 55-59 FPS
      - TDD coverage below 80%
      - Static typing not used in GDScript
      - LINQ usage in C# hot paths
      - Scene transitions exceeding 3 seconds
-     
+
   3. PASS CONDITIONS:
      - Consistent 60+ FPS across all platforms
      - GUT/GoDotTest coverage >= 80%
      - Appropriate language choices (GDScript for logic, C# for performance)
      - Object pooling implemented for all spawned entities
      - All signals properly connected and cleaned up
-     
+
   4. WAIVER ONLY WITH:
      - Product Owner approval
      - Clear remediation plan
@@ -17527,7 +17527,7 @@ examples:
         severity: high  # ONLY: low|medium|high
         finding: "Frame rate drops to 45 FPS during particle spawning"
         suggested_action: "Implement object pooling for particle systems"
-      - id: "TDD-001"  
+      - id: "TDD-001"
         severity: high
         finding: "No GUT tests for player controller despite GDScript implementation"
         suggested_action: "Add GUT test coverage before marking story complete"
@@ -17576,7 +17576,7 @@ optional_fields_examples:
       - at: "2025-01-12T10:00:00Z"
         gate: FAIL
         note: "Initial review - FPS dropped to 45, no GUT tests"
-      - at: "2025-01-12T15:00:00Z"  
+      - at: "2025-01-12T15:00:00Z"
         gate: CONCERNS
         note: "GUT tests added, FPS improved to 58 - needs object pooling"
 
@@ -17654,21 +17654,21 @@ gate_decision_rules: |
      - Memory leaks detected (signals not cleaned up)
      - Wrong language choice causing performance issues
      - Object pooling missing for frequently spawned entities
-     
+
   2. CONCERNS CONDITIONS:
      - Performance between 55-59 FPS
      - TDD coverage below 80%
      - Static typing not used in GDScript
      - LINQ usage in C# hot paths
      - Scene transitions exceeding 3 seconds
-     
+
   3. PASS CONDITIONS:
      - Consistent 60+ FPS across all platforms
      - GUT/GoDotTest coverage >= 80%
      - Appropriate language choices (GDScript for logic, C# for performance)
      - Object pooling implemented for all spawned entities
      - All signals properly connected and cleaned up
-     
+
   4. WAIVER ONLY WITH:
      - Product Owner approval
      - Clear remediation plan
@@ -17706,12 +17706,12 @@ sections:
 
   - id: story-header
     content: |
-      **Epic:** {{epic_name}}  
-      **Story ID:** {{story_id}}  
-      **Priority:** {{High|Medium|Low}}  
-      **Points:** {{story_points}}  
+      **Epic:** {{epic_name}}
+      **Story ID:** {{story_id}}
+      **Priority:** {{High|Medium|Low}}
+      **Points:** {{story_points}}
       **Status:** Draft
-      **Language:** {{GDScript|C#|Both}}  
+      **Language:** {{GDScript|C#|Both}}
       **Performance Target:** 60+ FPS
 
   - id: description
@@ -17809,16 +17809,16 @@ sections:
           public partial class {{ClassName}} : {{Node2D|Control|Node3D}}
           {
               [Export] public {{type}} {{PropertyName}} { get; set; }
-              
+
               [Signal]
               public delegate void {{SignalName}}EventHandler({{params}});
-              
+
               public override void _Ready()
               {
                   // TDD: Write GoDotTest tests first
                   // No LINQ in hot paths
               }
-              
+
               public override void _PhysicsProcess(double delta)
               {
                   // Optimize for 60+ FPS, no allocations
@@ -25445,7 +25445,7 @@ workflow:
       optional: true
       condition: user_wants_test_design
       notes: |
-        OPTIONAL: Design tests for draft story        
+        OPTIONAL: Design tests for draft story
         - Analyze story for possible risks
         - Create tests to mitigate those risks
 
@@ -25456,7 +25456,7 @@ workflow:
       optional: true
       condition: user_wants_story_review
       notes: |
-        OPTIONAL: Review and approve draft story        
+        OPTIONAL: Review and approve draft story
         - Review story completeness and alignment
         - Update story status: Draft → Approved
 

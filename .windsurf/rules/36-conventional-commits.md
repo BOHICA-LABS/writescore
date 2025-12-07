@@ -67,7 +67,7 @@ The type MUST be one of the following:
 
 ### Footer
 
-* MUST start with a word token followed by either `:` or ` #` 
+* MUST start with a word token followed by either `:` or ` #`
 * Breaking changes MUST be indicated by a `BREAKING CHANGE:` footer
 * Other common footers include:
   * `Refs: #123` - Issue references
@@ -80,10 +80,10 @@ The type MUST be one of the following:
 Breaking changes MUST be indicated in one of two ways:
 
 1. By appending a `!` after the type/scope: `feat(api)!: remove user endpoint`
-2. By adding a `BREAKING CHANGE:` footer with description: 
+2. By adding a `BREAKING CHANGE:` footer with description:
    ```
    feat(api): remove user endpoint
-   
+
    BREAKING CHANGE: The user endpoint has been removed and replaced with accounts
    ```
 </breaking_changes>

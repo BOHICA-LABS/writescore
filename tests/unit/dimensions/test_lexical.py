@@ -60,41 +60,41 @@ class TestAnalyzeLexicalDiversity:
         """Test basic lexical diversity analysis."""
         result = analyzer._analyze_lexical_diversity(text_high_diversity)
 
-        assert 'unique' in result
-        assert 'diversity' in result
-        assert isinstance(result['unique'], int)
-        assert isinstance(result['diversity'], float)
-        assert result['unique'] > 0
-        assert 0 <= result['diversity'] <= 1
+        assert "unique" in result
+        assert "diversity" in result
+        assert isinstance(result["unique"], int)
+        assert isinstance(result["diversity"], float)
+        assert result["unique"] > 0
+        assert 0 <= result["diversity"] <= 1
 
     def test_lexical_diversity_high_variation(self, analyzer, text_high_diversity):
         """Test high diversity detection (human pattern)."""
         result = analyzer._analyze_lexical_diversity(text_high_diversity)
 
         # High diversity text should have TTR > 0.6
-        assert result['diversity'] >= 0.6
+        assert result["diversity"] >= 0.6
 
     def test_lexical_diversity_low_variation(self, analyzer, text_low_diversity):
         """Test low diversity detection (AI pattern)."""
         result = analyzer._analyze_lexical_diversity(text_low_diversity)
 
         # Low diversity text should have low TTR
-        assert result['diversity'] < 0.6
+        assert result["diversity"] < 0.6
 
     def test_lexical_diversity_excludes_code(self, analyzer, text_with_code):
         """Test that code blocks are excluded from analysis."""
         result = analyzer._analyze_lexical_diversity(text_with_code)
 
         # Should still calculate diversity from non-code text
-        assert result['unique'] > 0
-        assert result['diversity'] > 0
+        assert result["unique"] > 0
+        assert result["diversity"] > 0
 
     def test_lexical_diversity_empty_text(self, analyzer):
         """Test lexical diversity on empty text."""
         result = analyzer._analyze_lexical_diversity("")
 
-        assert result['unique'] == 0
-        assert result['diversity'] == 0
+        assert result["unique"] == 0
+        assert result["diversity"] == 0
 
     def test_lexical_diversity_case_insensitive(self, analyzer):
         """Test that diversity is case-insensitive."""
@@ -102,8 +102,8 @@ class TestAnalyzeLexicalDiversity:
         result = analyzer._analyze_lexical_diversity(text)
 
         # All variants of "word" should count as one unique word
-        assert result['unique'] == 1
-        assert result['diversity'] == 0.25  # 1 unique / 4 total
+        assert result["unique"] == 1
+        assert result["diversity"] == 0.25  # 1 unique / 4 total
 
 
 class TestAnalyzeNltkLexical:
@@ -113,10 +113,10 @@ class TestAnalyzeNltkLexical:
         """Test NLTK lexical analysis."""
         result = analyzer._analyze_nltk_lexical(text_high_diversity)
 
-        assert 'mtld_score' in result
-        assert 'stemmed_diversity' in result
-        assert isinstance(result['mtld_score'], float)
-        assert isinstance(result['stemmed_diversity'], float)
+        assert "mtld_score" in result
+        assert "stemmed_diversity" in result
+        assert isinstance(result["mtld_score"], float)
+        assert isinstance(result["stemmed_diversity"], float)
 
     def test_nltk_lexical_empty_text(self, analyzer):
         """Test NLTK analysis on empty text."""
@@ -131,8 +131,8 @@ class TestAnalyzeNltkLexical:
 
         # Should still calculate metrics from non-code text
         if result:  # If NLTK processing succeeds
-            assert 'mtld_score' in result
-            assert result['mtld_score'] > 0
+            assert "mtld_score" in result
+            assert result["mtld_score"] > 0
 
 
 class TestCalculateMtld:
@@ -172,25 +172,25 @@ class TestAnalyze:
         """Test basic analyze method."""
         result = analyzer.analyze(text_high_diversity)
 
-        assert 'lexical_diversity' in result
-        assert isinstance(result['lexical_diversity'], dict)
-        assert 'unique' in result['lexical_diversity']
-        assert 'diversity' in result['lexical_diversity']
+        assert "lexical_diversity" in result
+        assert isinstance(result["lexical_diversity"], dict)
+        assert "unique" in result["lexical_diversity"]
+        assert "diversity" in result["lexical_diversity"]
 
     def test_analyze_with_nltk(self, analyzer, text_high_diversity):
         """Test analyze includes NLTK metrics when available."""
         result = analyzer.analyze(text_high_diversity)
 
-        lexical = result['lexical_diversity']
-        assert 'mtld_score' in lexical
-        assert 'stemmed_diversity' in lexical
+        lexical = result["lexical_diversity"]
+        assert "mtld_score" in lexical
+        assert "stemmed_diversity" in lexical
 
     def test_analyze_empty_text(self, analyzer):
         """Test analyze on empty text."""
         result = analyzer.analyze("")
 
-        assert result['lexical_diversity']['unique'] == 0
-        assert result['lexical_diversity']['diversity'] == 0
+        assert result["lexical_diversity"]["unique"] == 0
+        assert result["lexical_diversity"]["diversity"] == 0
 
 
 class TestAnalyzeDetailed:
@@ -198,11 +198,11 @@ class TestAnalyzeDetailed:
 
     def test_analyze_detailed_basic(self, analyzer, text_high_diversity):
         """Test detailed analysis method."""
-        lines = text_high_diversity.split('\n')
+        lines = text_high_diversity.split("\n")
         result = analyzer.analyze_detailed(lines)
 
-        assert 'lexical_diversity' in result
-        assert isinstance(result['lexical_diversity'], dict)
+        assert "lexical_diversity" in result
+        assert isinstance(result["lexical_diversity"], dict)
 
     def test_analyze_detailed_joins_lines(self, analyzer):
         """Test that analyze_detailed joins lines properly."""
@@ -210,7 +210,7 @@ class TestAnalyzeDetailed:
         result = analyzer.analyze_detailed(lines)
 
         # Should analyze all words from all lines
-        assert result['lexical_diversity']['unique'] >= 6
+        assert result["lexical_diversity"]["unique"] >= 6
 
 
 class TestScore:
@@ -218,7 +218,7 @@ class TestScore:
 
     def test_score_high_diversity(self, analyzer):
         """Test score for high diversity (human pattern)."""
-        analysis = {'diversity': 0.65}  # >= 0.60 threshold
+        analysis = {"diversity": 0.65}  # >= 0.60 threshold
         score, label = analyzer.score(analysis)
 
         assert score == 10.0
@@ -226,7 +226,7 @@ class TestScore:
 
     def test_score_medium_diversity(self, analyzer):
         """Test score for medium diversity."""
-        analysis = {'diversity': 0.50}  # >= 0.45 threshold
+        analysis = {"diversity": 0.50}  # >= 0.45 threshold
         score, label = analyzer.score(analysis)
 
         assert score == 7.0
@@ -234,7 +234,7 @@ class TestScore:
 
     def test_score_low_diversity(self, analyzer):
         """Test score for low diversity."""
-        analysis = {'diversity': 0.35}  # >= 0.30 threshold
+        analysis = {"diversity": 0.35}  # >= 0.30 threshold
         score, label = analyzer.score(analysis)
 
         assert score == 4.0
@@ -242,7 +242,7 @@ class TestScore:
 
     def test_score_very_low_diversity(self, analyzer):
         """Test score for very low diversity (AI pattern)."""
-        analysis = {'diversity': 0.20}  # < 0.30 threshold
+        analysis = {"diversity": 0.20}  # < 0.30 threshold
         score, label = analyzer.score(analysis)
 
         assert score == 2.0
@@ -264,9 +264,9 @@ class TestMonotonicScoring:
     def test_calculate_score_at_threshold_low(self, analyzer):
         """Test scoring at threshold low (MTLD=60)."""
         metrics = {
-            'lexical_diversity': {
-                'mtld_score': 60.0,  # At threshold low
-                'diversity': 0.5
+            "lexical_diversity": {
+                "mtld_score": 60.0,  # At threshold low
+                "diversity": 0.5,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -277,9 +277,9 @@ class TestMonotonicScoring:
     def test_calculate_score_below_threshold_low(self, analyzer):
         """Test scoring below threshold low (MTLD<60, AI-like)."""
         metrics = {
-            'lexical_diversity': {
-                'mtld_score': 40.0,  # Below threshold (AI-like)
-                'diversity': 0.3
+            "lexical_diversity": {
+                "mtld_score": 40.0,  # Below threshold (AI-like)
+                "diversity": 0.3,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -290,9 +290,9 @@ class TestMonotonicScoring:
     def test_calculate_score_mid_range(self, analyzer):
         """Test scoring in mid-range (MTLD between 60-100)."""
         metrics = {
-            'lexical_diversity': {
-                'mtld_score': 80.0,  # Mid-range
-                'diversity': 0.6
+            "lexical_diversity": {
+                "mtld_score": 80.0,  # Mid-range
+                "diversity": 0.6,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -304,9 +304,9 @@ class TestMonotonicScoring:
     def test_calculate_score_at_threshold_high(self, analyzer):
         """Test scoring at threshold high (MTLD=100)."""
         metrics = {
-            'lexical_diversity': {
-                'mtld_score': 100.0,  # At threshold high
-                'diversity': 0.7
+            "lexical_diversity": {
+                "mtld_score": 100.0,  # At threshold high
+                "diversity": 0.7,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -317,9 +317,9 @@ class TestMonotonicScoring:
     def test_calculate_score_above_threshold_high(self, analyzer):
         """Test scoring above threshold high (MTLD>100, human-like)."""
         metrics = {
-            'lexical_diversity': {
-                'mtld_score': 120.0,  # Above threshold (human-like)
-                'diversity': 0.75
+            "lexical_diversity": {
+                "mtld_score": 120.0,  # Above threshold (human-like)
+                "diversity": 0.75,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -333,12 +333,7 @@ class TestMonotonicScoring:
         scores = []
 
         for mtld in mtld_values:
-            metrics = {
-                'lexical_diversity': {
-                    'mtld_score': mtld,
-                    'diversity': 0.5
-                }
-            }
+            metrics = {"lexical_diversity": {"mtld_score": mtld, "diversity": 0.5}}
             scores.append(analyzer.calculate_score(metrics))
 
         # Scores should increase monotonically (or stay same for values below threshold)
@@ -346,15 +341,16 @@ class TestMonotonicScoring:
         # Then increases from 60 to 100 (25.0 to 75.0)
         # Then increases from 100+ (75.0 to 100.0 asymptotic)
         for i in range(len(scores) - 1):
-            assert scores[i] <= scores[i+1], \
-                f"Score should increase or stay same: {scores[i]} <= {scores[i+1]} (MTLD {mtld_values[i]} vs {mtld_values[i+1]})"
+            assert (
+                scores[i] <= scores[i + 1]
+            ), f"Score should increase or stay same: {scores[i]} <= {scores[i+1]} (MTLD {mtld_values[i]} vs {mtld_values[i+1]})"
 
     def test_calculate_score_fallback_to_ttr(self, analyzer):
         """Test fallback to TTR estimation when MTLD unavailable."""
         # No mtld_score, only diversity (TTR)
         metrics = {
-            'lexical_diversity': {
-                'diversity': 0.5  # TTR=0.5 → estimated MTLD ≈ 70
+            "lexical_diversity": {
+                "diversity": 0.5  # TTR=0.5 → estimated MTLD ≈ 70
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -368,12 +364,7 @@ class TestMonotonicScoring:
         test_mtld_values = [0, 30.0, 60.0, 80.0, 100.0, 150.0]
 
         for mtld in test_mtld_values:
-            metrics = {
-                'lexical_diversity': {
-                    'mtld_score': mtld,
-                    'diversity': 0.5
-                }
-            }
+            metrics = {"lexical_diversity": {"mtld_score": mtld, "diversity": 0.5}}
             score = analyzer.calculate_score(metrics)
             assert 0.0 <= score <= 100.0, f"Score {score} for MTLD={mtld} out of range"
 
@@ -385,21 +376,21 @@ class TestIntegration:
         """Test complete analysis pipeline."""
         result = analyzer.analyze(text_high_diversity)
 
-        assert result['lexical_diversity']['diversity'] > 0.5
+        assert result["lexical_diversity"]["diversity"] > 0.5
 
         # Detailed analysis
-        lines = text_high_diversity.split('\n')
+        lines = text_high_diversity.split("\n")
         detailed = analyzer.analyze_detailed(lines)
 
-        assert detailed['lexical_diversity']['diversity'] > 0.5
+        assert detailed["lexical_diversity"]["diversity"] > 0.5
 
     def test_comparison_high_vs_low(self, analyzer, text_high_diversity, text_low_diversity):
         """Test that analyzer distinguishes high from low diversity."""
         high_result = analyzer.analyze(text_high_diversity)
         low_result = analyzer.analyze(text_low_diversity)
 
-        high_div = high_result['lexical_diversity']['diversity']
-        low_div = low_result['lexical_diversity']['diversity']
+        high_div = high_result["lexical_diversity"]["diversity"]
+        low_div = low_result["lexical_diversity"]["diversity"]
 
         # High diversity text should have higher TTR
         assert high_div > low_div

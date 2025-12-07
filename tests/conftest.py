@@ -7,12 +7,12 @@ This module provides:
 - Utility fixtures for testing
 """
 
-
 import pytest
 
 # ============================================================================
 # Sample Document Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def sample_ai_text():
@@ -173,17 +173,17 @@ def sample_edge_cases():
     Edge case documents for testing robustness.
     """
     return {
-        'empty': '',
-        'single_sentence': 'This is one sentence.',
-        'no_punctuation': 'word word word word word',
-        'only_code': '```python\nprint("hello")\nprint("world")\n```',
-        'only_headings': '# H1\n## H2\n### H3\n#### H4',
-        'very_long': 'word ' * 10000,
-        'only_lists': '- item 1\n- item 2\n- item 3',
-        'malformed_markdown': '## No H1\n#### Skipped H3\n# H1 after H4',
-        'unicode_text': 'Hello 世界 🌍 Привет мир',
-        'excessive_formatting': '**bold** *italic* **bold** *italic* ' * 50,
-        'single_paragraph': 'This is a single paragraph with multiple sentences. It has no structure. Just text. More text here. And here. Keep going. Almost done. Final sentence.',
+        "empty": "",
+        "single_sentence": "This is one sentence.",
+        "no_punctuation": "word word word word word",
+        "only_code": '```python\nprint("hello")\nprint("world")\n```',
+        "only_headings": "# H1\n## H2\n### H3\n#### H4",
+        "very_long": "word " * 10000,
+        "only_lists": "- item 1\n- item 2\n- item 3",
+        "malformed_markdown": "## No H1\n#### Skipped H3\n# H1 after H4",
+        "unicode_text": "Hello 世界 🌍 Привет мир",
+        "excessive_formatting": "**bold** *italic* **bold** *italic* " * 50,
+        "single_paragraph": "This is a single paragraph with multiple sentences. It has no structure. Just text. More text here. And here. Keep going. Almost done. Final sentence.",
     }
 
 
@@ -293,6 +293,7 @@ def sample_text_with_lists():
 # Utility Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def temp_output_dir(tmp_path):
     """Provide a temporary directory for test outputs."""
@@ -323,34 +324,23 @@ def sample_analysis_result():
             tier2_count=2,
             tier3_count=1,
             formulaic_transitions=3,
-            domain_terms=1
+            domain_terms=1,
         ),
         burstiness=BurstinessResult(
             sentence_length_std=5.5,
             avg_sentence_length=15.0,
             short_sentence_ratio=0.3,
-            long_sentence_ratio=0.2
+            long_sentence_ratio=0.2,
         ),
-        formatting=FormattingResult(
-            em_dash_count=4,
-            bold_count=8,
-            italic_count=6
-        ),
+        formatting=FormattingResult(em_dash_count=4, bold_count=8, italic_count=6),
         structure=StructureResult(
-            heading_count=5,
-            list_item_count=10,
-            bullet_list_count=2,
-            numbered_list_count=1
+            heading_count=5, list_item_count=10, bullet_list_count=2, numbered_list_count=1
         ),
-        voice=VoiceResult(
-            first_person_count=2,
-            contraction_count=3,
-            direct_address_count=4
-        ),
+        voice=VoiceResult(first_person_count=2, contraction_count=3, direct_address_count=4),
         lexical=None,
         syntactic=None,
         stylometric=None,
-        advanced=None
+        advanced=None,
     )
 
 
@@ -370,6 +360,7 @@ def page_count():
 # Test Isolation Fixtures
 # ============================================================================
 
+
 @pytest.fixture(autouse=True)
 def clear_dimension_registry():
     """
@@ -379,6 +370,7 @@ def clear_dimension_registry():
     cross-test contamination. Required when running full test suite.
     """
     from writescore.core.dimension_registry import DimensionRegistry
+
     DimensionRegistry.clear()
     yield
     # Optional: cleanup after test as well

@@ -40,7 +40,7 @@ class TestParameterChange:
             field="target",
             old_value=10.0,
             new_value=12.0,
-            change_type="modified"
+            change_type="modified",
         )
 
         assert change.dimension == "burstiness"
@@ -56,7 +56,7 @@ class TestParameterChange:
             field="threshold_low",
             old_value=0.5,
             new_value=0.55,
-            change_type="modified"
+            change_type="modified",
         )
 
         d = change.to_dict()
@@ -80,9 +80,7 @@ class TestParameterDiff:
     def test_with_added_dimensions(self):
         """Test diff with added dimensions."""
         diff = ParameterDiff(
-            old_version="1.0",
-            new_version="2.0",
-            added_dimensions=["new_dim1", "new_dim2"]
+            old_version="1.0", new_version="2.0", added_dimensions=["new_dim1", "new_dim2"]
         )
 
         assert diff.has_changes
@@ -90,11 +88,7 @@ class TestParameterDiff:
 
     def test_with_removed_dimensions(self):
         """Test diff with removed dimensions."""
-        diff = ParameterDiff(
-            old_version="1.0",
-            new_version="2.0",
-            removed_dimensions=["old_dim"]
-        )
+        diff = ParameterDiff(old_version="1.0", new_version="2.0", removed_dimensions=["old_dim"])
 
         assert diff.has_changes
         assert diff.total_changes == 1
@@ -106,14 +100,14 @@ class TestParameterDiff:
             field="target",
             old_value=10.0,
             new_value=12.0,
-            change_type="modified"
+            change_type="modified",
         )
 
         diff = ParameterDiff(
             old_version="1.0",
             new_version="2.0",
             changes=[change],
-            modified_dimensions=["burstiness"]
+            modified_dimensions=["burstiness"],
         )
 
         assert diff.has_changes
@@ -135,15 +129,17 @@ class TestParameterDiff:
             new_version="2.0",
             added_dimensions=["new_dim"],
             removed_dimensions=["old_dim"],
-            modified_dimensions=["changed_dim"]
+            modified_dimensions=["changed_dim"],
         )
-        diff.changes.append(ParameterChange(
-            dimension="changed_dim",
-            field="target",
-            old_value=10.0,
-            new_value=15.0,
-            change_type="modified"
-        ))
+        diff.changes.append(
+            ParameterChange(
+                dimension="changed_dim",
+                field="target",
+                old_value=10.0,
+                new_value=15.0,
+                change_type="modified",
+            )
+        )
 
         summary = diff.format_summary()
 
@@ -156,11 +152,7 @@ class TestParameterDiff:
 
     def test_to_dict(self):
         """Test serialization to dict."""
-        diff = ParameterDiff(
-            old_version="1.0",
-            new_version="2.0",
-            added_dimensions=["new_dim"]
-        )
+        diff = ParameterDiff(old_version="1.0", new_version="2.0", added_dimensions=["new_dim"])
 
         d = diff.to_dict()
 
@@ -189,16 +181,18 @@ class TestParameterVersionManager:
         params = PercentileParameters(
             version="1.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v1"
+            validation_dataset_version="test_v1",
         )
-        params.add_dimension(DimensionParameters(
-            dimension_name="burstiness",
-            scoring_type=ScoringType.GAUSSIAN,
-            parameters=GaussianParameters(
-                target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(2.0, PercentileSource.STDEV)
+        params.add_dimension(
+            DimensionParameters(
+                dimension_name="burstiness",
+                scoring_type=ScoringType.GAUSSIAN,
+                parameters=GaussianParameters(
+                    target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
+                    width=ParameterValue(2.0, PercentileSource.STDEV),
+                ),
             )
-        ))
+        )
         return params
 
     def test_list_versions_empty(self, temp_dirs):
@@ -352,24 +346,28 @@ class TestParameterComparator:
         params = PercentileParameters(
             version="1.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v1"
+            validation_dataset_version="test_v1",
         )
-        params.add_dimension(DimensionParameters(
-            dimension_name="burstiness",
-            scoring_type=ScoringType.GAUSSIAN,
-            parameters=GaussianParameters(
-                target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(2.0, PercentileSource.STDEV)
+        params.add_dimension(
+            DimensionParameters(
+                dimension_name="burstiness",
+                scoring_type=ScoringType.GAUSSIAN,
+                parameters=GaussianParameters(
+                    target=ParameterValue(10.0, PercentileSource.PERCENTILE, "p50_human"),
+                    width=ParameterValue(2.0, PercentileSource.STDEV),
+                ),
             )
-        ))
-        params.add_dimension(DimensionParameters(
-            dimension_name="lexical",
-            scoring_type=ScoringType.MONOTONIC,
-            parameters=MonotonicParameters(
-                threshold_low=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human"),
-                threshold_high=ParameterValue(0.7, PercentileSource.PERCENTILE, "p75_human")
+        )
+        params.add_dimension(
+            DimensionParameters(
+                dimension_name="lexical",
+                scoring_type=ScoringType.MONOTONIC,
+                parameters=MonotonicParameters(
+                    threshold_low=ParameterValue(0.5, PercentileSource.PERCENTILE, "p25_human"),
+                    threshold_high=ParameterValue(0.7, PercentileSource.PERCENTILE, "p75_human"),
+                ),
             )
-        ))
+        )
         return params
 
     def test_compare_identical(self, base_params):
@@ -388,21 +386,23 @@ class TestParameterComparator:
         new_params = PercentileParameters(
             version="2.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v2"
+            validation_dataset_version="test_v2",
         )
         # Copy existing dimensions
         for _name, dim in base_params.dimensions.items():
             new_params.add_dimension(dim)
 
         # Add new dimension
-        new_params.add_dimension(DimensionParameters(
-            dimension_name="sentiment",
-            scoring_type=ScoringType.GAUSSIAN,
-            parameters=GaussianParameters(
-                target=ParameterValue(0.1, PercentileSource.PERCENTILE, "p50_human"),
-                width=ParameterValue(0.05, PercentileSource.STDEV)
+        new_params.add_dimension(
+            DimensionParameters(
+                dimension_name="sentiment",
+                scoring_type=ScoringType.GAUSSIAN,
+                parameters=GaussianParameters(
+                    target=ParameterValue(0.1, PercentileSource.PERCENTILE, "p50_human"),
+                    width=ParameterValue(0.05, PercentileSource.STDEV),
+                ),
             )
-        ))
+        )
 
         diff = comparator.compare(base_params, new_params)
 
@@ -417,7 +417,7 @@ class TestParameterComparator:
         new_params = PercentileParameters(
             version="2.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v2"
+            validation_dataset_version="test_v2",
         )
         # Only copy one dimension
         new_params.add_dimension(base_params.dimensions["burstiness"])
@@ -434,20 +434,24 @@ class TestParameterComparator:
         new_params = PercentileParameters(
             version="2.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v2"
+            validation_dataset_version="test_v2",
         )
         # Copy lexical unchanged
         new_params.add_dimension(base_params.dimensions["lexical"])
 
         # Modify burstiness
-        new_params.add_dimension(DimensionParameters(
-            dimension_name="burstiness",
-            scoring_type=ScoringType.GAUSSIAN,
-            parameters=GaussianParameters(
-                target=ParameterValue(12.0, PercentileSource.PERCENTILE, "p50_human"),  # Changed
-                width=ParameterValue(2.5, PercentileSource.STDEV)  # Changed
+        new_params.add_dimension(
+            DimensionParameters(
+                dimension_name="burstiness",
+                scoring_type=ScoringType.GAUSSIAN,
+                parameters=GaussianParameters(
+                    target=ParameterValue(
+                        12.0, PercentileSource.PERCENTILE, "p50_human"
+                    ),  # Changed
+                    width=ParameterValue(2.5, PercentileSource.STDEV),  # Changed
+                ),
             )
-        ))
+        )
 
         diff = comparator.compare(base_params, new_params)
 
@@ -462,20 +466,24 @@ class TestParameterComparator:
         new_params = PercentileParameters(
             version="2.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v2"
+            validation_dataset_version="test_v2",
         )
         # Copy burstiness unchanged
         new_params.add_dimension(base_params.dimensions["burstiness"])
 
         # Modify lexical
-        new_params.add_dimension(DimensionParameters(
-            dimension_name="lexical",
-            scoring_type=ScoringType.MONOTONIC,
-            parameters=MonotonicParameters(
-                threshold_low=ParameterValue(0.55, PercentileSource.PERCENTILE, "p25_human"),  # Changed
-                threshold_high=ParameterValue(0.7, PercentileSource.PERCENTILE, "p75_human")
+        new_params.add_dimension(
+            DimensionParameters(
+                dimension_name="lexical",
+                scoring_type=ScoringType.MONOTONIC,
+                parameters=MonotonicParameters(
+                    threshold_low=ParameterValue(
+                        0.55, PercentileSource.PERCENTILE, "p25_human"
+                    ),  # Changed
+                    threshold_high=ParameterValue(0.7, PercentileSource.PERCENTILE, "p75_human"),
+                ),
             )
-        ))
+        )
 
         diff = comparator.compare(base_params, new_params)
 
@@ -497,7 +505,7 @@ class TestFormatFunctions:
         """Test formatting version list with entries."""
         versions = [
             {"version": "2.0", "timestamp": "2025-11-24T10:00:00", "validation_dataset": "v2"},
-            {"version": "1.0", "timestamp": "2025-11-23T10:00:00", "validation_dataset": "v1"}
+            {"version": "1.0", "timestamp": "2025-11-23T10:00:00", "validation_dataset": "v1"},
         ]
 
         result = format_version_list(versions, "2.0")
@@ -512,7 +520,7 @@ class TestFormatFunctions:
         params = PercentileParameters(
             version="2.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v2"
+            validation_dataset_version="test_v2",
         )
 
         checklist = generate_deployment_checklist(params)
@@ -528,12 +536,12 @@ class TestFormatFunctions:
         old_params = PercentileParameters(
             version="1.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v1"
+            validation_dataset_version="test_v1",
         )
         new_params = PercentileParameters(
             version="2.0",
             timestamp=datetime.now().isoformat(),
-            validation_dataset_version="test_v2"
+            validation_dataset_version="test_v2",
         )
 
         checklist = generate_deployment_checklist(new_params, old_params)
@@ -551,14 +559,10 @@ class TestEdgeCases:
         comparator = ParameterComparator()
 
         old_params = PercentileParameters(
-            version="1.0",
-            timestamp=datetime.now().isoformat(),
-            validation_dataset_version="v1"
+            version="1.0", timestamp=datetime.now().isoformat(), validation_dataset_version="v1"
         )
         new_params = PercentileParameters(
-            version="2.0",
-            timestamp=datetime.now().isoformat(),
-            validation_dataset_version="v2"
+            version="2.0", timestamp=datetime.now().isoformat(), validation_dataset_version="v2"
         )
 
         diff = comparator.compare(old_params, new_params)

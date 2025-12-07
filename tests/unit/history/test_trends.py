@@ -28,6 +28,7 @@ from writescore.history.trends import (
 # Test Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def sample_v2_history():
     """Create a sample v2.0 history with multiple iterations."""
@@ -36,33 +37,33 @@ def sample_v2_history():
     # Create 5 iterations showing improvement
     for i in range(5):
         dimensions = {
-            'Perplexity (AI Vocab)': DimensionScore(
+            "Perplexity (AI Vocab)": DimensionScore(
                 score=6.0 + i * 1.5,
                 max_score=12.0,
                 percentage=(6.0 + i * 1.5) / 12.0 * 100,
                 raw_value=15.0 - i * 2.0,
-                interpretation='IMPROVING'
+                interpretation="IMPROVING",
             ),
-            'Burstiness (Sent. Var)': DimensionScore(
+            "Burstiness (Sent. Var)": DimensionScore(
                 score=7.0 + i * 0.8,
                 max_score=12.0,
                 percentage=(7.0 + i * 0.8) / 12.0 * 100,
                 raw_value=6.0 + i * 1.5,
-                interpretation='IMPROVING'
+                interpretation="IMPROVING",
             ),
-            'MATTR (Lexical Richness)': DimensionScore(
+            "MATTR (Lexical Richness)": DimensionScore(
                 score=8.0 + i * 0.3,
                 max_score=12.0,
                 percentage=(8.0 + i * 0.3) / 12.0 * 100,
                 raw_value=0.65 + i * 0.02,
-                interpretation='STABLE'
-            )
+                interpretation="STABLE",
+            ),
         }
 
         raw_metrics = {
-            'ai_vocabulary_per_1k': 15.0 - i * 2.0,
-            'sentence_stdev': 6.0 + i * 1.5,
-            'em_dashes_per_page': 8.0 - i * 1.2
+            "ai_vocabulary_per_1k": 15.0 - i * 2.0,
+            "sentence_stdev": 6.0 + i * 1.5,
+            "em_dashes_per_page": 8.0 - i * 1.2,
         }
 
         score = HistoricalScore(
@@ -79,7 +80,7 @@ def sample_v2_history():
             tier3_score=10.0 + i * 1.2,
             tier4_score=6.0 + i * 0.5,
             dimensions=dimensions,
-            raw_metrics=raw_metrics
+            raw_metrics=raw_metrics,
         )
 
         history.scores.append(score)
@@ -91,6 +92,7 @@ def sample_v2_history():
 # Sparkline Generation Tests
 # ============================================================================
 
+
 class TestSparklineGeneration:
     """Tests for sparkline generation."""
 
@@ -100,9 +102,9 @@ class TestSparklineGeneration:
         sparkline = generate_sparkline(values)
 
         assert len(sparkline) == 7
-        assert all(c in '▁▂▃▄▅▆▇█' for c in sparkline)
-        assert sparkline[0] == '▁'  # Min value
-        assert sparkline[4] == '█'  # Max value
+        assert all(c in "▁▂▃▄▅▆▇█" for c in sparkline)
+        assert sparkline[0] == "▁"  # Min value
+        assert sparkline[4] == "█"  # Max value
 
     def test_generate_sparkline_all_same(self):
         """Test sparkline with all same values."""
@@ -142,12 +144,13 @@ class TestSparklineGeneration:
         # Should show progression from low to high
         chars = list(sparkline)
         for i in range(len(chars) - 1):
-            assert chars[i] <= chars[i+1]
+            assert chars[i] <= chars[i + 1]
 
 
 # ============================================================================
 # Dimension Trend Report Tests
 # ============================================================================
+
 
 class TestDimensionTrendReport:
     """Tests for dimension trend report generation."""
@@ -181,6 +184,7 @@ class TestDimensionTrendReport:
 # Aggregate Trend Report Tests
 # ============================================================================
 
+
 class TestAggregateTrendReport:
     """Tests for aggregate trend report generation."""
 
@@ -206,6 +210,7 @@ class TestAggregateTrendReport:
 # Tier Trend Report Tests
 # ============================================================================
 
+
 class TestTierTrendReport:
     """Tests for tier trend report generation."""
 
@@ -230,6 +235,7 @@ class TestTierTrendReport:
 # ============================================================================
 # Comparison Report Tests
 # ============================================================================
+
 
 class TestComparisonReport:
     """Tests for iteration comparison report generation."""
@@ -262,6 +268,7 @@ class TestComparisonReport:
 # Full History Report Tests
 # ============================================================================
 
+
 class TestFullHistoryReport:
     """Tests for full history report generation."""
 
@@ -290,12 +297,13 @@ class TestFullHistoryReport:
 
         assert "Sparkline View" in report
         # Should contain sparkline characters
-        assert any(c in report for c in '▁▂▃▄▅▆▇█')
+        assert any(c in report for c in "▁▂▃▄▅▆▇█")
 
 
 # ============================================================================
 # Raw Metric Trends Tests
 # ============================================================================
+
 
 class TestRawMetricTrends:
     """Tests for raw metric trend visualization."""
@@ -309,13 +317,12 @@ class TestRawMetricTrends:
         assert "sentence_stdev" in report
         assert "em_dashes_per_page" in report
         # Should contain sparklines
-        assert any(c in report for c in '▁▂▃▄▅▆▇█')
+        assert any(c in report for c in "▁▂▃▄▅▆▇█")
 
     def test_raw_metric_trends_specific_metrics(self, sample_v2_history):
         """Test with specific metrics requested."""
         report = generate_raw_metric_trends(
-            sample_v2_history,
-            metric_names=['ai_vocabulary_per_1k']
+            sample_v2_history, metric_names=["ai_vocabulary_per_1k"]
         )
 
         assert "ai_vocabulary_per_1k" in report
@@ -333,6 +340,7 @@ class TestRawMetricTrends:
 # ============================================================================
 # Integration Tests
 # ============================================================================
+
 
 class TestTrendsIntegration:
     """Integration tests for complete trend workflows."""
@@ -367,6 +375,6 @@ class TestTrendsIntegration:
         raw_metric_report = generate_raw_metric_trends(sample_v2_history)
 
         # Both should contain sparkline characters
-        sparkline_chars = '▁▂▃▄▅▆▇█'
+        sparkline_chars = "▁▂▃▄▅▆▇█"
         assert any(c in full_report for c in sparkline_chars)
         assert any(c in raw_metric_report for c in sparkline_chars)

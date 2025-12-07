@@ -47,93 +47,155 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 # Technical literals - words that function metaphorically in general discourse
 # but literally in technical contexts (AC: 4)
 TECHNICAL_LITERALS = {
-    'stack': ['data structure', 'call stack', 'memory stack', 'stack overflow', 'technology stack'],
-    'pipeline': ['data pipeline', 'ci/cd pipeline', 'processing pipeline', 'deployment pipeline'],
-    'lake': ['data lake', 'storage lake'],
-    'tree': ['tree structure', 'binary tree', 'syntax tree', 'decision tree', 'dom tree'],
-    'container': ['docker container', 'storage container', 'container orchestration'],
-    'stream': ['data stream', 'byte stream', 'event stream', 'video stream'],
-    'pool': ['memory pool', 'thread pool', 'connection pool', 'worker pool'],
-    'heap': ['heap memory', 'heap allocation', 'min heap', 'max heap'],
+    "stack": ["data structure", "call stack", "memory stack", "stack overflow", "technology stack"],
+    "pipeline": ["data pipeline", "ci/cd pipeline", "processing pipeline", "deployment pipeline"],
+    "lake": ["data lake", "storage lake"],
+    "tree": ["tree structure", "binary tree", "syntax tree", "decision tree", "dom tree"],
+    "container": ["docker container", "storage container", "container orchestration"],
+    "stream": ["data stream", "byte stream", "event stream", "video stream"],
+    "pool": ["memory pool", "thread pool", "connection pool", "worker pool"],
+    "heap": ["heap memory", "heap allocation", "min heap", "max heap"],
 }
 
 # AI cliché markers - verified frequency multipliers from Kobak et al. 2025
 # [Research: Kobak et al. Science Advances 2025, arXiv:2406.07016]
 AI_CLICHE_WORDS = {
     # Primary markers (highest multipliers)
-    'delve': 28.0,  # 28x more frequent in AI text
-    'delves': 28.0,
-    'delving': 28.0,
-    'underscores': 13.8,  # 13.8x more frequent
-    'showcasing': 10.7,  # 10.7x more frequent
-
+    "delve": 28.0,  # 28x more frequent in AI text
+    "delves": 28.0,
+    "delving": 28.0,
+    "underscores": 13.8,  # 13.8x more frequent
+    "showcasing": 10.7,  # 10.7x more frequent
     # Secondary markers (moderate multipliers)
-    'potential': 5.2,  # +5.2 percentage points
-    'findings': 4.1,  # +4.1 percentage points
-    'crucial': 3.7,  # +3.7 percentage points
-
+    "potential": 5.2,  # +5.2 percentage points
+    "findings": 4.1,  # +4.1 percentage points
+    "crucial": 3.7,  # +3.7 percentage points
     # Additional ChatGPT-characteristic words
-    'comprehensive': 2.0,
-    'pivotal': 2.0,
-    'leverage': 2.0,
-    'optimize': 2.0,
-    'facilitate': 2.0,
+    "comprehensive": 2.0,
+    "pivotal": 2.0,
+    "leverage": 2.0,
+    "optimize": 2.0,
+    "facilitate": 2.0,
 }
 
 # Formulaic meta-linguistic markers (AC: 2)
 FORMULAIC_MARKERS = [
-    'it is worth noting that',
-    'it is important to note that',
-    'in conclusion',
-    'furthermore',
-    'moreover',
-    'nevertheless',
-    'consequently',
+    "it is worth noting that",
+    "it is important to note that",
+    "in conclusion",
+    "furthermore",
+    "moreover",
+    "nevertheless",
+    "consequently",
 ]
 
 # Default idioms list (fallback if file not found)
 DEFAULT_IDIOMS = [
-    'break the ice', 'piece of cake', 'kick the bucket', 'cost an arm and a leg',
-    'let the cat out of the bag', 'under the weather', 'once in a blue moon',
-    'hit the sack', 'miss the boat', 'on cloud nine', 'break a leg',
-    'cry over spilt milk', 'birds of a feather flock together',
-    'actions speak louder than words', 'back to square one', 'bite the bullet',
-    'burn the midnight oil', 'caught between a rock and a hard place',
-    'cut corners', 'speak of the devil', 'see eye to eye',
-    'put all your eggs in one basket', 'the ball is in your court',
-    'get out of hand', 'let sleeping dogs lie', 'call it a day',
-    'best of both worlds', 'when pigs fly', "pull someone's leg",
-    'sit on the fence', 'take it with a grain of salt', "devil's advocate",
-    'hit the nail on the head', 'jump the gun', 'go back to the drawing board',
-    'in hot water', 'leave no stone unturned', 'play it by ear',
-    'throw in the towel', 'a dime a dozen', 'burn bridges', 'cut to the chase',
-    'by the skin of your teeth', 'add fuel to the fire',
-    "don't count your chickens before they hatch", 'every cloud has a silver lining',
-    'go the extra mile', 'ignorance is bliss', 'let someone off the hook',
-    'once bitten, twice shy', 'a blessing in disguise',
-    'bite off more than you can chew', 'on the ball',
-    'your guess is as good as mine', 'throw caution to the wind',
-    'take the bull by the horns', 'the elephant in the room', 'the last straw',
-    'cut somebody some slack', 'break the bank', 'call the shots',
-    'down to earth', 'easy does it', 'get cold feet', 'go down in flames',
-    'jump on the bandwagon', 'keep your chin up', 'keep your fingers crossed',
-    'let the chips fall where they may', 'not playing with a full deck',
-    'off the hook', 'on thin ice', 'out of the blue', "rain on someone's parade",
-    'roll with the punches', 'skeleton in the closet', "steal someone's thunder",
-    'take it or leave it', 'the early bird catches the worm',
-    "third time's the charm", 'under your nose', 'up in the air',
-    'walk on eggshells', 'word of mouth', "you can't judge a book by its cover",
-    'a bitter pill to swallow', 'a drop in the ocean', 'behind closed doors',
-    'hit the ground running', 'let bygones be bygones', 'lose your touch',
-    'out of the frying pan and into the fire', 'put your foot in your mouth',
-    'touch wood', 'up the creek without a paddle', 'zero tolerance',
-    'at the end of the day', 'game changer', 'tip of the iceberg',
-    'ballpark figure'
+    "break the ice",
+    "piece of cake",
+    "kick the bucket",
+    "cost an arm and a leg",
+    "let the cat out of the bag",
+    "under the weather",
+    "once in a blue moon",
+    "hit the sack",
+    "miss the boat",
+    "on cloud nine",
+    "break a leg",
+    "cry over spilt milk",
+    "birds of a feather flock together",
+    "actions speak louder than words",
+    "back to square one",
+    "bite the bullet",
+    "burn the midnight oil",
+    "caught between a rock and a hard place",
+    "cut corners",
+    "speak of the devil",
+    "see eye to eye",
+    "put all your eggs in one basket",
+    "the ball is in your court",
+    "get out of hand",
+    "let sleeping dogs lie",
+    "call it a day",
+    "best of both worlds",
+    "when pigs fly",
+    "pull someone's leg",
+    "sit on the fence",
+    "take it with a grain of salt",
+    "devil's advocate",
+    "hit the nail on the head",
+    "jump the gun",
+    "go back to the drawing board",
+    "in hot water",
+    "leave no stone unturned",
+    "play it by ear",
+    "throw in the towel",
+    "a dime a dozen",
+    "burn bridges",
+    "cut to the chase",
+    "by the skin of your teeth",
+    "add fuel to the fire",
+    "don't count your chickens before they hatch",
+    "every cloud has a silver lining",
+    "go the extra mile",
+    "ignorance is bliss",
+    "let someone off the hook",
+    "once bitten, twice shy",
+    "a blessing in disguise",
+    "bite off more than you can chew",
+    "on the ball",
+    "your guess is as good as mine",
+    "throw caution to the wind",
+    "take the bull by the horns",
+    "the elephant in the room",
+    "the last straw",
+    "cut somebody some slack",
+    "break the bank",
+    "call the shots",
+    "down to earth",
+    "easy does it",
+    "get cold feet",
+    "go down in flames",
+    "jump on the bandwagon",
+    "keep your chin up",
+    "keep your fingers crossed",
+    "let the chips fall where they may",
+    "not playing with a full deck",
+    "off the hook",
+    "on thin ice",
+    "out of the blue",
+    "rain on someone's parade",
+    "roll with the punches",
+    "skeleton in the closet",
+    "steal someone's thunder",
+    "take it or leave it",
+    "the early bird catches the worm",
+    "third time's the charm",
+    "under your nose",
+    "up in the air",
+    "walk on eggshells",
+    "word of mouth",
+    "you can't judge a book by its cover",
+    "a bitter pill to swallow",
+    "a drop in the ocean",
+    "behind closed doors",
+    "hit the ground running",
+    "let bygones be bygones",
+    "lose your touch",
+    "out of the frying pan and into the fire",
+    "put your foot in your mouth",
+    "touch wood",
+    "up the creek without a paddle",
+    "zero tolerance",
+    "at the end of the day",
+    "game changer",
+    "tip of the iceberg",
+    "ballpark figure",
 ]
 
 
@@ -187,7 +249,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
         # Performance: 2-5ms per sentence (CPU), <1ms (GPU)
         # Note: First run downloads ~90MB model, subsequent runs load from cache
         try:
-            self.model = SentenceTransformer('all-MiniLM-L6-v2')
+            self.model = SentenceTransformer("all-MiniLM-L6-v2")
         except Exception as e:
             print(f"Warning: Failed to load sentence transformer: {e}", file=sys.stderr)
             self.model = None
@@ -195,8 +257,8 @@ class FigurativeLanguageDimension(DimensionStrategy):
         # Compile simile patterns (AC: 2)
         # Patterns detect explicit simile markers: "like", "as X as"
         self.simile_patterns = [
-            re.compile(r'\b(?:like|as)\s+(?:a|an)\s+\w+', re.IGNORECASE),
-            re.compile(r'\bas\s+\w+\s+as\b', re.IGNORECASE),
+            re.compile(r"\b(?:like|as)\s+(?:a|an)\s+\w+", re.IGNORECASE),
+            re.compile(r"\bas\s+\w+\s+as\b", re.IGNORECASE),
         ]
 
         # Load idiom lexicon (AC: 2)
@@ -232,7 +294,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
             # punkt_tab not found - download it
             print("Downloading NLTK punkt tokenizer data (first run only)...", file=sys.stderr)
             try:
-                nltk.download('punkt_tab', quiet=True)
+                nltk.download("punkt_tab", quiet=True)
                 print("✓ Punkt tokenizer setup complete", file=sys.stderr)
             except Exception as e:
                 print(f"Warning: Failed to download punkt_tab: {e}", file=sys.stderr)
@@ -256,17 +318,17 @@ class FigurativeLanguageDimension(DimensionStrategy):
 
         try:
             # Test if WordNet is accessible
-            wn.synsets('test')
+            wn.synsets("test")
         except LookupError:
             # WordNet not found - download it
             print("Downloading NLTK WordNet data (first run only)...", file=sys.stderr)
             try:
-                nltk.download('wordnet', quiet=True)
-                nltk.download('omw-1.4', quiet=True)  # Open Multilingual WordNet
+                nltk.download("wordnet", quiet=True)
+                nltk.download("omw-1.4", quiet=True)  # Open Multilingual WordNet
                 print("✓ WordNet setup complete", file=sys.stderr)
 
                 # Verify installation
-                test_synsets = wn.synsets('test')
+                test_synsets = wn.synsets("test")
                 if not test_synsets:
                     print("Warning: WordNet downloaded but returned no results", file=sys.stderr)
             except Exception as e:
@@ -288,9 +350,9 @@ class FigurativeLanguageDimension(DimensionStrategy):
         return 2.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "SUPPORTING"
+        return DimensionTier.SUPPORTING
 
     @property
     def description(self) -> str:
@@ -304,9 +366,9 @@ class FigurativeLanguageDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for figurative language patterns.
@@ -338,7 +400,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
 
             for _position, sample_text in samples:
                 fig_lang = self._analyze_figurative_patterns(sample_text)
-                sample_results.append({'figurative_language': fig_lang})
+                sample_results.append({"figurative_language": fig_lang})
 
             # Aggregate metrics from all samples
             aggregated = self._aggregate_sampled_metrics(sample_results)
@@ -349,19 +411,21 @@ class FigurativeLanguageDimension(DimensionStrategy):
         else:
             analyzed_text = prepared
             fig_lang = self._analyze_figurative_patterns(analyzed_text)
-            aggregated = {'figurative_language': fig_lang}
+            aggregated = {"figurative_language": fig_lang}
             analyzed_length = len(analyzed_text)
             samples_analyzed = 1
 
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     def _analyze_figurative_patterns(self, text: str) -> Dict[str, Any]:
@@ -398,25 +462,21 @@ class FigurativeLanguageDimension(DimensionStrategy):
         freq_per_1k = (total_figurative / word_count * 1000.0) if word_count > 0 else 0.0
 
         # Calculate type variety (0-3)
-        types_detected = sum([
-            1 if similes else 0,
-            1 if metaphors else 0,
-            1 if idioms else 0
-        ])
+        types_detected = sum([1 if similes else 0, 1 if metaphors else 0, 1 if idioms else 0])
 
         # Calculate idiom sentiment distribution
         sentiment_distribution = self._calculate_sentiment_distribution(idioms)
 
         return {
-            'similes': similes,
-            'metaphors': metaphors,
-            'idioms': idioms,
-            'ai_cliches': ai_cliches,
-            'total_figurative': total_figurative,
-            'frequency_per_1k': round(freq_per_1k, 2),
-            'types_detected': types_detected,
-            'word_count': word_count,
-            'sentiment_distribution': sentiment_distribution
+            "similes": similes,
+            "metaphors": metaphors,
+            "idioms": idioms,
+            "ai_cliches": ai_cliches,
+            "total_figurative": total_figurative,
+            "frequency_per_1k": round(freq_per_1k, 2),
+            "types_detected": types_detected,
+            "word_count": word_count,
+            "sentiment_distribution": sentiment_distribution,
         }
 
     def _detect_similes_regex(self, text: str) -> List[Dict[str, Any]]:
@@ -441,12 +501,14 @@ class FigurativeLanguageDimension(DimensionStrategy):
 
                 # Filter out technical literals
                 if not self._is_technical_literal(phrase, text, match.start()):
-                    similes.append({
-                        'phrase': phrase,
-                        'type': 'simile',
-                        'position': match.start(),
-                        'confidence': 0.8
-                    })
+                    similes.append(
+                        {
+                            "phrase": phrase,
+                            "type": "simile",
+                            "position": match.start(),
+                            "confidence": 0.8,
+                        }
+                    )
 
         return similes
 
@@ -489,7 +551,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
                 # Check adjacent word pairs for semantic mismatches
                 for i in range(len(tokens) - 1):
                     # Skip very common words (articles, prepositions)
-                    if tokens[i].lower() in ['the', 'a', 'an', 'of', 'in', 'on', 'at']:
+                    if tokens[i].lower() in ["the", "a", "an", "of", "in", "on", "at"]:
                         continue
 
                     phrase = f"{tokens[i]} {tokens[i+1]}"
@@ -499,12 +561,14 @@ class FigurativeLanguageDimension(DimensionStrategy):
                         confidence = self._calculate_metaphor_confidence(phrase, tokens[i])
 
                         if confidence > 0.6:
-                            metaphors.append({
-                                'phrase': phrase,
-                                'type': 'metaphor',
-                                'confidence': round(confidence, 2),
-                                'semantic_gap': round(1.0 - confidence, 2)
-                            })
+                            metaphors.append(
+                                {
+                                    "phrase": phrase,
+                                    "type": "metaphor",
+                                    "confidence": round(confidence, 2),
+                                    "semantic_gap": round(1.0 - confidence, 2),
+                                }
+                            )
 
         except Exception as e:
             print(f"Warning: Metaphor detection failed: {e}", file=sys.stderr)
@@ -566,10 +630,9 @@ class FigurativeLanguageDimension(DimensionStrategy):
             literal_emb = self.model.encode(literal_def)
 
             # Calculate semantic gap (cosine similarity)
-            similarity = float(cosine_similarity(
-                contextual_emb.reshape(1, -1),
-                literal_emb.reshape(1, -1)
-            )[0][0])
+            similarity = float(
+                cosine_similarity(contextual_emb.reshape(1, -1), literal_emb.reshape(1, -1))[0][0]
+            )
 
             # Low similarity = high metaphorical usage
             # Invert similarity to get confidence
@@ -601,9 +664,9 @@ class FigurativeLanguageDimension(DimensionStrategy):
         for idiom_pattern in self.idiom_lexicon:
             if idiom_pattern.lower() in text_lower:
                 # Get base confidence from lexicon tier
-                metadata = getattr(self, 'idiom_metadata', {}).get(idiom_pattern.lower(), {})
-                base_confidence = metadata.get('confidence', 0.8)
-                tier = metadata.get('tier', 'extended')
+                metadata = getattr(self, "idiom_metadata", {}).get(idiom_pattern.lower(), {})
+                base_confidence = metadata.get("confidence", 0.8)
+                tier = metadata.get("tier", "extended")
 
                 # Verify not used literally via surrounding context
                 # Domain-tier idioms get special handling (always idiomatic in technical contexts)
@@ -613,17 +676,19 @@ class FigurativeLanguageDimension(DimensionStrategy):
                 final_confidence = base_confidence * context_confidence
 
                 if final_confidence > 0.4:  # Lower threshold to catch extended-tier idioms
-                    idioms.append({
-                        'phrase': idiom_pattern,
-                        'type': 'idiom',
-                        'confidence': round(final_confidence, 2),
-                        'tier': tier,
-                        'sources': metadata.get('sources', [])
-                    })
+                    idioms.append(
+                        {
+                            "phrase": idiom_pattern,
+                            "type": "idiom",
+                            "confidence": round(final_confidence, 2),
+                            "tier": tier,
+                            "sources": metadata.get("sources", []),
+                        }
+                    )
 
         return idioms
 
-    def _check_idiom_context(self, text: str, idiom: str, tier: str = 'extended') -> float:
+    def _check_idiom_context(self, text: str, idiom: str, tier: str = "extended") -> float:
         """
         Determine if idiom is used figuratively vs. literally.
 
@@ -663,10 +728,10 @@ class FigurativeLanguageDimension(DimensionStrategy):
 
         # Default confidence (assume figurative)
         # Domain-tier idioms get higher default (they're always idiomatic)
-        confidence = 0.9 if tier == 'domain' else 0.7
+        confidence = 0.9 if tier == "domain" else 0.7
 
         # Literalizing markers (reduce confidence)
-        literal_markers = ['literally', 'actually', 'really', 'exactly', 'precisely']
+        literal_markers = ["literally", "actually", "really", "exactly", "precisely"]
         for marker in literal_markers:
             if marker in context_window:
                 confidence -= 0.3
@@ -677,7 +742,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
 
         # Check technical literals exception list
         # SKIP this check for domain-tier idioms (they're supposed to be in technical contexts)
-        if tier != 'domain':
+        if tier != "domain":
             for tech_word, contexts in TECHNICAL_LITERALS.items():
                 if tech_word in idiom:
                     for tech_context in contexts:
@@ -685,17 +750,30 @@ class FigurativeLanguageDimension(DimensionStrategy):
                             confidence -= 0.5  # Strong literal indicator
 
         # Figurative markers (increase confidence)
-        figurative_markers = ['like', 'as if', 'seems', 'appears', 'metaphorically']
+        figurative_markers = ["like", "as if", "seems", "appears", "metaphorically"]
         for marker in figurative_markers:
             if marker in context_window:
                 confidence += 0.2
 
         # Domain-tier idioms get confidence boost in technical/academic contexts
-        if tier == 'domain':
+        if tier == "domain":
             technical_context_markers = [
-                'algorithm', 'implementation', 'system', 'performance', 'data',
-                'test', 'code', 'function', 'method', 'analysis', 'research',
-                'study', 'evaluation', 'results', 'approach', 'framework'
+                "algorithm",
+                "implementation",
+                "system",
+                "performance",
+                "data",
+                "test",
+                "code",
+                "function",
+                "method",
+                "analysis",
+                "research",
+                "study",
+                "evaluation",
+                "results",
+                "approach",
+                "framework",
             ]
             for marker in technical_context_markers:
                 if marker in context_window:
@@ -733,19 +811,19 @@ class FigurativeLanguageDimension(DimensionStrategy):
         """
         if not idioms:
             return {
-                'counts': {'positive': 0, 'negative': 0, 'neutral': 0},
-                'percentages': {'positive': 0.0, 'negative': 0.0, 'neutral': 0.0},
-                'total_with_sentiment': 0,
-                'deviation_from_optimal': 0.0
+                "counts": {"positive": 0, "negative": 0, "neutral": 0},
+                "percentages": {"positive": 0.0, "negative": 0.0, "neutral": 0.0},
+                "total_with_sentiment": 0,
+                "deviation_from_optimal": 0.0,
             }
 
         # Count sentiment types
-        sentiment_counts = {'positive': 0, 'negative': 0, 'neutral': 0}
+        sentiment_counts = {"positive": 0, "negative": 0, "neutral": 0}
 
         for idiom in idioms:
-            phrase = idiom.get('phrase', '').lower()
+            phrase = idiom.get("phrase", "").lower()
             metadata = self.idiom_metadata.get(phrase, {})
-            sentiment = metadata.get('sentiment')
+            sentiment = metadata.get("sentiment")
 
             if sentiment in sentiment_counts:
                 sentiment_counts[sentiment] += 1
@@ -760,7 +838,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
 
         # Calculate deviation from optimal technical writing profile
         # Optimal: 90% neutral, 5% positive, 5% negative (midpoint of ranges)
-        optimal_profile = {'neutral': 90.0, 'positive': 5.0, 'negative': 5.0}
+        optimal_profile = {"neutral": 90.0, "positive": 5.0, "negative": 5.0}
 
         deviation = 0.0
         if total_with_sentiment > 0:
@@ -771,10 +849,10 @@ class FigurativeLanguageDimension(DimensionStrategy):
             )
 
         return {
-            'counts': sentiment_counts,
-            'percentages': {k: round(v, 1) for k, v in percentages.items()},
-            'total_with_sentiment': total_with_sentiment,
-            'deviation_from_optimal': round(deviation, 1)
+            "counts": sentiment_counts,
+            "percentages": {k: round(v, 1) for k, v in percentages.items()},
+            "total_with_sentiment": total_with_sentiment,
+            "deviation_from_optimal": round(deviation, 1),
         }
 
     def _detect_ai_cliches(self, text: str) -> List[Dict[str, Any]]:
@@ -795,25 +873,23 @@ class FigurativeLanguageDimension(DimensionStrategy):
 
         # Check individual words
         for word, multiplier in self.ai_cliche_words.items():
-            pattern = r'\b' + re.escape(word) + r'\b'
+            pattern = r"\b" + re.escape(word) + r"\b"
             matches = list(re.finditer(pattern, text_lower))
 
             for match in matches:
-                cliches.append({
-                    'phrase': word,
-                    'type': 'ai_cliche',
-                    'multiplier': multiplier,
-                    'position': match.start()
-                })
+                cliches.append(
+                    {
+                        "phrase": word,
+                        "type": "ai_cliche",
+                        "multiplier": multiplier,
+                        "position": match.start(),
+                    }
+                )
 
         # Check formulaic markers
         for marker in self.formulaic_markers:
             if marker in text_lower:
-                cliches.append({
-                    'phrase': marker,
-                    'type': 'formulaic',
-                    'multiplier': 2.0
-                })
+                cliches.append({"phrase": marker, "type": "formulaic", "multiplier": 2.0})
 
         return cliches
 
@@ -861,11 +937,12 @@ class FigurativeLanguageDimension(DimensionStrategy):
         data_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
         # Try JSON format first (with metadata support)
-        idiom_json = os.path.join(data_dir, 'data', 'idiom_lexicon.json')
+        idiom_json = os.path.join(data_dir, "data", "idiom_lexicon.json")
         if os.path.exists(idiom_json):
             try:
                 import json
-                with open(idiom_json, encoding='utf-8') as f:
+
+                with open(idiom_json, encoding="utf-8") as f:
                     lexicon_data = json.load(f)
 
                 # Store metadata for confidence-weighted detection
@@ -873,80 +950,96 @@ class FigurativeLanguageDimension(DimensionStrategy):
                 idioms = []
 
                 for _key, data in lexicon_data.items():
-                    idiom = data['idiom']
+                    idiom = data["idiom"]
                     idioms.append(idiom)
 
                     # Store metadata for this idiom
                     metadata = {
-                        'confidence': data.get('confidence', 0.8),
-                        'tier': data.get('tier', 'extended'),
-                        'sources': data.get('sources', []),
-                        'paraphrase': data.get('paraphrase'),
-                        'variants': data.get('variants', [])
+                        "confidence": data.get("confidence", 0.8),
+                        "tier": data.get("tier", "extended"),
+                        "sources": data.get("sources", []),
+                        "paraphrase": data.get("paraphrase"),
+                        "variants": data.get("variants", []),
                     }
 
                     # Add SLIDE sentiment data if present
-                    if 'sentiment' in data:
-                        metadata['sentiment'] = data['sentiment']
-                        metadata['sentiment_pos_pct'] = data.get('sentiment_pos_pct', 0.0)
-                        metadata['sentiment_neg_pct'] = data.get('sentiment_neg_pct', 0.0)
-                        metadata['sentiment_neu_pct'] = data.get('sentiment_neu_pct', 0.0)
+                    if "sentiment" in data:
+                        metadata["sentiment"] = data["sentiment"]
+                        metadata["sentiment_pos_pct"] = data.get("sentiment_pos_pct", 0.0)
+                        metadata["sentiment_neg_pct"] = data.get("sentiment_neg_pct", 0.0)
+                        metadata["sentiment_neu_pct"] = data.get("sentiment_neu_pct", 0.0)
 
                     self.idiom_metadata[idiom.lower()] = metadata
 
                     # Also add variants to the idioms list if present
-                    if 'variants' in data:
-                        for variant in data['variants']:
+                    if "variants" in data:
+                        for variant in data["variants"]:
                             idioms.append(variant)
-                            self.idiom_metadata[variant.lower()] = self.idiom_metadata[idiom.lower()]
+                            self.idiom_metadata[variant.lower()] = self.idiom_metadata[
+                                idiom.lower()
+                            ]
 
-                print(f"✓ Loaded {len(lexicon_data)} idioms ({len(idioms)} with variants) from {idiom_json}", file=sys.stderr)
-                core_count = sum(1 for d in lexicon_data.values() if d.get('tier') == 'core')
+                print(
+                    f"✓ Loaded {len(lexicon_data)} idioms ({len(idioms)} with variants) from {idiom_json}",
+                    file=sys.stderr,
+                )
+                core_count = sum(1 for d in lexicon_data.values() if d.get("tier") == "core")
                 extended_count = len(lexicon_data) - core_count
-                print(f"  Tiers: {core_count} core (conf 1.0), {extended_count} extended (conf 0.8-0.9)", file=sys.stderr)
+                print(
+                    f"  Tiers: {core_count} core (conf 1.0), {extended_count} extended (conf 0.8-0.9)",
+                    file=sys.stderr,
+                )
                 return idioms
 
             except Exception as e:
-                print(f"Warning: Failed to load JSON idiom lexicon from {idiom_json}: {e}", file=sys.stderr)
+                print(
+                    f"Warning: Failed to load JSON idiom lexicon from {idiom_json}: {e}",
+                    file=sys.stderr,
+                )
                 print("Falling back to text format...", file=sys.stderr)
 
         # Try text format (legacy)
-        idiom_txt = os.path.join(data_dir, 'data', 'idiom_lexicon.txt')
+        idiom_txt = os.path.join(data_dir, "data", "idiom_lexicon.txt")
         if os.path.exists(idiom_txt):
             try:
-                with open(idiom_txt, encoding='utf-8') as f:
+                with open(idiom_txt, encoding="utf-8") as f:
                     idioms = [line.strip() for line in f if line.strip()]
 
                 # Initialize basic metadata for text-format idioms
                 self.idiom_metadata = {}
                 for idiom in idioms:
                     self.idiom_metadata[idiom.lower()] = {
-                        'confidence': 1.0,  # Legacy format gets full confidence
-                        'tier': 'core',
-                        'sources': ['current'],
-                        'paraphrase': None,
-                        'variants': []
+                        "confidence": 1.0,  # Legacy format gets full confidence
+                        "tier": "core",
+                        "sources": ["current"],
+                        "paraphrase": None,
+                        "variants": [],
                     }
 
                 print(f"✓ Loaded {len(idioms)} idioms from {idiom_txt}", file=sys.stderr)
                 return idioms
             except Exception as e:
-                print(f"Warning: Failed to load idiom lexicon from {idiom_txt}: {e}", file=sys.stderr)
+                print(
+                    f"Warning: Failed to load idiom lexicon from {idiom_txt}: {e}", file=sys.stderr
+                )
                 print(f"Falling back to {len(DEFAULT_IDIOMS)} default idioms", file=sys.stderr)
         else:
             # File doesn't exist - inform user we're using defaults
             print("Info: Idiom lexicon file not found", file=sys.stderr)
-            print(f"Using {len(DEFAULT_IDIOMS)} default idioms (feature will work normally)", file=sys.stderr)
+            print(
+                f"Using {len(DEFAULT_IDIOMS)} default idioms (feature will work normally)",
+                file=sys.stderr,
+            )
 
         # Ultimate fallback to DEFAULT_IDIOMS
         self.idiom_metadata = {}
         for idiom in DEFAULT_IDIOMS:
             self.idiom_metadata[idiom.lower()] = {
-                'confidence': 1.0,
-                'tier': 'core',
-                'sources': ['default'],
-                'paraphrase': None,
-                'variants': []
+                "confidence": 1.0,
+                "tier": "core",
+                "sources": ["default"],
+                "paraphrase": None,
+                "variants": [],
             }
         return DEFAULT_IDIOMS
 
@@ -990,23 +1083,20 @@ class FigurativeLanguageDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             return 50.0  # Neutral score for unavailable data
 
-        fig_lang = metrics.get('figurative_language', {})
+        fig_lang = metrics.get("figurative_language", {})
 
-        freq_per_1k = fig_lang.get('frequency_per_1k', 0.0)
-        types_detected = fig_lang.get('types_detected', 0)
-        total_figurative = fig_lang.get('total_figurative', 0)
-        ai_cliche_count = len(fig_lang.get('ai_cliches', []))
+        freq_per_1k = fig_lang.get("frequency_per_1k", 0.0)
+        types_detected = fig_lang.get("types_detected", 0)
+        total_figurative = fig_lang.get("total_figurative", 0)
+        ai_cliche_count = len(fig_lang.get("ai_cliches", []))
 
         # Base monotonic score from frequency
         # threshold_low=0.1 (AI-like), threshold_high=0.8 (human-like)
         base_score = self._monotonic_score(
-            value=freq_per_1k,
-            threshold_low=0.1,
-            threshold_high=0.8,
-            increasing=True
+            value=freq_per_1k, threshold_low=0.1, threshold_high=0.8, increasing=True
         )
 
         # Variety bonus: Using multiple types of figurative language (0-15 points)
@@ -1033,7 +1123,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
         score = max(0.0, min(100.0, score))
 
         self._validate_score(score)
-        return score
+        return float(score)
 
     def get_recommendations(self, score: float, metrics: Dict[str, Any]) -> List[str]:
         """
@@ -1048,11 +1138,11 @@ class FigurativeLanguageDimension(DimensionStrategy):
         """
         recommendations = []
 
-        fig_lang = metrics.get('figurative_language', {})
-        freq_per_1k = fig_lang.get('frequency_per_1k', 0.0)
-        types_detected = fig_lang.get('types_detected', 0)
-        ai_cliches = fig_lang.get('ai_cliches', [])
-        total_figurative = fig_lang.get('total_figurative', 0)
+        fig_lang = metrics.get("figurative_language", {})
+        freq_per_1k = fig_lang.get("frequency_per_1k", 0.0)
+        types_detected = fig_lang.get("types_detected", 0)
+        ai_cliches = fig_lang.get("ai_cliches", [])
+        total_figurative = fig_lang.get("total_figurative", 0)
 
         # Low frequency
         if freq_per_1k < 0.1:
@@ -1072,7 +1162,7 @@ class FigurativeLanguageDimension(DimensionStrategy):
         if ai_cliches and len(ai_cliches) > 0:
             cliche_ratio = len(ai_cliches) / (total_figurative + 1)
             if cliche_ratio > 0.3:
-                common_cliches = [c['phrase'] for c in ai_cliches[:3]]
+                common_cliches = [c["phrase"] for c in ai_cliches[:3]]
                 recommendations.append(
                     f"High AI cliché usage detected ({len(ai_cliches)} clichés). "
                     f"Avoid words like: {', '.join(common_cliches)}. "
@@ -1087,16 +1177,16 @@ class FigurativeLanguageDimension(DimensionStrategy):
             )
 
         # Sentiment distribution analysis (only if idioms detected)
-        sentiment_dist = fig_lang.get('sentiment_distribution', {})
-        if sentiment_dist.get('total_with_sentiment', 0) >= 3:  # Only analyze if 3+ idioms
-            percentages = sentiment_dist.get('percentages', {})
-            deviation = sentiment_dist.get('deviation_from_optimal', 0.0)
+        sentiment_dist = fig_lang.get("sentiment_distribution", {})
+        if sentiment_dist.get("total_with_sentiment", 0) >= 3:  # Only analyze if 3+ idioms
+            percentages = sentiment_dist.get("percentages", {})
+            deviation = sentiment_dist.get("deviation_from_optimal", 0.0)
 
             # Significant deviation from optimal technical writing profile
             if deviation > 50.0:  # More than 50 percentage points total deviation
-                neutral_pct = percentages.get('neutral', 0.0)
-                positive_pct = percentages.get('positive', 0.0)
-                negative_pct = percentages.get('negative', 0.0)
+                neutral_pct = percentages.get("neutral", 0.0)
+                positive_pct = percentages.get("positive", 0.0)
+                negative_pct = percentages.get("negative", 0.0)
 
                 if neutral_pct < 70.0:  # Should be 85-95% for technical writing
                     recommendations.append(
@@ -1116,10 +1206,10 @@ class FigurativeLanguageDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (85.0, 100.0),
-            'good': (70.0, 84.9),
-            'acceptable': (50.0, 69.9),
-            'poor': (0.0, 49.9)
+            "excellent": (85.0, 100.0),
+            "good": (70.0, 84.9),
+            "acceptable": (50.0, 69.9),
+            "poor": (0.0, 49.9),
         }
 
 

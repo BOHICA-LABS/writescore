@@ -15,7 +15,6 @@ Test Coverage:
 - Sampling parameters
 """
 
-
 import pytest
 from click.testing import CliRunner
 
@@ -76,84 +75,89 @@ Content for analysis in document {i}.
 # Configuration Creation Tests (10 tests)
 # ============================================================================
 
+
 class TestConfigurationCreation:
     """Test configuration creation with all mode and parameter combinations."""
 
     def test_config_fast_mode_defaults(self):
         """Test FAST mode with default parameters."""
-        config = create_analysis_config('fast', 5, 2000, 'even')
+        config = create_analysis_config("fast", 5, 2000, "even")
 
         assert config.mode == AnalysisMode.FAST
         assert config.sampling_sections == 5
         assert config.sampling_chars_per_section == 2000
-        assert config.sampling_strategy == 'even'
+        assert config.sampling_strategy == "even"
 
     def test_config_adaptive_mode_defaults(self):
         """Test ADAPTIVE mode with default parameters."""
-        config = create_analysis_config('adaptive', 5, 2000, 'even')
+        config = create_analysis_config("adaptive", 5, 2000, "even")
 
         assert config.mode == AnalysisMode.ADAPTIVE
         assert config.sampling_sections == 5
         assert config.sampling_chars_per_section == 2000
-        assert config.sampling_strategy == 'even'
+        assert config.sampling_strategy == "even"
 
     def test_config_sampling_mode_defaults(self):
         """Test SAMPLING mode with default parameters."""
-        config = create_analysis_config('sampling', 5, 2000, 'even')
+        config = create_analysis_config("sampling", 5, 2000, "even")
 
         assert config.mode == AnalysisMode.SAMPLING
         assert config.sampling_sections == 5
         assert config.sampling_chars_per_section == 2000
-        assert config.sampling_strategy == 'even'
+        assert config.sampling_strategy == "even"
 
     def test_config_full_mode_defaults(self):
         """Test FULL mode with default parameters."""
-        config = create_analysis_config('full', 5, 2000, 'even')
+        config = create_analysis_config("full", 5, 2000, "even")
 
         assert config.mode == AnalysisMode.FULL
         # FULL mode ignores sampling parameters but should not error
 
     def test_config_custom_samples(self):
         """Test config with custom sample count."""
-        config = create_analysis_config('sampling', 10, 2000, 'even')
+        config = create_analysis_config("sampling", 10, 2000, "even")
 
         assert config.sampling_sections == 10
 
     def test_config_custom_sample_size(self):
         """Test config with custom sample size."""
-        config = create_analysis_config('sampling', 5, 5000, 'even')
+        config = create_analysis_config("sampling", 5, 5000, "even")
 
         assert config.sampling_chars_per_section == 5000
 
     def test_config_weighted_strategy(self):
         """Test config with weighted sampling strategy."""
-        config = create_analysis_config('sampling', 5, 2000, 'weighted')
+        config = create_analysis_config("sampling", 5, 2000, "weighted")
 
-        assert config.sampling_strategy == 'weighted'
+        assert config.sampling_strategy == "weighted"
 
     def test_config_even_strategy(self):
         """Test config with even sampling strategy."""
-        config = create_analysis_config('sampling', 5, 2000, 'even')
+        config = create_analysis_config("sampling", 5, 2000, "even")
 
-        assert config.sampling_strategy == 'even'
+        assert config.sampling_strategy == "even"
 
     def test_config_all_custom_parameters(self):
         """Test config with all custom parameters."""
-        config = create_analysis_config('sampling', 7, 3000, 'weighted')
+        config = create_analysis_config("sampling", 7, 3000, "weighted")
 
         assert config.mode == AnalysisMode.SAMPLING
         assert config.sampling_sections == 7
         assert config.sampling_chars_per_section == 3000
-        assert config.sampling_strategy == 'weighted'
+        assert config.sampling_strategy == "weighted"
 
     def test_config_mode_enum_conversion(self):
         """Test that mode strings are correctly converted to enum."""
-        modes = ['fast', 'adaptive', 'sampling', 'full']
-        expected = [AnalysisMode.FAST, AnalysisMode.ADAPTIVE,
-                   AnalysisMode.SAMPLING, AnalysisMode.FULL]
+        modes = ["fast", "adaptive", "sampling", "full"]
+        expected = [
+            AnalysisMode.FAST,
+            AnalysisMode.ADAPTIVE,
+            AnalysisMode.SAMPLING,
+            AnalysisMode.FULL,
+        ]
 
         for mode_str, expected_enum in zip(modes, expected):
-            config = create_analysis_config(mode_str, 5, 2000, 'even')
+            config = create_analysis_config(mode_str, 5, 2000, "even")
             assert config.mode == expected_enum
 
 
@@ -161,71 +165,92 @@ class TestConfigurationCreation:
 # Dry-Run Tests (5 tests)
 # ============================================================================
 
+
 class TestDryRunFunctionality:
     """Test dry-run displays configuration without running analysis."""
 
     def test_dry_run_single_file(self, sample_markdown_file):
         """Test dry-run for single file shows configuration."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--dry-run'])
+        result = runner.invoke(cli, ["analyze", sample_markdown_file, "--dry-run"])
 
         assert result.exit_code == 0
         # Should display configuration info
-        assert ('DRY RUN' in result.output or 'Analysis Configuration' in result.output or
-                'Mode' in result.output)
+        assert (
+            "DRY RUN" in result.output
+            or "Analysis Configuration" in result.output
+            or "Mode" in result.output
+        )
 
     def test_dry_run_batch(self, sample_batch_dir):
         """Test dry-run for batch shows configuration."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', '--batch', sample_batch_dir, '--dry-run'])
+        result = runner.invoke(cli, ["analyze", "--batch", sample_batch_dir, "--dry-run"])
 
         assert result.exit_code == 0
-        assert 'DRY RUN' in result.output or 'batch' in result.output.lower()
+        assert "DRY RUN" in result.output or "batch" in result.output.lower()
 
     def test_dry_run_with_mode_fast(self, sample_markdown_file):
         """Test dry-run with FAST mode."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--mode', 'fast', '--dry-run'])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--mode", "fast", "--dry-run"]
+        )
 
         assert result.exit_code == 0
-        assert 'fast' in result.output.lower() or 'FAST' in result.output
+        assert "fast" in result.output.lower() or "FAST" in result.output
 
     def test_dry_run_with_sampling_params(self, sample_markdown_file):
         """Test dry-run with custom sampling parameters."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            'analyze',
-            sample_markdown_file,
-            '--mode', 'sampling',
-            '--samples', '10',
-            '--sample-size', '3000',
-            '--dry-run'
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "analyze",
+                sample_markdown_file,
+                "--mode",
+                "sampling",
+                "--samples",
+                "10",
+                "--sample-size",
+                "3000",
+                "--dry-run",
+            ],
+        )
 
         assert result.exit_code == 0
         # Should show sampling config
-        assert '10' in result.output or 'sampling' in result.output.lower()
+        assert "10" in result.output or "sampling" in result.output.lower()
 
     def test_dry_run_with_all_features(self, sample_markdown_file):
         """Test dry-run with multiple feature flags."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            'analyze',
-            sample_markdown_file,
-            '--mode', 'adaptive',
-            '--detailed',
-            '--show-scores',
-            '--dry-run'
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "analyze",
+                sample_markdown_file,
+                "--mode",
+                "adaptive",
+                "--detailed",
+                "--show-scores",
+                "--dry-run",
+            ],
+        )
 
         assert result.exit_code == 0
         # Should indicate enabled features
-        assert 'detailed' in result.output.lower() or 'Detailed' in result.output or 'DRY RUN' in result.output
+        assert (
+            "detailed" in result.output.lower()
+            or "Detailed" in result.output
+            or "DRY RUN" in result.output
+        )
 
 
 # ============================================================================
 # Mode Parameter Tests (10 tests)
 # ============================================================================
+
 
 class TestModeParameters:
     """Test all analysis modes with various parameter combinations."""
@@ -233,94 +258,94 @@ class TestModeParameters:
     def test_mode_fast_accepted(self, sample_markdown_file):
         """Test FAST mode is accepted."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--mode', 'fast', '--dry-run'])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--mode", "fast", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_mode_adaptive_accepted(self, sample_markdown_file):
         """Test ADAPTIVE mode is accepted."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--mode', 'adaptive', '--dry-run'])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--mode", "adaptive", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_mode_sampling_accepted(self, sample_markdown_file):
         """Test SAMPLING mode is accepted."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--mode', 'sampling', '--dry-run'])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--mode", "sampling", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_mode_full_accepted(self, sample_markdown_file):
         """Test FULL mode is accepted."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--mode', 'full', '--dry-run'])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--mode", "full", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_samples_param_minimum(self, sample_markdown_file):
         """Test --samples with minimum value (1)."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            'analyze',
-            sample_markdown_file,
-            '--samples', '1',
-            '--dry-run'
-        ])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--samples", "1", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_samples_param_maximum(self, sample_markdown_file):
         """Test --samples with maximum value (20)."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            'analyze',
-            sample_markdown_file,
-            '--samples', '20',
-            '--dry-run'
-        ])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--samples", "20", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_sample_size_custom(self, sample_markdown_file):
         """Test --sample-size with custom value."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            'analyze',
-            sample_markdown_file,
-            '--sample-size', '5000',
-            '--dry-run'
-        ])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--sample-size", "5000", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_sample_strategy_even(self, sample_markdown_file):
         """Test --sample-strategy with 'even'."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            'analyze',
-            sample_markdown_file,
-            '--sample-strategy', 'even',
-            '--dry-run'
-        ])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--sample-strategy", "even", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_sample_strategy_weighted(self, sample_markdown_file):
         """Test --sample-strategy with 'weighted'."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            'analyze',
-            sample_markdown_file,
-            '--sample-strategy', 'weighted',
-            '--dry-run'
-        ])
+        result = runner.invoke(
+            cli, ["analyze", sample_markdown_file, "--sample-strategy", "weighted", "--dry-run"]
+        )
         assert result.exit_code == 0
 
     def test_all_sampling_params_together(self, sample_markdown_file):
         """Test all sampling parameters together."""
         runner = CliRunner()
-        result = runner.invoke(cli, [
-            'analyze',
-            sample_markdown_file,
-            '--mode', 'sampling',
-            '--samples', '15',
-            '--sample-size', '4000',
-            '--sample-strategy', 'weighted',
-            '--dry-run'
-        ])
+        result = runner.invoke(
+            cli,
+            [
+                "analyze",
+                sample_markdown_file,
+                "--mode",
+                "sampling",
+                "--samples",
+                "15",
+                "--sample-size",
+                "4000",
+                "--sample-strategy",
+                "weighted",
+                "--dry-run",
+            ],
+        )
         assert result.exit_code == 0
 
 
@@ -328,43 +353,48 @@ class TestModeParameters:
 # Help and Information Tests (3 tests)
 # ============================================================================
 
+
 class TestHelpAndInformation:
     """Test help text and information display."""
 
     def test_help_flag(self):
         """Test --help flag displays usage information."""
         from click.testing import CliRunner
+
         runner = CliRunner()
 
-        result = runner.invoke(cli, ['--help'])
+        result = runner.invoke(cli, ["--help"])
 
         assert result.exit_code == 0
-        assert 'Usage:' in result.output or 'Analyze manuscripts' in result.output
+        assert "Usage:" in result.output or "Analyze manuscripts" in result.output
 
     def test_help_short_flag(self):
         """Test -h short flag displays usage information."""
         from click.testing import CliRunner
+
         runner = CliRunner()
 
-        result = runner.invoke(cli, ['-h'])
+        result = runner.invoke(cli, ["-h"])
 
         assert result.exit_code == 0
-        assert 'Usage:' in result.output or 'Analyze manuscripts' in result.output
+        assert "Usage:" in result.output or "Analyze manuscripts" in result.output
 
     def test_help_modes_flag(self):
         """Test --help-modes flag displays mode information."""
         from click.testing import CliRunner
+
         runner = CliRunner()
 
-        result = runner.invoke(cli, ['analyze', '--help-modes'])
+        result = runner.invoke(cli, ["analyze", "--help-modes"])
 
         assert result.exit_code == 0
-        assert 'FAST' in result.output or 'ADAPTIVE' in result.output
+        assert "FAST" in result.output or "ADAPTIVE" in result.output
 
 
 # ============================================================================
 # Error Handling Tests (5 tests)
 # ============================================================================
+
 
 class TestErrorHandling:
     """Test error handling and validation."""
@@ -372,36 +402,36 @@ class TestErrorHandling:
     def test_no_file_or_batch_error(self):
         """Test error when neither FILE nor --batch is provided."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', '--mode', 'fast'])
+        result = runner.invoke(cli, ["analyze", "--mode", "fast"])
 
         assert result.exit_code != 0
-        assert 'Error:' in result.output or 'required' in result.output.lower()
+        assert "Error:" in result.output or "required" in result.output.lower()
 
     def test_invalid_mode_error(self, sample_markdown_file):
         """Test error with invalid mode value."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--mode', 'invalid'])
+        result = runner.invoke(cli, ["analyze", sample_markdown_file, "--mode", "invalid"])
 
         assert result.exit_code != 0
 
     def test_invalid_samples_range_low_error(self, sample_markdown_file):
         """Test error with samples below valid range."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--samples', '0'])
+        result = runner.invoke(cli, ["analyze", sample_markdown_file, "--samples", "0"])
 
         assert result.exit_code != 0
 
     def test_invalid_samples_range_high_error(self, sample_markdown_file):
         """Test error with samples above valid range."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', sample_markdown_file, '--samples', '25'])
+        result = runner.invoke(cli, ["analyze", sample_markdown_file, "--samples", "25"])
 
         assert result.exit_code != 0
 
     def test_nonexistent_file_error(self):
         """Test error with nonexistent file path."""
         runner = CliRunner()
-        result = runner.invoke(cli, ['analyze', 'nonexistent_file.md'])
+        result = runner.invoke(cli, ["analyze", "nonexistent_file.md"])
 
         assert result.exit_code != 0
 

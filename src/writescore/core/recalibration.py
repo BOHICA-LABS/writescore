@@ -32,7 +32,7 @@ class ParameterChange:
         self,
         dimension_name: str,
         old_params: Optional[DimensionParameters],
-        new_params: DimensionParameters
+        new_params: DimensionParameters,
     ):
         """Initialize parameter change."""
         self.dimension_name = dimension_name
@@ -47,40 +47,44 @@ class ParameterChange:
         """Get summary of parameter changes."""
         if self.is_new_dimension():
             return {
-                'type': 'new',
-                'dimension': self.dimension_name,
-                'scoring_method': self.new_params.scoring_method.value,
-                'parameters': self.new_params.parameters.to_dict()
+                "type": "new",
+                "dimension": self.dimension_name,
+                "scoring_method": self.new_params.scoring_method.value,
+                "parameters": self.new_params.parameters.to_dict(),
             }
 
         # Compare old and new parameters
+        assert self.old_params is not None  # Guaranteed by is_new_dimension() check above
         old_dict = self.old_params.parameters.to_dict()
         new_dict = self.new_params.parameters.to_dict()
 
-        changes = {}
+        changes: Dict[str, Any] = {}
         for key in new_dict:
             if key not in old_dict:
-                changes[key] = {'old': None, 'new': new_dict[key]}
+                changes[key] = {"old": None, "new": new_dict[key]}
             elif old_dict[key] != new_dict[key]:
                 if isinstance(new_dict[key], dict):
                     # Handle nested dicts (e.g., boundaries)
                     nested_changes = {}
                     for nested_key in new_dict[key]:
-                        if nested_key not in old_dict[key] or old_dict[key][nested_key] != new_dict[key][nested_key]:
+                        if (
+                            nested_key not in old_dict[key]
+                            or old_dict[key][nested_key] != new_dict[key][nested_key]
+                        ):
                             nested_changes[nested_key] = {
-                                'old': old_dict[key].get(nested_key),
-                                'new': new_dict[key][nested_key]
+                                "old": old_dict[key].get(nested_key),
+                                "new": new_dict[key][nested_key],
                             }
                     if nested_changes:
                         changes[key] = nested_changes
                 else:
-                    changes[key] = {'old': old_dict[key], 'new': new_dict[key]}
+                    changes[key] = {"old": old_dict[key], "new": new_dict[key]}
 
         return {
-            'type': 'modified',
-            'dimension': self.dimension_name,
-            'scoring_method': self.new_params.scoring_method.value,
-            'changes': changes
+            "type": "modified",
+            "dimension": self.dimension_name,
+            "scoring_method": self.new_params.scoring_method.value,
+            "changes": changes,
         }
 
 
@@ -100,14 +104,14 @@ class RecalibrationReport:
         self,
         dataset_info: Dict[str, Any],
         analysis_summary: Dict[str, Any],
-        parameter_changes: List[ParameterChange]
+        parameter_changes: List[ParameterChange],
     ):
         """Initialize recalibration report."""
         self.dataset_info = dataset_info
         self.analysis_summary = analysis_summary
         self.parameter_changes = parameter_changes
         self.timestamp = datetime.now().isoformat()
-        self.metadata = {}
+        self.metadata: Dict[str, Any] = {}
 
     def get_summary(self) -> Dict[str, Any]:
         """Get report summary."""
@@ -115,13 +119,13 @@ class RecalibrationReport:
         modified_dims = [c for c in self.parameter_changes if not c.is_new_dimension()]
 
         return {
-            'timestamp': self.timestamp,
-            'dataset_version': self.dataset_info.get('version'),
-            'total_documents': self.dataset_info.get('total_documents', 0),
-            'dimensions_analyzed': len(self.parameter_changes),
-            'new_dimensions': len(new_dims),
-            'modified_dimensions': len(modified_dims),
-            'metadata': self.metadata
+            "timestamp": self.timestamp,
+            "dataset_version": self.dataset_info.get("version"),
+            "total_documents": self.dataset_info.get("total_documents", 0),
+            "dimensions_analyzed": len(self.parameter_changes),
+            "new_dimensions": len(new_dims),
+            "modified_dimensions": len(modified_dims),
+            "metadata": self.metadata,
         }
 
     def format_text_report(self) -> str:
@@ -153,17 +157,17 @@ class RecalibrationReport:
         for change in self.parameter_changes:
             change_summary = change.get_change_summary()
 
-            if change_summary['type'] == 'new':
+            if change_summary["type"] == "new":
                 lines.append(f"\n[NEW] {change.dimension_name}")
                 lines.append(f"  Scoring Method: {change_summary['scoring_method']}")
                 lines.append(f"  Parameters: {json.dumps(change_summary['parameters'], indent=4)}")
             else:
                 lines.append(f"\n[MODIFIED] {change.dimension_name}")
                 lines.append(f"  Scoring Method: {change_summary['scoring_method']}")
-                if change_summary['changes']:
+                if change_summary["changes"]:
                     lines.append("  Changes:")
-                    for key, value in change_summary['changes'].items():
-                        if isinstance(value, dict) and 'old' in value:
+                    for key, value in change_summary["changes"].items():
+                        if isinstance(value, dict) and "old" in value:
                             lines.append(f"    {key}: {value['old']} → {value['new']}")
                         else:
                             lines.append(f"    {key}: {json.dumps(value, indent=6)}")
@@ -178,13 +182,13 @@ class RecalibrationReport:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         data = {
-            'summary': self.get_summary(),
-            'dataset_info': self.dataset_info,
-            'analysis_summary': self.analysis_summary,
-            'parameter_changes': [c.get_change_summary() for c in self.parameter_changes]
+            "summary": self.get_summary(),
+            "dataset_info": self.dataset_info,
+            "analysis_summary": self.analysis_summary,
+            "parameter_changes": [c.get_change_summary() for c in self.parameter_changes],
         }
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(data, f, indent=2)
 
         logger.info(f"Saved recalibration report to {output_path}")
@@ -216,10 +220,10 @@ class RecalibrationWorkflow:
         self.auto_select_method = auto_select_method
         self.analyzer = DistributionAnalyzer()
         self.deriver = ParameterDeriver(auto_select_method=auto_select_method)
-        self.dataset = None
-        self.analysis = None
-        self.derived_params = None
-        self.old_params = None
+        self.dataset: Optional[ValidationDataset] = None
+        self.analysis: Optional[DistributionAnalysis] = None
+        self.derived_params: Optional[Dict[str, DimensionParameters]] = None
+        self.old_params: Optional[Dict[str, DimensionParameters]] = None
         self.normality_results: Dict[str, NormalityResult] = {}
 
     def load_dataset(self, dataset_path: Path) -> ValidationDataset:
@@ -233,16 +237,13 @@ class RecalibrationWorkflow:
             ValidationDataset instance
         """
         logger.info(f"Loading validation dataset from {dataset_path}")
-        self.dataset = DatasetLoader.load_jsonl(dataset_path)
-        logger.info(
-            f"Loaded {len(self.dataset.documents)} documents "
-            f"(version: {self.dataset.version})"
-        )
-        return self.dataset
+        dataset = DatasetLoader.load_jsonl(dataset_path)
+        self.dataset = dataset
+        logger.info(f"Loaded {len(dataset.documents)} documents " f"(version: {dataset.version})")
+        return dataset
 
     def run_distribution_analysis(
-        self,
-        dimension_names: Optional[List[str]] = None
+        self, dimension_names: Optional[List[str]] = None
     ) -> DistributionAnalysis:
         """
         Run distribution analysis on loaded dataset.
@@ -257,10 +258,7 @@ class RecalibrationWorkflow:
             raise ValueError("No dataset loaded. Call load_dataset() first.")
 
         logger.info("Running distribution analysis...")
-        self.analysis = self.analyzer.analyze_dataset(
-            self.dataset,
-            dimension_names=dimension_names
-        )
+        self.analysis = self.analyzer.analyze_dataset(self.dataset, dimension_names=dimension_names)
         logger.info(
             f"Analyzed {len(self.analysis.dimensions)} dimensions "
             f"across {self.dataset.get_statistics()['total_documents']} documents"
@@ -268,8 +266,7 @@ class RecalibrationWorkflow:
         return self.analysis
 
     def derive_parameters(
-        self,
-        dimension_names: Optional[List[str]] = None
+        self, dimension_names: Optional[List[str]] = None
     ) -> Dict[str, DimensionParameters]:
         """
         Derive parameters from distribution analysis.
@@ -288,8 +285,7 @@ class RecalibrationWorkflow:
             logger.info("Using Shapiro-Wilk normality testing for method auto-selection")
 
         self.derived_params = self.deriver.derive_all_parameters(
-            self.analysis,
-            dimension_names=dimension_names
+            self.analysis, dimension_names=dimension_names
         )
 
         # Capture normality results if auto-selection was used
@@ -321,8 +317,7 @@ class RecalibrationWorkflow:
         return self.normality_results
 
     def load_existing_parameters(
-        self,
-        params_path: Path
+        self, params_path: Path
     ) -> Optional[Dict[str, DimensionParameters]]:
         """
         Load existing parameters from file.
@@ -338,9 +333,10 @@ class RecalibrationWorkflow:
             return None
 
         logger.info(f"Loading existing parameters from {params_path}")
-        self.old_params = ParameterDeriver.load_parameters(params_path)
-        logger.info(f"Loaded parameters for {len(self.old_params)} dimensions")
-        return self.old_params
+        params = ParameterDeriver.load_parameters(params_path)
+        self.old_params = params
+        logger.info(f"Loaded parameters for {len(params)} dimensions")
+        return params
 
     def generate_comparison_report(self) -> RecalibrationReport:
         """
@@ -362,15 +358,17 @@ class RecalibrationWorkflow:
 
         # Build report
         dataset_info = self.dataset.get_statistics() if self.dataset else {}
-        analysis_summary = {
-            'dataset_version': self.analysis.dataset_version,
-            'dimensions_analyzed': len(self.analysis.dimensions)
-        } if self.analysis else {}
+        analysis_summary = (
+            {
+                "dataset_version": self.analysis.dataset_version,
+                "dimensions_analyzed": len(self.analysis.dimensions),
+            }
+            if self.analysis
+            else {}
+        )
 
         report = RecalibrationReport(
-            dataset_info=dataset_info,
-            analysis_summary=analysis_summary,
-            parameter_changes=changes
+            dataset_info=dataset_info, analysis_summary=analysis_summary, parameter_changes=changes
         )
 
         logger.info(
@@ -380,11 +378,7 @@ class RecalibrationWorkflow:
 
         return report
 
-    def save_parameters(
-        self,
-        output_path: Path,
-        backup: bool = True
-    ) -> None:
+    def save_parameters(self, output_path: Path, backup: bool = True) -> None:
         """
         Save derived parameters to file.
 
@@ -404,9 +398,9 @@ class RecalibrationWorkflow:
 
         # Save parameters
         metadata = {
-            'recalibrated_at': datetime.now().isoformat(),
-            'dataset_version': self.dataset.version if self.dataset else 'unknown',
-            'dimensions_count': len(self.derived_params)
+            "recalibrated_at": datetime.now().isoformat(),
+            "dataset_version": self.dataset.version if self.dataset else "unknown",
+            "dimensions_count": len(self.derived_params),
         }
 
         self.deriver.save_parameters(self.derived_params, output_path, metadata=metadata)
@@ -418,7 +412,7 @@ class RecalibrationWorkflow:
         output_params_path: Path,
         existing_params_path: Optional[Path] = None,
         dimension_names: Optional[List[str]] = None,
-        backup: bool = True
+        backup: bool = True,
     ) -> Tuple[Dict[str, DimensionParameters], RecalibrationReport]:
         """
         Run complete recalibration workflow.
@@ -460,4 +454,5 @@ class RecalibrationWorkflow:
         logger.info("RECALIBRATION WORKFLOW COMPLETE")
         logger.info("=" * 80)
 
+        assert self.derived_params is not None  # Set by derive_parameters()
         return self.derived_params, report
