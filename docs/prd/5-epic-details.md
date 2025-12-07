@@ -1,145 +1,10 @@
-# WriteScore Product Requirements Document (PRD)
+# 5. Epic Details
 
-**Version:** 2.1
-**Status:** Active
-**Last Updated:** 2025-12-06
-**Product Version:** 6.3.0
-
----
-
-## 1. Goals and Background Context
-
-### 1.1 Goals
-
-- **Detect AI-generated writing patterns** across multiple linguistic dimensions with high accuracy
-- **Provide actionable feedback** with specific line-by-line suggestions for improving writing authenticity
-- **Score documents objectively** using a dual-score system that separates detection risk from writing quality
-- **Support iterative improvement** by tracking score history across editing sessions
-- **Scale to book-length documents** through intelligent sampling modes that balance speed vs. accuracy
-- **Enable customization** via domain-specific terms, dimension profiles, and recalibrated parameters
-- **Maintain scientific rigor** through percentile-anchored scoring derived from validated human/AI datasets
-
-### 1.2 Background Context
-
-As AI writing assistants (ChatGPT, Claude, etc.) have become ubiquitous, writers face a new challenge: their AI-assisted content often contains detectable patterns that undermine authenticity and trigger AI detection tools. These patterns include overuse of em-dashes, formulaic transitions ("Furthermore," "Moreover,"), uniform sentence lengths, and predictable vocabulary choices.
-
-WriteScore addresses this by providing writers with detailed analysis of their text across 18 linguistic dimensions—far more comprehensive than simple AI detectors that only give a binary "AI/human" verdict. Rather than just flagging content as AI-generated, WriteScore shows *exactly which patterns* trigger detection and *how to fix them*, enabling writers to maintain their authentic voice while leveraging AI assistance.
-
-**Target Users:** Individual writers improving their own content—technical writers, fiction authors, content creators, and anyone wanting to reduce AI-detectable patterns in their writing.
-
-### 1.3 Change Log
-
-| Date | Version | Description | Author |
-|------|---------|-------------|--------|
-| 2025-12-07 | 2.2 | Added Story 6.8: Mypy Type Compliance | PM Agent |
-| 2025-12-06 | 2.1 | Added Epic 6: Developer Experience & Security (Stories 6.1-6.7) | PM Agent |
-| 2025-12-02 | 2.0 | Restructured PRD to align with template; added full story AC | SM Agent |
-| 2025-11-26 | 1.0 | Reverse-engineered PRD from existing codebase v6.3.0 | PM Agent |
-
----
-
-## 2. Requirements
-
-### 2.1 Functional Requirements
-
-- **FR1:** The system shall analyze Markdown text documents and produce scores across multiple linguistic dimensions
-- **FR2:** The system shall calculate a dual score: Detection Risk (0-100, lower=better) and Quality Score (0-100, higher=better)
-- **FR3:** The system shall support four analysis modes: FAST (truncated), ADAPTIVE (smart sampling), SAMPLING (configurable), and FULL (complete)
-- **FR4:** The system shall provide detailed line-by-line diagnostics with context, problem identification, and specific replacement suggestions
-- **FR5:** The system shall detect AI vocabulary patterns including "delve," "robust," "leverage," "harness," and 30+ other AI-typical words
-- **FR6:** The system shall detect formatting patterns including em-dash overuse (10x more common in AI text than human)
-- **FR7:** The system shall measure sentence burstiness (variation in sentence length) as a key human-vs-AI discriminator
-- **FR8:** The system shall track score history across multiple editing iterations for a single document
-- **FR9:** The system shall support batch analysis of all .md files in a directory
-- **FR10:** The system shall output results in text, JSON, or TSV formats
-- **FR11:** The system shall allow recalibration of scoring parameters from validation datasets
-- **FR12:** The system shall support parameter version management (deploy, rollback, diff, versions)
-- **FR13:** The system shall provide dimension profiles (fast/balanced/full) to control which dimensions are loaded
-- **FR14:** The system shall allow custom domain-specific terms to be configured for technical writing analysis
-- **FR15:** The system shall strip HTML comments (metadata blocks) before analysis to avoid false positives
-
-### 2.2 Non-Functional Requirements
-
-- **NFR1:** FAST mode shall complete analysis in 5-15 seconds for any document size
-- **NFR2:** ADAPTIVE mode shall complete analysis in 30-240 seconds for book-chapter-length documents (~90 pages)
-- **NFR3:** FULL mode may take 5-20 minutes for large documents but shall analyze 100% of content
-- **NFR4:** The system shall support Python 3.9, 3.10, 3.11, and 3.12
-- **NFR5:** The system shall be installable via `pip install -e .` with optional dependency groups (dev, ml)
-- **NFR6:** The scoring convention shall use 0-100 scale where 100 = most human-like consistently across all dimensions
-- **NFR7:** The system shall provide meaningful results for documents as short as 50 characters
-- **NFR8:** The system shall handle documents up to 500,000+ characters (book-length) via sampling modes
-- **NFR9:** Dimension analyzers shall self-register via the DimensionRegistry pattern for extensibility
-- **NFR10:** The CLI shall provide interactive confirmation for FULL mode on large documents (>500k chars)
-- **NFR11:** The system shall maintain backward compatibility with existing `.ai-analysis-history` files
-- **NFR12:** The system shall support existing parameter file formats (JSON and YAML)
-- **NFR13:** CLI command structure shall remain stable (`writescore analyze`, `writescore recalibrate`)
-
----
-
-## 3. Technical Assumptions
-
-### 3.1 Repository Structure: Monorepo
-
-Single repository containing all WriteScore components:
-- `src/writescore/` - Main package (src-layout per PEP 517/518)
-- `tests/` - Test suite (unit, integration, accuracy, performance)
-- `docs/` - Documentation and stories
-- `config/` - Scoring parameters and configuration
-
-### 3.2 Service Architecture
-
-**Local CLI Tool (Monolith)**
-
-WriteScore is a self-contained command-line application with no external service dependencies:
-- Single Python package installed via pip
-- File-based history storage (`.ai-analysis-history/`)
-- No database or network infrastructure required
-- Entry point: `writescore` CLI command
-
-### 3.3 Testing Requirements
-
-**Full Testing Pyramid:**
-- **Unit tests:** Per-module coverage (target: 80%+)
-- **Integration tests:** Cross-module functionality
-- **Accuracy tests:** Validation against human/AI document corpus
-- **Performance tests:** Benchmarking analysis modes
-
-**Test Markers:** `slow`, `integration`, `accuracy`, `performance_local`
-**Timeout:** 300s for individual tests
-**Framework:** pytest with pytest-cov, pytest-timeout
-
-### 3.4 Additional Technical Assumptions
-
-- **Language:** Python 3.9+ (supports 3.9, 3.10, 3.11, 3.12)
-- **CLI Framework:** Click 8.0+
-- **NLP Libraries:** NLTK 3.8+, spaCy 3.7+, textstat 0.7.3+
-- **ML/Transformers:** transformers 4.35+, torch 2.0+, sentence-transformers 2.0+
-- **Linting:** ruff with E, F, W, I, UP, B, C4, SIM rules
-- **Docstrings:** Google style with type hints
-- **See:** `docs/technical-reference.md` for complete technical specifications
-
----
-
-## 4. Epic List
-
-| Epic | Title | Goal |
-|------|-------|------|
-| **1** | Foundation & Dimension Architecture | Transform WriteScore into a plugin-based architecture with self-registering dimensions |
-| **2** | Advanced Dimensions & Scoring | Add sophisticated linguistic dimensions and percentile-anchored scoring accuracy |
-| **3** | Content-Aware Analysis | Adapt analysis based on auto-detected content type for genre-appropriate scoring |
-| **4** | Repository Extraction | Extract WriteScore into standalone GitHub repository with CI/CD |
-| **5** | README Modernization | Revamp README to follow 2025 best practices for user-centric documentation |
-| **6** | Developer Experience & Security | Streamline onboarding, enhance CI/CD, and leverage GitHub security features |
-
----
-
-## 5. Epic Details
-
-### 5.1 Epic 1: Foundation & Dimension Architecture
+## 5.1 Epic 1: Foundation & Dimension Architecture
 
 **Goal:** Transform WriteScore from a monolithic analysis system into a plugin-based, self-registering architecture where dimensions declare their own metadata, weights, and scoring logic—enabling dynamic dimension discovery without core code modifications.
 
-#### Story 1.1: Enhanced Dimension Base Contract
+### Story 1.1: Enhanced Dimension Base Contract
 
 **As a** dimension developer,
 **I want** dimensions to declare all metadata (weight, tiers, recommendations),
@@ -157,7 +22,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 1.2: Dimension Registry
+### Story 1.2: Dimension Registry
 
 **As a** system architect,
 **I want** a central registry where dimensions self-register,
@@ -176,7 +41,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 1.3: Weight Validation Mediator
+### Story 1.3: Weight Validation Mediator
 
 **As a** system architect,
 **I want** weight distribution validated across all dimensions,
@@ -191,7 +56,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 1.4: Refactor Existing Dimensions
+### Story 1.4: Refactor Existing Dimensions
 
 **As a** maintainer,
 **I want** all existing dimensions to adopt the new DimensionStrategy contract,
@@ -210,7 +75,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 1.4a: Split Multi-Concern Dimensions
+### Story 1.4a: Split Multi-Concern Dimensions
 
 **As a** maintainer,
 **I want** multi-concern dimensions split into focused single-purpose dimensions,
@@ -224,7 +89,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 1.5: Evidence Extraction
+### Story 1.5: Evidence Extraction
 
 **As a** user analyzing documents,
 **I want** line-by-line evidence extraction,
@@ -238,7 +103,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 1.16: Fix Dynamic Reporting Architecture
+### Story 1.16: Fix Dynamic Reporting Architecture
 
 **As a** maintainer,
 **I want** dynamic dimension loading to work correctly with reporting,
@@ -251,7 +116,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 1.17: Rename to WriteScore
+### Story 1.17: Rename to WriteScore
 
 **As a** product owner,
 **I want** the tool rebranded from "AI Pattern Analyzer" to "WriteScore",
@@ -265,11 +130,11 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-### 5.2 Epic 2: Advanced Dimensions & Scoring
+## 5.2 Epic 2: Advanced Dimensions & Scoring
 
 **Goal:** Expand WriteScore's detection capabilities with sophisticated linguistic dimensions (figurative language, pragmatic markers, semantic coherence) while improving scoring accuracy through percentile-anchored calibration and research-validated thresholds.
 
-#### Story 2.1: Figurative Language Dimension
+### Story 2.1: Figurative Language Dimension
 
 **As a** data analyst using the AI pattern analyzer,
 **I want** to detect figurative language patterns (metaphors, similes, idioms) in text,
@@ -286,7 +151,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 2.2: Pragmatic Markers Dimension
+### Story 2.2: Pragmatic Markers Dimension
 
 **As a** analyst,
 **I want** to detect discourse markers and pragmatic signals,
@@ -300,7 +165,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 2.3: Semantic Coherence Dimension
+### Story 2.3: Semantic Coherence Dimension
 
 **As a** developer implementing AI detection,
 **I want** a semantic coherence dimension measuring topic consistency,
@@ -317,7 +182,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 2.4: Dimension Scoring Optimization
+### Story 2.4: Dimension Scoring Optimization
 
 **As a** maintainer,
 **I want** scoring algorithms optimized across all dimensions,
@@ -332,7 +197,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 2.5: Percentile-Anchored Scoring
+### Story 2.5: Percentile-Anchored Scoring
 
 **As a** analyst,
 **I want** scoring thresholds derived from validation datasets,
@@ -346,7 +211,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 2.6: Expand Pragmatic Markers Lexicon
+### Story 2.6: Expand Pragmatic Markers Lexicon
 
 **As a** analyst,
 **I want** expanded pragmatic marker detection,
@@ -359,7 +224,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 2.9: Short Content Optimization
+### Story 2.9: Short Content Optimization
 
 **As a** user analyzing short content,
 **I want** accurate results for documents under 500 characters,
@@ -372,11 +237,11 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-### 5.3 Epic 3: Content-Aware Analysis
+## 5.3 Epic 3: Content-Aware Analysis
 
 **Goal:** Adapt WriteScore's analysis based on automatically-detected or user-specified content type (academic, technical, creative, blog, etc.), enabling genre-appropriate dimension weighting and scoring thresholds.
 
-#### Story 3.1: Content Type Detection
+### Story 3.1: Content Type Detection
 
 **As a** technical writer analyzing documents,
 **I want** the analyzer to detect or accept content type,
@@ -391,7 +256,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 3.2: Content-Aware Dimension Weighting
+### Story 3.2: Content-Aware Dimension Weighting
 
 **As a** user,
 **I want** dimension weights adjusted based on content type,
@@ -404,7 +269,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 3.3: Content-Aware Scoring Thresholds
+### Story 3.3: Content-Aware Scoring Thresholds
 
 **As a** user,
 **I want** scoring thresholds adjusted for content type,
@@ -417,7 +282,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Stories 3.4-3.8: Additional Dimensions
+### Stories 3.4-3.8: Additional Dimensions
 
 | Story | Title | Description |
 |-------|-------|-------------|
@@ -429,11 +294,11 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-### 5.4 Epic 4: Repository Extraction
+## 5.4 Epic 4: Repository Extraction
 
 **Goal:** Extract WriteScore into a standalone GitHub repository with industry-standard Python project structure, CI/CD pipeline, and automated release management.
 
-#### Story 4.1: Repository Setup & Source Migration
+### Story 4.1: Repository Setup & Source Migration
 
 **As a** maintainer,
 **I want** WriteScore in a standalone repository,
@@ -447,7 +312,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 4.2: Test & Documentation Migration
+### Story 4.2: Test & Documentation Migration
 
 **As a** maintainer,
 **I want** tests and docs migrated to the new repository,
@@ -460,7 +325,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 4.3: CI/CD & Release Automation
+### Story 4.3: CI/CD & Release Automation
 
 **As a** maintainer,
 **I want** automated CI/CD pipeline,
@@ -473,11 +338,11 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-### 5.5 Epic 5: README Modernization
+## 5.5 Epic 5: README Modernization
 
 **Goal:** Transform README.md into a user-centric, 2025 best-practices document that accelerates user onboarding and establishes WriteScore as a credible project.
 
-#### Story 5.1: Modernize README 2025 Best Practices
+### Story 5.1: Modernize README 2025 Best Practices
 
 **As a** potential user landing on the repository,
 **I want** a clear, scannable README,
@@ -495,11 +360,11 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-### 5.6 Epic 6: Developer Experience & Security
+## 5.6 Epic 6: Developer Experience & Security
 
 **Goal:** Improve developer onboarding with streamlined setup options, enhance CI/CD with caching and comprehensive validation, and leverage GitHub Advanced Security features available free for public repositories.
 
-#### Story 6.1: Fix Installation Issues
+### Story 6.1: Fix Installation Issues
 
 **As a** user installing WriteScore via the Quick Start instructions,
 **I want** complete dependency declarations and accurate documentation,
@@ -508,12 +373,12 @@ WriteScore is a self-contained command-line application with no external service
 **Acceptance Criteria:**
 1. `scikit-learn>=1.3.0` added to pyproject.toml dependencies
 2. README Quick Start includes spaCy model download step
-3. Fresh install via `pip install -e .` succeeds without errors
+3. Fresh install via `uv sync` succeeds without errors
 4. `writescore analyze` works with all dimensions enabled
 
 ---
 
-#### Story 6.2: Developer Environment Setup
+### Story 6.2: Developer Environment Setup
 
 **As a** user or contributor to WriteScore,
 **I want** streamlined environment setup with choice of native or containerized development,
@@ -528,7 +393,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 6.3: README Requirements and Troubleshooting
+### Story 6.3: README Requirements and Troubleshooting
 
 **As a** user evaluating or installing WriteScore,
 **I want** clear system requirements and troubleshooting guidance,
@@ -542,7 +407,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 6.4: CI Pipeline Improvements
+### Story 6.4: CI Pipeline Improvements
 
 **As a** contributor to WriteScore,
 **I want** faster CI builds with comprehensive security scanning,
@@ -557,7 +422,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 6.5: Dependabot and Security Settings
+### Story 6.5: Dependabot and Security Settings
 
 **As a** maintainer of WriteScore,
 **I want** automated dependency updates and a clear security policy,
@@ -572,7 +437,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 6.6: README Status Badges
+### Story 6.6: README Status Badges
 
 **As a** potential user or contributor evaluating WriteScore,
 **I want** to see at-a-glance status indicators in the README,
@@ -588,7 +453,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 6.7: Contributor Experience
+### Story 6.7: Contributor Experience
 
 **As a** potential contributor to WriteScore,
 **I want** clear community guidelines and structured templates for issues and PRs,
@@ -603,7 +468,7 @@ WriteScore is a self-contained command-line application with no external service
 
 ---
 
-#### Story 6.8: Mypy Type Compliance
+### Story 6.8: Mypy Type Compliance
 
 **As a** contributor to WriteScore,
 **I want** the codebase to pass mypy type checking,
@@ -618,19 +483,3 @@ WriteScore is a self-contained command-line application with no external service
 6. Mypy configuration added to `pyproject.toml`
 
 ---
-
-## 6. Checklist Results Report
-
-*To be populated after PM checklist execution.*
-
----
-
-## 7. Next Steps
-
-### 7.1 Architect Prompt
-
-> Review the WriteScore PRD and `docs/technical-reference.md`. Design the architecture for Epic 3 (Content-Aware Analysis), focusing on: (1) ContentTypeDetector module design with feature extractors, (2) Weight/threshold adjustment mechanism integrated with existing DimensionRegistry, (3) CLI integration with AnalysisConfig. Produce architecture document with component diagrams and interface specifications.
-
-### 7.2 Developer Prompt
-
-> Implement Story 3.1 (Content Type Detection) following the architecture document. Create `core/content_type_detector.py` with multi-feature voting ensemble. Add CLI `--content-type` flag. Ensure 85%+ test coverage.
