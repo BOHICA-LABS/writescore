@@ -1,0 +1,38 @@
+# Configuration for actions/labeler
+# https://github.com/actions/labeler
+
+# Area labels - based on code location
+"area: cli":
+  - changed-files:
+      - any-glob-to-any-file: src/writescore/cli/**
+
+"area: core":
+  - changed-files:
+      - any-glob-to-any-file: src/writescore/core/**
+
+"area: dimensions":
+  - changed-files:
+      - any-glob-to-any-file: src/writescore/dimensions/**
+
+"area: scoring":
+  - changed-files:
+      - any-glob-to-any-file: src/writescore/scoring/**
+
+# Type labels - based on file patterns
+"type: docs":
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - docs/**
+
+"type: test":
+  - changed-files:
+      - any-glob-to-any-file: tests/**
+
+"type: build":
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**
+          - pyproject.toml
+          - Justfile
+          - .pre-commit-config.yaml
