@@ -1,7 +1,7 @@
 # WriteScore
 
 <p align="center">
-  <img src="docs/assets/logo.svg" alt="WriteScore Logo" width="200">
+  <img src="https://raw.githubusercontent.com/BOHICA-LABS/writescore/main/docs/assets/logo.svg" alt="WriteScore Logo" width="200">
 </p>
 
 <!-- Project Info -->
@@ -23,7 +23,7 @@
 
 > **Identify AI patterns in your writing and get actionable feedback to sound more human.**
 
-![WriteScore CLI demo showing terminal output with analysis scores and recommendations](docs/assets/demo.gif)
+![WriteScore CLI demo showing terminal output with analysis scores and recommendations](https://raw.githubusercontent.com/BOHICA-LABS/writescore/main/docs/assets/demo.gif)
 
 ## Quick Start
 
