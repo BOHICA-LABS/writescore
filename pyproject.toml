@@ -60,9 +60,10 @@ ml = [
 writescore = "writescore.cli.main:cli"
 
 [project.urls]
-Homepage = "https://github.com/jmagady/writescore"
-Repository = "https://github.com/jmagady/writescore"
-Documentation = "https://github.com/jmagady/writescore#readme"
+Homepage = "https://github.com/BOHICA-LABS/writescore"
+Repository = "https://github.com/BOHICA-LABS/writescore"
+Documentation = "https://github.com/BOHICA-LABS/writescore#readme"
+Issues = "https://github.com/BOHICA-LABS/writescore/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
