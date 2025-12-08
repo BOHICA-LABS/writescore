@@ -14,7 +14,7 @@ import statistics
 import sys
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 # Required dependencies
 from marko import Markdown
@@ -60,71 +60,155 @@ class AIPatternAnalyzer:
 
     # Replacement suggestions for AI vocabulary (for detailed mode)
     AI_VOCAB_REPLACEMENTS = {
-        r'\bdelv(e|es|ing)\b': ['explore', 'examine', 'investigate', 'look at', 'dig into'],
-        r'\brobust(ness)?\b': ['reliable', 'powerful', 'solid', 'effective', 'well-designed'],
-        r'\bleverag(e|es|ing)\b': ['use', 'apply', 'take advantage of', 'employ', 'work with'],
-        r'\bharness(es|ing)?\b': ['use', 'apply', 'employ', 'tap into', 'utilize'],
-        r'\bfacilitat(e|es|ing)\b': ['enable', 'help', 'make easier', 'allow', 'support'],
-        r'\bunderscore(s|d|ing)?\b': ['emphasize', 'highlight', 'stress', 'point out', 'show'],
-        r'\bpivotal\b': ['key', 'important', 'critical', 'essential', 'crucial'],
-        r'\bseamless(ly)?\b': ['smooth', 'easy', 'straightforward', 'effortless', 'natural'],
-        r'\bholistic(ally)?\b': ['complete', 'comprehensive', 'full', 'thorough', 'whole'],
-        r'\bcomprehensive(ly)?\b': ['thorough', 'complete', 'detailed', 'full', 'extensive'],
-        r'\boptimiz(e|es|ing|ation)\b': ['improve', 'enhance', 'fine-tune', 'make better', 'refine'],
-        r'\bstreamlin(e|ed|ing)\b': ['simplify', 'improve', 'make efficient', 'refine', 'enhance'],
-        r'\butiliz(e|es|ation|ing)\b': ['use', 'employ', 'apply', 'work with'],
-        r'\bunpack(s|ing)?\b': ['explain', 'explore', 'break down', 'examine', 'analyze'],
-        r'\bmyriad\b': ['many', 'countless', 'numerous', 'various', 'multiple'],
-        r'\bplethora\b': ['many', 'abundance', 'wealth', 'plenty', 'lots'],
-        r'\bparamount\b': ['critical', 'essential', 'crucial', 'vital', 'key'],
-        r'\bquintessential\b': ['typical', 'classic', 'perfect example', 'ideal', 'archetypal'],
-        r'\binnovative\b': ['new', 'creative', 'novel', 'original', 'fresh'],
-        r'\bcutting-edge\b': ['advanced', 'modern', 'latest', 'state-of-the-art', 'new'],
-        r'\brevolutionary\b': ['groundbreaking', 'major', 'significant', 'transformative', 'game-changing'],
-        r'\bgame-changing\b': ['significant', 'major', 'important', 'transformative', 'impactful'],
-        r'\btransformative\b': ['significant', 'major', 'powerful', 'game-changing', 'impactful'],
-        r'\bdive deep\b': ['explore thoroughly', 'examine closely', 'investigate', 'look closely at', 'study'],
-        r'\bdeep dive\b': ['thorough look', 'detailed examination', 'close look', 'in-depth analysis', 'careful study'],
-        r'\becosystem\b': ['environment', 'system', 'network', 'platform', 'framework'],
-        r'\blandscape\b': ['field', 'area', 'space', 'domain', 'world'],
-        r'\bparadigm\s+shift\b': ['major change', 'fundamental shift', 'big change', 'transformation', 'sea change'],
-        r'\bsynerg(y|istic)\b': ['cooperation', 'collaboration', 'combined effect', 'teamwork', 'partnership'],
-        r'\bcommence(s|d)?\b': ['start', 'begin', 'initiate', 'launch', 'kick off'],
-        r'\bendeavor(s)?\b': ['effort', 'project', 'attempt', 'undertaking', 'initiative'],
+        r"\bdelv(e|es|ing)\b": ["explore", "examine", "investigate", "look at", "dig into"],
+        r"\brobust(ness)?\b": ["reliable", "powerful", "solid", "effective", "well-designed"],
+        r"\bleverag(e|es|ing)\b": ["use", "apply", "take advantage of", "employ", "work with"],
+        r"\bharness(es|ing)?\b": ["use", "apply", "employ", "tap into", "utilize"],
+        r"\bfacilitat(e|es|ing)\b": ["enable", "help", "make easier", "allow", "support"],
+        r"\bunderscore(s|d|ing)?\b": ["emphasize", "highlight", "stress", "point out", "show"],
+        r"\bpivotal\b": ["key", "important", "critical", "essential", "crucial"],
+        r"\bseamless(ly)?\b": ["smooth", "easy", "straightforward", "effortless", "natural"],
+        r"\bholistic(ally)?\b": ["complete", "comprehensive", "full", "thorough", "whole"],
+        r"\bcomprehensive(ly)?\b": ["thorough", "complete", "detailed", "full", "extensive"],
+        r"\boptimiz(e|es|ing|ation)\b": [
+            "improve",
+            "enhance",
+            "fine-tune",
+            "make better",
+            "refine",
+        ],
+        r"\bstreamlin(e|ed|ing)\b": ["simplify", "improve", "make efficient", "refine", "enhance"],
+        r"\butiliz(e|es|ation|ing)\b": ["use", "employ", "apply", "work with"],
+        r"\bunpack(s|ing)?\b": ["explain", "explore", "break down", "examine", "analyze"],
+        r"\bmyriad\b": ["many", "countless", "numerous", "various", "multiple"],
+        r"\bplethora\b": ["many", "abundance", "wealth", "plenty", "lots"],
+        r"\bparamount\b": ["critical", "essential", "crucial", "vital", "key"],
+        r"\bquintessential\b": ["typical", "classic", "perfect example", "ideal", "archetypal"],
+        r"\binnovative\b": ["new", "creative", "novel", "original", "fresh"],
+        r"\bcutting-edge\b": ["advanced", "modern", "latest", "state-of-the-art", "new"],
+        r"\brevolutionary\b": [
+            "groundbreaking",
+            "major",
+            "significant",
+            "transformative",
+            "game-changing",
+        ],
+        r"\bgame-changing\b": ["significant", "major", "important", "transformative", "impactful"],
+        r"\btransformative\b": ["significant", "major", "powerful", "game-changing", "impactful"],
+        r"\bdive deep\b": [
+            "explore thoroughly",
+            "examine closely",
+            "investigate",
+            "look closely at",
+            "study",
+        ],
+        r"\bdeep dive\b": [
+            "thorough look",
+            "detailed examination",
+            "close look",
+            "in-depth analysis",
+            "careful study",
+        ],
+        r"\becosystem\b": ["environment", "system", "network", "platform", "framework"],
+        r"\blandscape\b": ["field", "area", "space", "domain", "world"],
+        r"\bparadigm\s+shift\b": [
+            "major change",
+            "fundamental shift",
+            "big change",
+            "transformation",
+            "sea change",
+        ],
+        r"\bsynerg(y|istic)\b": [
+            "cooperation",
+            "collaboration",
+            "combined effect",
+            "teamwork",
+            "partnership",
+        ],
+        r"\bcommence(s|d)?\b": ["start", "begin", "initiate", "launch", "kick off"],
+        r"\bendeavor(s)?\b": ["effort", "project", "attempt", "undertaking", "initiative"],
     }
 
     # Transition replacements (for detailed mode)
     TRANSITION_REPLACEMENTS = {
-        'Furthermore,': ['Plus,', 'What\'s more,', 'Beyond that,', 'And here\'s the thing,', 'On top of that,'],
-        'Moreover,': ['Plus,', 'On top of that,', 'And,', 'What\'s more,', 'Beyond that,'],
-        'Additionally,': ['Also,', 'Plus,', 'And,', 'What\'s more,', 'On top of that,'],
-        'In addition,': ['Also,', 'Plus,', 'What\'s more,', 'Beyond that,', 'And,'],
-        'First and foremost,': ['First,', 'To start,', 'Most importantly,', 'Above all,', 'First off,'],
-        'It is important to note that': ['Note that', 'Keep in mind', 'Remember', 'Worth noting:', 'Key point:'],
-        'It is worth mentioning that': ['Worth noting', 'Keep in mind', 'Note that', 'Also', 'Interestingly,'],
-        'When it comes to': ['For', 'With', 'Regarding', 'As for', 'Looking at'],
-        'In conclusion,': ['Finally,', 'To sum up,', 'In short,', 'Bottom line:', 'To wrap up,'],
-        'To summarize,': ['In short,', 'Briefly,', 'To sum up,', 'Bottom line:', 'In a nutshell,'],
-        'In summary,': ['In short,', 'Briefly,', 'To recap,', 'Bottom line:', 'To sum up,'],
-        'As mentioned earlier,': ['Earlier,', 'As noted,', 'Remember,', 'Recall that', 'As we saw,'],
-        'It should be noted that': ['Note that', 'Keep in mind', 'Remember', 'Worth noting:', 'Important:'],
-        'With that said,': ['That said,', 'Still,', 'Even so,', 'But', 'However,'],
-        'Having said that,': ['That said,', 'Still,', 'Even so,', 'But', 'However,'],
+        "Furthermore,": [
+            "Plus,",
+            "What's more,",
+            "Beyond that,",
+            "And here's the thing,",
+            "On top of that,",
+        ],
+        "Moreover,": ["Plus,", "On top of that,", "And,", "What's more,", "Beyond that,"],
+        "Additionally,": ["Also,", "Plus,", "And,", "What's more,", "On top of that,"],
+        "In addition,": ["Also,", "Plus,", "What's more,", "Beyond that,", "And,"],
+        "First and foremost,": [
+            "First,",
+            "To start,",
+            "Most importantly,",
+            "Above all,",
+            "First off,",
+        ],
+        "It is important to note that": [
+            "Note that",
+            "Keep in mind",
+            "Remember",
+            "Worth noting:",
+            "Key point:",
+        ],
+        "It is worth mentioning that": [
+            "Worth noting",
+            "Keep in mind",
+            "Note that",
+            "Also",
+            "Interestingly,",
+        ],
+        "When it comes to": ["For", "With", "Regarding", "As for", "Looking at"],
+        "In conclusion,": ["Finally,", "To sum up,", "In short,", "Bottom line:", "To wrap up,"],
+        "To summarize,": ["In short,", "Briefly,", "To sum up,", "Bottom line:", "In a nutshell,"],
+        "In summary,": ["In short,", "Briefly,", "To recap,", "Bottom line:", "To sum up,"],
+        "As mentioned earlier,": [
+            "Earlier,",
+            "As noted,",
+            "Remember,",
+            "Recall that",
+            "As we saw,",
+        ],
+        "It should be noted that": [
+            "Note that",
+            "Keep in mind",
+            "Remember",
+            "Worth noting:",
+            "Important:",
+        ],
+        "With that said,": ["That said,", "Still,", "Even so,", "But", "However,"],
+        "Having said that,": ["That said,", "Still,", "Even so,", "But", "However,"],
     }
 
     # Domain-specific technical terms (customizable per project)
     DOMAIN_TERMS_DEFAULT = [
         # Example cybersecurity terms - customize for your domain
-        r'\bTriton\b', r'\bTrisis\b', r'\bSIS\b', r'\bPLC\b', r'\bSCADA\b',
-        r'\bDCS\b', r'\bICS\b', r'\bOT\b', r'\bransomware\b', r'\bmalware\b',
-        r'\bNIST\b', r'\bISA\b', r'\bIEC\b', r'\bMITRE\b', r'\bSOC\b',
-        r'\bSIEM\b', r'\bIDS\b', r'\bIPS\b',
+        r"\bTriton\b",
+        r"\bTrisis\b",
+        r"\bSIS\b",
+        r"\bPLC\b",
+        r"\bSCADA\b",
+        r"\bDCS\b",
+        r"\bICS\b",
+        r"\bOT\b",
+        r"\bransomware\b",
+        r"\bmalware\b",
+        r"\bNIST\b",
+        r"\bISA\b",
+        r"\bIEC\b",
+        r"\bMITRE\b",
+        r"\bSOC\b",
+        r"\bSIEM\b",
+        r"\bIDS\b",
+        r"\bIPS\b",
     ]
 
     def __init__(
-        self,
-        domain_terms: Optional[List[str]] = None,
-        config: Optional[AnalysisConfig] = None
+        self, domain_terms: Optional[List[str]] = None, config: Optional[AnalysisConfig] = None
     ):
         """
         Initialize analyzer with config-driven dimension loading.
@@ -134,44 +218,48 @@ class AIPatternAnalyzer:
             config: Optional AnalysisConfig (uses DEFAULT_CONFIG if not provided)
         """
         self.domain_terms = domain_terms or self.DOMAIN_TERMS_DEFAULT
-        self.lines = []  # Will store line-by-line content for detailed mode
+        self.lines: List[str] = []  # Will store line-by-line content for detailed mode
         self.config = config or DEFAULT_CONFIG
 
         # HTML comment pattern (metadata blocks to ignore)
-        self._html_comment_pattern = re.compile(r'<!--.*?-->', re.DOTALL)
+        self._html_comment_pattern = re.compile(r"<!--.*?-->", re.DOTALL)
 
         # Phase 3: AST parser and cache (marko)
         self._markdown_parser = None
-        self._ast_cache = {}
+        self._ast_cache: Dict[str, Any] = {}
 
         # Story 1.4.11: Config-driven dimension loading via DimensionLoader
         # Register custom profiles from config if provided
         if self.config.custom_profiles:
             for profile_name, dimensions in self.config.custom_profiles.items():
                 DimensionLoader.register_custom_profile(profile_name, dimensions)
-                print(f"Registered custom profile '{profile_name}' with dimensions: {dimensions}",
-                      file=sys.stderr)
+                print(
+                    f"Registered custom profile '{profile_name}' with dimensions: {dimensions}",
+                    file=sys.stderr,
+                )
 
         # Load ONLY configured dimensions (lazy, selective loading)
         loader = DimensionLoader()
         load_results = loader.load_from_config(self.config)
 
         # Validate load results
-        if load_results['failed']:
-            failed_str = ', '.join(f"{k}: {v}" for k, v in load_results['failed'].items())
+        if load_results["failed"]:
+            failed_str = ", ".join(f"{k}: {v}" for k, v in load_results["failed"].items())
             raise RuntimeError(f"Failed to load dimensions: {failed_str}")
 
         # Build dimensions dict from ONLY the dimensions loaded in this session
         self.dimensions = {}
-        for dim_name in load_results['loaded']:
+        for dim_name in load_results["loaded"]:
             if DimensionRegistry.has(dim_name):
                 self.dimensions[dim_name] = DimensionRegistry.get(dim_name)
 
         # Log what was loaded
-        loaded_count = len(load_results['loaded'])
+        loaded_count = len(load_results["loaded"])
         profile = self.config.dimension_profile
-        print(f"Loaded {loaded_count} dimensions from profile '{profile}': {load_results['loaded']}",
-              file=sys.stderr)
+        print(
+            f"Loaded {loaded_count} dimensions from profile '{profile}': {load_results['loaded']}",
+            file=sys.stderr,
+        )
 
         # Validate expected dimensions loaded
         if loaded_count == 0:
@@ -204,7 +292,12 @@ class AIPatternAnalyzer:
             return ast
         except Exception as e:
             import warnings
-            warnings.warn(f"Markdown parsing failed: {e}. Falling back to regex analysis.", UserWarning, stacklevel=2)
+
+            warnings.warn(
+                f"Markdown parsing failed: {e}. Falling back to regex analysis.",
+                UserWarning,
+                stacklevel=2,
+            )
             return None
 
     def _walk_ast(self, node, node_type=None):
@@ -215,7 +308,7 @@ class AIPatternAnalyzer:
             nodes.append(node)
 
         # Recursively process children
-        if hasattr(node, 'children') and node.children:
+        if hasattr(node, "children") and node.children:
             for child in node.children:
                 nodes.extend(self._walk_ast(child, node_type))
 
@@ -223,16 +316,16 @@ class AIPatternAnalyzer:
 
     def _extract_text_from_node(self, node) -> str:
         """Extract plain text from AST node recursively."""
-        if hasattr(node, 'children') and node.children:
-            return ''.join([self._extract_text_from_node(child) for child in node.children])
-        elif hasattr(node, 'children') and isinstance(node.children, str):
+        if hasattr(node, "children") and node.children:
+            return "".join([self._extract_text_from_node(child) for child in node.children])
+        elif hasattr(node, "children") and isinstance(node.children, str):
             return node.children
-        elif hasattr(node, 'dest'):  # Link destination
-            return ''
+        elif hasattr(node, "dest"):  # Link destination
+            return ""
         elif isinstance(node, str):
             return node
         else:
-            return ''
+            return ""
 
     # ========================================================================
     # PREPROCESSING
@@ -240,24 +333,22 @@ class AIPatternAnalyzer:
 
     def _strip_html_comments(self, text: str) -> str:
         """Remove HTML comment blocks (metadata) from text for analysis."""
-        return self._html_comment_pattern.sub('', text)
+        return self._html_comment_pattern.sub("", text)
 
     def _is_line_in_html_comment(self, line: str) -> bool:
         """Check if a line is inside or is an HTML comment."""
         # Line contains complete comment
-        if '<!--' in line and '-->' in line:
+        if "<!--" in line and "-->" in line:
             return True
         # Line is start or middle of comment
-        return bool('<!--' in line or '-->' in line)
+        return bool("<!--" in line or "-->" in line)
 
     # ========================================================================
     # MAIN ANALYSIS METHOD
     # ========================================================================
 
     def analyze_file(
-        self,
-        file_path: str,
-        config: Optional[AnalysisConfig] = None
+        self, file_path: str, config: Optional[AnalysisConfig] = None
     ) -> AnalysisResults:
         """
         Analyze a single markdown file for AI patterns.
@@ -282,7 +373,7 @@ class AIPatternAnalyzer:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             text = f.read()
 
         # Strip HTML comments (metadata blocks) before analysis
@@ -299,11 +390,11 @@ class AIPatternAnalyzer:
         for dim_name, dim in self.dimensions.items():
             try:
                 # Prepare kwargs based on dimension needs
-                kwargs = {'config': config}
+                kwargs: Dict[str, Any] = {"config": config}
 
                 # Dimension-specific kwargs
-                if dim_name in ['structure', 'formatting']:
-                    kwargs['word_count'] = word_count
+                if dim_name in ["structure", "formatting"]:
+                    kwargs["word_count"] = word_count
 
                 # Execute analysis
                 result = dim.analyze(text, lines, **kwargs)
@@ -311,166 +402,177 @@ class AIPatternAnalyzer:
 
             except Exception as e:
                 print(f"Warning: {dim_name} analysis failed: {e}", file=sys.stderr)
-                dimension_results[dim_name] = {'available': False, 'error': str(e)}
+                dimension_results[dim_name] = {"available": False, "error": str(e)}
 
         # Story 1.10.1: Enrich dimension results with tier/weight/score metadata
         dimension_results = self._enrich_dimension_results(dimension_results)
 
         # Extract dimension results for backward compatibility with result building
         # These may be empty dicts if dimension not loaded
-        perplexity_results = dimension_results.get('perplexity', {})
-        burstiness_results = dimension_results.get('burstiness', {})
-        structure_results = dimension_results.get('structure', {})
-        formatting_results = dimension_results.get('formatting', {})
-        voice_results = dimension_results.get('voice', {})
-        syntactic_results = dimension_results.get('syntactic', {})
-        sentiment_results = dimension_results.get('sentiment', {})
-        lexical_results = dimension_results.get('lexical', {})
+        perplexity_results = dimension_results.get("perplexity", {})
+        burstiness_results = dimension_results.get("burstiness", {})
+        structure_results = dimension_results.get("structure", {})
+        formatting_results = dimension_results.get("formatting", {})
+        voice_results = dimension_results.get("voice", {})
+        syntactic_results = dimension_results.get("syntactic", {})
+        sentiment_results = dimension_results.get("sentiment", {})
+        lexical_results = dimension_results.get("lexical", {})
 
         # New dimensions from Story 1.4.5
-        dimension_results.get('predictability', {})
-        readability_results = dimension_results.get('readability', {})
-        dimension_results.get('advanced_lexical', {})
-        dimension_results.get('transition_marker', {})
+        dimension_results.get("predictability", {})
+        readability_results = dimension_results.get("readability", {})
+        dimension_results.get("advanced_lexical", {})
+        dimension_results.get("transition_marker", {})
 
         # Story 2.1: Figurative language dimension
-        figurative_language_results = dimension_results.get('figurative_language', {})
+        figurative_language_results = dimension_results.get("figurative_language", {})
 
         # Calculate pages (estimate: 750 words per page)
         estimated_pages = max(1, word_count / 750)
 
         # Build results object
         # Extract values from dimension analysis results
-        ai_vocab = perplexity_results.get('ai_vocabulary', {})
-        formulaic = perplexity_results.get('formulaic_transitions', {})
-        burstiness = burstiness_results.get('sentence_burstiness', {})
-        paragraphs = burstiness_results.get('paragraph_variation', {})
-        lexical = lexical_results.get('lexical_diversity', {})
-        structure = structure_results.get('structure', {})
-        headings = structure_results.get('headings', {})
-        voice = voice_results.get('voice', {})
-        technical = voice_results.get('technical_depth', {})
-        formatting = formatting_results.get('formatting', {})
-        sentiment = sentiment_results.get('sentiment', {})
+        ai_vocab = perplexity_results.get("ai_vocabulary", {})
+        formulaic = perplexity_results.get("formulaic_transitions", {})
+        burstiness = burstiness_results.get("sentence_burstiness", {})
+        paragraphs = burstiness_results.get("paragraph_variation", {})
+        lexical = lexical_results.get("lexical_diversity", {})
+        structure = structure_results.get("structure", {})
+        headings = structure_results.get("headings", {})
+        voice = voice_results.get("voice", {})
+        technical = voice_results.get("technical_depth", {})
+        formatting = formatting_results.get("formatting", {})
+        sentiment = sentiment_results.get("sentiment", {})
 
         # Story 2.1: Extract figurative language metrics
         # Unwrap the nested 'figurative_language' key (dimension returns {'figurative_language': {...data...}})
-        figurative = figurative_language_results.get('figurative_language', {}) if figurative_language_results else {}
+        figurative = (
+            figurative_language_results.get("figurative_language", {})
+            if figurative_language_results
+            else {}
+        )
 
         results = AnalysisResults(
             file_path=file_path,
             total_words=word_count,
-            total_sentences=burstiness.get('total_sentences', 0),
-            total_paragraphs=paragraphs.get('total_paragraphs', 0),
-
-            ai_vocabulary_count=ai_vocab.get('count', 0),
-            ai_vocabulary_per_1k=ai_vocab.get('per_1k', 0.0),
-            ai_vocabulary_list=ai_vocab.get('words', []),
-            formulaic_transitions_count=formulaic.get('count', 0),
-            formulaic_transitions_list=formulaic.get('transitions', []),
-
-            sentence_mean_length=burstiness.get('mean', 0.0),
-            sentence_stdev=burstiness.get('stdev', 0.0),
-            sentence_min=burstiness.get('min', 0),
-            sentence_max=burstiness.get('max', 0),
-            sentence_range=(burstiness.get('min', 0), burstiness.get('max', 0)),
-            short_sentences_count=burstiness.get('short', 0),
-            medium_sentences_count=burstiness.get('medium', 0),
-            long_sentences_count=burstiness.get('long', 0),
-            sentence_lengths=burstiness.get('lengths', []),
-
-            paragraph_mean_words=paragraphs.get('mean', 0.0),
-            paragraph_stdev=paragraphs.get('stdev', 0.0),
-            paragraph_range=(paragraphs.get('min', 0), paragraphs.get('max', 0)),
-
-            unique_words=lexical.get('unique', 0),
-            lexical_diversity=lexical.get('diversity', 0.0),
-
-            bullet_list_lines=structure.get('bullet_lines', 0),
-            numbered_list_lines=structure.get('numbered_lines', 0),
-            total_headings=headings.get('total', 0),
-            heading_depth=headings.get('depth', 0),
-            h1_count=headings.get('h1', 0),
-            h2_count=headings.get('h2', 0),
-            h3_count=headings.get('h3', 0),
-            h4_plus_count=headings.get('h4_plus', 0),
-            headings_per_page=headings.get('total', 0) / estimated_pages,
-
-            heading_parallelism_score=headings.get('parallelism_score', 0.0),
-            verbose_headings_count=headings.get('verbose_count', 0),
-            avg_heading_length=headings.get('avg_length', 0.0),
-
-            first_person_count=voice.get('first_person', 0),
-            direct_address_count=voice.get('direct_address', 0),
-            contraction_count=voice.get('contractions', 0),
-
+            total_sentences=burstiness.get("total_sentences", 0),
+            total_paragraphs=paragraphs.get("total_paragraphs", 0),
+            ai_vocabulary_count=ai_vocab.get("count", 0),
+            ai_vocabulary_per_1k=ai_vocab.get("per_1k", 0.0),
+            ai_vocabulary_list=ai_vocab.get("words", []),
+            formulaic_transitions_count=formulaic.get("count", 0),
+            formulaic_transitions_list=formulaic.get("transitions", []),
+            sentence_mean_length=burstiness.get("mean", 0.0),
+            sentence_stdev=burstiness.get("stdev", 0.0),
+            sentence_min=burstiness.get("min", 0),
+            sentence_max=burstiness.get("max", 0),
+            sentence_range=(burstiness.get("min", 0), burstiness.get("max", 0)),
+            short_sentences_count=burstiness.get("short", 0),
+            medium_sentences_count=burstiness.get("medium", 0),
+            long_sentences_count=burstiness.get("long", 0),
+            sentence_lengths=burstiness.get("lengths", []),
+            paragraph_mean_words=paragraphs.get("mean", 0.0),
+            paragraph_stdev=paragraphs.get("stdev", 0.0),
+            paragraph_range=(paragraphs.get("min", 0), paragraphs.get("max", 0)),
+            unique_words=lexical.get("unique", 0),
+            lexical_diversity=lexical.get("diversity", 0.0),
+            bullet_list_lines=structure.get("bullet_lines", 0),
+            numbered_list_lines=structure.get("numbered_lines", 0),
+            total_headings=headings.get("total", 0),
+            heading_depth=headings.get("depth", 0),
+            h1_count=headings.get("h1", 0),
+            h2_count=headings.get("h2", 0),
+            h3_count=headings.get("h3", 0),
+            h4_plus_count=headings.get("h4_plus", 0),
+            headings_per_page=headings.get("total", 0) / estimated_pages,
+            heading_parallelism_score=headings.get("parallelism_score", 0.0),
+            verbose_headings_count=headings.get("verbose_count", 0),
+            avg_heading_length=headings.get("avg_length", 0.0),
+            first_person_count=voice.get("first_person", 0),
+            direct_address_count=voice.get("direct_address", 0),
+            contraction_count=voice.get("contractions", 0),
             # Sentiment / AI Detection Ensemble
-            roberta_sentiment_variance=sentiment.get('variance'),
-            roberta_sentiment_mean=sentiment.get('mean'),
-            roberta_emotionally_flat=sentiment.get('emotionally_flat'),
-
+            roberta_sentiment_variance=sentiment.get("variance"),
+            roberta_sentiment_mean=sentiment.get("mean"),
+            roberta_emotionally_flat=sentiment.get("emotionally_flat"),
             # Readability metrics (Story 1.4.5)
-            flesch_reading_ease=readability_results.get('flesch_reading_ease'),
-            flesch_kincaid_grade=readability_results.get('flesch_kincaid_grade'),
-            gunning_fog=readability_results.get('gunning_fog'),
-            smog_index=readability_results.get('smog_index'),
-
+            flesch_reading_ease=readability_results.get("flesch_reading_ease"),
+            flesch_kincaid_grade=readability_results.get("flesch_kincaid_grade"),
+            gunning_fog=readability_results.get("gunning_fog"),
+            smog_index=readability_results.get("smog_index"),
             # Domain terms (from voice analyzer technical_depth)
-            domain_terms_count=technical.get('count', 0),
-            domain_terms_list=technical.get('terms', []),
-
-            em_dash_count=formatting.get('em_dashes', 0),
-            em_dashes_per_page=formatting.get('em_dashes', 0) / estimated_pages,
-            bold_markdown_count=formatting.get('bold', 0),
-            italic_markdown_count=formatting.get('italics', 0),
-
+            domain_terms_count=technical.get("count", 0),
+            domain_terms_list=technical.get("terms", []),
+            em_dash_count=formatting.get("em_dashes", 0),
+            em_dashes_per_page=formatting.get("em_dashes", 0) / estimated_pages,
+            bold_markdown_count=formatting.get("bold", 0),
+            italic_markdown_count=formatting.get("italics", 0),
             # Story 2.1: Figurative language metrics
-            figurative_simile_count=len(figurative.get('similes', [])),
-            figurative_metaphor_count=len(figurative.get('metaphors', [])),
-            figurative_idiom_count=len(figurative.get('idioms', [])),
-            figurative_ai_cliche_count=len(figurative.get('ai_cliches', [])),
-            figurative_total_count=figurative.get('total_figurative', 0),
-            figurative_frequency_per_1k=figurative.get('frequency_per_1k', 0.0),
-            figurative_types_detected=figurative.get('types_detected', 0),
-
+            figurative_simile_count=len(figurative.get("similes", [])),
+            figurative_metaphor_count=len(figurative.get("metaphors", [])),
+            figurative_idiom_count=len(figurative.get("idioms", [])),
+            figurative_ai_cliche_count=len(figurative.get("ai_cliches", [])),
+            figurative_total_count=figurative.get("total_figurative", 0),
+            figurative_frequency_per_1k=figurative.get("frequency_per_1k", 0.0),
+            figurative_types_detected=figurative.get("types_detected", 0),
             # Enhanced metrics from dimension analyzers
             # Story 2.0: Removed deprecated stylometric_results, advanced_results parameters
-            **self._flatten_optional_metrics(syntactic_results, lexical_results,
-                                             formatting_results, burstiness_results,
-                                             structure_results)
+            **self._flatten_optional_metrics(
+                syntactic_results,
+                lexical_results,
+                formatting_results,
+                burstiness_results,
+                structure_results,
+            ),
         )
 
         # Populate sentiment distribution (only when 3+ idioms detected)
-        sentiment_dist = figurative.get('sentiment_distribution', {})
-        if sentiment_dist.get('total_with_sentiment', 0) >= 3:
-            percentages = sentiment_dist.get('percentages', {})
-            results.figurative_sentiment_positive_pct = percentages.get('positive', 0.0)
-            results.figurative_sentiment_negative_pct = percentages.get('negative', 0.0)
-            results.figurative_sentiment_neutral_pct = percentages.get('neutral', 0.0)
-            results.figurative_sentiment_deviation = sentiment_dist.get('deviation_from_optimal', 0.0)
+        sentiment_dist = figurative.get("sentiment_distribution", {})
+        if sentiment_dist.get("total_with_sentiment", 0) >= 3:
+            percentages = sentiment_dist.get("percentages", {})
+            results.figurative_sentiment_positive_pct = percentages.get("positive", 0.0)
+            results.figurative_sentiment_negative_pct = percentages.get("negative", 0.0)
+            results.figurative_sentiment_neutral_pct = percentages.get("neutral", 0.0)
+            results.figurative_sentiment_deviation = sentiment_dist.get(
+                "deviation_from_optimal", 0.0
+            )
 
         # Story 2.3: Populate semantic coherence metrics
-        semantic_coherence = dimension_results.get('semantic_coherence', {})
-        semantic_metrics = semantic_coherence.get('metrics', {})
+        semantic_coherence = dimension_results.get("semantic_coherence", {})
+        semantic_metrics = semantic_coherence.get("metrics", {})
         if semantic_metrics:
-            results.semantic_paragraph_cohesion = semantic_metrics.get('paragraph_cohesion')
-            results.semantic_topic_consistency = semantic_metrics.get('topic_consistency')
-            results.semantic_discourse_flow = semantic_metrics.get('discourse_flow')
-            results.semantic_conceptual_depth = semantic_metrics.get('conceptual_depth')
+            results.semantic_paragraph_cohesion = semantic_metrics.get("paragraph_cohesion")
+            results.semantic_topic_consistency = semantic_metrics.get("topic_consistency")
+            results.semantic_discourse_flow = semantic_metrics.get("discourse_flow")
+            results.semantic_conceptual_depth = semantic_metrics.get("conceptual_depth")
 
         # Populate semantic coherence evidence
         if semantic_coherence:
-            results.semantic_low_cohesion_paragraphs = semantic_coherence.get('low_cohesion_paragraphs', [])
-            results.semantic_topic_shifts = semantic_coherence.get('topic_shifts', [])
-            results.semantic_weak_transitions = semantic_coherence.get('weak_transitions', [])
+            results.semantic_low_cohesion_paragraphs = semantic_coherence.get(
+                "low_cohesion_paragraphs", []
+            )
+            results.semantic_topic_shifts = semantic_coherence.get("topic_shifts", [])
+            results.semantic_weak_transitions = semantic_coherence.get("weak_transitions", [])
 
         # Story 1.4.11: Registry-based dimension scoring
         # Story 2.3: v5.2.0 has 14 dimensions (added semantic_coherence)
         # Initialize all known score fields to UNKNOWN (for dimensions not loaded)
-        all_dimensions = ['perplexity', 'burstiness', 'structure', 'formatting', 'voice',
-                         'readability', 'lexical', 'sentiment', 'syntactic', 'predictability',
-                         'advanced_lexical', 'transition_marker', 'figurative_language',
-                         'semantic_coherence']
+        all_dimensions = [
+            "perplexity",
+            "burstiness",
+            "structure",
+            "formatting",
+            "voice",
+            "readability",
+            "lexical",
+            "sentiment",
+            "syntactic",
+            "predictability",
+            "advanced_lexical",
+            "transition_marker",
+            "figurative_language",
+            "semantic_coherence",
+        ]
         for dim_name in all_dimensions:
             score_field = f"{dim_name}_score"
             setattr(results, score_field, "UNKNOWN")
@@ -480,7 +582,7 @@ class AIPatternAnalyzer:
             dim_result = dimension_results.get(dim_name, {})
 
             # Skip if dimension analysis failed or unavailable
-            if not dim_result or not dim_result.get('available', True):
+            if not dim_result or not dim_result.get("available", True):
                 score_field = f"{dim_name}_score"
                 setattr(results, score_field, "UNKNOWN")
                 continue
@@ -488,9 +590,9 @@ class AIPatternAnalyzer:
             try:
                 # Prepare metrics for calculate_score()
                 # Each dimension expects different metric structure
-                if dim_name == 'burstiness':
-                    metrics = dim_result.get('sentence_burstiness', {})
-                elif dim_name == 'voice':
+                if dim_name == "burstiness":
+                    metrics = dim_result.get("sentence_burstiness", {})
+                elif dim_name == "voice":
                     # Voice expects full dim_result with 'voice' key
                     # The voice dict already contains total_words from analyze()
                     metrics = dim_result
@@ -514,11 +616,11 @@ class AIPatternAnalyzer:
 
         # Special handling for legacy field names
         # ai_detection_score is from sentiment dimension
-        if 'sentiment' in self.dimensions and hasattr(results, 'sentiment_score'):
+        if "sentiment" in self.dimensions and hasattr(results, "sentiment_score"):
             results.ai_detection_score = results.sentiment_score
 
         # Technical score (TODO: implement domain term detection in voice dimension)
-        if not hasattr(results, 'technical_score'):
+        if not hasattr(results, "technical_score"):
             results.technical_score = "MEDIUM"
 
         # Overall assessment
@@ -530,11 +632,7 @@ class AIPatternAnalyzer:
 
         return results
 
-    def analyze_text(
-        self,
-        text: str,
-        config: Optional[AnalysisConfig] = None
-    ) -> AnalysisResults:
+    def analyze_text(self, text: str, config: Optional[AnalysisConfig] = None) -> AnalysisResults:
         """
         Analyze text directly for AI patterns (without file I/O).
 
@@ -552,7 +650,9 @@ class AIPatternAnalyzer:
         from pathlib import Path
 
         # Create a temporary file and delegate to analyze_file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False, encoding='utf-8') as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False, encoding="utf-8"
+        ) as f:
             f.write(text)
             temp_file = f.name
 
@@ -616,12 +716,15 @@ class AIPatternAnalyzer:
         for dim_name, raw_output in dimension_results.items():
             # Input validation: check raw_output is dict
             if not isinstance(raw_output, dict):
-                print(f"Warning: {dim_name} output is not a dict, skipping enrichment", file=sys.stderr)
+                print(
+                    f"Warning: {dim_name} output is not a dict, skipping enrichment",
+                    file=sys.stderr,
+                )
                 enriched[dim_name] = raw_output
                 continue
 
             # Skip failed dimensions (have 'error' field and 'available': False)
-            if raw_output.get('error') or raw_output.get('available') is False:
+            if raw_output.get("error") or raw_output.get("available") is False:
                 enriched[dim_name] = raw_output  # Keep error info, don't enrich
                 continue
 
@@ -634,7 +737,10 @@ class AIPatternAnalyzer:
 
             # Bounds check score (AC11)
             if score < 0.0 or score > 100.0:
-                print(f"Warning: {dim_name} score {score} out of bounds, clamping to [0, 100]", file=sys.stderr)
+                print(
+                    f"Warning: {dim_name} score {score} out of bounds, clamping to [0, 100]",
+                    file=sys.stderr,
+                )
                 score = max(0.0, min(100.0, score))
 
             # Get tier mapping/thresholds
@@ -647,21 +753,25 @@ class AIPatternAnalyzer:
                 if dimension:
                     recommendations = dimension.get_recommendations(score, raw_output)
                     if not isinstance(recommendations, list):
-                        print(f"Warning: {dim_name}.get_recommendations() returned non-list: {type(recommendations)}",
-                              file=sys.stderr)
+                        print(
+                            f"Warning: {dim_name}.get_recommendations() returned non-list: {type(recommendations)}",
+                            file=sys.stderr,
+                        )
                         recommendations = []
             except Exception as e:
-                print(f"Warning: Failed to get recommendations for {dim_name}: {e}", file=sys.stderr)
+                print(
+                    f"Warning: Failed to get recommendations for {dim_name}: {e}", file=sys.stderr
+                )
                 recommendations = []
 
             # Create enriched entry (preserves all raw outputs via spread)
             enriched[dim_name] = {
-                'tier': tier,
-                'score': score,
-                'weight': weight,
-                'tier_mapping': tier_mapping,
-                'recommendations': recommendations,  # NEW: Include recommendations
-                **raw_output  # Preserve all original outputs
+                "tier": tier,
+                "score": score,
+                "weight": weight,
+                "tier_mapping": tier_mapping,
+                "recommendations": recommendations,  # NEW: Include recommendations
+                **raw_output,  # Preserve all original outputs
             }
 
         return enriched
@@ -681,11 +791,14 @@ class AIPatternAnalyzer:
             for dim in dimensions:
                 if dim.dimension_name == dim_name:
                     return dim.tier
-            print(f"Warning: Dimension {dim_name} not found in registry, using 'UNKNOWN'", file=sys.stderr)
-            return 'UNKNOWN'
+            print(
+                f"Warning: Dimension {dim_name} not found in registry, using 'UNKNOWN'",
+                file=sys.stderr,
+            )
+            return "UNKNOWN"
         except Exception as e:
             print(f"Error: Getting tier for {dim_name}: {e}", file=sys.stderr)
-            return 'UNKNOWN'
+            return "UNKNOWN"
 
     def _get_dimension_weight(self, tier: str) -> float:
         """
@@ -705,17 +818,19 @@ class AIPatternAnalyzer:
             Weight as float
         """
         tier_weights = {
-            'CORE': 0.20,
-            'ADVANCED': 0.10,
-            'STRUCTURAL': 0.10,
-            'SUPPORTING': 0.05,
-            'UNKNOWN': 0.05
+            "CORE": 0.20,
+            "ADVANCED": 0.10,
+            "STRUCTURAL": 0.10,
+            "SUPPORTING": 0.05,
+            "UNKNOWN": 0.05,
         }
         weight = tier_weights.get(tier, 0.05)
 
         # Bounds check (AC11)
         if weight < 0.0:
-            print(f"Warning: Weight {weight} for tier {tier} is negative, using 0.05", file=sys.stderr)
+            print(
+                f"Warning: Weight {weight} for tier {tier} is negative, using 0.05", file=sys.stderr
+            )
             return 0.05
 
         return weight
@@ -742,62 +857,75 @@ class AIPatternAnalyzer:
             Normalized score 0-100
         """
         # Strategy 1: Direct overall_score
-        if 'overall_score' in raw_output:
+        if "overall_score" in raw_output:
             try:
-                return float(raw_output['overall_score'])
+                return float(raw_output["overall_score"])
             except (TypeError, ValueError) as e:
-                print(f"Warning: Error converting overall_score for {dim_name}: {e}", file=sys.stderr)
+                print(
+                    f"Warning: Error converting overall_score for {dim_name}: {e}", file=sys.stderr
+                )
 
         # Strategy 2: Direct score field
-        if 'score' in raw_output:
+        if "score" in raw_output:
             try:
-                return float(raw_output['score'])
+                return float(raw_output["score"])
             except (TypeError, ValueError) as e:
                 print(f"Warning: Error converting score for {dim_name}: {e}", file=sys.stderr)
 
         # Strategy 3: Dimension-specific extraction
         try:
-            if dim_name == 'burstiness':
+            if dim_name == "burstiness":
                 # Burstiness stores score in sentence_burstiness.score
-                if 'sentence_burstiness' in raw_output:
-                    sb = raw_output['sentence_burstiness']
-                    if isinstance(sb, dict) and 'score' in sb:
-                        return float(sb['score'])
+                if "sentence_burstiness" in raw_output:
+                    sb = raw_output["sentence_burstiness"]
+                    if isinstance(sb, dict) and "score" in sb:
+                        return float(sb["score"])
 
-            elif dim_name == 'perplexity':
+            elif dim_name == "perplexity":
                 # Perplexity might store in metrics or calculate from sub-metrics
-                if 'metrics' in raw_output:
-                    metrics = raw_output['metrics']
-                    if isinstance(metrics, dict) and 'overall_score' in metrics:
-                        return float(metrics['overall_score'])
+                if "metrics" in raw_output:
+                    metrics = raw_output["metrics"]
+                    if isinstance(metrics, dict) and "overall_score" in metrics:
+                        return float(metrics["overall_score"])
 
-            elif dim_name == 'structure' and 'structural_score' in raw_output:
+            elif dim_name == "structure" and "structural_score" in raw_output:
                 # Structure might have structural_score
-                return float(raw_output['structural_score'])
+                return float(raw_output["structural_score"])
 
             # Add other dimension-specific extractions as needed
             # For dimensions following standard format, this section can be minimal
 
         except (KeyError, TypeError, ValueError) as e:
-            print(f"Warning: Error extracting score for {dim_name}: {e}, using default 50.0", file=sys.stderr)
+            print(
+                f"Warning: Error extracting score for {dim_name}: {e}, using default 50.0",
+                file=sys.stderr,
+            )
 
         # Strategy 4: Call dimension's calculate_score() method if available
         if dim_name in self.dimensions:
             dimension = self.dimensions[dim_name]
-            if hasattr(dimension, 'calculate_score') and callable(dimension.calculate_score):
+            if hasattr(dimension, "calculate_score") and callable(dimension.calculate_score):
                 try:
                     score = dimension.calculate_score(raw_output)
                     # Bounds check
                     if 0.0 <= score <= 100.0:
                         return float(score)
                     else:
-                        print(f"Warning: {dim_name}.calculate_score() returned {score} (out of bounds), clamping", file=sys.stderr)
+                        print(
+                            f"Warning: {dim_name}.calculate_score() returned {score} (out of bounds), clamping",
+                            file=sys.stderr,
+                        )
                         return max(0.0, min(100.0, float(score)))
                 except Exception as e:
-                    print(f"Warning: Error calling {dim_name}.calculate_score(): {e}", file=sys.stderr)
+                    print(
+                        f"Warning: Error calling {dim_name}.calculate_score(): {e}", file=sys.stderr
+                    )
 
         # Strategy 5: Default to neutral score
-        print(f"Warning: No score found for dimension {dim_name}, defaulting to 50.0 (neutral)", file=sys.stderr)
+        print(
+            f"Warning: No score found for dimension {dim_name}, defaulting to 50.0 (neutral)",
+            file=sys.stderr,
+        )
         return 50.0
 
     def _get_tier_mapping(self, dim_name: str) -> Dict:
@@ -817,16 +945,12 @@ class AIPatternAnalyzer:
         """
         # Standard thresholds for all dimensions
         # Future enhancement: allow dimension-specific overrides
-        return {
-            'low': [0, 40],
-            'medium': [40, 70],
-            'high': [70, 100]
-        }
+        return {"low": [0, 40], "medium": [40, 70], "high": [70, 100]}
 
     def _count_words(self, text: str) -> int:
         """Count total words in text, excluding code blocks."""
         # Remove code blocks
-        text = re.sub(r'```[\s\S]*?```', '', text)
+        text = re.sub(r"```[\s\S]*?```", "", text)
         # Count words
         words = re.findall(r"\b[\w'-]+\b", text)
         return len(words)
@@ -854,15 +978,20 @@ class AIPatternAnalyzer:
         if raw_score >= 85:
             return "EXCELLENT"  # 85-100: Minimal AI patterns detected
         elif raw_score >= 70:
-            return "GOOD"       # 70-84: Some AI patterns, mostly human-like
+            return "GOOD"  # 70-84: Some AI patterns, mostly human-like
         elif raw_score >= 50:
-            return "NEEDS WORK" # 50-69: Noticeable AI patterns
+            return "NEEDS WORK"  # 50-69: Noticeable AI patterns
         else:
-            return "POOR"       # 0-49: Strong AI patterns detected
+            return "POOR"  # 0-49: Strong AI patterns detected
 
-    def _flatten_optional_metrics(self, syntactic_results, lexical_results,
-                                  formatting_results=None, burstiness_results=None,
-                                  structure_results=None) -> Dict:
+    def _flatten_optional_metrics(
+        self,
+        syntactic_results,
+        lexical_results,
+        formatting_results=None,
+        burstiness_results=None,
+        structure_results=None,
+    ) -> Dict:
         """
         Flatten optional metrics from dimension analyzers into flat dict for AnalysisResults.
 
@@ -871,17 +1000,19 @@ class AIPatternAnalyzer:
         metrics = {}
 
         # Syntactic metrics
-        if syntactic_results.get('syntactic'):
-            synt = syntactic_results['syntactic']
-            metrics['syntactic_repetition_score'] = synt.get('syntactic_repetition_score')
-            metrics['pos_diversity'] = synt.get('pos_diversity')
-            metrics['avg_dependency_depth'] = synt.get('avg_dependency_depth')
-            metrics['subordination_index'] = synt.get('subordination_index')
+        if syntactic_results.get("syntactic"):
+            synt = syntactic_results["syntactic"]
+            metrics["syntactic_repetition_score"] = synt.get("syntactic_repetition_score")
+            metrics["pos_diversity"] = synt.get("pos_diversity")
+            metrics["avg_dependency_depth"] = synt.get("avg_dependency_depth")
+            metrics["subordination_index"] = synt.get("subordination_index")
 
         # Lexical metrics
-        if lexical_results.get('lexical_diversity'):
-            metrics['mtld_score'] = lexical_results['lexical_diversity'].get('mtld_score')
-            metrics['stemmed_diversity'] = lexical_results['lexical_diversity'].get('stemmed_diversity')
+        if lexical_results.get("lexical_diversity"):
+            metrics["mtld_score"] = lexical_results["lexical_diversity"].get("mtld_score")
+            metrics["stemmed_diversity"] = lexical_results["lexical_diversity"].get(
+                "stemmed_diversity"
+            )
 
         # Story 2.0: Removed deprecated stylometric and advanced metrics extraction
         # These metrics are now provided by the new dimension system:
@@ -892,172 +1023,188 @@ class AIPatternAnalyzer:
         # Formatting metrics (Phase 3 enhancements)
         if formatting_results:
             # Bold/italic patterns
-            if formatting_results.get('bold_italic'):
-                bold_italic = formatting_results['bold_italic']
-                metrics['bold_per_1k_words'] = bold_italic.get('bold_per_1k', 0.0)
-                metrics['italic_per_1k_words'] = bold_italic.get('italic_per_1k', 0.0)
-                metrics['formatting_consistency_score'] = bold_italic.get('formatting_consistency', 0.0)
+            if formatting_results.get("bold_italic"):
+                bold_italic = formatting_results["bold_italic"]
+                metrics["bold_per_1k_words"] = bold_italic.get("bold_per_1k", 0.0)
+                metrics["italic_per_1k_words"] = bold_italic.get("italic_per_1k", 0.0)
+                metrics["formatting_consistency_score"] = bold_italic.get(
+                    "formatting_consistency", 0.0
+                )
 
                 # Calculate bold_italic_score based on metrics
                 bold_issues = 0
-                bold_val = bold_italic.get('bold_per_1k', 0.0)
+                bold_val = bold_italic.get("bold_per_1k", 0.0)
                 if bold_val > 50:  # Extreme AI
                     bold_issues += 2
                 elif bold_val > 10:  # AI-like
                     bold_issues += 1
 
-                consistency = bold_italic.get('formatting_consistency', 0.0)
+                consistency = bold_italic.get("formatting_consistency", 0.0)
                 if consistency > 0.6:  # Mechanical
                     bold_issues += 1
 
-                metrics['bold_italic_score'] = 'HIGH' if bold_issues == 0 else ('MEDIUM' if bold_issues == 1 else 'LOW')
+                metrics["bold_italic_score"] = (
+                    "HIGH" if bold_issues == 0 else ("MEDIUM" if bold_issues == 1 else "LOW")
+                )
 
             # List usage patterns
-            if formatting_results.get('list_usage'):
-                list_usage = formatting_results['list_usage']
-                metrics['total_list_items'] = list_usage.get('total_list_items', 0)
-                metrics['ordered_list_items'] = list_usage.get('ordered_items', 0)
-                metrics['unordered_list_items'] = list_usage.get('unordered_items', 0)
-                metrics['list_to_text_ratio'] = list_usage.get('list_to_text_ratio', 0.0)
-                metrics['ordered_to_unordered_ratio'] = list_usage.get('ordered_to_unordered_ratio', 0.0)
-                metrics['list_item_length_variance'] = list_usage.get('list_item_variance', 0.0)
+            if formatting_results.get("list_usage"):
+                list_usage = formatting_results["list_usage"]
+                metrics["total_list_items"] = list_usage.get("total_list_items", 0)
+                metrics["ordered_list_items"] = list_usage.get("ordered_items", 0)
+                metrics["unordered_list_items"] = list_usage.get("unordered_items", 0)
+                metrics["list_to_text_ratio"] = list_usage.get("list_to_text_ratio", 0.0)
+                metrics["ordered_to_unordered_ratio"] = list_usage.get(
+                    "ordered_to_unordered_ratio", 0.0
+                )
+                metrics["list_item_length_variance"] = list_usage.get("list_item_variance", 0.0)
 
                 # Calculate list_usage_score based on metrics
                 list_issues = 0
-                list_ratio = list_usage.get('list_to_text_ratio', 0.0)
+                list_ratio = list_usage.get("list_to_text_ratio", 0.0)
                 if list_ratio > 0.25:  # AI tends >25%
                     list_issues += 2
                 elif list_ratio > 0.15:
                     list_issues += 1
 
-                ordered_ratio = list_usage.get('ordered_to_unordered_ratio', 0.0)
+                ordered_ratio = list_usage.get("ordered_to_unordered_ratio", 0.0)
                 if 0.15 <= ordered_ratio <= 0.25:  # AI typical range
                     list_issues += 1
 
-                metrics['list_usage_score'] = 'HIGH' if list_issues == 0 else ('MEDIUM' if list_issues == 1 else 'LOW')
+                metrics["list_usage_score"] = (
+                    "HIGH" if list_issues == 0 else ("MEDIUM" if list_issues == 1 else "LOW")
+                )
 
             # Punctuation clustering
-            if formatting_results.get('punctuation_clustering'):
-                punct = formatting_results['punctuation_clustering']
-                metrics['em_dash_cascading_score'] = punct.get('em_dash_cascading', 0.0)
-                metrics['oxford_comma_count'] = punct.get('oxford_comma_count', 0)
-                metrics['oxford_comma_consistency'] = punct.get('oxford_consistency', 0.0)
+            if formatting_results.get("punctuation_clustering"):
+                punct = formatting_results["punctuation_clustering"]
+                metrics["em_dash_cascading_score"] = punct.get("em_dash_cascading", 0.0)
+                metrics["oxford_comma_count"] = punct.get("oxford_comma_count", 0)
+                metrics["oxford_comma_consistency"] = punct.get("oxford_consistency", 0.0)
 
                 # Calculate punctuation_score based on metrics
                 punct_issues = 0
-                oxford_consistency = punct.get('oxford_consistency', 0.0)
+                oxford_consistency = punct.get("oxford_consistency", 0.0)
                 if oxford_consistency > 0.95:  # Always Oxford = AI-like
                     punct_issues += 1
 
-                em_cascade = punct.get('em_dash_cascading', 0.0)
+                em_cascade = punct.get("em_dash_cascading", 0.0)
                 if em_cascade > 0.7:  # AI declining pattern
                     punct_issues += 1
 
-                metrics['punctuation_score'] = 'HIGH' if punct_issues == 0 else ('MEDIUM' if punct_issues == 1 else 'LOW')
+                metrics["punctuation_score"] = (
+                    "HIGH" if punct_issues == 0 else ("MEDIUM" if punct_issues == 1 else "LOW")
+                )
 
             # Whitespace patterns
-            if formatting_results.get('whitespace_patterns'):
-                whitespace = formatting_results['whitespace_patterns']
-                metrics['paragraph_length_variance'] = whitespace.get('paragraph_variance', 0.0)
-                metrics['paragraph_uniformity_score'] = whitespace.get('paragraph_uniformity', 0.0)
-                metrics['blank_lines_count'] = whitespace.get('blank_lines', 0)
-                metrics['text_density'] = whitespace.get('text_density', 0.0)
+            if formatting_results.get("whitespace_patterns"):
+                whitespace = formatting_results["whitespace_patterns"]
+                metrics["paragraph_length_variance"] = whitespace.get("paragraph_variance", 0.0)
+                metrics["paragraph_uniformity_score"] = whitespace.get("paragraph_uniformity", 0.0)
+                metrics["blank_lines_count"] = whitespace.get("blank_lines", 0)
+                metrics["text_density"] = whitespace.get("text_density", 0.0)
 
                 # Calculate whitespace_score based on metrics
                 ws_issues = 0
-                para_uniformity = whitespace.get('paragraph_uniformity', 0.0)
+                para_uniformity = whitespace.get("paragraph_uniformity", 0.0)
                 if para_uniformity > 0.6:  # High uniformity = AI-like
                     ws_issues += 2
                 elif para_uniformity > 0.4:
                     ws_issues += 1
 
-                metrics['whitespace_score'] = 'HIGH' if ws_issues == 0 else ('MEDIUM' if ws_issues == 1 else 'LOW')
+                metrics["whitespace_score"] = (
+                    "HIGH" if ws_issues == 0 else ("MEDIUM" if ws_issues == 1 else "LOW")
+                )
 
         # Burstiness metrics (paragraph CV from Phase 1)
-        if burstiness_results and burstiness_results.get('paragraph_cv'):
-            para_cv = burstiness_results['paragraph_cv']
-            metrics['paragraph_cv'] = para_cv.get('cv', 0.0)
-            metrics['paragraph_cv_mean'] = para_cv.get('mean_length', 0.0)
-            metrics['paragraph_cv_stddev'] = para_cv.get('stddev', 0.0)
-            metrics['paragraph_cv_score'] = para_cv.get('score', 0.0)
-            metrics['paragraph_cv_assessment'] = para_cv.get('assessment', 'UNKNOWN')
-            metrics['paragraph_count'] = para_cv.get('paragraph_count', 0)
+        if burstiness_results and burstiness_results.get("paragraph_cv"):
+            para_cv = burstiness_results["paragraph_cv"]
+            metrics["paragraph_cv"] = para_cv.get("cv", 0.0)
+            metrics["paragraph_cv_mean"] = para_cv.get("mean_length", 0.0)
+            metrics["paragraph_cv_stddev"] = para_cv.get("stddev", 0.0)
+            metrics["paragraph_cv_score"] = para_cv.get("score", 0.0)
+            metrics["paragraph_cv_assessment"] = para_cv.get("assessment", "UNKNOWN")
+            metrics["paragraph_count"] = para_cv.get("paragraph_count", 0)
 
         # Structure metrics (Phase 1 & 3)
         if structure_results:
             # Section variance
-            if structure_results.get('section_variance'):
-                sec_var = structure_results['section_variance']
-                metrics['section_variance_pct'] = sec_var.get('variance_pct', 0.0)
-                metrics['section_variance_score'] = sec_var.get('score', 0.0)
-                metrics['section_variance_assessment'] = sec_var.get('assessment', 'UNKNOWN')
-                metrics['section_count'] = sec_var.get('section_count', 0)
-                metrics['section_uniform_clusters'] = sec_var.get('uniform_clusters', 0)
+            if structure_results.get("section_variance"):
+                sec_var = structure_results["section_variance"]
+                metrics["section_variance_pct"] = sec_var.get("variance_pct", 0.0)
+                metrics["section_variance_score"] = sec_var.get("score", 0.0)
+                metrics["section_variance_assessment"] = sec_var.get("assessment", "UNKNOWN")
+                metrics["section_count"] = sec_var.get("section_count", 0)
+                metrics["section_uniform_clusters"] = sec_var.get("uniform_clusters", 0)
 
             # List nesting depth
-            if structure_results.get('list_nesting'):
-                list_nest = structure_results['list_nesting']
-                metrics['list_max_depth'] = list_nest.get('max_depth', 0)
-                metrics['list_avg_depth'] = list_nest.get('avg_depth', 0.0)
-                metrics['list_total_items'] = list_nest.get('total_list_items', 0)
-                metrics['list_depth_assessment'] = list_nest.get('assessment', 'UNKNOWN')
-                metrics['list_depth_score'] = list_nest.get('score', 0.0)
+            if structure_results.get("list_nesting"):
+                list_nest = structure_results["list_nesting"]
+                metrics["list_max_depth"] = list_nest.get("max_depth", 0)
+                metrics["list_avg_depth"] = list_nest.get("avg_depth", 0.0)
+                metrics["list_total_items"] = list_nest.get("total_list_items", 0)
+                metrics["list_depth_assessment"] = list_nest.get("assessment", "UNKNOWN")
+                metrics["list_depth_score"] = list_nest.get("score", 0.0)
 
             # Heading hierarchy enhanced (includes length variance)
-            if structure_results.get('heading_hierarchy_enhanced'):
-                head_hier = structure_results['heading_hierarchy_enhanced']
-                metrics['heading_hierarchy_skips'] = head_hier.get('hierarchy_skips', 0)
-                metrics['heading_length_variance'] = head_hier.get('heading_length_variance', 0.0)
-                metrics['heading_strict_adherence'] = head_hier.get('hierarchy_adherence', 0.0)
+            if structure_results.get("heading_hierarchy_enhanced"):
+                head_hier = structure_results["heading_hierarchy_enhanced"]
+                metrics["heading_hierarchy_skips"] = head_hier.get("hierarchy_skips", 0)
+                metrics["heading_length_variance"] = head_hier.get("heading_length_variance", 0.0)
+                metrics["heading_strict_adherence"] = head_hier.get("hierarchy_adherence", 0.0)
 
                 # Calculate heading_hierarchy_score based on metrics
                 hier_issues = 0
-                adherence = head_hier.get('hierarchy_adherence', 0.0)
+                adherence = head_hier.get("hierarchy_adherence", 0.0)
                 if adherence >= 1.0:  # Perfect = AI-like
                     hier_issues += 2
                 elif adherence >= 0.95:
                     hier_issues += 1
 
-                length_variance = head_hier.get('heading_length_variance', 0.0)
+                length_variance = head_hier.get("heading_length_variance", 0.0)
                 if length_variance < 2.0:  # Low variance = AI-like
                     hier_issues += 1
 
-                metrics['heading_hierarchy_score'] = 'HIGH' if hier_issues == 0 else ('MEDIUM' if hier_issues <= 1 else 'LOW')
+                metrics["heading_hierarchy_score"] = (
+                    "HIGH" if hier_issues == 0 else ("MEDIUM" if hier_issues <= 1 else "LOW")
+                )
 
             # Subsection asymmetry (H3 counts under H2 sections)
-            if structure_results.get('subsection_asymmetry'):
-                subsec = structure_results['subsection_asymmetry']
-                metrics['subsection_counts'] = subsec.get('subsection_counts', [])
-                metrics['subsection_cv'] = subsec.get('cv', 0.0)
-                metrics['subsection_uniform_count'] = subsec.get('uniform_count', 0)
-                metrics['subsection_assessment'] = subsec.get('assessment', 'UNKNOWN')
+            if structure_results.get("subsection_asymmetry"):
+                subsec = structure_results["subsection_asymmetry"]
+                metrics["subsection_counts"] = subsec.get("subsection_counts", [])
+                metrics["subsection_cv"] = subsec.get("cv", 0.0)
+                metrics["subsection_uniform_count"] = subsec.get("uniform_count", 0)
+                metrics["subsection_assessment"] = subsec.get("assessment", "UNKNOWN")
 
             # H4 subsection asymmetry (H4 counts under H3 sections)
-            if structure_results.get('h4_subsection_asymmetry'):
-                h4_subsec = structure_results['h4_subsection_asymmetry']
-                metrics['h4_counts'] = h4_subsec.get('h4_counts', [])
-                metrics['h4_subsection_cv'] = h4_subsec.get('cv', 0.0)
-                metrics['h4_uniform_count'] = h4_subsec.get('uniform_count', 0)
-                metrics['h4_assessment'] = h4_subsec.get('assessment', 'UNKNOWN')
-                metrics['h4_h3_sections_analyzed'] = h4_subsec.get('h3_count', 0)
+            if structure_results.get("h4_subsection_asymmetry"):
+                h4_subsec = structure_results["h4_subsection_asymmetry"]
+                metrics["h4_counts"] = h4_subsec.get("h4_counts", [])
+                metrics["h4_subsection_cv"] = h4_subsec.get("cv", 0.0)
+                metrics["h4_uniform_count"] = h4_subsec.get("uniform_count", 0)
+                metrics["h4_assessment"] = h4_subsec.get("assessment", "UNKNOWN")
+                metrics["h4_h3_sections_analyzed"] = h4_subsec.get("h3_count", 0)
 
             # Multi-level combined structure score (domain-specific)
-            if structure_results.get('combined_structure_score'):
-                combined = structure_results['combined_structure_score']
-                if combined and not combined.get('error'):
-                    metrics['combined_structure_score'] = combined.get('combined_score', 0.0)
-                    metrics['combined_structure_assessment'] = combined.get('combined_assessment', 'UNKNOWN')
-                    metrics['combined_structure_domain'] = combined.get('domain', 'general')
-                    metrics['combined_structure_prob_human'] = combined.get('prob_human', 0.0)
+            if structure_results.get("combined_structure_score"):
+                combined = structure_results["combined_structure_score"]
+                if combined and not combined.get("error"):
+                    metrics["combined_structure_score"] = combined.get("combined_score", 0.0)
+                    metrics["combined_structure_assessment"] = combined.get(
+                        "combined_assessment", "UNKNOWN"
+                    )
+                    metrics["combined_structure_domain"] = combined.get("domain", "general")
+                    metrics["combined_structure_prob_human"] = combined.get("prob_human", 0.0)
 
                     # Breakdown details
-                    breakdown = combined.get('breakdown', {})
-                    metrics['combined_h2_score'] = breakdown.get('h2_score', 0.0)
-                    metrics['combined_h2_assessment'] = breakdown.get('h2_assessment', 'UNKNOWN')
-                    metrics['combined_h3_score'] = breakdown.get('h3_score', 0.0)
-                    metrics['combined_h3_assessment'] = breakdown.get('h3_assessment', 'UNKNOWN')
-                    metrics['combined_h4_score'] = breakdown.get('h4_score', 0.0)
-                    metrics['combined_h4_assessment'] = breakdown.get('h4_assessment', 'UNKNOWN')
+                    breakdown = combined.get("breakdown", {})
+                    metrics["combined_h2_score"] = breakdown.get("h2_score", 0.0)
+                    metrics["combined_h2_assessment"] = breakdown.get("h2_assessment", "UNKNOWN")
+                    metrics["combined_h3_score"] = breakdown.get("h3_score", 0.0)
+                    metrics["combined_h3_assessment"] = breakdown.get("h3_assessment", "UNKNOWN")
+                    metrics["combined_h4_score"] = breakdown.get("h4_score", 0.0)
+                    metrics["combined_h4_assessment"] = breakdown.get("h4_assessment", "UNKNOWN")
 
         return metrics
 
@@ -1086,9 +1233,9 @@ class AIPatternAnalyzer:
     # DUAL SCORE CALCULATION
     # ========================================================================
 
-    def calculate_dual_score(self, results: AnalysisResults,
-                            detection_target: float = 30.0,
-                            quality_target: float = 85.0) -> DualScore:
+    def calculate_dual_score(
+        self, results: AnalysisResults, detection_target: float = 30.0, quality_target: float = 85.0
+    ) -> DualScore:
         """
         Calculate dual scores: Detection Risk (0-100, lower=better) and Quality Score (0-100, higher=better).
 
@@ -1111,7 +1258,7 @@ class AIPatternAnalyzer:
     def _get_history_file_path(self, file_path: str) -> Path:
         """Get path to history JSON file for a document."""
         doc_path = Path(file_path)
-        history_dir = doc_path.parent / '.ai-analysis-history'
+        history_dir = doc_path.parent / ".ai-analysis-history"
         history_dir.mkdir(exist_ok=True)
         return history_dir / f"{doc_path.stem}.history.json"
 
@@ -1123,7 +1270,7 @@ class AIPatternAnalyzer:
             return ScoreHistory(file_path=file_path, scores=[])
 
         try:
-            with open(history_file, encoding='utf-8') as f:
+            with open(history_file, encoding="utf-8") as f:
                 data = json.load(f)
 
             # Reconstruct ScoreHistory from JSON using from_dict() to properly restore DimensionScore objects
@@ -1140,11 +1287,11 @@ class AIPatternAnalyzer:
         try:
             # Convert to dict for JSON serialization
             data = {
-                'file_path': history.file_path,
-                'scores': [asdict(score) for score in history.scores]
+                "file_path": history.file_path,
+                "scores": [asdict(score) for score in history.scores],
             }
 
-            with open(history_file, 'w', encoding='utf-8') as f:
+            with open(history_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
 
         except Exception as e:
@@ -1174,7 +1321,7 @@ class AIPatternAnalyzer:
         if not path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
 
-        with open(path, encoding='utf-8') as f:
+        with open(path, encoding="utf-8") as f:
             text = f.read()
             self.lines = text.splitlines()
 
@@ -1192,45 +1339,61 @@ class AIPatternAnalyzer:
         transition_instances = self._analyze_transitions_detailed()
 
         # Advanced detailed analyses (using new dimensions dict pattern)
-        burstiness_dim = self.dimensions.get('burstiness')
-        burstiness_issues = burstiness_dim.analyze_detailed(self.lines, html_checker) if burstiness_dim and hasattr(burstiness_dim, 'analyze_detailed') else []
+        burstiness_dim = self.dimensions.get("burstiness")
+        burstiness_issues = (
+            burstiness_dim.analyze_detailed(self.lines, html_checker)
+            if burstiness_dim and hasattr(burstiness_dim, "analyze_detailed")
+            else []
+        )
 
-        syntactic_dim = self.dimensions.get('syntactic')
-        syntactic_issues = syntactic_dim.analyze_detailed(self.lines, html_checker) if syntactic_dim and hasattr(syntactic_dim, 'analyze_detailed') else []
+        syntactic_dim = self.dimensions.get("syntactic")
+        syntactic_issues = (
+            syntactic_dim.analyze_detailed(self.lines, html_checker)
+            if syntactic_dim and hasattr(syntactic_dim, "analyze_detailed")
+            else []
+        )
 
         # Story 2.0: Removed deprecated 'stylometric' dimension
         # Stylometric functionality replaced by ReadabilityDimension and TransitionMarkerDimension
 
-        formatting_dim = self.dimensions.get('formatting')
-        formatting_issues = formatting_dim.analyze_detailed(self.lines, html_checker) if formatting_dim and hasattr(formatting_dim, 'analyze_detailed') else []
+        formatting_dim = self.dimensions.get("formatting")
+        formatting_issues = (
+            formatting_dim.analyze_detailed(self.lines, html_checker)
+            if formatting_dim and hasattr(formatting_dim, "analyze_detailed")
+            else []
+        )
 
         # Story 2.0: High predictability segments come from PredictabilityDimension (GLTR analysis)
         # Removed fallback to 'advanced_lexical' (deprecated AdvancedDimension split in Story 1.4.5)
-        predictability_dim = self.dimensions.get('predictability')
-        high_pred_segments = predictability_dim.analyze_detailed(self.lines, html_checker) if predictability_dim and hasattr(predictability_dim, 'analyze_detailed') else []
+        predictability_dim = self.dimensions.get("predictability")
+        high_pred_segments = (
+            predictability_dim.analyze_detailed(self.lines, html_checker)
+            if predictability_dim and hasattr(predictability_dim, "analyze_detailed")
+            else []
+        )
 
         # Build summary dict from standard results
         summary = {
-            'overall_assessment': standard_results.overall_assessment,
-            'perplexity_score': standard_results.perplexity_score,
-            'burstiness_score': standard_results.burstiness_score,
-            'structure_score': standard_results.structure_score,
-            'voice_score': standard_results.voice_score,
-            'technical_score': standard_results.technical_score,
-            'formatting_score': standard_results.formatting_score,
-            'total_words': standard_results.total_words,
-            'total_sentences': standard_results.total_sentences,
-            'ai_vocab_per_1k': standard_results.ai_vocabulary_per_1k,
-            'sentence_stdev': standard_results.sentence_stdev,
-            'em_dashes_per_page': standard_results.em_dashes_per_page,
-            'heading_depth': standard_results.heading_depth,
-            'heading_parallelism': standard_results.heading_parallelism_score,
+            "overall_assessment": standard_results.overall_assessment,
+            "perplexity_score": standard_results.perplexity_score,
+            "burstiness_score": standard_results.burstiness_score,
+            "structure_score": standard_results.structure_score,
+            "voice_score": standard_results.voice_score,
+            "technical_score": standard_results.technical_score,
+            "formatting_score": standard_results.formatting_score,
+            "total_words": standard_results.total_words,
+            "total_sentences": standard_results.total_sentences,
+            "ai_vocab_per_1k": standard_results.ai_vocabulary_per_1k,
+            "sentence_stdev": standard_results.sentence_stdev,
+            "em_dashes_per_page": standard_results.em_dashes_per_page,
+            "heading_depth": standard_results.heading_depth,
+            "heading_parallelism": standard_results.heading_parallelism_score,
             # Advanced metrics
             # Story 2.0: Removed deprecated 'gltr_score' and 'stylometric_score' fields
             # gltr_score → predictability_score (PredictabilityDimension)
             # stylometric_score → readability_score + transition_marker_score
-            'advanced_lexical_score': getattr(standard_results, 'advanced_lexical_score', "N/A"),
-            'ai_detection_score': getattr(standard_results, 'ai_detection_score', "N/A"),
+            "advanced_lexical_score": getattr(standard_results, "advanced_lexical_score", "N/A"),
+            "ai_detection_score": getattr(standard_results, "ai_detection_score", "N/A"),
         }
 
         return DetailedAnalysis(
@@ -1247,7 +1410,9 @@ class AIPatternAnalyzer:
             syntactic_issues=syntactic_issues[:20] if isinstance(syntactic_issues, list) else [],
             # Story 2.0: Removed stylometric_issues (deprecated StylometricDimension)
             formatting_issues=formatting_issues[:15] if isinstance(formatting_issues, list) else [],
-            high_predictability_segments=high_pred_segments[:10] if isinstance(high_pred_segments, list) else [],
+            high_predictability_segments=high_pred_segments[:10]
+            if isinstance(high_pred_segments, list)
+            else [],
         )
 
     def _analyze_ai_vocabulary_detailed(self) -> List[VocabInstance]:
@@ -1258,7 +1423,7 @@ class AIPatternAnalyzer:
             # Skip HTML comments (metadata), headings, and code blocks
             if self._is_line_in_html_comment(line):
                 continue
-            if line.strip().startswith('#') or line.strip().startswith('```'):
+            if line.strip().startswith("#") or line.strip().startswith("```"):
                 continue
 
             for pattern, suggestions in self.AI_VOCAB_REPLACEMENTS.items():
@@ -1269,20 +1434,22 @@ class AIPatternAnalyzer:
                     end = min(len(line), match.end() + 20)
                     context = f"...{line[start:end]}..."
 
-                    instances.append(VocabInstance(
-                        line_number=line_num,
-                        word=word,
-                        context=context,
-                        full_line=line.strip(),
-                        suggestions=suggestions[:5]  # Top 5 suggestions
-                    ))
+                    instances.append(
+                        VocabInstance(
+                            line_number=line_num,
+                            word=word,
+                            context=context,
+                            full_line=line.strip(),
+                            suggestions=suggestions[:5],  # Top 5 suggestions
+                        )
+                    )
 
         return instances
 
     def _analyze_headings_detailed(self) -> List[HeadingIssue]:
         """Analyze headings with specific issues and line numbers."""
         issues = []
-        heading_pattern = re.compile(r'^(#{1,6})\s+(.+)$')
+        heading_pattern = re.compile(r"^(#{1,6})\s+(.+)$")
 
         for line_num, line in enumerate(self.lines, start=1):
             match = heading_pattern.match(line.strip())
@@ -1300,28 +1467,37 @@ class AIPatternAnalyzer:
 
             # Verbose headings (>8 words)
             if word_count > 8:
-                issue_type = 'verbose'
-                suggestion = 'Shorten to key concept: focus on 3-6 impactful words'
+                issue_type = "verbose"
+                suggestion = "Shorten to key concept: focus on 3-6 impactful words"
 
             # Deep hierarchy (H5, H6)
             elif level >= 5:
-                issue_type = 'deep_hierarchy'
-                suggestion = 'Restructure content to use H1-H4 only'
+                issue_type = "deep_hierarchy"
+                suggestion = "Restructure content to use H1-H4 only"
 
             # Parallel structure detection (all starting with same word at this level)
             # This is simplified - full implementation would track all headings at each level
-            elif text.split()[0] in ['How', 'What', 'Why', 'Understanding', 'Exploring', 'Introduction']:
-                issue_type = 'parallel'
-                suggestion = 'Vary heading styles: mix questions, statements, and imperatives'
+            elif text.split()[0] in [
+                "How",
+                "What",
+                "Why",
+                "Understanding",
+                "Exploring",
+                "Introduction",
+            ]:
+                issue_type = "parallel"
+                suggestion = "Vary heading styles: mix questions, statements, and imperatives"
 
             if issue_type:
-                issues.append(HeadingIssue(
-                    line_number=line_num,
-                    level=level,
-                    text=text,
-                    issue_type=issue_type,
-                    suggestion=suggestion
-                ))
+                issues.append(
+                    HeadingIssue(
+                        line_number=line_num,
+                        level=level,
+                        text=text,
+                        issue_type=issue_type,
+                        suggestion=suggestion or "",
+                    )
+                )
 
         return issues
 
@@ -1330,24 +1506,24 @@ class AIPatternAnalyzer:
         uniform_paragraphs = []
 
         # Split into paragraphs
-        paragraphs = []
-        current_para = []
+        paragraphs: List[Tuple[int, str]] = []
+        current_para: List[str] = []
         current_start_line = 1
 
         for line_num, line in enumerate(self.lines, start=1):
             stripped = line.strip()
 
             # Skip headings and code blocks
-            if stripped.startswith('#') or stripped.startswith('```'):
+            if stripped.startswith("#") or stripped.startswith("```"):
                 if current_para:
-                    paragraphs.append((current_start_line, '\n'.join(current_para)))
+                    paragraphs.append((current_start_line, "\n".join(current_para)))
                     current_para = []
                 continue
 
             # Blank line = end of paragraph
             if not stripped:
                 if current_para:
-                    paragraphs.append((current_start_line, '\n'.join(current_para)))
+                    paragraphs.append((current_start_line, "\n".join(current_para)))
                     current_para = []
                     current_start_line = line_num + 1
             else:
@@ -1357,7 +1533,7 @@ class AIPatternAnalyzer:
 
         # Add final paragraph
         if current_para:
-            paragraphs.append((current_start_line, '\n'.join(current_para)))
+            paragraphs.append((current_start_line, "\n".join(current_para)))
 
         # Analyze sentence uniformity within each paragraph
         for start_line, para_text in paragraphs:
@@ -1365,7 +1541,7 @@ class AIPatternAnalyzer:
                 continue
 
             # Split into sentences
-            sent_pattern = re.compile(r'(?<=[.!?])\s+')
+            sent_pattern = re.compile(r"(?<=[.!?])\s+")
             sentences = [s.strip() for s in sent_pattern.split(para_text) if s.strip()]
 
             if len(sentences) < 3:
@@ -1387,32 +1563,36 @@ class AIPatternAnalyzer:
             # Flag if too uniform (CV < 0.3 is AI-like)
             if cv < 0.3:
                 # Create sentence details list (line_num, text, word_count)
-                sentence_details = [(start_line, sent[:100], sent_lengths[i])
-                                   for i, sent in enumerate(sentences[:5])]  # First 5 sentences
+                sentence_details = [
+                    (start_line, sent[:100], sent_lengths[i])
+                    for i, sent in enumerate(sentences[:5])
+                ]  # First 5 sentences
 
-                uniform_paragraphs.append(UniformParagraph(
-                    start_line=start_line,
-                    end_line=start_line,  # Approximate - same line for now
-                    sentence_count=len(sentences),
-                    mean_length=round(mean_len, 1),
-                    stdev=round(stdev, 1),
-                    sentences=sentence_details,
-                    problem=f'Uniform sentence lengths (CV={cv:.2f}, typical human: >0.4)',
-                    suggestion='Vary sentence length: mix short (5-10w), medium (15-25w), and long (30-45w) sentences'
-                ))
+                uniform_paragraphs.append(
+                    UniformParagraph(
+                        start_line=start_line,
+                        end_line=start_line,  # Approximate - same line for now
+                        sentence_count=len(sentences),
+                        mean_length=round(mean_len, 1),
+                        stdev=round(stdev, 1),
+                        sentences=sentence_details,
+                        problem=f"Uniform sentence lengths (CV={cv:.2f}, typical human: >0.4)",
+                        suggestion="Vary sentence length: mix short (5-10w), medium (15-25w), and long (30-45w) sentences",
+                    )
+                )
 
         return uniform_paragraphs
 
     def _analyze_em_dashes_detailed(self) -> List[EmDashInstance]:
         """Detect em-dash usage with line numbers."""
         instances = []
-        em_dash_pattern = re.compile(r'—|--')
+        em_dash_pattern = re.compile(r"—|--")
 
         for line_num, line in enumerate(self.lines, start=1):
             # Skip HTML comments, headings, code blocks
             if self._is_line_in_html_comment(line):
                 continue
-            if line.strip().startswith('#') or line.strip().startswith('```'):
+            if line.strip().startswith("#") or line.strip().startswith("```"):
                 continue
 
             for match in em_dash_pattern.finditer(line):
@@ -1421,12 +1601,14 @@ class AIPatternAnalyzer:
                 end = min(len(line), match.end() + 40)
                 context = f"...{line[start:end]}..."
 
-                instances.append(EmDashInstance(
-                    line_number=line_num,
-                    context=context,
-                    problem='Em-dash overuse (ChatGPT uses 10x more than humans)',
-                    suggestion='Replace with: comma, semicolon, period (new sentence), or parentheses'
-                ))
+                instances.append(
+                    EmDashInstance(
+                        line_number=line_num,
+                        context=context,
+                        problem="Em-dash overuse (ChatGPT uses 10x more than humans)",
+                        suggestion="Replace with: comma, semicolon, period (new sentence), or parentheses",
+                    )
+                )
 
         return instances
 
@@ -1435,17 +1617,22 @@ class AIPatternAnalyzer:
         instances = []
 
         formulaic_patterns = [
-            r'\bFurthermore,\b', r'\bMoreover,\b', r'\bAdditionally,\b',
-            r'\bIn addition,\b', r'\bIt is important to note that\b',
-            r'\bIt is worth mentioning that\b', r'\bWhen it comes to\b',
-            r'\bOne of the key aspects\b', r'\bFirst and foremost,\b',
+            r"\bFurthermore,\b",
+            r"\bMoreover,\b",
+            r"\bAdditionally,\b",
+            r"\bIn addition,\b",
+            r"\bIt is important to note that\b",
+            r"\bIt is worth mentioning that\b",
+            r"\bWhen it comes to\b",
+            r"\bOne of the key aspects\b",
+            r"\bFirst and foremost,\b",
         ]
 
         for line_num, line in enumerate(self.lines, start=1):
             # Skip HTML comments, headings, code blocks
             if self._is_line_in_html_comment(line):
                 continue
-            if line.strip().startswith('#') or line.strip().startswith('```'):
+            if line.strip().startswith("#") or line.strip().startswith("```"):
                 continue
 
             for pattern in formulaic_patterns:
@@ -1457,14 +1644,15 @@ class AIPatternAnalyzer:
                     context = f"...{line[start:end]}..."
 
                     # Get suggestions from TRANSITION_REPLACEMENTS
-                    suggestions = self.TRANSITION_REPLACEMENTS.get(phrase, ['Rephrase naturally'])
+                    suggestions = self.TRANSITION_REPLACEMENTS.get(phrase, ["Rephrase naturally"])
 
-                    instances.append(TransitionInstance(
-                        line_number=line_num,
-                        phrase=phrase,
-                        context=context,
-                        problem='Formulaic AI transition (humans use simpler connectives)',
-                        suggestions=suggestions[:5]
-                    ))
+                    instances.append(
+                        TransitionInstance(
+                            line_number=line_num,
+                            transition=phrase,
+                            context=context,
+                            suggestions=suggestions[:5],
+                        )
+                    )
 
         return instances

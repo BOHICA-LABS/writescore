@@ -12,10 +12,10 @@ from writescore.scoring.dual_score import (
 from writescore.scoring.dual_score_calculator import calculate_dual_score
 
 __all__ = [
-    'DualScore',
-    'ScoreCategory',
-    'ScoreDimension',
-    'ImprovementAction',
-    'THRESHOLDS',
-    'calculate_dual_score'
+    "DualScore",
+    "ScoreCategory",
+    "ScoreDimension",
+    "ImprovementAction",
+    "THRESHOLDS",
+    "calculate_dual_score",
 ]

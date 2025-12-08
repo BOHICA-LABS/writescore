@@ -68,7 +68,10 @@ class TestDomainConfigs:
     def test_threshold_values_are_sensible(self):
         """Test that threshold values follow expected patterns."""
         # Academic should have higher variance acceptance than technical
-        assert ACADEMIC_CONFIG.h2_section_length.cv_human_min > TECHNICAL_CONFIG.h2_section_length.cv_human_min
+        assert (
+            ACADEMIC_CONFIG.h2_section_length.cv_human_min
+            > TECHNICAL_CONFIG.h2_section_length.cv_human_min
+        )
 
         # All configs should have thresholds that make sense
         for config in [ACADEMIC_CONFIG, TECHNICAL_CONFIG, BUSINESS_CONFIG, TUTORIAL_CONFIG]:
@@ -117,53 +120,41 @@ class TestCalculateCVScore:
     def test_calculate_cv_score_excellent(self):
         """Test CV score calculation for excellent human-like variance."""
         thresholds = HierarchyThresholds(
-            cv_human_min=0.50,
-            cv_ai_max=0.30,
-            cv_threshold=0.40,
-            max_score=10.0
+            cv_human_min=0.50, cv_ai_max=0.30, cv_threshold=0.40, max_score=10.0
         )
 
         score, assessment = calculate_cv_score(0.65, thresholds)
 
         assert score > 8.0  # Should be high score
-        assert assessment in ['EXCELLENT', 'GOOD']
+        assert assessment in ["EXCELLENT", "GOOD"]
 
     def test_calculate_cv_score_poor(self):
         """Test CV score calculation for poor AI-like uniformity."""
         thresholds = HierarchyThresholds(
-            cv_human_min=0.50,
-            cv_ai_max=0.30,
-            cv_threshold=0.40,
-            max_score=10.0
+            cv_human_min=0.50, cv_ai_max=0.30, cv_threshold=0.40, max_score=10.0
         )
 
         score, assessment = calculate_cv_score(0.15, thresholds)
 
         assert score < 3.0  # Should be low score
-        assert assessment in ['POOR', 'VERY_POOR']
+        assert assessment in ["POOR", "VERY_POOR"]
 
     def test_calculate_cv_score_at_threshold(self):
         """Test CV score at threshold boundary."""
         thresholds = HierarchyThresholds(
-            cv_human_min=0.50,
-            cv_ai_max=0.30,
-            cv_threshold=0.40,
-            max_score=10.0
+            cv_human_min=0.50, cv_ai_max=0.30, cv_threshold=0.40, max_score=10.0
         )
 
         score, assessment = calculate_cv_score(0.40, thresholds)
 
         # At threshold, should be around 50% of max_score
         assert 3.0 < score < 7.0
-        assert assessment in ['FAIR', 'GOOD']
+        assert assessment in ["FAIR", "GOOD"]
 
     def test_calculate_cv_score_respects_max_score(self):
         """Test that calculated score doesn't exceed max_score."""
         thresholds = HierarchyThresholds(
-            cv_human_min=0.50,
-            cv_ai_max=0.30,
-            cv_threshold=0.40,
-            max_score=6.0
+            cv_human_min=0.50, cv_ai_max=0.30, cv_threshold=0.40, max_score=6.0
         )
 
         score, assessment = calculate_cv_score(1.0, thresholds)
@@ -179,41 +170,41 @@ class TestCalculateCombinedStructureScore:
         """Test combined scoring when all levels show excellent variance."""
         result = calculate_combined_structure_score(
             section_length_cv=0.55,  # Excellent for academic
-            h3_subsection_cv=0.70,   # Excellent
-            h4_subsection_cv=0.60,   # Excellent
-            domain=DocumentDomain.ACADEMIC
+            h3_subsection_cv=0.70,  # Excellent
+            h4_subsection_cv=0.60,  # Excellent
+            domain=DocumentDomain.ACADEMIC,
         )
 
-        assert 'combined_score' in result
-        assert 'combined_assessment' in result
-        assert 'breakdown' in result
-        assert result['combined_assessment'] in ['EXCELLENT', 'GOOD']
-        assert result['prob_human'] > 0.65
+        assert "combined_score" in result
+        assert "combined_assessment" in result
+        assert "breakdown" in result
+        assert result["combined_assessment"] in ["EXCELLENT", "GOOD"]
+        assert result["prob_human"] > 0.65
 
     def test_combined_score_all_poor(self):
         """Test combined scoring when all levels show poor variance."""
         result = calculate_combined_structure_score(
             section_length_cv=0.10,  # Poor for academic
-            h3_subsection_cv=0.15,   # Poor
-            h4_subsection_cv=0.10,   # Poor
-            domain=DocumentDomain.ACADEMIC
+            h3_subsection_cv=0.15,  # Poor
+            h4_subsection_cv=0.10,  # Poor
+            domain=DocumentDomain.ACADEMIC,
         )
 
-        assert result['combined_assessment'] in ['POOR', 'VERY_POOR']
-        assert result['prob_human'] < 0.40
+        assert result["combined_assessment"] in ["POOR", "VERY_POOR"]
+        assert result["prob_human"] < 0.40
 
     def test_combined_score_mixed_quality(self):
         """Test combined scoring with mixed quality levels."""
         result = calculate_combined_structure_score(
             section_length_cv=0.50,  # Good
-            h3_subsection_cv=0.20,   # Poor
-            h4_subsection_cv=0.60,   # Excellent
-            domain=DocumentDomain.ACADEMIC
+            h3_subsection_cv=0.20,  # Poor
+            h4_subsection_cv=0.60,  # Excellent
+            domain=DocumentDomain.ACADEMIC,
         )
 
-        assert result['combined_assessment'] in ['FAIR', 'GOOD', 'POOR']
+        assert result["combined_assessment"] in ["FAIR", "GOOD", "POOR"]
         # Score should be weighted average
-        assert 0 < result['combined_score'] <= 24
+        assert 0 < result["combined_score"] <= 24
 
     def test_combined_score_breakdown_structure(self):
         """Test that breakdown contains all expected fields."""
@@ -221,54 +212,48 @@ class TestCalculateCombinedStructureScore:
             section_length_cv=0.40,
             h3_subsection_cv=0.50,
             h4_subsection_cv=0.40,
-            domain=DocumentDomain.TECHNICAL
+            domain=DocumentDomain.TECHNICAL,
         )
 
-        breakdown = result['breakdown']
-        assert 'h2_score' in breakdown
-        assert 'h2_assessment' in breakdown
-        assert 'h2_weight' in breakdown
-        assert 'h3_score' in breakdown
-        assert 'h3_assessment' in breakdown
-        assert 'h3_weight' in breakdown
-        assert 'h4_score' in breakdown
-        assert 'h4_assessment' in breakdown
-        assert 'h4_weight' in breakdown
+        breakdown = result["breakdown"]
+        assert "h2_score" in breakdown
+        assert "h2_assessment" in breakdown
+        assert "h2_weight" in breakdown
+        assert "h3_score" in breakdown
+        assert "h3_assessment" in breakdown
+        assert "h3_weight" in breakdown
+        assert "h4_score" in breakdown
+        assert "h4_assessment" in breakdown
+        assert "h4_weight" in breakdown
 
     def test_combined_score_domain_specific_thresholds(self):
         """Test that different domains use appropriate thresholds."""
-        cv_values = {
-            'section_length_cv': 0.15,
-            'h3_subsection_cv': 0.20,
-            'h4_subsection_cv': 0.20
-        }
+        cv_values = {"section_length_cv": 0.15, "h3_subsection_cv": 0.20, "h4_subsection_cv": 0.20}
 
         # Technical docs expect low variance - should score better
         technical_result = calculate_combined_structure_score(
-            **cv_values,
-            domain=DocumentDomain.TECHNICAL
+            **cv_values, domain=DocumentDomain.TECHNICAL
         )
 
         # Academic expects high variance - same CVs should score worse
         academic_result = calculate_combined_structure_score(
-            **cv_values,
-            domain=DocumentDomain.ACADEMIC
+            **cv_values, domain=DocumentDomain.ACADEMIC
         )
 
         # Technical should have higher probability human for these low CVs
-        assert technical_result['prob_human'] > academic_result['prob_human']
+        assert technical_result["prob_human"] > academic_result["prob_human"]
 
     def test_combined_score_max_possible(self):
         """Test that combined score never exceeds maximum."""
         result = calculate_combined_structure_score(
-            section_length_cv=2.0,   # Extremely high
-            h3_subsection_cv=2.0,    # Extremely high
-            h4_subsection_cv=2.0,    # Extremely high
-            domain=DocumentDomain.GENERAL
+            section_length_cv=2.0,  # Extremely high
+            h3_subsection_cv=2.0,  # Extremely high
+            h4_subsection_cv=2.0,  # Extremely high
+            domain=DocumentDomain.GENERAL,
         )
 
         # Max score: 10*weight + 8*weight + 6*weight = 24 max
-        assert result['combined_score'] <= 24.0
+        assert result["combined_score"] <= 24.0
 
     def test_combined_score_weights_applied(self):
         """Test that domain-specific weights are properly applied."""
@@ -276,11 +261,11 @@ class TestCalculateCombinedStructureScore:
             section_length_cv=0.40,
             h3_subsection_cv=0.50,
             h4_subsection_cv=0.40,
-            domain=DocumentDomain.ACADEMIC
+            domain=DocumentDomain.ACADEMIC,
         )
 
         # Academic emphasizes H2 (0.50), then H3 (0.35), then H4 (0.15)
-        breakdown = result['breakdown']
-        assert breakdown['h2_weight'] == 0.50
-        assert breakdown['h3_weight'] == 0.35
-        assert breakdown['h4_weight'] == 0.15
+        breakdown = result["breakdown"]
+        assert breakdown["h2_weight"] == 0.50
+        assert breakdown["h3_weight"] == 0.35
+        assert breakdown["h4_weight"] == 0.15

@@ -42,18 +42,20 @@ class ValidationErrorDetail:
 
     def __repr__(self) -> str:
         """Developer-friendly representation."""
-        return (f"ValidationErrorDetail(dimension_name={self.dimension_name!r}, "
-                f"error_type={self.error_type!r}, current_value={self.current_value}, "
-                f"expected_value={self.expected_value})")
+        return (
+            f"ValidationErrorDetail(dimension_name={self.dimension_name!r}, "
+            f"error_type={self.error_type!r}, current_value={self.current_value}, "
+            f"expected_value={self.expected_value})"
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
-            'dimension_name': self.dimension_name,
-            'error_type': self.error_type,
-            'current_value': self.current_value,
-            'expected_value': self.expected_value,
-            'message': self.message
+            "dimension_name": self.dimension_name,
+            "error_type": self.error_type,
+            "current_value": self.current_value,
+            "expected_value": self.expected_value,
+            "message": self.message,
         }
 
 
@@ -78,7 +80,7 @@ class WeightValidationError(AIPatternAnalyzerError):
         errors: Optional[List[ValidationErrorDetail]] = None,
         total_weight: Optional[float] = None,
         expected_weight: float = 100.0,
-        tolerance: float = 0.1
+        tolerance: float = 0.1,
     ):
         """
         Initialize WeightValidationError.
@@ -110,23 +112,25 @@ class WeightValidationError(AIPatternAnalyzerError):
             for i, error in enumerate(self.errors, 1):
                 lines.append(f"  {i}. {error.message}")
 
-        return '\n'.join(lines)
+        return "\n".join(lines)
 
     def __repr__(self) -> str:
         """Developer-friendly representation."""
-        return (f"WeightValidationError(message={self.args[0]!r}, "
-                f"errors={len(self.errors)} errors, "
-                f"total_weight={self.total_weight})")
+        return (
+            f"WeightValidationError(message={self.args[0]!r}, "
+            f"errors={len(self.errors)} errors, "
+            f"total_weight={self.total_weight})"
+        )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
-            'message': str(self.args[0]),
-            'total_weight': self.total_weight,
-            'expected_weight': self.expected_weight,
-            'tolerance': self.tolerance,
-            'error_count': len(self.errors),
-            'errors': [error.to_dict() for error in self.errors]
+            "message": str(self.args[0]),
+            "total_weight": self.total_weight,
+            "expected_weight": self.expected_weight,
+            "tolerance": self.tolerance,
+            "error_count": len(self.errors),
+            "errors": [error.to_dict() for error in self.errors],
         }
 
 
@@ -150,11 +154,7 @@ class WeightMediator:
         validation_warnings: List of warning messages
     """
 
-    def __init__(
-        self,
-        registry: Optional[DimensionRegistry] = None,
-        tolerance: float = 0.1
-    ):
+    def __init__(self, registry: Optional[DimensionRegistry] = None, tolerance: float = 0.1):
         """
         Initialize WeightMediator.
 
@@ -167,9 +167,7 @@ class WeightMediator:
             ValueError: If tolerance is negative or > 10.0
         """
         if tolerance < 0 or tolerance > 10.0:
-            raise ValueError(
-                f"Tolerance must be between 0 and 10.0, got {tolerance}"
-            )
+            raise ValueError(f"Tolerance must be between 0 and 10.0, got {tolerance}")
 
         self.registry = registry  # If None, will use DimensionRegistry class methods
         self.tolerance = tolerance
@@ -181,18 +179,22 @@ class WeightMediator:
         """Developer-friendly representation."""
         dimension_count = self._get_dimension_count()
         total_weight = self.get_total_weight()
-        return (f"WeightMediator(dimensions={dimension_count}, "
-                f"total_weight={total_weight:.2f}, "
-                f"tolerance={self.tolerance}, "
-                f"is_valid={self.is_valid})")
+        return (
+            f"WeightMediator(dimensions={dimension_count}, "
+            f"total_weight={total_weight:.2f}, "
+            f"tolerance={self.tolerance}, "
+            f"is_valid={self.is_valid})"
+        )
 
     def __str__(self) -> str:
         """Human-readable summary."""
         dimension_count = self._get_dimension_count()
         total_weight = self.get_total_weight()
         status = "VALID" if self.is_valid else "INVALID"
-        return (f"WeightMediator: {dimension_count} dimensions, "
-                f"total weight {total_weight:.2f}%, {status}")
+        return (
+            f"WeightMediator: {dimension_count} dimensions, "
+            f"total weight {total_weight:.2f}%, {status}"
+        )
 
     @property
     def is_valid(self) -> bool:
@@ -252,23 +254,27 @@ class WeightMediator:
 
         # Rule 2: No negative weights
         if weight < 0:
-            self.validation_errors.append(ValidationErrorDetail(
-                dimension_name=name,
-                error_type='negative_weight',
-                current_value=weight,
-                expected_value='>= 0',
-                message=f"Dimension '{name}' has negative weight: {weight:.2f}"
-            ))
+            self.validation_errors.append(
+                ValidationErrorDetail(
+                    dimension_name=name,
+                    error_type="negative_weight",
+                    current_value=weight,
+                    expected_value=">= 0",
+                    message=f"Dimension '{name}' has negative weight: {weight:.2f}",
+                )
+            )
 
         # Rule 3: No excessive weights
         if weight > 100:
-            self.validation_errors.append(ValidationErrorDetail(
-                dimension_name=name,
-                error_type='excessive_weight',
-                current_value=weight,
-                expected_value='<= 100',
-                message=f"Dimension '{name}' has weight > 100: {weight:.2f}"
-            ))
+            self.validation_errors.append(
+                ValidationErrorDetail(
+                    dimension_name=name,
+                    error_type="excessive_weight",
+                    current_value=weight,
+                    expected_value="<= 100",
+                    message=f"Dimension '{name}' has weight > 100: {weight:.2f}",
+                )
+            )
 
         # Zero weight dimensions are treated as errors (not just warnings)
         # Design Rationale: Zero-weight dimensions indicate a configuration issue
@@ -279,13 +285,15 @@ class WeightMediator:
         # Treating as an error prevents silent failures where dimensions are
         # unexpectedly ignored during analysis.
         if weight == 0:
-            self.validation_errors.append(ValidationErrorDetail(
-                dimension_name=name,
-                error_type='zero_weight',
-                current_value=0,
-                expected_value='> 0',
-                message=f"Dimension '{name}' has zero weight (will be ignored in analysis)"
-            ))
+            self.validation_errors.append(
+                ValidationErrorDetail(
+                    dimension_name=name,
+                    error_type="zero_weight",
+                    current_value=0,
+                    expected_value="> 0",
+                    message=f"Dimension '{name}' has zero weight (will be ignored in analysis)",
+                )
+            )
             self.validation_warnings.append(
                 f"Dimension '{name}' has zero weight and will be ignored"
             )
@@ -298,7 +306,7 @@ class WeightMediator:
             Sum of all dimension weights
         """
         dimensions = self._get_all_dimensions()
-        return sum(d.weight for d in dimensions)
+        return float(sum(d.weight for d in dimensions))
 
     def validate_weights(self, force: bool = False) -> bool:
         """
@@ -333,13 +341,15 @@ class WeightMediator:
 
         # Rule 1: At least one dimension
         if not dimensions:
-            self.validation_errors.append(ValidationErrorDetail(
-                dimension_name='<registry>',
-                error_type='no_dimensions',
-                current_value=0,
-                expected_value='>= 1',
-                message='No dimensions registered. At least one dimension required.'
-            ))
+            self.validation_errors.append(
+                ValidationErrorDetail(
+                    dimension_name="<registry>",
+                    error_type="no_dimensions",
+                    current_value=0,
+                    expected_value=">= 1",
+                    message="No dimensions registered. At least one dimension required.",
+                )
+            )
             return False
 
         # Validate each dimension individually
@@ -352,15 +362,19 @@ class WeightMediator:
         difference = abs(total_weight - expected_weight)
 
         if difference > self.tolerance:
-            self.validation_errors.append(ValidationErrorDetail(
-                dimension_name='<all>',
-                error_type='invalid_total',
-                current_value=total_weight,
-                expected_value=expected_weight,
-                message=(f"Total weight is {self._format_percentage(total_weight)}, "
+            self.validation_errors.append(
+                ValidationErrorDetail(
+                    dimension_name="<all>",
+                    error_type="invalid_total",
+                    current_value=total_weight,
+                    expected_value=expected_weight,
+                    message=(
+                        f"Total weight is {self._format_percentage(total_weight)}, "
                         f"expected {self._format_percentage(expected_weight)} "
-                        f"(difference: {self._format_percentage(total_weight - expected_weight, show_sign=True)})")
-            ))
+                        f"(difference: {self._format_percentage(total_weight - expected_weight, show_sign=True)})"
+                    ),
+                )
+            )
 
         # Cache result for performance
         result = len(self.validation_errors) == 0
@@ -384,22 +398,21 @@ class WeightMediator:
         """
         dimensions = self._get_all_dimensions()
 
-        tier_data = {
-            'ADVANCED': {'total_weight': 0.0, 'dimension_count': 0, 'dimensions': []},
-            'CORE': {'total_weight': 0.0, 'dimension_count': 0, 'dimensions': []},
-            'SUPPORTING': {'total_weight': 0.0, 'dimension_count': 0, 'dimensions': []},
-            'STRUCTURAL': {'total_weight': 0.0, 'dimension_count': 0, 'dimensions': []}
+        tier_data: Dict[str, Dict[str, Any]] = {
+            "ADVANCED": {"total_weight": 0.0, "dimension_count": 0, "dimensions": []},
+            "CORE": {"total_weight": 0.0, "dimension_count": 0, "dimensions": []},
+            "SUPPORTING": {"total_weight": 0.0, "dimension_count": 0, "dimensions": []},
+            "STRUCTURAL": {"total_weight": 0.0, "dimension_count": 0, "dimensions": []},
         }
 
         for dimension in dimensions:
             tier = dimension.tier
             if tier in tier_data:
-                tier_data[tier]['total_weight'] += dimension.weight
-                tier_data[tier]['dimension_count'] += 1
-                tier_data[tier]['dimensions'].append({
-                    'name': dimension.dimension_name,
-                    'weight': dimension.weight
-                })
+                tier_data[tier]["total_weight"] += dimension.weight
+                tier_data[tier]["dimension_count"] += 1
+                tier_data[tier]["dimensions"].append(
+                    {"name": dimension.dimension_name, "weight": dimension.weight}
+                )
 
         return tier_data
 
@@ -505,7 +518,7 @@ class WeightMediator:
         suggestions = self._adjust_rounding(suggestions)
         return suggestions
 
-    def get_validation_report(self, format: str = 'dict') -> Union[Dict[str, Any], str]:
+    def get_validation_report(self, format: str = "dict") -> Union[Dict[str, Any], str]:
         """
         Generate comprehensive validation report.
 
@@ -524,26 +537,25 @@ class WeightMediator:
         is_valid = self.validate_weights(force=True)
 
         report = {
-            'is_valid': is_valid,
-            'total_weight': total_weight,
-            'expected_weight': expected_weight,
-            'difference': difference,
-            'tolerance': self.tolerance,
-            'dimension_count': len(dimensions),
-            'dimension_weights': {
-                d.dimension_name: d.weight for d in dimensions
-            },
-            'dimensions_by_tier': self._get_weights_by_tier(),
-            'errors': [error.to_dict() for error in self.validation_errors],
-            'warnings': self.validation_warnings.copy()
+            "is_valid": is_valid,
+            "total_weight": total_weight,
+            "expected_weight": expected_weight,
+            "difference": difference,
+            "tolerance": self.tolerance,
+            "dimension_count": len(dimensions),
+            "dimension_weights": {d.dimension_name: d.weight for d in dimensions},
+            "dimensions_by_tier": self._get_weights_by_tier(),
+            "errors": [error.to_dict() for error in self.validation_errors],
+            "warnings": self.validation_warnings.copy(),
         }
 
         # Add rebalancing suggestions if invalid
         if not is_valid:
-            report['suggested_rebalancing'] = self.suggest_rebalancing()
+            report["suggested_rebalancing"] = self.suggest_rebalancing()
 
-        if format == 'json':
+        if format == "json":
             import json
+
             return json.dumps(report, indent=2)
 
         return report
@@ -585,5 +597,5 @@ class WeightMediator:
                 errors=self.validation_errors.copy(),
                 total_weight=total_weight,
                 expected_weight=100.0,
-                tolerance=self.tolerance
+                tolerance=self.tolerance,
             )

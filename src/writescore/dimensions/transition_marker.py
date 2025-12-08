@@ -37,7 +37,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import TransitionInstance
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.utils.pattern_matching import FORMULAIC_TRANSITIONS
 
 
@@ -77,7 +77,7 @@ class TransitionMarkerDimension(DimensionStrategy):
     FORMULAIC_CONCERNING = 4
 
     # Composite scoring weights
-    WEIGHT_BASIC = 0.50      # Basic transitions (however, moreover)
+    WEIGHT_BASIC = 0.50  # Basic transitions (however, moreover)
     WEIGHT_FORMULAIC = 0.50  # Formulaic transitions
 
     def __init__(self):
@@ -101,9 +101,9 @@ class TransitionMarkerDimension(DimensionStrategy):
         return 5.5
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "ADVANCED"
+        return DimensionTier.ADVANCED
 
     @property
     def description(self) -> str:
@@ -117,9 +117,9 @@ class TransitionMarkerDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for transition marker patterns (v2.0.0).
@@ -169,15 +169,19 @@ class TransitionMarkerDimension(DimensionStrategy):
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
-    def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> List[TransitionInstance]:
+    def analyze_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[TransitionInstance]:
         """
         Detailed analysis with line numbers and suggestions.
         Identifies each transition marker occurrence and clustering patterns.
@@ -208,16 +212,16 @@ class TransitionMarkerDimension(DimensionStrategy):
         Returns:
             Score 0-100 (higher = more human-like)
         """
-        total_per_1k = basic['total_ai_markers_per_1k']
+        total_per_1k = basic["total_ai_markers_per_1k"]
 
         if total_per_1k <= self.BASIC_TRANSITION_EXCELLENT:
             return 100.0  # Excellent - human range
         elif total_per_1k <= self.BASIC_TRANSITION_GOOD:
-            return 75.0   # Good - upper human range
+            return 75.0  # Good - upper human range
         elif total_per_1k <= self.BASIC_TRANSITION_CONCERNING:
-            return 50.0   # Concerning - lower AI range
+            return 50.0  # Concerning - lower AI range
         else:
-            return 25.0   # Strong AI signature
+            return 25.0  # Strong AI signature
 
     def _score_formulaic_transitions(self, formulaic: Dict[str, Any]) -> float:
         """
@@ -232,16 +236,16 @@ class TransitionMarkerDimension(DimensionStrategy):
         Returns:
             Score 0-100 (higher = more human-like)
         """
-        count = formulaic['count']
+        count = formulaic["count"]
 
         if count <= self.FORMULAIC_EXCELLENT:
             return 100.0  # Excellent - human range
         elif count <= self.FORMULAIC_GOOD:
-            return 75.0   # Good
+            return 75.0  # Good
         elif count <= self.FORMULAIC_CONCERNING:
-            return 50.0   # Concerning
+            return 50.0  # Concerning
         else:
-            return 25.0   # Strong AI signature
+            return 25.0  # Strong AI signature
 
     def calculate_score(self, metrics: Dict[str, Any]) -> float:
         """
@@ -257,18 +261,15 @@ class TransitionMarkerDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             return 50.0  # Neutral score for unavailable data
 
         # Score both components
-        basic_score = self._score_basic_transitions(metrics['basic_transitions'])
-        formulaic_score = self._score_formulaic_transitions(metrics['formulaic_transitions'])
+        basic_score = self._score_basic_transitions(metrics["basic_transitions"])
+        formulaic_score = self._score_formulaic_transitions(metrics["formulaic_transitions"])
 
         # Weighted composite (equal weight)
-        score = (
-            basic_score * self.WEIGHT_BASIC +
-            formulaic_score * self.WEIGHT_FORMULAIC
-        )
+        score = basic_score * self.WEIGHT_BASIC + formulaic_score * self.WEIGHT_FORMULAIC
 
         self._validate_score(score)
         return score
@@ -286,19 +287,17 @@ class TransitionMarkerDimension(DimensionStrategy):
         """
         recommendations = []
 
-        if not metrics.get('available', False):
-            recommendations.append(
-                "Transition marker analysis unavailable."
-            )
+        if not metrics.get("available", False):
+            recommendations.append("Transition marker analysis unavailable.")
             return recommendations
 
-        basic = metrics.get('basic_transitions', {})
-        formulaic = metrics.get('formulaic_transitions', {})
+        basic = metrics.get("basic_transitions", {})
+        formulaic = metrics.get("formulaic_transitions", {})
 
-        however_per_1k = basic.get('however_per_1k', 0.0)
-        moreover_per_1k = basic.get('moreover_per_1k', 0.0)
-        total_basic = basic.get('total_ai_markers_per_1k', 0.0)
-        formulaic_count = formulaic.get('count', 0)
+        however_per_1k = basic.get("however_per_1k", 0.0)
+        moreover_per_1k = basic.get("moreover_per_1k", 0.0)
+        total_basic = basic.get("total_ai_markers_per_1k", 0.0)
+        formulaic_count = formulaic.get("count", 0)
 
         # Basic transition recommendations
         if total_basic > self.BASIC_TRANSITION_GOOD:
@@ -321,7 +320,7 @@ class TransitionMarkerDimension(DimensionStrategy):
 
         # Formulaic transition recommendations
         if formulaic_count > self.FORMULAIC_GOOD:
-            examples = ', '.join(formulaic.get('transitions', [])[:3])
+            examples = ", ".join(formulaic.get("transitions", [])[:3])
             recommendations.append(
                 f"Reduce formulaic transitions (found {formulaic_count}, target ≤{self.FORMULAIC_EXCELLENT}). "
                 f"Examples: {examples}. Use more natural, conversational transitions."
@@ -343,10 +342,10 @@ class TransitionMarkerDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -370,9 +369,9 @@ class TransitionMarkerDimension(DimensionStrategy):
             - total_transitions_per_1k: Combined metric
         """
         # Calculate word count once (used by both methods)
-        total_words = kwargs.get('word_count')
+        total_words = kwargs.get("word_count")
         if total_words is None:
-            total_words = len(re.findall(r'\b\w+\b', text))
+            total_words = len(re.findall(r"\b\w+\b", text))
 
         # Run both analyses
         basic = self._analyze_basic_transitions(text, word_count=total_words)
@@ -380,17 +379,19 @@ class TransitionMarkerDimension(DimensionStrategy):
 
         # Calculate combined metric
         words_in_thousands = total_words / 1000 if total_words > 0 else 1
-        total_transitions = basic['however_count'] + basic['moreover_count'] + formulaic['count']
-        total_transitions_per_1k = total_transitions / words_in_thousands if words_in_thousands > 0 else 0.0
+        total_transitions = basic["however_count"] + basic["moreover_count"] + formulaic["count"]
+        total_transitions_per_1k = (
+            total_transitions / words_in_thousands if words_in_thousands > 0 else 0.0
+        )
 
         # Build result
         return {
-            'basic_transitions': basic,
-            'formulaic_transitions': formulaic,
-            'total_transitions_per_1k': total_transitions_per_1k
+            "basic_transitions": basic,
+            "formulaic_transitions": formulaic,
+            "total_transitions_per_1k": total_transitions_per_1k,
         }
 
-    def _analyze_basic_transitions(self, text: str, **kwargs) -> Dict:
+    def _analyze_basic_transitions(self, text: str, **kwargs) -> Dict[str, Any]:
         """
         Analyze basic AI-specific transition markers (however, moreover).
 
@@ -399,28 +400,34 @@ class TransitionMarkerDimension(DimensionStrategy):
         - Frequency per 1k words
         - Total combined marker frequency
         """
-        result = {}
+        result: Dict[str, Any] = {}
 
         # Count AI-specific markers: however and moreover
-        however_pattern = re.compile(r'\bhowever\b', re.IGNORECASE)
-        moreover_pattern = re.compile(r'\bmoreover\b', re.IGNORECASE)
+        however_pattern = re.compile(r"\bhowever\b", re.IGNORECASE)
+        moreover_pattern = re.compile(r"\bmoreover\b", re.IGNORECASE)
 
         however_count = len(however_pattern.findall(text))
         moreover_count = len(moreover_pattern.findall(text))
 
         # Calculate per 1k words
         # Use pre-calculated word_count if provided, otherwise calculate
-        total_words = kwargs.get('word_count')
+        total_words = kwargs.get("word_count")
         if total_words is None:
-            total_words = len(re.findall(r'\b\w+\b', text))
+            total_words = len(re.findall(r"\b\w+\b", text))
 
         words_in_thousands = total_words / 1000 if total_words > 0 else 1
 
-        result['however_count'] = however_count
-        result['moreover_count'] = moreover_count
-        result['however_per_1k'] = however_count / words_in_thousands if words_in_thousands > 0 else 0.0
-        result['moreover_per_1k'] = moreover_count / words_in_thousands if words_in_thousands > 0 else 0.0
-        result['total_ai_markers_per_1k'] = (however_count + moreover_count) / words_in_thousands if words_in_thousands > 0 else 0.0
+        result["however_count"] = however_count
+        result["moreover_count"] = moreover_count
+        result["however_per_1k"] = (
+            however_count / words_in_thousands if words_in_thousands > 0 else 0.0
+        )
+        result["moreover_per_1k"] = (
+            moreover_count / words_in_thousands if words_in_thousands > 0 else 0.0
+        )
+        result["total_ai_markers_per_1k"] = (
+            (however_count + moreover_count) / words_in_thousands if words_in_thousands > 0 else 0.0
+        )
 
         return result
 
@@ -456,28 +463,32 @@ class TransitionMarkerDimension(DimensionStrategy):
             transitions_found.extend([m.group() for m in matches])
 
         # Calculate per 1k words
-        total_words = kwargs.get('word_count')
+        total_words = kwargs.get("word_count")
         if total_words is None:
-            total_words = len(re.findall(r'\b\w+\b', text))
+            total_words = len(re.findall(r"\b\w+\b", text))
 
         words_in_thousands = total_words / 1000 if total_words > 0 else 1
 
         return {
-            'count': len(transitions_found),
-            'transitions': transitions_found[:15],  # Limit to first 15 for readability
-            'per_1k': len(transitions_found) / words_in_thousands if words_in_thousands > 0 else 0.0
+            "count": len(transitions_found),
+            "transitions": transitions_found[:15],  # Limit to first 15 for readability
+            "per_1k": len(transitions_found) / words_in_thousands
+            if words_in_thousands > 0
+            else 0.0,
         }
 
-    def _analyze_stylometric_issues_detailed(self, lines: List[str], html_comment_checker=None) -> List[TransitionInstance]:
+    def _analyze_stylometric_issues_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[TransitionInstance]:
         """Detect AI-specific stylometric markers (however, moreover, clustering)."""
         issues = []
 
         # Track "however" and "moreover" usage
-        however_pattern = re.compile(r'\bhowever\b', re.IGNORECASE)
-        moreover_pattern = re.compile(r'\bmoreover\b', re.IGNORECASE)
+        however_pattern = re.compile(r"\bhowever\b", re.IGNORECASE)
+        moreover_pattern = re.compile(r"\bmoreover\b", re.IGNORECASE)
 
         # Count total words for frequency calculation
-        total_words = sum(len(re.findall(r'\b\w+\b', line)) for line in lines)
+        total_words = sum(len(re.findall(r"\b\w+\b", line)) for line in lines)
         total_words / 1000 if total_words > 0 else 1
 
         for line_num, line in enumerate(lines, start=1):
@@ -486,30 +497,40 @@ class TransitionMarkerDimension(DimensionStrategy):
             # Skip HTML comments (metadata), headings, and code blocks
             if html_comment_checker and html_comment_checker(line):
                 continue
-            if stripped.startswith('#') or stripped.startswith('```'):
+            if stripped.startswith("#") or stripped.startswith("```"):
                 continue
 
             # Check for "however" (AI: 5-10 per 1k, Human: 1-3 per 1k)
             however_matches = list(however_pattern.finditer(line))
             for _match in however_matches:
                 context = line.strip()
-                issues.append(TransitionInstance(
-                    line_number=line_num,
-                    transition='however',
-                    context=context[:120] + '...' if len(context) > 120 else context,
-                    suggestions=['Replace with: "But", "Yet", "Still"', 'Use natural flow without transition']
-                ))
+                issues.append(
+                    TransitionInstance(
+                        line_number=line_num,
+                        transition="however",
+                        context=context[:120] + "..." if len(context) > 120 else context,
+                        suggestions=[
+                            'Replace with: "But", "Yet", "Still"',
+                            "Use natural flow without transition",
+                        ],
+                    )
+                )
 
             # Check for "moreover" (AI: 3-7 per 1k, Human: 0-1 per 1k)
             moreover_matches = list(moreover_pattern.finditer(line))
             for _match in moreover_matches:
                 context = line.strip()
-                issues.append(TransitionInstance(
-                    line_number=line_num,
-                    transition='moreover',
-                    context=context[:120] + '...' if len(context) > 120 else context,
-                    suggestions=['Replace with: "Also", "And", "Plus"', 'Remove transition entirely']
-                ))
+                issues.append(
+                    TransitionInstance(
+                        line_number=line_num,
+                        transition="moreover",
+                        context=context[:120] + "..." if len(context) > 120 else context,
+                        suggestions=[
+                            'Replace with: "Also", "And", "Plus"',
+                            "Remove transition entirely",
+                        ],
+                    )
+                )
 
             # Check for formulaic transitions
             for pattern in FORMULAIC_TRANSITIONS:
@@ -517,24 +538,30 @@ class TransitionMarkerDimension(DimensionStrategy):
                 for match in matches:
                     transition = match.group()
                     context = line.strip()
-                    issues.append(TransitionInstance(
-                        line_number=line_num,
-                        transition=transition,
-                        context=context[:120] + '...' if len(context) > 120 else context,
-                        suggestions=['Use more natural transition', 'Remove formulaic transition']
-                    ))
+                    issues.append(
+                        TransitionInstance(
+                            line_number=line_num,
+                            transition=transition,
+                            context=context[:120] + "..." if len(context) > 120 else context,
+                            suggestions=[
+                                "Use more natural transition",
+                                "Remove formulaic transition",
+                            ],
+                        )
+                    )
 
         # Check for clusters (multiple "however" in close proximity)
-        however_lines = [i for i, line in enumerate(lines, start=1)
-                        if however_pattern.search(line)]
+        however_lines = [i for i, line in enumerate(lines, start=1) if however_pattern.search(line)]
         for i in range(len(however_lines) - 1):
-            if however_lines[i+1] - however_lines[i] <= 3:  # Within 3 lines
-                issues.append(TransitionInstance(
-                    line_number=however_lines[i],
-                    transition='however_cluster',
-                    context=f'Lines {however_lines[i]}-{however_lines[i+1]}',
-                    suggestions=['Vary transitions', 'Remove some instances entirely']
-                ))
+            if however_lines[i + 1] - however_lines[i] <= 3:  # Within 3 lines
+                issues.append(
+                    TransitionInstance(
+                        line_number=however_lines[i],
+                        transition="however_cluster",
+                        context=f"Lines {however_lines[i]}-{however_lines[i+1]}",
+                        suggestions=["Vary transitions", "Remove some instances entirely"],
+                    )
+                )
 
         return issues
 

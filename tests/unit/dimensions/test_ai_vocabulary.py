@@ -116,45 +116,58 @@ class TestTier1Detection:
         text = "Let's delve into this topic and delve deeper."
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier1']['count'] >= 2
-        assert any('delve' in w.lower() for w in result['tier_breakdown']['tier1']['words'])
+        assert result["tier_breakdown"]["tier1"]["count"] >= 2
+        assert any("delve" in w.lower() for w in result["tier_breakdown"]["tier1"]["words"])
 
     def test_tier1_robust_detection(self, dimension):
         """Test detection of 'robust' (Tier 1)."""
         text = "This robust solution provides robustness and reliability."
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier1']['count'] >= 2
-        assert any('robust' in w.lower() for w in result['tier_breakdown']['tier1']['words'])
+        assert result["tier_breakdown"]["tier1"]["count"] >= 2
+        assert any("robust" in w.lower() for w in result["tier_breakdown"]["tier1"]["words"])
 
     def test_tier1_leverage_detection(self, dimension):
         """Test detection of 'leverage' (Tier 1)."""
         text = "We leverage this technology by leveraging existing resources."
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier1']['count'] >= 2
-        assert any('leverag' in w.lower() for w in result['tier_breakdown']['tier1']['words'])
+        assert result["tier_breakdown"]["tier1"]["count"] >= 2
+        assert any("leverag" in w.lower() for w in result["tier_breakdown"]["tier1"]["words"])
 
     def test_tier1_all_patterns(self, dimension):
         """Test all 14 Tier 1 patterns are detected."""
         # Create text with all Tier 1 patterns
-        text = " ".join([
-            "delve", "robust", "leverage", "harness", "underscore",
-            "holistic", "myriad", "plethora", "quintessential",
-            "paramount", "foster", "realm", "tapestry", "embark"
-        ])
+        text = " ".join(
+            [
+                "delve",
+                "robust",
+                "leverage",
+                "harness",
+                "underscore",
+                "holistic",
+                "myriad",
+                "plethora",
+                "quintessential",
+                "paramount",
+                "foster",
+                "realm",
+                "tapestry",
+                "embark",
+            ]
+        )
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier1']['count'] == 14
-        assert result['tier_breakdown']['tier1']['weight'] == 3
+        assert result["tier_breakdown"]["tier1"]["count"] == 14
+        assert result["tier_breakdown"]["tier1"]["weight"] == 3
 
     def test_tier1_heavy_text(self, dimension, text_tier1_heavy):
         """Test text with heavy Tier 1 vocabulary."""
         result = dimension.analyze(text_tier1_heavy)
 
-        tier1_count = result['tier_breakdown']['tier1']['count']
+        tier1_count = result["tier_breakdown"]["tier1"]["count"]
         assert tier1_count >= 5  # Should detect multiple Tier 1 words
-        assert result['weighted_count'] >= tier1_count * 3  # Tier 1 weight applied
+        assert result["weighted_count"] >= tier1_count * 3  # Tier 1 weight applied
 
 
 class TestTier2Detection:
@@ -169,35 +182,46 @@ class TestTier2Detection:
         text = "This cutting-edge technology offers cutting-edge solutions."
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier2']['count'] >= 2
+        assert result["tier_breakdown"]["tier2"]["count"] >= 2
 
     def test_tier2_comprehensive_detection(self, dimension):
         """Test detection of 'comprehensive' (Tier 2)."""
         text = "A comprehensive analysis with comprehensive documentation."
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier2']['count'] >= 2
+        assert result["tier_breakdown"]["tier2"]["count"] >= 2
 
     def test_tier2_all_patterns(self, dimension):
         """Test all 12 Tier 2 patterns are detected."""
         # Create text with all Tier 2 patterns
-        text = " ".join([
-            "revolutionize", "game-changing", "cutting-edge", "pivotal",
-            "intricate", "nuanced", "multifaceted", "comprehensive",
-            "innovative", "transformative", "seamless", "dynamic"
-        ])
+        text = " ".join(
+            [
+                "revolutionize",
+                "game-changing",
+                "cutting-edge",
+                "pivotal",
+                "intricate",
+                "nuanced",
+                "multifaceted",
+                "comprehensive",
+                "innovative",
+                "transformative",
+                "seamless",
+                "dynamic",
+            ]
+        )
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier2']['count'] == 12
-        assert result['tier_breakdown']['tier2']['weight'] == 2
+        assert result["tier_breakdown"]["tier2"]["count"] == 12
+        assert result["tier_breakdown"]["tier2"]["weight"] == 2
 
     def test_tier2_heavy_text(self, dimension, text_tier2_heavy):
         """Test text with heavy Tier 2 vocabulary."""
         result = dimension.analyze(text_tier2_heavy)
 
-        tier2_count = result['tier_breakdown']['tier2']['count']
+        tier2_count = result["tier_breakdown"]["tier2"]["count"]
         assert tier2_count >= 5  # Should detect multiple Tier 2 words
-        assert result['weighted_count'] >= tier2_count * 2  # Tier 2 weight applied
+        assert result["weighted_count"] >= tier2_count * 2  # Tier 2 weight applied
 
 
 class TestTier3Detection:
@@ -212,32 +236,40 @@ class TestTier3Detection:
         text = "We optimize this process through optimization techniques."
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier3']['count'] >= 2
+        assert result["tier_breakdown"]["tier3"]["count"] >= 2
 
     def test_tier3_streamline_detection(self, dimension):
         """Test detection of 'streamline' (Tier 3)."""
         text = "Streamline workflows by streamlining operations."
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier3']['count'] >= 2
+        assert result["tier_breakdown"]["tier3"]["count"] >= 2
 
     def test_tier3_all_patterns(self, dimension):
         """Test all 8 Tier 3 patterns are detected."""
         # Create text with all Tier 3 patterns
-        text = " ".join([
-            "optimize", "streamline", "facilitate", "enhance",
-            "mitigate", "navigate", "ecosystem", "landscape"
-        ])
+        text = " ".join(
+            [
+                "optimize",
+                "streamline",
+                "facilitate",
+                "enhance",
+                "mitigate",
+                "navigate",
+                "ecosystem",
+                "landscape",
+            ]
+        )
         result = dimension.analyze(text)
 
-        assert result['tier_breakdown']['tier3']['count'] == 8
-        assert result['tier_breakdown']['tier3']['weight'] == 1
+        assert result["tier_breakdown"]["tier3"]["count"] == 8
+        assert result["tier_breakdown"]["tier3"]["weight"] == 1
 
     def test_tier3_heavy_text(self, dimension, text_tier3_heavy):
         """Test text with heavy Tier 3 vocabulary."""
         result = dimension.analyze(text_tier3_heavy)
 
-        tier3_count = result['tier_breakdown']['tier3']['count']
+        tier3_count = result["tier_breakdown"]["tier3"]["count"]
         assert tier3_count >= 4  # Should detect multiple Tier 3 words
 
 
@@ -252,7 +284,7 @@ class TestTierWeightedScoring:
         result = dimension.analyze(text)
 
         # Should have some weighting applied
-        assert result['weighted_count'] > result['total_count']
+        assert result["weighted_count"] > result["total_count"]
 
     def test_frequency_normalization_per_1k(self, dimension):
         """Test frequency normalization to per 1k words."""
@@ -261,21 +293,21 @@ class TestTierWeightedScoring:
         text = " ".join(["word"] * 18 + ["delve", "robust"])
         result = dimension.analyze(text)
 
-        assert result['weighted_per_1k'] > 0
-        assert result['total_per_1k'] > 0
+        assert result["weighted_per_1k"] > 0
+        assert result["total_per_1k"] > 0
         # Weighted should be higher than raw count due to tier weighting
-        assert result['weighted_per_1k'] >= result['total_per_1k']
+        assert result["weighted_per_1k"] >= result["total_per_1k"]
 
     def test_mixed_tiers_weighting(self, dimension, text_mixed_tiers):
         """Test that mixed tier text applies correct weighting."""
         result = dimension.analyze(text_mixed_tiers)
 
-        tier1_count = result['tier_breakdown']['tier1']['count']
-        tier2_count = result['tier_breakdown']['tier2']['count']
-        tier3_count = result['tier_breakdown']['tier3']['count']
+        tier1_count = result["tier_breakdown"]["tier1"]["count"]
+        tier2_count = result["tier_breakdown"]["tier2"]["count"]
+        tier3_count = result["tier_breakdown"]["tier3"]["count"]
 
         expected_weighted = (tier1_count * 3) + (tier2_count * 2) + (tier3_count * 1)
-        assert result['weighted_count'] == expected_weighted
+        assert result["weighted_count"] == expected_weighted
 
 
 class TestThresholdBasedScoring:
@@ -335,9 +367,9 @@ class TestRecommendations:
         recommendations = dimension.get_recommendations(score, result)
 
         # Should have recommendations if weighted_per_1k >= 2.0
-        if result['weighted_per_1k'] >= 2.0:
+        if result["weighted_per_1k"] >= 2.0:
             assert len(recommendations) > 0
-            assert any('Reduce AI vocabulary' in r for r in recommendations)
+            assert any("Reduce AI vocabulary" in r for r in recommendations)
 
     def test_tier_specific_recommendations(self, dimension, text_tier1_heavy):
         """Test that recommendations prioritize high-tier words."""
@@ -346,8 +378,8 @@ class TestRecommendations:
         recommendations = dimension.get_recommendations(score, result)
 
         # Should mention Tier-1 words if present
-        if result['tier_breakdown']['tier1']['count'] > 0:
-            assert any('Tier-1' in r for r in recommendations)
+        if result["tier_breakdown"]["tier1"]["count"] > 0:
+            assert any("Tier-1" in r for r in recommendations)
 
 
 class TestEdgeCases:
@@ -358,10 +390,10 @@ class TestEdgeCases:
         result = dimension.analyze("")
         score = dimension.calculate_score(result)
 
-        assert result['total_count'] == 0
-        assert result['weighted_count'] == 0
-        assert result['total_per_1k'] == 0.0
-        assert result['weighted_per_1k'] == 0.0
+        assert result["total_count"] == 0
+        assert result["weighted_count"] == 0
+        assert result["total_per_1k"] == 0.0
+        assert result["weighted_per_1k"] == 0.0
         assert score == 100.0  # No AI vocabulary = perfect score
 
     def test_very_short_text(self, dimension):
@@ -370,8 +402,8 @@ class TestEdgeCases:
         result = dimension.analyze(text)
         score = dimension.calculate_score(result)
 
-        assert result['total_count'] == 3
-        assert result['weighted_count'] == 9  # 3 Tier 1 words * 3
+        assert result["total_count"] == 3
+        assert result["weighted_count"] == 9  # 3 Tier 1 words * 3
         assert 0.0 <= score <= 100.0
 
     def test_very_long_text_no_ai_vocab(self, dimension):
@@ -380,7 +412,7 @@ class TestEdgeCases:
         result = dimension.analyze(text)
         score = dimension.calculate_score(result)
 
-        assert result['total_count'] == 0
+        assert result["total_count"] == 0
         assert score == 100.0
 
     def test_high_concentration_ai_vocab(self, dimension):
@@ -390,8 +422,8 @@ class TestEdgeCases:
         result = dimension.analyze(text)
         score = dimension.calculate_score(result)
 
-        assert result['total_count'] == 60
-        assert result['weighted_count'] == 180  # All Tier 1, 60 * 3
+        assert result["total_count"] == 60
+        assert result["weighted_count"] == 180  # All Tier 1, 60 * 3
         assert score == 25.0  # Worst possible score
 
     def test_case_insensitive_detection(self, dimension):
@@ -399,7 +431,7 @@ class TestEdgeCases:
         text = "DELVE Delve delve DeLvE"
         result = dimension.analyze(text)
 
-        assert result['total_count'] == 4  # All variants detected
+        assert result["total_count"] == 4  # All variants detected
 
     def test_word_boundary_detection(self, dimension):
         """Test that patterns respect word boundaries."""
@@ -407,7 +439,7 @@ class TestEdgeCases:
         result = dimension.analyze(text)
 
         # Should not detect 'delve' in these words
-        assert result['tier_breakdown']['tier1']['count'] == 0
+        assert result["tier_breakdown"]["tier1"]["count"] == 0
 
 
 class TestDetailedAnalysis:
@@ -418,12 +450,12 @@ class TestDetailedAnalysis:
         lines = [
             "Let's delve into this topic.",
             "This robust solution is comprehensive.",
-            "We can optimize the workflow."
+            "We can optimize the workflow.",
         ]
         result = dimension.analyze_detailed(lines)
 
-        assert 'vocab_instances' in result
-        assert len(result['vocab_instances']) > 0
+        assert "vocab_instances" in result
+        assert len(result["vocab_instances"]) > 0
 
     def test_detailed_analysis_line_numbers(self, dimension):
         """Test that instances have correct line numbers."""
@@ -431,11 +463,11 @@ class TestDetailedAnalysis:
             "Normal text here.",
             "Let's delve into this.",  # Line 2
             "More normal text.",
-            "This is robust."  # Line 4
+            "This is robust.",  # Line 4
         ]
         result = dimension.analyze_detailed(lines)
 
-        instances = result['vocab_instances']
+        instances = result["vocab_instances"]
         line_numbers = [inst.line_number for inst in instances]
 
         assert 2 in line_numbers  # 'delve' on line 2
@@ -445,11 +477,11 @@ class TestDetailedAnalysis:
         """Test that detailed analysis skips markdown headings."""
         lines = [
             "# Delve into robust solutions",  # Should be skipped (heading)
-            "Let's delve into this topic."    # Should be detected
+            "Let's delve into this topic.",  # Should be detected
         ]
         result = dimension.analyze_detailed(lines)
 
-        instances = result['vocab_instances']
+        instances = result["vocab_instances"]
         # Should only detect 'delve' from line 2, not from heading
         assert len(instances) >= 1
 
@@ -459,12 +491,12 @@ class TestDetailedAnalysis:
             "```python",
             "delve = 'test'",  # Should be skipped (code block)
             "```",
-            "Let's delve into this."  # Should be detected
+            "Let's delve into this.",  # Should be detected
         ]
         result = dimension.analyze_detailed(lines)
 
         # Should detect some instances (implementation may vary)
-        assert 'vocab_instances' in result
+        assert "vocab_instances" in result
 
 
 class TestIntegration:
@@ -481,10 +513,10 @@ class TestIntegration:
 
     def test_dimension_properties_accessible(self, dimension):
         """Test that all required properties are accessible."""
-        assert hasattr(dimension, 'dimension_name')
-        assert hasattr(dimension, 'weight')
-        assert hasattr(dimension, 'tier')
-        assert hasattr(dimension, 'description')
+        assert hasattr(dimension, "dimension_name")
+        assert hasattr(dimension, "weight")
+        assert hasattr(dimension, "tier")
+        assert hasattr(dimension, "description")
 
     def test_dimension_methods_callable(self, dimension):
         """Test that all required methods are callable."""
@@ -497,7 +529,7 @@ class TestIntegration:
         """Test complete end-to-end analysis workflow."""
         # Analyze
         result = dimension.analyze(text_mixed_tiers)
-        assert result['available'] is True
+        assert result["available"] is True
 
         # Calculate score
         score = dimension.calculate_score(result)
@@ -543,20 +575,20 @@ class TestBackwardCompatibility:
         result = dimension.analyze(text_mixed_tiers)
 
         # Core metrics
-        assert 'total_count' in result
-        assert 'weighted_count' in result
-        assert 'total_per_1k' in result
-        assert 'weighted_per_1k' in result
+        assert "total_count" in result
+        assert "weighted_count" in result
+        assert "total_per_1k" in result
+        assert "weighted_per_1k" in result
 
         # Tier breakdown
-        assert 'tier_breakdown' in result
-        assert 'tier1' in result['tier_breakdown']
-        assert 'tier2' in result['tier_breakdown']
-        assert 'tier3' in result['tier_breakdown']
+        assert "tier_breakdown" in result
+        assert "tier1" in result["tier_breakdown"]
+        assert "tier2" in result["tier_breakdown"]
+        assert "tier3" in result["tier_breakdown"]
 
         # Metadata
-        assert 'available' in result
-        assert 'analysis_mode' in result
+        assert "available" in result
+        assert "analysis_mode" in result
 
     def test_calculate_score_returns_float(self, dimension, text_mixed_tiers):
         """Test that calculate_score() returns a float."""

@@ -206,7 +206,7 @@ class TestExtractSentences:
         text = "Dr. Jones and Mrs. Smith work with Prof. Brown."
         sentences = extract_sentences(text)
         # Should keep abbreviations intact
-        result = ' '.join(sentences)
+        result = " ".join(sentences)
         assert "Dr." in result
         assert "Mrs." in result
         assert "Prof." in result
@@ -217,13 +217,7 @@ class TestExtractParagraphs:
 
     def test_extract_paragraphs_basic(self):
         """Test basic paragraph extraction."""
-        lines = [
-            "Line 1",
-            "Line 2",
-            "",
-            "Line 3",
-            "Line 4"
-        ]
+        lines = ["Line 1", "Line 2", "", "Line 3", "Line 4"]
         paragraphs = extract_paragraphs(lines)
         assert len(paragraphs) == 2
         assert len(paragraphs[0]) == 2  # Lines 1-2
@@ -231,11 +225,7 @@ class TestExtractParagraphs:
 
     def test_extract_paragraphs_with_headings(self):
         """Test that headings are excluded."""
-        lines = [
-            "# Heading",
-            "Para line 1",
-            "Para line 2"
-        ]
+        lines = ["# Heading", "Para line 1", "Para line 2"]
         paragraphs = extract_paragraphs(lines)
         # Heading should not be in paragraph
         assert len(paragraphs) == 1
@@ -243,25 +233,14 @@ class TestExtractParagraphs:
 
     def test_extract_paragraphs_with_code_blocks(self):
         """Test that code block markers are excluded."""
-        lines = [
-            "Text before",
-            "```python",
-            "code",
-            "```",
-            "Text after"
-        ]
+        lines = ["Text before", "```python", "code", "```", "Text after"]
         paragraphs = extract_paragraphs(lines)
         # Should have 2 paragraphs (before and after code)
         assert len(paragraphs) >= 2
 
     def test_extract_paragraphs_empty_lines(self):
         """Test handling of multiple empty lines."""
-        lines = [
-            "Para 1",
-            "",
-            "",
-            "Para 2"
-        ]
+        lines = ["Para 1", "", "", "Para 2"]
         paragraphs = extract_paragraphs(lines)
         assert len(paragraphs) == 2
 
@@ -377,15 +356,15 @@ class TestCalculateWordFrequency:
         """Test basic word frequency calculation."""
         text = "the cat and the dog"
         freq = calculate_word_frequency(text)
-        assert freq['the'] == 2
-        assert freq['cat'] == 1
-        assert freq['dog'] == 1
+        assert freq["the"] == 2
+        assert freq["cat"] == 1
+        assert freq["dog"] == 1
 
     def test_calculate_word_frequency_case_insensitive(self):
         """Test that frequency is case-insensitive."""
         text = "Word word WORD"
         freq = calculate_word_frequency(text)
-        assert freq['word'] == 3
+        assert freq["word"] == 3
 
     def test_calculate_word_frequency_empty(self):
         """Test frequency of empty text."""
@@ -396,15 +375,15 @@ class TestCalculateWordFrequency:
         """Test that numbers are excluded."""
         text = "test 123 test"
         freq = calculate_word_frequency(text)
-        assert '123' not in freq
-        assert freq['test'] == 2
+        assert "123" not in freq
+        assert freq["test"] == 2
 
     def test_calculate_word_frequency_special_chars(self):
         """Test handling of special characters."""
         text = "hello, world! hello!"
         freq = calculate_word_frequency(text)
-        assert freq['hello'] == 2
-        assert freq['world'] == 1
+        assert freq["hello"] == 2
+        assert freq["world"] == 1
 
 
 class TestGetLineContext:
@@ -418,7 +397,9 @@ class TestGetLineContext:
 
     def test_get_line_context_long_line(self):
         """Test context extraction from long line."""
-        long_line = "This is a very long line that should be truncated to show context around the middle"
+        long_line = (
+            "This is a very long line that should be truncated to show context around the middle"
+        )
         lines = [long_line]
         context = get_line_context(lines, 0, context_size=20)
         # Should be truncated
@@ -490,7 +471,7 @@ Final paragraph here.
             "",
             "```python",
             "code",
-            "```"
+            "```",
         ]
 
         # Extract paragraphs

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "writescore"
-version = "6.3.0"
+version = "6.3.1"
 description = "AI writing pattern analysis and scoring tool"
 readme = "README.md"
 license = {text = "MIT"}
@@ -28,7 +28,9 @@ dependencies = [
     "textstat>=0.7.3",
     "transformers>=4.35.0",
     "torch>=2.0.0",
+    "scikit-learn>=1.3.0",
     "scipy>=1.11.0",
+    "scikit-learn>=1.3.0",
     "textacy>=0.13.0",
     "numpy>=1.24.0",
     "click>=8.0.0",
@@ -41,7 +43,9 @@ dev = [
     "pytest-timeout>=2.2.0",
     "psutil>=5.9.0",
     "ruff>=0.1.0",
+    "pre-commit>=3.5.0",
     "sentence-transformers>=2.0.0",  # Required for figurative_language tests
+    "types-PyYAML>=6.0.0",  # Type stubs for PyYAML
 ]
 semantic = [
     "sentence-transformers>=2.0.0",
@@ -55,9 +59,10 @@ ml = [
 writescore = "writescore.cli.main:cli"
 
 [project.urls]
-Homepage = "https://github.com/jmagady/writescore"
-Repository = "https://github.com/jmagady/writescore"
-Documentation = "https://github.com/jmagady/writescore#readme"
+Homepage = "https://github.com/BOHICA-LABS/writescore"
+Repository = "https://github.com/BOHICA-LABS/writescore"
+Documentation = "https://github.com/BOHICA-LABS/writescore#readme"
+Issues = "https://github.com/BOHICA-LABS/writescore/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -103,6 +108,62 @@ show_missing = true
 
 [tool.coverage.html]
 directory = "htmlcov"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = false
+warn_unused_ignores = true
+ignore_missing_imports = true
+implicit_optional = true
+strict_optional = false
+check_untyped_defs = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+no_implicit_reexport = false
+# Disable noisy checks for legacy code
+disable_error_code = [
+    "var-annotated",     # Don't require type annotations on all variables
+    "arg-type",          # Allow flexible argument types
+    "return-value",      # Allow flexible return types
+    "assignment",        # Allow flexible assignments
+    "override",          # Don't enforce override compatibility
+    "attr-defined",      # Allow dynamic attributes
+    "call-arg",          # Allow flexible call arguments
+    "index",             # Allow flexible indexing
+    "operator",          # Allow flexible operators
+    "dict-item",         # Allow flexible dict items
+    "valid-type",        # Allow flexible type expressions
+    "misc",              # Allow miscellaneous type issues
+]
+# TODO: Tech Debt - Re-enable these error codes incrementally in future epic
+# Priority: override, attr-defined, assignment, return-value, arg-type
+exclude = [
+    "/opt/homebrew/anaconda3/",
+    ".*/site-packages/mcp/.*",
+]
+# Per-module overrides for third-party libraries
+[[tool.mypy.overrides]]
+module = [
+    "marko.*",
+    "scipy.*",
+    "textstat.*",
+    "textacy.*",
+    "transformers.*",
+    "torch.*",
+    "spacy.*",
+    "nltk.*",
+    "sentence_transformers.*",
+    "yaml",
+    "yaml.*",
+]
+ignore_missing_imports = true
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["mcp", "mcp.*"]
+follow_imports = "skip"
+ignore_missing_imports = true
+ignore_errors = true
 
 [tool.ruff]
 line-length = 100

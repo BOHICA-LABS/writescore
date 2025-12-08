@@ -71,13 +71,13 @@ class TestStory26PerformanceValidation:
 
     def test_bulk_analysis_performance(self, dimension, regression_corpus):
         """Test bulk analysis performance across all corpus samples."""
-        samples = regression_corpus['samples']
+        samples = regression_corpus["samples"]
 
         times = []
         word_counts = []
 
         for sample in samples:
-            text = sample['text']
+            text = sample["text"]
             word_count = len(text.split())
             word_counts.append(word_count)
 
@@ -105,21 +105,21 @@ class TestStory26PerformanceValidation:
 
     def test_ai_human_score_separation(self, dimension, regression_corpus):
         """Test that AI and human samples maintain score separation."""
-        samples = regression_corpus['samples']
+        samples = regression_corpus["samples"]
 
         ai_scores = []
         human_scores = []
 
         for sample in samples:
-            text = sample['text']
-            category = sample['category']
+            text = sample["text"]
+            category = sample["category"]
 
             result = dimension.analyze(text)
             score = dimension.calculate_score(result)
 
-            if category == 'ai_generated':
+            if category == "ai_generated":
                 ai_scores.append(score)
-            elif category == 'human_written':
+            elif category == "human_written":
                 human_scores.append(score)
 
         # Calculate statistics
@@ -129,11 +129,17 @@ class TestStory26PerformanceValidation:
 
         # Requirement: Human scores should be higher than AI scores
         # With expanded lexicon, we expect better separation
-        assert human_mean > ai_mean, f"Human mean ({human_mean:.1f}) should exceed AI mean ({ai_mean:.1f})"
+        assert (
+            human_mean > ai_mean
+        ), f"Human mean ({human_mean:.1f}) should exceed AI mean ({ai_mean:.1f})"
 
         print("\n✓ AI/Human Score Separation Analysis")
-        print(f"  AI samples (n={len(ai_scores)}): mean={ai_mean:.1f}, std={statistics.stdev(ai_scores):.1f}")
-        print(f"  Human samples (n={len(human_scores)}): mean={human_mean:.1f}, std={statistics.stdev(human_scores):.1f}")
+        print(
+            f"  AI samples (n={len(ai_scores)}): mean={ai_mean:.1f}, std={statistics.stdev(ai_scores):.1f}"
+        )
+        print(
+            f"  Human samples (n={len(human_scores)}): mean={human_mean:.1f}, std={statistics.stdev(human_scores):.1f}"
+        )
         print(f"  Separation: {separation:.1f} points")
 
     def test_full_document_separation(self, dimension, human_text, ai_text):
@@ -145,7 +151,9 @@ class TestStory26PerformanceValidation:
         ai_score = dimension.calculate_score(ai_result)
 
         # Human document should score higher (more human-like)
-        assert human_score > ai_score, f"Human ({human_score:.1f}) should exceed AI ({ai_score:.1f})"
+        assert (
+            human_score > ai_score
+        ), f"Human ({human_score:.1f}) should exceed AI ({ai_score:.1f})"
 
         print("\n✓ Full Document Score Comparison")
         print(f"  Human document: {human_score:.1f}")
@@ -159,15 +167,15 @@ class TestStory26PerformanceValidation:
     def test_expanded_pattern_count(self, dimension):
         """Verify 126 patterns implemented (Story 2.6 AC1)."""
         total_patterns = (
-            len(dimension.EPISTEMIC_HEDGES) +
-            len(dimension.FREQUENCY_HEDGES) +
-            len(dimension.EPISTEMIC_VERBS) +
-            len(dimension.STRONG_CERTAINTY) +
-            len(dimension.SUBJECTIVE_CERTAINTY) +
-            len(dimension.ASSERTION_ACTS) +
-            len(dimension.FORMULAIC_AI_ACTS) +
-            len(dimension.ATTITUDE_MARKERS) +
-            len(dimension.LIKELIHOOD_ADVERBIALS)
+            len(dimension.EPISTEMIC_HEDGES)
+            + len(dimension.FREQUENCY_HEDGES)
+            + len(dimension.EPISTEMIC_VERBS)
+            + len(dimension.STRONG_CERTAINTY)
+            + len(dimension.SUBJECTIVE_CERTAINTY)
+            + len(dimension.ASSERTION_ACTS)
+            + len(dimension.FORMULAIC_AI_ACTS)
+            + len(dimension.ATTITUDE_MARKERS)
+            + len(dimension.LIKELIHOOD_ADVERBIALS)
         )
 
         assert total_patterns == 126, f"Expected 126 patterns, found {total_patterns}"
@@ -198,14 +206,18 @@ class TestStory26PerformanceValidation:
         result = dimension.analyze(test_text)
 
         # Verify new categories detected
-        assert 'attitude_markers' in result
-        assert 'likelihood_adverbials' in result
+        assert "attitude_markers" in result
+        assert "likelihood_adverbials" in result
 
-        attitude = result['attitude_markers']
-        likelihood = result['likelihood_adverbials']
+        attitude = result["attitude_markers"]
+        likelihood = result["likelihood_adverbials"]
 
-        assert attitude['total_count'] >= 3, f"Expected 3+ attitude markers, found {attitude['total_count']}"
-        assert likelihood['total_count'] >= 4, f"Expected 4+ likelihood adverbials, found {likelihood['total_count']}"
+        assert (
+            attitude["total_count"] >= 3
+        ), f"Expected 3+ attitude markers, found {attitude['total_count']}"
+        assert (
+            likelihood["total_count"] >= 4
+        ), f"Expected 4+ likelihood adverbials, found {likelihood['total_count']}"
 
         print("\n✓ New Category Detection")
         print(f"  Attitude markers: {attitude['total_count']} detected")
@@ -224,22 +236,24 @@ class TestStory26PerformanceValidation:
         """
 
         result = dimension.analyze(test_text)
-        hedging = result['hedging']
+        hedging = result["hedging"]
 
         # Story 2.6 new patterns should be detected
-        counts = hedging['counts_by_type']
+        counts = hedging["counts_by_type"]
 
         # Check for new modal hedges
-        assert counts.get('would', 0) >= 1, "Modal hedge 'would' not detected"
-        assert counts.get('should', 0) >= 1, "Modal hedge 'should' not detected"
+        assert counts.get("would", 0) >= 1, "Modal hedge 'would' not detected"
+        assert counts.get("should", 0) >= 1, "Modal hedge 'should' not detected"
 
         # Check for new lexical verb hedges
-        assert counts.get('seem', 0) >= 1 or counts.get('it_seems', 0) >= 1, "Lexical verb 'seem/seems' not detected"
-        assert counts.get('believe', 0) >= 1, "Epistemic verb 'believe' not detected"
+        assert (
+            counts.get("seem", 0) >= 1 or counts.get("it_seems", 0) >= 1
+        ), "Lexical verb 'seem/seems' not detected"
+        assert counts.get("believe", 0) >= 1, "Epistemic verb 'believe' not detected"
 
         # Check for new approximators
-        assert counts.get('typically', 0) >= 1, "Approximator 'typically' not detected"
-        assert counts.get('usually', 0) >= 1, "Approximator 'usually' not detected"
+        assert counts.get("typically", 0) >= 1, "Approximator 'typically' not detected"
+        assert counts.get("usually", 0) >= 1, "Approximator 'usually' not detected"
 
         print("\n✓ Expanded Hedging Pattern Detection")
         print(f"  Total hedge count: {hedging['total_count']}")
@@ -272,22 +286,22 @@ class TestStory26ValidationReport:
 
     def test_generate_validation_report(self, dimension, regression_corpus, human_text, ai_text):
         """Generate comprehensive validation report for Story 2.6."""
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("STORY 2.6 PERFORMANCE VALIDATION REPORT")
-        print("="*70)
+        print("=" * 70)
 
         # 1. Pattern Count Validation
         print("\n--- PATTERN COUNT VALIDATION (AC1) ---")
         total_patterns = (
-            len(dimension.EPISTEMIC_HEDGES) +
-            len(dimension.FREQUENCY_HEDGES) +
-            len(dimension.EPISTEMIC_VERBS) +
-            len(dimension.STRONG_CERTAINTY) +
-            len(dimension.SUBJECTIVE_CERTAINTY) +
-            len(dimension.ASSERTION_ACTS) +
-            len(dimension.FORMULAIC_AI_ACTS) +
-            len(dimension.ATTITUDE_MARKERS) +
-            len(dimension.LIKELIHOOD_ADVERBIALS)
+            len(dimension.EPISTEMIC_HEDGES)
+            + len(dimension.FREQUENCY_HEDGES)
+            + len(dimension.EPISTEMIC_VERBS)
+            + len(dimension.STRONG_CERTAINTY)
+            + len(dimension.SUBJECTIVE_CERTAINTY)
+            + len(dimension.ASSERTION_ACTS)
+            + len(dimension.FORMULAIC_AI_ACTS)
+            + len(dimension.ATTITUDE_MARKERS)
+            + len(dimension.LIKELIHOOD_ADVERBIALS)
         )
         status = "✓ PASS" if total_patterns == 126 else "✗ FAIL"
         print(f"Total patterns: {total_patterns}/126 {status}")
@@ -307,7 +321,7 @@ class TestStory26ValidationReport:
 
         # 3. Comparative Validation
         print("\n--- COMPARATIVE VALIDATION ---")
-        samples = regression_corpus['samples']
+        samples = regression_corpus["samples"]
 
         ai_scores = []
         human_scores = []
@@ -317,20 +331,20 @@ class TestStory26ValidationReport:
         human_certainty = []
 
         for sample in samples:
-            text = sample['text']
-            category = sample['category']
+            text = sample["text"]
+            category = sample["category"]
 
             result = dimension.analyze(text)
             score = dimension.calculate_score(result)
 
-            if category == 'ai_generated':
+            if category == "ai_generated":
                 ai_scores.append(score)
-                ai_hedging.append(result['hedging']['per_1k'])
-                ai_certainty.append(result['certainty']['per_1k'])
-            elif category == 'human_written':
+                ai_hedging.append(result["hedging"]["per_1k"])
+                ai_certainty.append(result["certainty"]["per_1k"])
+            elif category == "human_written":
                 human_scores.append(score)
-                human_hedging.append(result['hedging']['per_1k'])
-                human_certainty.append(result['certainty']['per_1k'])
+                human_hedging.append(result["hedging"]["per_1k"])
+                human_certainty.append(result["certainty"]["per_1k"])
 
         ai_mean = statistics.mean(ai_scores)
         human_mean = statistics.mean(human_scores)
@@ -358,8 +372,8 @@ class TestStory26ValidationReport:
         """
         result = dimension.analyze(test_text)
 
-        attitude_count = result['attitude_markers']['total_count']
-        likelihood_count = result['likelihood_adverbials']['total_count']
+        attitude_count = result["attitude_markers"]["total_count"]
+        likelihood_count = result["likelihood_adverbials"]["total_count"]
 
         print(f"Attitude markers detected: {attitude_count}")
         print(f"Likelihood adverbials detected: {likelihood_count}")
@@ -376,9 +390,9 @@ class TestStory26ValidationReport:
         print(f"AI document score: {ai_score:.1f}")
         print(f"Separation: {human_score - ai_score:.1f} points")
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("VALIDATION COMPLETE")
-        print("="*70)
+        print("=" * 70)
 
         # Assert critical validations
         assert total_patterns == 126

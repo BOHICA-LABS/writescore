@@ -8,15 +8,15 @@ prd:
   prdShardedLocation: docs/prd
   epicFilePattern: epic-{n}*.md
 architecture:
-  architectureFile: docs/architecture.md
+  architectureFile: docs/architecture/index.md
   architectureVersion: v4
   architectureSharded: true
   architectureShardedLocation: docs/architecture
 customTechnicalDocuments: null
 devLoadAlwaysFiles:
-  - docs/architecture/coding-standards.md
-  - docs/architecture/tech-stack.md
-  - docs/architecture/source-tree.md
+  - docs/architecture/9-coding-standards.md
+  - docs/architecture/2-technology-stack.md
+  - docs/architecture/7-source-code-organization.md
 devDebugLog: .ai/debug-log.md
 devStoryLocation: docs/stories
 slashPrefix: BMad

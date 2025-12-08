@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import SentenceBurstinessIssue
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.scoring.dual_score import THRESHOLDS
 from writescore.utils.text_processing import safe_ratio
 
@@ -52,9 +52,9 @@ class BurstinessDimension(DimensionStrategy):
         return 5.5
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "CORE"
+        return DimensionTier.CORE
 
     @property
     def description(self) -> str:
@@ -68,9 +68,9 @@ class BurstinessDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for sentence and paragraph variation.
@@ -99,11 +99,13 @@ class BurstinessDimension(DimensionStrategy):
                 sentence_burst = self._analyze_sentence_burstiness(sample_text)
                 paragraph_var = self._analyze_paragraph_variation(sample_text)
                 paragraph_cv = self._calculate_paragraph_cv(sample_text)
-                sample_results.append({
-                    'sentence_burstiness': sentence_burst,
-                    'paragraph_variation': paragraph_var,
-                    'paragraph_cv': paragraph_cv,
-                })
+                sample_results.append(
+                    {
+                        "sentence_burstiness": sentence_burst,
+                        "paragraph_variation": paragraph_var,
+                        "paragraph_cv": paragraph_cv,
+                    }
+                )
 
             # Aggregate metrics from all samples
             aggregated = self._aggregate_sampled_metrics(sample_results)
@@ -117,9 +119,9 @@ class BurstinessDimension(DimensionStrategy):
             paragraph_var = self._analyze_paragraph_variation(analyzed_text)
             paragraph_cv = self._calculate_paragraph_cv(analyzed_text)
             aggregated = {
-                'sentence_burstiness': sentence_burst,
-                'paragraph_variation': paragraph_var,
-                'paragraph_cv': paragraph_cv,
+                "sentence_burstiness": sentence_burst,
+                "paragraph_variation": paragraph_var,
+                "paragraph_cv": paragraph_cv,
             }
             analyzed_length = len(analyzed_text)
             samples_analyzed = 1
@@ -127,15 +129,19 @@ class BurstinessDimension(DimensionStrategy):
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
-    def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> List[SentenceBurstinessIssue]:
+    def analyze_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[SentenceBurstinessIssue]:
         """
         Detailed analysis of burstiness issues with line numbers.
 
@@ -176,23 +182,19 @@ class BurstinessDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        sentence_burst = metrics.get('sentence_burstiness', {})
-        total_sentences = sentence_burst.get('total_sentences', 0)
+        sentence_burst = metrics.get("sentence_burstiness", {})
+        total_sentences = sentence_burst.get("total_sentences", 0)
 
         if total_sentences == 0:
             # Insufficient data - return neutral score
             return 50.0
 
-        stdev = sentence_burst.get('stdev', 0)
+        stdev = sentence_burst.get("stdev", 0)
 
         # Gaussian scoring with research-based parameters
         # Target μ=15.0, Width σ=5.0 (Story 2.4.1, AC3)
         # _gaussian_score() returns 0-100 scale directly
-        score = self._gaussian_score(
-            value=stdev,
-            target=15.0,
-            width=5.0
-        )
+        score = self._gaussian_score(value=stdev, target=15.0, width=5.0)
 
         self._validate_score(score)
         return score
@@ -208,13 +210,13 @@ class BurstinessDimension(DimensionStrategy):
         Returns:
             List of recommendation strings
         """
-        recommendations = []
+        recommendations: List[str] = []
 
-        sentence_burst = metrics.get('sentence_burstiness', {})
-        stdev = sentence_burst.get('stdev', 0)
-        short_count = sentence_burst.get('short', 0)
-        long_count = sentence_burst.get('long', 0)
-        total_sentences = sentence_burst.get('total_sentences', 0)
+        sentence_burst = metrics.get("sentence_burstiness", {})
+        stdev = sentence_burst.get("stdev", 0)
+        short_count = sentence_burst.get("short", 0)
+        long_count = sentence_burst.get("long", 0)
+        total_sentences = sentence_burst.get("total_sentences", 0)
 
         if total_sentences == 0:
             return recommendations
@@ -253,10 +255,10 @@ class BurstinessDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -273,19 +275,23 @@ class BurstinessDimension(DimensionStrategy):
         Returns:
             Tuple of (score_value, score_label)
         """
-        total_sentences = analysis_results.get('total_sentences', 0)
+        total_sentences = analysis_results.get("total_sentences", 0)
         if total_sentences == 0:
             return (0.0, "UNKNOWN")
 
-        stdev = analysis_results.get('stdev', 0)
-        short_count = analysis_results.get('short', 0)
-        long_count = analysis_results.get('long', 0)
+        stdev = analysis_results.get("stdev", 0)
+        short_count = analysis_results.get("short", 0)
+        long_count = analysis_results.get("long", 0)
 
         short_pct = safe_ratio(short_count, total_sentences)
         long_pct = safe_ratio(long_count, total_sentences)
 
         # High burstiness: high stdev, good mix of short/long
-        if stdev >= 8 and short_pct >= THRESHOLDS.SHORT_SENTENCE_MIN_RATIO and long_pct >= THRESHOLDS.LONG_SENTENCE_MIN_RATIO:
+        if (
+            stdev >= 8
+            and short_pct >= THRESHOLDS.SHORT_SENTENCE_MIN_RATIO
+            and long_pct >= THRESHOLDS.LONG_SENTENCE_MIN_RATIO
+        ):
             return (10.0, "HIGH")
         elif stdev >= 5:
             return (7.0, "MEDIUM")
@@ -299,24 +305,24 @@ class BurstinessDimension(DimensionStrategy):
         # Remove headings and list markers for sentence analysis
         lines = []
         for line in text.splitlines():
-            if line.strip().startswith('#'):
+            if line.strip().startswith("#"):
                 continue
             # Remove list markers
-            line = re.sub(r'^\s*[-*+0-9]+[.)]\s*', '', line)
+            line = re.sub(r"^\s*[-*+0-9]+[.)]\s*", "", line)
             lines.append(line)
 
-        clean_text = '\n'.join(lines)
+        clean_text = "\n".join(lines)
 
         # Split into paragraphs
-        paragraphs = [p.strip() for p in re.split(r'\n\s*\n', clean_text) if p.strip()]
+        paragraphs = [p.strip() for p in re.split(r"\n\s*\n", clean_text) if p.strip()]
 
         # Split paragraphs into sentences
-        sent_pattern = re.compile(r'(?<=[.!?])\s+')
+        sent_pattern = re.compile(r"(?<=[.!?])\s+")
         all_lengths = []
 
         for para in paragraphs:
             # Skip code blocks
-            if '```' in para:
+            if "```" in para:
                 continue
             sentences = [s.strip() for s in sent_pattern.split(para) if s.strip()]
             for sent in sentences:
@@ -326,15 +332,15 @@ class BurstinessDimension(DimensionStrategy):
 
         if not all_lengths:
             return {
-                'total_sentences': 0,
-                'mean': 0,
-                'stdev': 0,
-                'min': 0,
-                'max': 0,
-                'short': 0,
-                'medium': 0,
-                'long': 0,
-                'lengths': []
+                "total_sentences": 0,
+                "mean": 0,
+                "stdev": 0,
+                "min": 0,
+                "max": 0,
+                "short": 0,
+                "medium": 0,
+                "long": 0,
+                "lengths": [],
             }
 
         short = sum(1 for x in all_lengths if x <= 10)
@@ -342,47 +348,41 @@ class BurstinessDimension(DimensionStrategy):
         long = sum(1 for x in all_lengths if x >= 30)
 
         return {
-            'total_sentences': len(all_lengths),
-            'mean': round(statistics.mean(all_lengths), 1),
-            'stdev': round(statistics.stdev(all_lengths), 1) if len(all_lengths) > 1 else 0,
-            'min': min(all_lengths),
-            'max': max(all_lengths),
-            'short': short,
-            'medium': medium,
-            'long': long,
-            'lengths': all_lengths
+            "total_sentences": len(all_lengths),
+            "mean": round(statistics.mean(all_lengths), 1),
+            "stdev": round(statistics.stdev(all_lengths), 1) if len(all_lengths) > 1 else 0,
+            "min": min(all_lengths),
+            "max": max(all_lengths),
+            "short": short,
+            "medium": medium,
+            "long": long,
+            "lengths": all_lengths,
         }
 
-    def _analyze_paragraph_variation(self, text: str) -> Dict:
+    def _analyze_paragraph_variation(self, text: str) -> Dict[str, Any]:
         """Analyze paragraph length variation."""
-        paragraphs = [p.strip() for p in re.split(r'\n\s*\n', text) if p.strip()]
+        paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
         # Filter out headings and code blocks
         para_words = []
         for para in paragraphs:
-            if para.startswith('#') or '```' in para:
+            if para.startswith("#") or "```" in para:
                 continue
             words = re.findall(r"\b[\w'-]+\b", para)
             if words:
                 para_words.append(len(words))
 
         if not para_words:
-            return {
-                'total_paragraphs': 0,
-                'mean': 0,
-                'stdev': 0,
-                'min': 0,
-                'max': 0
-            }
+            return {"total_paragraphs": 0, "mean": 0, "stdev": 0, "min": 0, "max": 0}
 
         return {
-            'total_paragraphs': len(para_words),
-            'mean': round(statistics.mean(para_words), 1),
-            'stdev': round(statistics.stdev(para_words), 1) if len(para_words) > 1 else 0,
-            'min': min(para_words),
-            'max': max(para_words)
+            "total_paragraphs": len(para_words),
+            "mean": round(statistics.mean(para_words), 1),
+            "stdev": round(statistics.stdev(para_words), 1) if len(para_words) > 1 else 0,
+            "min": min(para_words),
+            "max": max(para_words),
         }
 
-    def _calculate_paragraph_cv(self, text: str) -> Dict[str, float]:
+    def _calculate_paragraph_cv(self, text: str) -> Dict[str, Any]:
         """
         Calculate coefficient of variation for paragraph lengths.
 
@@ -394,16 +394,16 @@ class BurstinessDimension(DimensionStrategy):
             Dict with mean_length, stddev, cv, score, assessment, paragraph_count
         """
         # Split by double newlines to get paragraphs
-        paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
+        paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
 
         # Filter out headings, code blocks, and very short lines
         filtered_paragraphs = []
         for p in paragraphs:
             # Skip headings (start with #)
-            if p.startswith('#'):
+            if p.startswith("#"):
                 continue
             # Skip code blocks
-            if '```' in p:
+            if "```" in p:
                 continue
             # Skip very short lines (likely not real paragraphs)
             if len(p.split()) < 10:
@@ -415,12 +415,12 @@ class BurstinessDimension(DimensionStrategy):
 
         if len(lengths) < 3:
             return {
-                'mean_length': 0.0,
-                'stddev': 0.0,
-                'cv': 0.0,
-                'score': 10.0,  # Benefit of doubt for insufficient data
-                'assessment': 'INSUFFICIENT_DATA',
-                'paragraph_count': len(lengths)
+                "mean_length": 0.0,
+                "stddev": 0.0,
+                "cv": 0.0,
+                "score": 10.0,  # Benefit of doubt for insufficient data
+                "assessment": "INSUFFICIENT_DATA",
+                "paragraph_count": len(lengths),
             }
 
         mean_length = statistics.mean(lengths)
@@ -429,24 +429,26 @@ class BurstinessDimension(DimensionStrategy):
 
         # Scoring based on research thresholds
         if cv >= 0.6:
-            score, assessment = 10.0, 'EXCELLENT'
+            score, assessment = 10.0, "EXCELLENT"
         elif cv >= 0.4:
-            score, assessment = 7.0, 'GOOD'
+            score, assessment = 7.0, "GOOD"
         elif cv >= 0.3:
-            score, assessment = 4.0, 'FAIR'
+            score, assessment = 4.0, "FAIR"
         else:
-            score, assessment = 0.0, 'POOR'
+            score, assessment = 0.0, "POOR"
 
         return {
-            'mean_length': round(mean_length, 1),
-            'stddev': round(stddev, 1),
-            'cv': round(cv, 2),
-            'score': score,
-            'assessment': assessment,
-            'paragraph_count': len(lengths)
+            "mean_length": round(mean_length, 1),
+            "stddev": round(stddev, 1),
+            "cv": round(cv, 2),
+            "score": score,
+            "assessment": assessment,
+            "paragraph_count": len(lengths),
         }
 
-    def _analyze_burstiness_issues_detailed(self, lines: List[str], html_comment_checker=None) -> List[SentenceBurstinessIssue]:
+    def _analyze_burstiness_issues_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[SentenceBurstinessIssue]:
         """Detect sections with uniform sentence lengths (low burstiness)."""
         issues = []
 
@@ -459,7 +461,7 @@ class BurstinessDimension(DimensionStrategy):
             # Skip HTML comments, headings, and code blocks
             if html_comment_checker and html_comment_checker(line):
                 continue
-            if stripped.startswith('#') or stripped.startswith('```'):
+            if stripped.startswith("#") or stripped.startswith("```"):
                 continue
 
             if stripped:
@@ -467,8 +469,8 @@ class BurstinessDimension(DimensionStrategy):
             else:
                 # End of paragraph - analyze it
                 if len(current_para) >= 3:
-                    para_text = ' '.join([item[1] for item in current_para])
-                    sent_pattern = re.compile(r'(?<=[.!?])\s+')
+                    para_text = " ".join([item[1] for item in current_para])
+                    sent_pattern = re.compile(r"(?<=[.!?])\s+")
                     sentences = [s.strip() for s in sent_pattern.split(para_text) if s.strip()]
 
                     if len(sentences) >= 3:
@@ -482,22 +484,26 @@ class BurstinessDimension(DimensionStrategy):
                                 # Get preview of sentences with their lengths
                                 preview = []
                                 for i, sent in enumerate(sentences[:3]):
-                                    preview.append((
-                                        current_para[0][0] + i,  # Line number
-                                        sent[:60] + '...' if len(sent) > 60 else sent,
-                                        lengths[i]
-                                    ))
+                                    preview.append(
+                                        (
+                                            current_para[0][0] + i,  # Line number
+                                            sent[:60] + "..." if len(sent) > 60 else sent,
+                                            lengths[i],
+                                        )
+                                    )
 
-                                issues.append(SentenceBurstinessIssue(
-                                    start_line=current_para[0][0],
-                                    end_line=current_para[-1][0],
-                                    sentence_count=len(sentences),
-                                    mean_length=round(mean, 1),
-                                    stdev=round(stdev, 1),
-                                    problem=f'Uniform sentence lengths ({int(min(lengths))}-{int(max(lengths))} words, σ={stdev:.1f})',
-                                    sentences_preview=preview,
-                                    suggestion='Add variety: combine short sentences (5-10 words), keep medium (15-25), add complex (30-45 words)'
-                                ))
+                                issues.append(
+                                    SentenceBurstinessIssue(
+                                        start_line=current_para[0][0],
+                                        end_line=current_para[-1][0],
+                                        sentence_count=len(sentences),
+                                        mean_length=round(mean, 1),
+                                        stdev=round(stdev, 1),
+                                        problem=f"Uniform sentence lengths ({int(min(lengths))}-{int(max(lengths))} words, σ={stdev:.1f})",
+                                        sentences_preview=preview,
+                                        suggestion="Add variety: combine short sentences (5-10 words), keep medium (15-25), add complex (30-45 words)",
+                                    )
+                                )
 
                 current_para = []
                 line_num + 1

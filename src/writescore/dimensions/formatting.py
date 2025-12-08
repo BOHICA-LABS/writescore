@@ -20,7 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import EmDashInstance, FormattingIssue
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.scoring.dual_score import THRESHOLDS
 from writescore.utils.text_processing import count_words
 
@@ -59,9 +59,9 @@ class FormattingDimension(DimensionStrategy):
         return 3.7
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "CORE"
+        return DimensionTier.CORE
 
     @property
     def description(self) -> str:
@@ -75,9 +75,9 @@ class FormattingDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for formatting patterns.
@@ -109,14 +109,16 @@ class FormattingDimension(DimensionStrategy):
                 punctuation = self._analyze_punctuation_clustering(sample_text)
                 whitespace = self._analyze_whitespace_patterns(sample_text)
                 punctuation_spacing_cv = self._analyze_punctuation_spacing_cv(sample_text)
-                sample_results.append({
-                    'formatting': formatting,
-                    'bold_italic': bold_italic,
-                    'list_usage': list_usage,
-                    'punctuation_clustering': punctuation,
-                    'whitespace_patterns': whitespace,
-                    'punctuation_spacing_cv': punctuation_spacing_cv,
-                })
+                sample_results.append(
+                    {
+                        "formatting": formatting,
+                        "bold_italic": bold_italic,
+                        "list_usage": list_usage,
+                        "punctuation_clustering": punctuation,
+                        "whitespace_patterns": whitespace,
+                        "punctuation_spacing_cv": punctuation_spacing_cv,
+                    }
+                )
 
             # Aggregate metrics from all samples
             aggregated = self._aggregate_sampled_metrics(sample_results)
@@ -133,12 +135,12 @@ class FormattingDimension(DimensionStrategy):
             whitespace = self._analyze_whitespace_patterns(analyzed_text)
             punctuation_spacing_cv = self._analyze_punctuation_spacing_cv(analyzed_text)
             aggregated = {
-                'formatting': formatting,
-                'bold_italic': bold_italic,
-                'list_usage': list_usage,
-                'punctuation_clustering': punctuation,
-                'whitespace_patterns': whitespace,
-                'punctuation_spacing_cv': punctuation_spacing_cv,
+                "formatting": formatting,
+                "bold_italic": bold_italic,
+                "list_usage": list_usage,
+                "punctuation_clustering": punctuation,
+                "whitespace_patterns": whitespace,
+                "punctuation_spacing_cv": punctuation_spacing_cv,
             }
             analyzed_length = len(analyzed_text)
             samples_analyzed = 1
@@ -146,12 +148,14 @@ class FormattingDimension(DimensionStrategy):
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> Dict[str, Any]:
@@ -169,8 +173,8 @@ class FormattingDimension(DimensionStrategy):
         formatting_issues = self._analyze_formatting_issues_detailed(lines, html_comment_checker)
 
         return {
-            'em_dash_instances': em_dash_instances,
-            'formatting_issues': formatting_issues,
+            "em_dash_instances": em_dash_instances,
+            "formatting_issues": formatting_issues,
         }
 
     def score(self, analysis_results: Dict[str, Any]) -> tuple:
@@ -189,7 +193,7 @@ class FormattingDimension(DimensionStrategy):
         issues = 0
 
         # Primary signal: em-dashes per page
-        em_per_page = analysis_results.get('em_dashes_per_page', 0)
+        em_per_page = analysis_results.get("em_dashes_per_page", 0)
         if em_per_page > 10:
             issues += 3  # Very strong AI signal
         elif em_per_page > 5:
@@ -198,7 +202,7 @@ class FormattingDimension(DimensionStrategy):
             issues += 1
 
         # Bold density (ChatGPT uses 10x more bold)
-        bold_per_1k = analysis_results.get('bold_per_1k', 0)
+        bold_per_1k = analysis_results.get("bold_per_1k", 0)
         if bold_per_1k > THRESHOLDS.BOLD_EXTREME_AI_PER_1K:
             issues += 3  # Extreme AI marker
         elif bold_per_1k > THRESHOLDS.BOLD_AI_MIN_PER_1K:
@@ -207,7 +211,7 @@ class FormattingDimension(DimensionStrategy):
             issues += 1
 
         # Formatting consistency (mechanical distribution)
-        consistency = analysis_results.get('formatting_consistency', 0)
+        consistency = analysis_results.get("formatting_consistency", 0)
         if consistency > THRESHOLDS.FORMATTING_CONSISTENCY_AI_THRESHOLD:
             issues += 2
         elif consistency > THRESHOLDS.FORMATTING_CONSISTENCY_MEDIUM:
@@ -249,12 +253,12 @@ class FormattingDimension(DimensionStrategy):
         issues = 0
 
         # Get nested formatting metrics
-        formatting = metrics.get('formatting', {})
-        bold_italic = metrics.get('bold_italic', {})
+        formatting = metrics.get("formatting", {})
+        bold_italic = metrics.get("bold_italic", {})
 
         # Calculate em-dashes per page (assuming ~300 words per page)
-        em_dashes = formatting.get('em_dashes', 0)
-        word_count = count_words('')  # Will be calculated from text if available
+        em_dashes = formatting.get("em_dashes", 0)
+        word_count = count_words("")  # Will be calculated from text if available
         # For scoring, we use the pre-calculated metrics
         em_per_page = em_dashes / 3 if word_count == 0 else (em_dashes / word_count * 300)
 
@@ -267,7 +271,7 @@ class FormattingDimension(DimensionStrategy):
             issues += 1
 
         # Bold density (ChatGPT uses 10x more bold)
-        bold_per_1k = bold_italic.get('bold_per_1k', 0)
+        bold_per_1k = bold_italic.get("bold_per_1k", 0)
         if bold_per_1k > THRESHOLDS.BOLD_EXTREME_AI_PER_1K:
             issues += 3  # Extreme AI marker
         elif bold_per_1k > THRESHOLDS.BOLD_AI_MIN_PER_1K:
@@ -276,7 +280,7 @@ class FormattingDimension(DimensionStrategy):
             issues += 1
 
         # Formatting consistency (mechanical distribution)
-        consistency = bold_italic.get('formatting_consistency', 0)
+        consistency = bold_italic.get("formatting_consistency", 0)
         if consistency > THRESHOLDS.FORMATTING_CONSISTENCY_AI_THRESHOLD:
             issues += 2
         elif consistency > THRESHOLDS.FORMATTING_CONSISTENCY_MEDIUM:
@@ -309,13 +313,13 @@ class FormattingDimension(DimensionStrategy):
         recommendations = []
 
         # Get nested metrics
-        formatting = metrics.get('formatting', {})
-        bold_italic = metrics.get('bold_italic', {})
+        formatting = metrics.get("formatting", {})
+        bold_italic = metrics.get("bold_italic", {})
 
-        em_dashes = formatting.get('em_dashes', 0)
-        bold_per_1k = bold_italic.get('bold_per_1k', 0)
-        italic_per_1k = bold_italic.get('italic_per_1k', 0)
-        consistency = bold_italic.get('formatting_consistency', 0)
+        em_dashes = formatting.get("em_dashes", 0)
+        bold_per_1k = bold_italic.get("bold_per_1k", 0)
+        italic_per_1k = bold_italic.get("italic_per_1k", 0)
+        consistency = bold_italic.get("formatting_consistency", 0)
 
         # Em-dash recommendations
         if em_dashes > 5:
@@ -355,10 +359,10 @@ class FormattingDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -368,7 +372,7 @@ class FormattingDimension(DimensionStrategy):
     def _count_words(self, text: str) -> int:
         """Count total words in text"""
         # Remove code blocks
-        text = re.sub(r'```[sS]*?```', '', text)
+        text = re.sub(r"```[sS]*?```", "", text)
         # Count words
         words = re.findall(r"\b[\w'-]+\b", text)
         return len(words)
@@ -376,19 +380,15 @@ class FormattingDimension(DimensionStrategy):
     def _analyze_formatting(self, text: str) -> Dict:
         """Analyze formatting patterns."""
         # Em-dashes (— or --)
-        em_dashes = len(re.findall(r'—|--', text))
+        em_dashes = len(re.findall(r"—|--", text))
 
         # Bold (markdown **text** or __text__)
-        bold = len(re.findall(r'\*\*[^*]+\*\*|__[^_]+__', text))
+        bold = len(re.findall(r"\*\*[^*]+\*\*|__[^_]+__", text))
 
         # Italic (markdown *text* or _text_)
-        italic = len(re.findall(r'\*[^*]+\*|_[^_]+_', text))
+        italic = len(re.findall(r"\*[^*]+\*|_[^_]+_", text))
 
-        return {
-            'em_dashes': em_dashes,
-            'bold': bold,
-            'italics': italic
-        }
+        return {"em_dashes": em_dashes, "bold": bold, "italics": italic}
 
     def _analyze_bold_italic_patterns(self, text: str) -> Dict:
         """
@@ -400,22 +400,22 @@ class FormattingDimension(DimensionStrategy):
         word_count = count_words(text)
 
         # Bold (markdown **text** or __text__)
-        bold_instances = re.findall(r'\*\*[^*]+\*\*|__[^_]+__', text)
+        bold_instances = re.findall(r"\*\*[^*]+\*\*|__[^_]+__", text)
         bold_count = len(bold_instances)
         bold_per_1k = (bold_count / word_count * 1000) if word_count > 0 else 0
 
         # Italic (markdown *text* or _text_)
-        italic_instances = re.findall(r'\*[^*]+\*|_[^_]+_', text)
+        italic_instances = re.findall(r"\*[^*]+\*|_[^_]+_", text)
         italic_count = len(italic_instances)
         italic_per_1k = (italic_count / word_count * 1000) if word_count > 0 else 0
 
         # Calculate formatting consistency (spacing between bold/italic)
         # AI tends to use formatting at regular intervals
-        paragraphs = [p.strip() for p in re.split(r'\n\s*\n', text) if p.strip()]
+        paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
         formatting_per_para = []
         for para in paragraphs:
-            para_bold = len(re.findall(r'\*\*[^*]+\*\*|__[^_]+__', para))
-            para_italic = len(re.findall(r'\*[^*]+\*|_[^_]+_', para))
+            para_bold = len(re.findall(r"\*\*[^*]+\*\*|__[^_]+__", para))
+            para_italic = len(re.findall(r"\*[^*]+\*|_[^_]+_", para))
             formatting_per_para.append(para_bold + para_italic)
 
         # Low variance = high consistency (AI-like)
@@ -427,12 +427,14 @@ class FormattingDimension(DimensionStrategy):
             consistency = 0.0
 
         return {
-            'bold_per_1k': round(bold_per_1k, 2),
-            'italic_per_1k': round(italic_per_1k, 2),
-            'formatting_consistency': round(consistency, 3)
+            "bold_per_1k": round(bold_per_1k, 2),
+            "italic_per_1k": round(italic_per_1k, 2),
+            "formatting_consistency": round(consistency, 3),
         }
 
-    def _analyze_em_dashes_detailed(self, lines: List[str], html_comment_checker=None) -> List[EmDashInstance]:
+    def _analyze_em_dashes_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[EmDashInstance]:
         """Track em-dashes with line numbers and context."""
         instances = []
 
@@ -440,29 +442,33 @@ class FormattingDimension(DimensionStrategy):
             # Skip HTML comments (metadata) and code blocks
             if html_comment_checker and html_comment_checker(line):
                 continue
-            if line.strip().startswith('```'):
+            if line.strip().startswith("```"):
                 continue
 
-            for match in re.finditer(r'—|--', line):
+            for match in re.finditer(r"—|--", line):
                 # Get context around em-dash
                 start = max(0, match.start() - 30)
                 end = min(len(line), match.end() + 30)
                 context = f"...{line[start:end]}..."
 
-                instances.append(EmDashInstance(
-                    line_number=line_num,
-                    context=context,
-                    suggestion='Replace with period, semicolon, comma, or parentheses'
-                ))
+                instances.append(
+                    EmDashInstance(
+                        line_number=line_num,
+                        context=context,
+                        suggestion="Replace with period, semicolon, comma, or parentheses",
+                    )
+                )
 
         return instances
 
-    def _analyze_formatting_issues_detailed(self, lines: List[str], html_comment_checker=None) -> List[FormattingIssue]:
+    def _analyze_formatting_issues_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[FormattingIssue]:
         """Detect excessive bold/italic usage and mechanical formatting patterns."""
         issues = []
 
-        bold_pattern = re.compile(r'\*\*[^*]+\*\*|__[^_]+__')
-        italic_pattern = re.compile(r'\*[^*]+\*|_[^_]+_')
+        bold_pattern = re.compile(r"\*\*[^*]+\*\*|__[^_]+__")
+        italic_pattern = re.compile(r"\*[^*]+\*|_[^_]+_")
 
         for line_num, line in enumerate(lines, start=1):
             stripped = line.strip()
@@ -470,49 +476,55 @@ class FormattingDimension(DimensionStrategy):
             # Skip HTML comments (metadata), headings, and code blocks
             if html_comment_checker and html_comment_checker(line):
                 continue
-            if stripped.startswith('#') or stripped.startswith('```'):
+            if stripped.startswith("#") or stripped.startswith("```"):
                 continue
 
             if not stripped:
                 continue
 
             # Count formatting on this line
-            word_count = len(re.findall(r'\b\w+\b', line))
+            word_count = len(re.findall(r"\b\w+\b", line))
             if word_count == 0:
                 continue
 
             bold_matches = list(bold_pattern.finditer(line))
             italic_matches = list(italic_pattern.finditer(line))
 
-            bold_words = sum(len(re.findall(r'\b\w+\b', match.group())) for match in bold_matches)
-            italic_words = sum(len(re.findall(r'\b\w+\b', match.group())) for match in italic_matches)
+            bold_words = sum(len(re.findall(r"\b\w+\b", match.group())) for match in bold_matches)
+            italic_words = sum(
+                len(re.findall(r"\b\w+\b", match.group())) for match in italic_matches
+            )
 
             bold_density = (bold_words / word_count) * 100 if word_count > 0 else 0
             italic_density = (italic_words / word_count) * 100 if word_count > 0 else 0
 
             # Excessive bold (>10% of words)
             if bold_density > 10:
-                context = line.strip()[:100] + '...' if len(line.strip()) > 100 else line.strip()
-                issues.append(FormattingIssue(
-                    line_number=line_num,
-                    issue_type='bold_dense',
-                    context=context,
-                    density=bold_density,
-                    problem=f'Excessive bolding ({bold_density:.1f}% of words, target <5%)',
-                    suggestion='Remove bold from less critical terms; reserve for key concepts only'
-                ))
+                context = line.strip()[:100] + "..." if len(line.strip()) > 100 else line.strip()
+                issues.append(
+                    FormattingIssue(
+                        line_number=line_num,
+                        issue_type="bold_dense",
+                        context=context,
+                        density=bold_density,
+                        problem=f"Excessive bolding ({bold_density:.1f}% of words, target <5%)",
+                        suggestion="Remove bold from less critical terms; reserve for key concepts only",
+                    )
+                )
 
             # Excessive italic (>15% of words, excluding functional use)
             if italic_density > 15:
-                context = line.strip()[:100] + '...' if len(line.strip()) > 100 else line.strip()
-                issues.append(FormattingIssue(
-                    line_number=line_num,
-                    issue_type='italic_dense',
-                    context=context,
-                    density=italic_density,
-                    problem=f'Excessive italics ({italic_density:.1f}% of words, target <10%)',
-                    suggestion='Use italics functionally: titles, defined terms, subtle emphasis only'
-                ))
+                context = line.strip()[:100] + "..." if len(line.strip()) > 100 else line.strip()
+                issues.append(
+                    FormattingIssue(
+                        line_number=line_num,
+                        issue_type="italic_dense",
+                        context=context,
+                        density=italic_density,
+                        problem=f"Excessive italics ({italic_density:.1f}% of words, target <10%)",
+                        suggestion="Use italics functionally: titles, defined terms, subtle emphasis only",
+                    )
+                )
 
         return issues
 
@@ -525,7 +537,7 @@ class FormattingDimension(DimensionStrategy):
         Analyze list structure and distribution.
         Research shows AI uses lists in 78% of responses, with 61% unordered vs 12% ordered.
         """
-        lines = text.split('\n')
+        lines = text.split("\n")
 
         ordered_items = []
         unordered_items = []
@@ -534,13 +546,13 @@ class FormattingDimension(DimensionStrategy):
         for line in lines:
             stripped = line.strip()
             # Ordered list: "1. ", "2) ", "a. ", etc.
-            if re.match(r'^(\d+|[a-z])[.)]\s+\S', stripped):
+            if re.match(r"^(\d+|[a-z])[.)]\s+\S", stripped):
                 # Extract item text
-                item_text = re.sub(r'^(\d+|[a-z])[.)]\s+', '', stripped)
+                item_text = re.sub(r"^(\d+|[a-z])[.)]\s+", "", stripped)
                 ordered_items.append(item_text)
             # Unordered list: "- ", "* ", "+ "
-            elif re.match(r'^[-*+]\s+\S', stripped):
-                item_text = re.sub(r'^[-*+]\s+', '', stripped)
+            elif re.match(r"^[-*+]\s+\S", stripped):
+                item_text = re.sub(r"^[-*+]\s+", "", stripped)
                 unordered_items.append(item_text)
 
         total_items = len(ordered_items) + len(unordered_items)
@@ -566,12 +578,12 @@ class FormattingDimension(DimensionStrategy):
             item_variance = 0.0
 
         return {
-            'total_list_items': total_items,
-            'ordered_items': len(ordered_items),
-            'unordered_items': len(unordered_items),
-            'list_to_text_ratio': round(list_ratio, 3),
-            'ordered_to_unordered_ratio': round(ordered_ratio, 3),
-            'list_item_variance': round(item_variance, 2)
+            "total_list_items": total_items,
+            "ordered_items": len(ordered_items),
+            "unordered_items": len(unordered_items),
+            "list_to_text_ratio": round(list_ratio, 3),
+            "ordered_to_unordered_ratio": round(ordered_ratio, 3),
+            "list_item_variance": round(item_variance, 2),
         }
 
     def _analyze_punctuation_clustering(self, text: str) -> Dict:
@@ -580,12 +592,12 @@ class FormattingDimension(DimensionStrategy):
         Key markers: em-dash cascading, Oxford comma consistency, semicolon usage.
         """
         word_count = self._count_words(text)
-        paragraphs = [p.strip() for p in re.split(r'ns*n', text) if p.strip()]
+        paragraphs = [p.strip() for p in re.split(r"ns*n", text) if p.strip()]
 
         # Em-dash cascading analysis (AI shows declining frequency pattern)
         em_dash_positions = []
         for i, para in enumerate(paragraphs):
-            dash_count = len(re.findall(r'—|--', para))
+            dash_count = len(re.findall(r"—|--", para))
             if dash_count > 0:
                 em_dash_positions.extend([i] * dash_count)
 
@@ -596,7 +608,9 @@ class FormattingDimension(DimensionStrategy):
             # Count dashes per paragraph position
             dash_per_para = [em_dash_positions.count(i) for i in range(len(paragraphs))]
             # Calculate if early paragraphs have more dashes (AI pattern)
-            if sum(dash_per_para[:len(dash_per_para)//2]) > sum(dash_per_para[len(dash_per_para)//2:]):
+            if sum(dash_per_para[: len(dash_per_para) // 2]) > sum(
+                dash_per_para[len(dash_per_para) // 2 :]
+            ):
                 cascading = 0.7 + (len(em_dash_positions) / (len(paragraphs) + 1)) * 0.3
             else:
                 cascading = 0.3
@@ -605,8 +619,8 @@ class FormattingDimension(DimensionStrategy):
 
         # Oxford comma analysis (AI strongly prefers Oxford comma)
         # Pattern: "word, word, and word" vs "word, word and word"
-        oxford_pattern = r'\b\w+,\s+\w+,\s+(and|or)\s+\w+\b'
-        non_oxford_pattern = r'\b\w+,\s+\w+\s+(and|or)\s+\w+\b'
+        oxford_pattern = r"\b\w+,\s+\w+,\s+(and|or)\s+\w+\b"
+        non_oxford_pattern = r"\b\w+,\s+\w+\s+(and|or)\s+\w+\b"
 
         oxford_count = len(re.findall(oxford_pattern, text, re.IGNORECASE))
         non_oxford_count = len(re.findall(non_oxford_pattern, text, re.IGNORECASE))
@@ -618,17 +632,17 @@ class FormattingDimension(DimensionStrategy):
             oxford_consistency = 0.5  # Neutral if no lists found
 
         # Semicolon analysis
-        semicolons = len(re.findall(r';', text))
+        semicolons = len(re.findall(r";", text))
         semicolon_per_1k = (semicolons / word_count * 1000) if word_count > 0 else 0
 
         return {
-            'em_dash_positions': em_dash_positions[:20],  # Limit for dataclass
-            'em_dash_cascading': round(cascading, 3),
-            'oxford_comma_count': oxford_count,
-            'non_oxford_comma_count': non_oxford_count,
-            'oxford_consistency': round(oxford_consistency, 3),
-            'semicolon_count': semicolons,
-            'semicolon_per_1k': round(semicolon_per_1k, 2)
+            "em_dash_positions": em_dash_positions[:20],  # Limit for dataclass
+            "em_dash_cascading": round(cascading, 3),
+            "oxford_comma_count": oxford_count,
+            "non_oxford_comma_count": non_oxford_count,
+            "oxford_consistency": round(oxford_consistency, 3),
+            "semicolon_count": semicolons,
+            "semicolon_per_1k": round(semicolon_per_1k, 2),
         }
 
     def _analyze_whitespace_patterns(self, text: str) -> Dict:
@@ -636,7 +650,7 @@ class FormattingDimension(DimensionStrategy):
         Analyze whitespace and paragraph structure patterns.
         Humans vary paragraph length for pacing; AI produces uniform paragraphs.
         """
-        paragraphs = [p.strip() for p in re.split(r'ns*n', text) if p.strip()]
+        paragraphs = [p.strip() for p in re.split(r"ns*n", text) if p.strip()]
 
         # Paragraph length variance (higher = more human)
         para_lengths = [len(p.split()) for p in paragraphs]
@@ -651,13 +665,13 @@ class FormattingDimension(DimensionStrategy):
             uniformity = 1.0  # Single paragraph = perfectly uniform
 
         # Blank line analysis
-        lines = text.split('n')
+        lines = text.split("n")
         blank_lines = [i for i, line in enumerate(lines) if not line.strip()]
         blank_count = len(blank_lines)
 
         # Calculate spacing between blank lines (consistency)
         if len(blank_lines) > 1:
-            spacings = [blank_lines[i+1] - blank_lines[i] for i in range(len(blank_lines)-1)]
+            spacings = [blank_lines[i + 1] - blank_lines[i] for i in range(len(blank_lines) - 1)]
             blank_variance = statistics.variance(spacings) if len(spacings) > 1 else 0.0
         else:
             blank_variance = 0.0
@@ -670,11 +684,11 @@ class FormattingDimension(DimensionStrategy):
             avg_line_length = 0.0
 
         return {
-            'paragraph_variance': round(para_variance, 2),
-            'paragraph_uniformity': round(uniformity, 3),
-            'blank_lines': blank_count,
-            'blank_line_variance': round(blank_variance, 2),
-            'text_density': round(avg_line_length, 1)
+            "paragraph_variance": round(para_variance, 2),
+            "paragraph_uniformity": round(uniformity, 3),
+            "blank_lines": blank_count,
+            "blank_line_variance": round(blank_variance, 2),
+            "text_density": round(avg_line_length, 1),
         }
 
     def _analyze_punctuation_spacing_cv(self, text: str) -> Dict:
@@ -693,18 +707,18 @@ class FormattingDimension(DimensionStrategy):
         emdash_positions = []
 
         for i, word in enumerate(words):
-            if ':' in word:
+            if ":" in word:
                 colon_positions.append(i)
-            if ';' in word:
+            if ";" in word:
                 semicolon_positions.append(i)
-            if '—' in word or '--' in word:
+            if "—" in word or "--" in word:
                 emdash_positions.append(i)
 
         def calculate_spacing_cv(positions):
             """Calculate coefficient of variation for spacing between marks."""
             if len(positions) < 3:
                 return None
-            spacing = [positions[i+1] - positions[i] for i in range(len(positions)-1)]
+            spacing = [positions[i + 1] - positions[i] for i in range(len(positions) - 1)]
             if len(spacing) < 2:
                 return None
             mean_spacing = statistics.mean(spacing)
@@ -730,30 +744,32 @@ class FormattingDimension(DimensionStrategy):
 
         # Scoring based on CV (higher CV = more human-like clustering)
         if primary_cv >= 0.7:
-            score, assessment = 6.0, 'EXCELLENT'
+            score, assessment = 6.0, "EXCELLENT"
         elif primary_cv >= 0.5:
-            score, assessment = 4.0, 'GOOD'
+            score, assessment = 4.0, "GOOD"
         elif primary_cv >= 0.3:
-            score, assessment = 2.0, 'FAIR'
+            score, assessment = 2.0, "FAIR"
         else:
-            score, assessment = 0.0, 'POOR'
+            score, assessment = 0.0, "POOR"
 
         spacing_examples = {}
         if colon_positions and len(colon_positions) > 1:
-            spacing_examples['colons'] = [colon_positions[i+1] - colon_positions[i]
-                                         for i in range(min(5, len(colon_positions)-1))]
+            spacing_examples["colons"] = [
+                colon_positions[i + 1] - colon_positions[i]
+                for i in range(min(5, len(colon_positions) - 1))
+            ]
 
         return {
-            'colon_spacing_cv': round(colon_cv, 3) if colon_cv is not None else None,
-            'semicolon_spacing_cv': round(semicolon_cv, 3) if semicolon_cv is not None else None,
-            'emdash_spacing_cv': round(emdash_cv, 3) if emdash_cv is not None else None,
-            'primary_cv': round(primary_cv, 3),
-            'score': score,
-            'assessment': assessment,
-            'spacing_examples': spacing_examples,
-            'colon_count': len(colon_positions),
-            'semicolon_count': len(semicolon_positions),
-            'emdash_count': len(emdash_positions)
+            "colon_spacing_cv": round(colon_cv, 3) if colon_cv is not None else None,
+            "semicolon_spacing_cv": round(semicolon_cv, 3) if semicolon_cv is not None else None,
+            "emdash_spacing_cv": round(emdash_cv, 3) if emdash_cv is not None else None,
+            "primary_cv": round(primary_cv, 3),
+            "score": score,
+            "assessment": assessment,
+            "spacing_examples": spacing_examples,
+            "colon_count": len(colon_positions),
+            "semicolon_count": len(semicolon_positions),
+            "emdash_count": len(emdash_positions),
         }
 
 

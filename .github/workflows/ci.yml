@@ -2,62 +2,85 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: pre-commit/action@v3.0.1
+        env:
+          SKIP: ggshield
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff
+        run: uv python install 3.12
+
       - name: Lint with ruff
-        run: ruff check src/writescore tests
+        run: uvx ruff check src/writescore tests
 
   test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Cache uv
+        uses: actions/cache@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ matrix.python-version }}-${{ hashFiles('pyproject.toml', 'uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-${{ matrix.python-version }}-
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
-          python -m spacy download en_core_web_sm
+        run: uv sync --extra dev
 
       - name: Run unit tests
-        run: pytest tests/unit -v --tb=short
+        run: uv run pytest tests/unit -v --tb=short
 
       - name: Run integration tests
-        run: pytest tests/integration -v --tb=short
+        run: uv run pytest tests/integration -v --tb=short
 
       - name: Run coverage
         if: matrix.python-version == '3.12'
-        run: |
-          # Skip strict local performance tests on CI
-          pytest --cov=writescore --cov-report=xml -m "not performance_local" tests/
+        run: uv run pytest --cov=writescore --cov-report=xml -m "not performance_local" tests/
 
       - name: Upload coverage
         if: matrix.python-version == '3.12'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
           fail_ci_if_error: false

@@ -8,7 +8,6 @@ Tests cover:
 - get_trend() method with various scenarios
 """
 
-
 import pytest
 
 from writescore.history.tracker import HistoricalScore, ScoreHistory
@@ -33,7 +32,7 @@ def sample_dual_score():
         estimated_effort="MODERATE",
         timestamp="2024-01-15T10:30:00",
         file_path="/path/to/test.md",
-        total_words=500
+        total_words=500,
     )
 
 
@@ -42,7 +41,7 @@ def sample_dual_score_improved():
     """Create an improved version of the sample score."""
     return DualScore(
         detection_risk=28.0,  # Decreased by 7
-        quality_score=78.0,   # Increased by 6
+        quality_score=78.0,  # Increased by 6
         detection_interpretation="LOW",
         quality_interpretation="GOOD",
         detection_target=25.0,
@@ -55,7 +54,7 @@ def sample_dual_score_improved():
         estimated_effort="LIGHT",
         timestamp="2024-01-15T11:30:00",
         file_path="/path/to/test.md",
-        total_words=520
+        total_words=520,
     )
 
 
@@ -64,7 +63,7 @@ def sample_dual_score_worsened():
     """Create a worsened version of the sample score."""
     return DualScore(
         detection_risk=42.0,  # Increased by 7
-        quality_score=65.0,   # Decreased by 7
+        quality_score=65.0,  # Decreased by 7
         detection_interpretation="HIGH",
         quality_interpretation="FAIR",
         detection_target=25.0,
@@ -77,13 +76,14 @@ def sample_dual_score_worsened():
         estimated_effort="SUBSTANTIAL",
         timestamp="2024-01-15T11:30:00",
         file_path="/path/to/test.md",
-        total_words=480
+        total_words=480,
     )
 
 
 # ============================================================================
 # HistoricalScore Tests
 # ============================================================================
+
 
 class TestHistoricalScore:
     """Tests for HistoricalScore dataclass."""
@@ -96,7 +96,7 @@ class TestHistoricalScore:
             quality_score=72.0,
             detection_interpretation="MODERATE",
             quality_interpretation="GOOD",
-            total_words=500
+            total_words=500,
         )
 
         assert score.timestamp == "2024-01-15T10:30:00"
@@ -116,7 +116,7 @@ class TestHistoricalScore:
             detection_interpretation="MODERATE",
             quality_interpretation="GOOD",
             total_words=500,
-            notes="After first revision"
+            notes="After first revision",
         )
 
         assert score.notes == "After first revision"
@@ -125,6 +125,7 @@ class TestHistoricalScore:
 # ============================================================================
 # ScoreHistory Tests
 # ============================================================================
+
 
 class TestScoreHistoryInitialization:
     """Tests for ScoreHistory initialization."""
@@ -144,13 +145,10 @@ class TestScoreHistoryInitialization:
             quality_score=72.0,
             detection_interpretation="MODERATE",
             quality_interpretation="GOOD",
-            total_words=500
+            total_words=500,
         )
 
-        history = ScoreHistory(
-            file_path="/path/to/test.md",
-            scores=[score1]
-        )
+        history = ScoreHistory(file_path="/path/to/test.md", scores=[score1])
 
         assert len(history.scores) == 1
         assert history.scores[0] == score1
@@ -159,6 +157,7 @@ class TestScoreHistoryInitialization:
 # ============================================================================
 # add_score() Tests
 # ============================================================================
+
 
 class TestAddScore:
     """Tests for ScoreHistory.add_score() method."""
@@ -217,7 +216,7 @@ class TestAddScore:
                 estimated_effort="MODERATE",
                 timestamp=f"2024-01-15T10:{30+i}:00",
                 file_path="/path/to/test.md",
-                total_words=500 + i
+                total_words=500 + i,
             )
             history.add_score(score)
 
@@ -231,6 +230,7 @@ class TestAddScore:
 # get_trend() Tests
 # ============================================================================
 
+
 class TestGetTrend:
     """Tests for ScoreHistory.get_trend() method."""
 
@@ -239,8 +239,8 @@ class TestGetTrend:
         history = ScoreHistory(file_path="/path/to/test.md")
         trend = history.get_trend()
 
-        assert trend['detection'] == 'N/A'
-        assert trend['quality'] == 'N/A'
+        assert trend["detection"] == "N/A"
+        assert trend["quality"] == "N/A"
 
     def test_get_trend_single_score(self, sample_dual_score):
         """Test trend with single score."""
@@ -248,8 +248,8 @@ class TestGetTrend:
         history.add_score(sample_dual_score)
         trend = history.get_trend()
 
-        assert trend['detection'] == 'N/A'
-        assert trend['quality'] == 'N/A'
+        assert trend["detection"] == "N/A"
+        assert trend["quality"] == "N/A"
 
     def test_get_trend_detection_improving(self, sample_dual_score, sample_dual_score_improved):
         """Test trend when detection is improving (risk decreasing)."""
@@ -259,8 +259,8 @@ class TestGetTrend:
         trend = history.get_trend()
 
         # Detection decreased by 7 (35 -> 28), so improving
-        assert trend['detection'] == 'IMPROVING'
-        assert trend['detection_change'] == -7.0
+        assert trend["detection"] == "IMPROVING"
+        assert trend["detection_change"] == -7.0
 
     def test_get_trend_detection_worsening(self, sample_dual_score, sample_dual_score_worsened):
         """Test trend when detection is worsening (risk increasing)."""
@@ -270,8 +270,8 @@ class TestGetTrend:
         trend = history.get_trend()
 
         # Detection increased by 7 (35 -> 42), so worsening
-        assert trend['detection'] == 'WORSENING'
-        assert trend['detection_change'] == 7.0
+        assert trend["detection"] == "WORSENING"
+        assert trend["detection_change"] == 7.0
 
     def test_get_trend_detection_stable(self, sample_dual_score):
         """Test trend when detection is stable (small change)."""
@@ -294,13 +294,13 @@ class TestGetTrend:
             estimated_effort="MODERATE",
             timestamp="2024-01-15T11:30:00",
             file_path="/path/to/test.md",
-            total_words=500
+            total_words=500,
         )
         history.add_score(score_stable)
         trend = history.get_trend()
 
-        assert trend['detection'] == 'STABLE'
-        assert trend['detection_change'] == 0.5
+        assert trend["detection"] == "STABLE"
+        assert trend["detection_change"] == 0.5
 
     def test_get_trend_quality_improving(self, sample_dual_score, sample_dual_score_improved):
         """Test trend when quality is improving (score increasing)."""
@@ -310,8 +310,8 @@ class TestGetTrend:
         trend = history.get_trend()
 
         # Quality increased by 6 (72 -> 78), so improving
-        assert trend['quality'] == 'IMPROVING'
-        assert trend['quality_change'] == 6.0
+        assert trend["quality"] == "IMPROVING"
+        assert trend["quality_change"] == 6.0
 
     def test_get_trend_quality_declining(self, sample_dual_score, sample_dual_score_worsened):
         """Test trend when quality is declining (score decreasing)."""
@@ -321,8 +321,8 @@ class TestGetTrend:
         trend = history.get_trend()
 
         # Quality decreased by 7 (72 -> 65), so declining
-        assert trend['quality'] == 'DECLINING'
-        assert trend['quality_change'] == -7.0
+        assert trend["quality"] == "DECLINING"
+        assert trend["quality_change"] == -7.0
 
     def test_get_trend_quality_stable(self, sample_dual_score):
         """Test trend when quality is stable (small change)."""
@@ -345,13 +345,13 @@ class TestGetTrend:
             estimated_effort="MODERATE",
             timestamp="2024-01-15T11:30:00",
             file_path="/path/to/test.md",
-            total_words=500
+            total_words=500,
         )
         history.add_score(score_stable)
         trend = history.get_trend()
 
-        assert trend['quality'] == 'STABLE'
-        assert trend['quality_change'] == 0.8
+        assert trend["quality"] == "STABLE"
+        assert trend["quality_change"] == 0.8
 
     def test_get_trend_boundary_improving_detection(self, sample_dual_score):
         """Test trend at boundary for improving detection (exactly -1.0)."""
@@ -373,14 +373,14 @@ class TestGetTrend:
             estimated_effort="MODERATE",
             timestamp="2024-01-15T11:30:00",
             file_path="/path/to/test.md",
-            total_words=500
+            total_words=500,
         )
         history.add_score(score_boundary)
         trend = history.get_trend()
 
         # Change of -1.0 should be STABLE (threshold is > 1)
-        assert trend['detection'] == 'STABLE'
-        assert trend['detection_change'] == -1.0
+        assert trend["detection"] == "STABLE"
+        assert trend["detection_change"] == -1.0
 
     def test_get_trend_boundary_worsening_detection(self, sample_dual_score):
         """Test trend at boundary for worsening detection (exactly +1.0)."""
@@ -402,14 +402,14 @@ class TestGetTrend:
             estimated_effort="MODERATE",
             timestamp="2024-01-15T11:30:00",
             file_path="/path/to/test.md",
-            total_words=500
+            total_words=500,
         )
         history.add_score(score_boundary)
         trend = history.get_trend()
 
         # Change of +1.0 should be STABLE (threshold is > 1)
-        assert trend['detection'] == 'STABLE'
-        assert trend['detection_change'] == 1.0
+        assert trend["detection"] == "STABLE"
+        assert trend["detection_change"] == 1.0
 
     def test_get_trend_boundary_improving_quality(self, sample_dual_score):
         """Test trend at boundary for improving quality (exactly +1.0)."""
@@ -431,14 +431,14 @@ class TestGetTrend:
             estimated_effort="MODERATE",
             timestamp="2024-01-15T11:30:00",
             file_path="/path/to/test.md",
-            total_words=500
+            total_words=500,
         )
         history.add_score(score_boundary)
         trend = history.get_trend()
 
         # Change of +1.0 should be STABLE (threshold is > 1)
-        assert trend['quality'] == 'STABLE'
-        assert trend['quality_change'] == 1.0
+        assert trend["quality"] == "STABLE"
+        assert trend["quality_change"] == 1.0
 
     def test_get_trend_boundary_declining_quality(self, sample_dual_score):
         """Test trend at boundary for declining quality (exactly -1.0)."""
@@ -460,14 +460,14 @@ class TestGetTrend:
             estimated_effort="MODERATE",
             timestamp="2024-01-15T11:30:00",
             file_path="/path/to/test.md",
-            total_words=500
+            total_words=500,
         )
         history.add_score(score_boundary)
         trend = history.get_trend()
 
         # Change of -1.0 should be STABLE (threshold is < -1)
-        assert trend['quality'] == 'STABLE'
-        assert trend['quality_change'] == -1.0
+        assert trend["quality"] == "STABLE"
+        assert trend["quality_change"] == -1.0
 
     def test_get_trend_multiple_scores_uses_last_two(self, sample_dual_score):
         """Test that trend only uses last two scores."""
@@ -490,15 +490,15 @@ class TestGetTrend:
                 estimated_effort="MODERATE",
                 timestamp=f"2024-01-15T10:{30+i}:00",
                 file_path="/path/to/test.md",
-                total_words=500 + i * 10
+                total_words=500 + i * 10,
             )
             history.add_score(score)
 
         trend = history.get_trend()
 
         # Should compare last two: 34 -> 32 (detection) and 76 -> 78 (quality)
-        assert trend['detection_change'] == -2.0
-        assert trend['quality_change'] == 2.0
+        assert trend["detection_change"] == -2.0
+        assert trend["quality_change"] == 2.0
 
     def test_get_trend_rounding(self, sample_dual_score):
         """Test that trend changes are rounded to 1 decimal place."""
@@ -507,7 +507,7 @@ class TestGetTrend:
 
         score_precise = DualScore(
             detection_risk=34.567,  # Change of -0.433
-            quality_score=72.123,   # Change of +0.123
+            quality_score=72.123,  # Change of +0.123
             detection_interpretation="MODERATE",
             quality_interpretation="GOOD",
             detection_target=25.0,
@@ -520,19 +520,20 @@ class TestGetTrend:
             estimated_effort="MODERATE",
             timestamp="2024-01-15T11:30:00",
             file_path="/path/to/test.md",
-            total_words=500
+            total_words=500,
         )
         history.add_score(score_precise)
         trend = history.get_trend()
 
         # Should be rounded to 1 decimal place
-        assert trend['detection_change'] == -0.4
-        assert trend['quality_change'] == 0.1
+        assert trend["detection_change"] == -0.4
+        assert trend["quality_change"] == 0.1
 
 
 # ============================================================================
 # Integration Tests
 # ============================================================================
+
 
 class TestIntegration:
     """Integration tests for complete workflows."""
@@ -548,8 +549,8 @@ class TestIntegration:
 
         # Check trend with only one score
         trend = history.get_trend()
-        assert trend['detection'] == 'N/A'
-        assert trend['quality'] == 'N/A'
+        assert trend["detection"] == "N/A"
+        assert trend["quality"] == "N/A"
 
         # Add improved score
         history.add_score(sample_dual_score_improved, notes="After humanization")
@@ -557,10 +558,10 @@ class TestIntegration:
 
         # Check trend showing improvement
         trend = history.get_trend()
-        assert trend['detection'] == 'IMPROVING'
-        assert trend['quality'] == 'IMPROVING'
-        assert trend['detection_change'] == -7.0
-        assert trend['quality_change'] == 6.0
+        assert trend["detection"] == "IMPROVING"
+        assert trend["quality"] == "IMPROVING"
+        assert trend["detection_change"] == -7.0
+        assert trend["quality_change"] == 6.0
 
     def test_tracking_multiple_revisions(self):
         """Test tracking multiple revisions over time."""
@@ -586,7 +587,7 @@ class TestIntegration:
                 estimated_effort="MODERATE",
                 timestamp=f"2024-01-{15+i}T10:30:00",
                 file_path="/path/to/document.md",
-                total_words=500 + i * 20
+                total_words=500 + i * 20,
             )
             history.add_score(score, notes=f"Revision {i+1}")
 
@@ -600,5 +601,5 @@ class TestIntegration:
 
         # Trend should show improvement
         trend = history.get_trend()
-        assert trend['detection'] == 'IMPROVING'
-        assert trend['quality'] == 'IMPROVING'
+        assert trend["detection"] == "IMPROVING"
+        assert trend["quality"] == "IMPROVING"

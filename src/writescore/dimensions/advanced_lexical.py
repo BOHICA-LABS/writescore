@@ -23,15 +23,15 @@ import sys
 from collections import Counter
 from typing import Any, Dict, List, Optional, Tuple
 
-import spacy
 from scipy.stats import hypergeom
 from textacy.text_stats import diversity
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
+from writescore.utils import load_spacy_model
 
-nlp_spacy = spacy.load('en_core_web_sm')
+nlp_spacy = load_spacy_model("en_core_web_sm")
 
 
 class AdvancedLexicalDimension(DimensionStrategy):
@@ -72,9 +72,9 @@ class AdvancedLexicalDimension(DimensionStrategy):
         return 12.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "ADVANCED"
+        return DimensionTier.ADVANCED
 
     @property
     def description(self) -> str:
@@ -88,9 +88,9 @@ class AdvancedLexicalDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze advanced lexical diversity with adaptive behavior.
@@ -159,12 +159,14 @@ class AdvancedLexicalDimension(DimensionStrategy):
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     # ========================================================================
@@ -204,11 +206,11 @@ class AdvancedLexicalDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             return 50.0  # Neutral score for unavailable data
 
         # Get HDD score (primary indicator for advanced lexical diversity)
-        hdd = metrics.get('hdd_score', 0.5)
+        hdd = metrics.get("hdd_score", 0.5)
 
         # Handle None values (text too short for calculation)
         if hdd is None:
@@ -221,11 +223,7 @@ class AdvancedLexicalDimension(DimensionStrategy):
         # Gaussian scoring on transformed value
         # Target μ=1.0 (corresponds to HDD ≈ 0.73 - high diversity optimal)
         # Width σ=0.5 (Story 2.4.1, AC6)
-        score = self._gaussian_score(
-            value=logit_hdd,
-            target=1.0,
-            width=0.5
-        )
+        score = self._gaussian_score(value=logit_hdd, target=1.0, width=0.5)
 
         self._validate_score(score)
         return score
@@ -243,15 +241,15 @@ class AdvancedLexicalDimension(DimensionStrategy):
         """
         recommendations = []
 
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             recommendations.append(
                 "Advanced lexical analysis unavailable. Install required dependencies: scipy, textacy, spacy."
             )
             return recommendations
 
-        hdd = metrics.get('hdd_score', 0)
-        yules_k = metrics.get('yules_k', 0)
-        mattr = metrics.get('mattr', 0)
+        hdd = metrics.get("hdd_score", 0)
+        yules_k = metrics.get("yules_k", 0)
+        mattr = metrics.get("mattr", 0)
 
         if hdd and hdd < 0.7:
             recommendations.append(
@@ -288,10 +286,10 @@ class AdvancedLexicalDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (70.0, 89.9),
-            'acceptable': (50.0, 69.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (70.0, 89.9),
+            "acceptable": (50.0, 69.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -316,8 +314,8 @@ class AdvancedLexicalDimension(DimensionStrategy):
         """
         try:
             # Remove code blocks and extract words
-            text = re.sub(r'```[\s\S]*?```', '', text)
-            words = re.findall(r'\b[a-z]{3,}\b', text.lower())
+            text = re.sub(r"```[\s\S]*?```", "", text)
+            words = re.findall(r"\b[a-z]{3,}\b", text.lower())
 
             if len(words) < 50:
                 return {}  # Not enough text for reliable metrics
@@ -356,7 +354,7 @@ class AdvancedLexicalDimension(DimensionStrategy):
             M2 = sum(freq * (freq - 1) for freq in word_freq.values())
 
             if M1 > 0:
-                yules_k = 10000 * (M2 - M1) / (M1 ** 2)
+                yules_k = 10000 * (M2 - M1) / (M1**2)
                 yules_k = round(yules_k, 2)
             else:
                 yules_k = None
@@ -382,10 +380,10 @@ class AdvancedLexicalDimension(DimensionStrategy):
             top_10_concentration = sum(sorted_freqs[:top_10_percent]) / N
 
             return {
-                'hdd_score': hdd_score,
-                'yules_k': yules_k,
-                'maas_score': maas_score,
-                'vocab_concentration': round(top_10_concentration, 3)
+                "hdd_score": hdd_score,
+                "yules_k": yules_k,
+                "maas_score": maas_score,
+                "vocab_concentration": round(top_10_concentration, 3),
             }
         except Exception as e:
             print(f"Warning: Advanced lexical diversity calculation failed: {e}", file=sys.stderr)
@@ -416,7 +414,7 @@ class AdvancedLexicalDimension(DimensionStrategy):
         """
         try:
             # Remove code blocks for accurate text analysis
-            text_clean = re.sub(r'```[\s\S]*?```', '', text)
+            text_clean = re.sub(r"```[\s\S]*?```", "", text)
 
             # Process with spaCy (now processes full text, pre-truncated/sampled by caller)
             doc = nlp_spacy(text_clean)
@@ -424,13 +422,16 @@ class AdvancedLexicalDimension(DimensionStrategy):
             # Calculate MATTR (segment size 100 is research-validated)
             # Using textacy's segmented_ttr with moving-avg variant (MATTR)
             try:
-                mattr = diversity.segmented_ttr(doc, segment_size=100, variant='moving-avg')
+                mattr = diversity.segmented_ttr(doc, segment_size=100, variant="moving-avg")
             except Exception as e:
                 # Fallback if text too short for segment size 100
-                print(f"Warning: MATTR calculation failed, trying smaller segment: {e}", file=sys.stderr)
+                print(
+                    f"Warning: MATTR calculation failed, trying smaller segment: {e}",
+                    file=sys.stderr,
+                )
                 try:
                     # Try smaller segment size
-                    mattr = diversity.segmented_ttr(doc, segment_size=50, variant='moving-avg')
+                    mattr = diversity.segmented_ttr(doc, segment_size=50, variant="moving-avg")
                 except Exception:
                     mattr = 0.0
 
@@ -441,49 +442,49 @@ class AdvancedLexicalDimension(DimensionStrategy):
             n_tokens = len(tokens)
             n_types = len(types)
 
-            rttr = n_types / (n_tokens ** 0.5) if n_tokens > 0 else 0.0
+            rttr = n_types / (n_tokens**0.5) if n_tokens > 0 else 0.0
 
             # Score MATTR (12 points max)
             if mattr >= 0.75:
-                mattr_score, mattr_assessment = 12.0, 'EXCELLENT'
+                mattr_score, mattr_assessment = 12.0, "EXCELLENT"
             elif mattr >= 0.70:
-                mattr_score, mattr_assessment = 9.0, 'GOOD'
+                mattr_score, mattr_assessment = 9.0, "GOOD"
             elif mattr >= 0.65:
-                mattr_score, mattr_assessment = 5.0, 'FAIR'
+                mattr_score, mattr_assessment = 5.0, "FAIR"
             else:
-                mattr_score, mattr_assessment = 0.0, 'POOR'
+                mattr_score, mattr_assessment = 0.0, "POOR"
 
             # Score RTTR (8 points max)
             if rttr >= 8.5:
-                rttr_score, rttr_assessment = 8.0, 'EXCELLENT'
+                rttr_score, rttr_assessment = 8.0, "EXCELLENT"
             elif rttr >= 7.5:
-                rttr_score, rttr_assessment = 6.0, 'GOOD'
+                rttr_score, rttr_assessment = 6.0, "GOOD"
             elif rttr >= 6.5:
-                rttr_score, rttr_assessment = 3.0, 'FAIR'
+                rttr_score, rttr_assessment = 3.0, "FAIR"
             else:
-                rttr_score, rttr_assessment = 0.0, 'POOR'
+                rttr_score, rttr_assessment = 0.0, "POOR"
 
             return {
-                'available': True,
-                'mattr': round(mattr, 3),
-                'mattr_score': mattr_score,
-                'mattr_assessment': mattr_assessment,
-                'rttr': round(rttr, 2),
-                'rttr_score': rttr_score,
-                'rttr_assessment': rttr_assessment,
-                'types': n_types,
-                'tokens': n_tokens
+                "available": True,
+                "mattr": round(mattr, 3),
+                "mattr_score": mattr_score,
+                "mattr_assessment": mattr_assessment,
+                "rttr": round(rttr, 2),
+                "rttr_score": rttr_score,
+                "rttr_assessment": rttr_assessment,
+                "types": n_types,
+                "tokens": n_tokens,
             }
         except Exception as e:
             print(f"Warning: Textacy lexical diversity calculation failed: {e}", file=sys.stderr)
             return {
-                'available': False,
-                'mattr': 0.0,
-                'mattr_score': 0.0,
-                'mattr_assessment': 'ERROR',
-                'rttr': 0.0,
-                'rttr_score': 0.0,
-                'rttr_assessment': 'ERROR'
+                "available": False,
+                "mattr": 0.0,
+                "mattr_score": 0.0,
+                "mattr_assessment": "ERROR",
+                "rttr": 0.0,
+                "rttr_score": 0.0,
+                "rttr_assessment": "ERROR",
             }
 
 

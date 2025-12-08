@@ -7,5 +7,6 @@
 | **3** | Content-Aware Analysis | Adapt analysis based on auto-detected content type for genre-appropriate scoring |
 | **4** | Repository Extraction | Extract WriteScore into standalone GitHub repository with CI/CD |
 | **5** | README Modernization | Revamp README to follow 2025 best practices for user-centric documentation |
+| **6** | Developer Experience & Security | Streamline onboarding, enhance CI/CD, and leverage GitHub security features |
 
 ---

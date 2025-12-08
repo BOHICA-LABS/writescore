@@ -12,7 +12,6 @@ StructureAnalyzer is the most complex analyzer with 1210 lines and 18+ methods,
 including 9 Phase 3 AST-based methods for advanced structural analysis.
 """
 
-
 import pytest
 
 from writescore.core.dimension_registry import DimensionRegistry
@@ -21,6 +20,7 @@ from writescore.dimensions.structure import StructureAnalyzer
 # ============================================================================
 # Fixtures
 # ============================================================================
+
 
 @pytest.fixture
 def analyzer():
@@ -196,6 +196,7 @@ Brief content here.
 # Basic Analysis Methods Tests (Phase 1-2)
 # ============================================================================
 
+
 class TestAnalyzeStructure:
     """Tests for _analyze_structure method."""
 
@@ -211,25 +212,25 @@ class TestAnalyzeStructure:
 """
         result = analyzer._analyze_structure(text)
 
-        assert 'bullet_lines' in result
-        assert 'numbered_lines' in result
-        assert result['bullet_lines'] >= 2
-        assert result['numbered_lines'] >= 2
+        assert "bullet_lines" in result
+        assert "numbered_lines" in result
+        assert result["bullet_lines"] >= 2
+        assert result["numbered_lines"] >= 2
 
     def test_analyze_structure_empty(self, analyzer):
         """Test structure analysis on empty document."""
         result = analyzer._analyze_structure("")
 
-        assert result['bullet_lines'] == 0
-        assert result['numbered_lines'] == 0
+        assert result["bullet_lines"] == 0
+        assert result["numbered_lines"] == 0
 
     def test_analyze_structure_no_lists(self, analyzer):
         """Test structure analysis with no lists."""
         text = "# Title\n\nJust paragraphs here.\n\nNo lists at all."
         result = analyzer._analyze_structure(text)
 
-        assert result['bullet_lines'] == 0
-        assert result['numbered_lines'] == 0
+        assert result["bullet_lines"] == 0
+        assert result["numbered_lines"] == 0
 
 
 class TestAnalyzeHeadings:
@@ -239,12 +240,12 @@ class TestAnalyzeHeadings:
         """Test basic heading analysis."""
         result = analyzer._analyze_headings(text_with_headings)
 
-        assert 'total' in result
-        assert 'depth' in result
-        assert 'parallelism_score' in result
-        assert 'verbose_count' in result
-        assert 'avg_length' in result
-        assert result['total'] > 0
+        assert "total" in result
+        assert "depth" in result
+        assert "parallelism_score" in result
+        assert "verbose_count" in result
+        assert "avg_length" in result
+        assert result["total"] > 0
 
     def test_analyze_headings_counts_all_levels(self, analyzer):
         """Test that all heading levels are counted."""
@@ -256,7 +257,7 @@ class TestAnalyzeHeadings:
 ###### H6
 """
         result = analyzer._analyze_headings(text)
-        assert result['total'] == 6
+        assert result["total"] == 6
 
     def test_analyze_headings_verbose_detection(self, analyzer):
         """Test detection of verbose headings (>8 words)."""
@@ -267,7 +268,7 @@ class TestAnalyzeHeadings:
 ### Brief
 """
         result = analyzer._analyze_headings(text)
-        assert result['verbose_count'] > 0
+        assert result["verbose_count"] > 0
 
     def test_analyze_headings_average_length(self, analyzer):
         """Test average heading length calculation."""
@@ -276,15 +277,15 @@ class TestAnalyzeHeadings:
 ### Six
 """
         result = analyzer._analyze_headings(text)
-        assert 'avg_length' in result
+        assert "avg_length" in result
         # Average should be (3+2+1)/3 = 2 words
-        assert result['avg_length'] == pytest.approx(2.0, rel=0.1)
+        assert result["avg_length"] == pytest.approx(2.0, rel=0.1)
 
     def test_analyze_headings_empty_text(self, analyzer):
         """Test heading analysis on empty text."""
         result = analyzer._analyze_headings("")
-        assert result['total'] == 0
-        assert result['verbose_count'] == 0
+        assert result["total"] == 0
+        assert result["verbose_count"] == 0
 
     def test_analyze_headings_parallelism_high(self, analyzer):
         """Test high parallelism score for similar headings."""
@@ -296,7 +297,7 @@ class TestAnalyzeHeadings:
 """
         result = analyzer._analyze_headings(text)
         # Should detect "How to" pattern
-        assert result['parallelism_score'] > 0.5
+        assert result["parallelism_score"] > 0.5
 
     def test_analyze_headings_parallelism_low(self, analyzer):
         """Test low parallelism score for varied headings."""
@@ -309,7 +310,7 @@ class TestAnalyzeHeadings:
 """
         result = analyzer._analyze_headings(text)
         # Varied patterns should have lower parallelism
-        assert result['parallelism_score'] >= 0  # At least doesn't crash
+        assert result["parallelism_score"] >= 0  # At least doesn't crash
 
 
 class TestCalculateSectionVariance:
@@ -319,20 +320,20 @@ class TestCalculateSectionVariance:
         """Test section variance on uniform sections (AI pattern)."""
         result = analyzer._calculate_section_variance(text_uniform_sections)
 
-        assert 'variance_pct' in result
-        assert 'uniform_clusters' in result
-        assert 'score' in result
-        assert 'assessment' in result
+        assert "variance_pct" in result
+        assert "uniform_clusters" in result
+        assert "score" in result
+        assert "assessment" in result
         # AI content has low variance (<15%)
-        assert result['variance_pct'] < 15.0 or result['uniform_clusters'] > 0
+        assert result["variance_pct"] < 15.0 or result["uniform_clusters"] > 0
 
     def test_section_variance_varied(self, analyzer, text_varied_sections):
         """Test section variance on varied sections (human pattern)."""
         result = analyzer._calculate_section_variance(text_varied_sections)
 
-        assert 'variance_pct' in result
+        assert "variance_pct" in result
         # Human content has high variance (≥40%)
-        assert result['variance_pct'] >= 20.0  # Relaxed threshold for test
+        assert result["variance_pct"] >= 20.0  # Relaxed threshold for test
 
     def test_section_variance_insufficient_data(self, analyzer):
         """Test section variance with insufficient sections (<3)."""
@@ -345,12 +346,12 @@ Some content here.
         result = analyzer._calculate_section_variance(text)
 
         # Should handle gracefully
-        assert 'variance_pct' in result
+        assert "variance_pct" in result
 
     def test_section_variance_empty(self, analyzer):
         """Test section variance on empty text."""
         result = analyzer._calculate_section_variance("")
-        assert result['variance_pct'] == 0
+        assert result["variance_pct"] == 0
 
     def test_section_variance_no_h2_sections(self, analyzer):
         """Test section variance with no H2 headings."""
@@ -366,7 +367,7 @@ More content.
 """
         result = analyzer._calculate_section_variance(text)
         # Should handle absence of H2s gracefully
-        assert 'variance_pct' in result
+        assert "variance_pct" in result
 
 
 class TestCalculateListNestingDepth:
@@ -376,11 +377,11 @@ class TestCalculateListNestingDepth:
         """Test basic list nesting depth analysis."""
         result = analyzer._calculate_list_nesting_depth(text_with_lists)
 
-        assert 'max_depth' in result
-        assert 'depth_distribution' in result
-        assert 'avg_depth' in result
-        assert 'total_list_items' in result
-        assert result['max_depth'] >= 2  # Has double-nested items
+        assert "max_depth" in result
+        assert "depth_distribution" in result
+        assert "avg_depth" in result
+        assert "total_list_items" in result
+        assert result["max_depth"] >= 2  # Has double-nested items
 
     def test_list_nesting_single_level(self, analyzer):
         """Test list nesting with only single-level lists."""
@@ -391,7 +392,7 @@ class TestCalculateListNestingDepth:
 - Item 3
 """
         result = analyzer._calculate_list_nesting_depth(text)
-        assert result['max_depth'] == 1
+        assert result["max_depth"] == 1
 
     def test_list_nesting_deep(self, analyzer):
         """Test deep list nesting."""
@@ -404,13 +405,13 @@ class TestCalculateListNestingDepth:
         - Level 5
 """
         result = analyzer._calculate_list_nesting_depth(text)
-        assert result['max_depth'] >= 4
+        assert result["max_depth"] >= 4
 
     def test_list_nesting_no_lists(self, analyzer):
         """Test list nesting with no lists."""
         text = "# Title\n\nNo lists here."
         result = analyzer._calculate_list_nesting_depth(text)
-        assert result['max_depth'] == 0
+        assert result["max_depth"] == 0
 
     def test_list_nesting_distribution(self, analyzer):
         """Test depth distribution for uniform nesting."""
@@ -425,8 +426,8 @@ class TestCalculateListNestingDepth:
 """
         result = analyzer._calculate_list_nesting_depth(text)
         # Should have depth distribution
-        assert 'depth_distribution' in result
-        assert isinstance(result['depth_distribution'], dict)
+        assert "depth_distribution" in result
+        assert isinstance(result["depth_distribution"], dict)
 
 
 class TestAnalyzeHeadingsDetailed:
@@ -441,18 +442,20 @@ class TestAnalyzeHeadingsDetailed:
             "",
             "#### Deep heading without H3",
             "",
-            "## This Is A Very Long Verbose Heading That Exceeds Eight Words"
+            "## This Is A Very Long Verbose Heading That Exceeds Eight Words",
         ]
 
         issues = analyzer._analyze_headings_detailed(lines)
 
         assert isinstance(issues, list)
         # Should detect depth violation (H4 without H3)
-        depth_issues = [i for i in issues if 'depth' in i.issue_type.lower() or 'skip' in i.issue_type.lower()]
+        depth_issues = [
+            i for i in issues if "depth" in i.issue_type.lower() or "skip" in i.issue_type.lower()
+        ]
         assert len(depth_issues) > 0
 
         # Should detect verbose heading
-        verbose_issues = [i for i in issues if 'verbose' in i.issue_type.lower()]
+        verbose_issues = [i for i in issues if "verbose" in i.issue_type.lower()]
         assert len(verbose_issues) > 0
 
     def test_headings_detailed_parallelism(self, analyzer):
@@ -461,7 +464,7 @@ class TestAnalyzeHeadingsDetailed:
             "# Title",
             "## How to Do Task One",
             "## How to Do Task Two",
-            "## How to Do Task Three"
+            "## How to Do Task Three",
         ]
 
         issues = analyzer._analyze_headings_detailed(lines)
@@ -470,23 +473,20 @@ class TestAnalyzeHeadingsDetailed:
 
     def test_headings_detailed_html_comments(self, analyzer):
         """Test that HTML comments are skipped."""
-        lines = [
-            "# Title",
-            "<!-- ## This is commented out -->",
-            "## Real Heading"
-        ]
+        lines = ["# Title", "<!-- ## This is commented out -->", "## Real Heading"]
 
         def is_in_html_comment(line_num):
             return line_num == 1  # Second line is in comment
 
         issues = analyzer._analyze_headings_detailed(lines, is_in_html_comment)
         # Should not detect commented heading
-        assert all('commented' not in str(issue) for issue in issues)
+        assert all("commented" not in str(issue) for issue in issues)
 
 
 # ============================================================================
 # Phase 3 Advanced Methods Tests
 # ============================================================================
+
 
 class TestCalculateHeadingLengthAnalysis:
     """Tests for _calculate_heading_length_analysis Phase 3 method."""
@@ -501,11 +501,11 @@ class TestCalculateHeadingLengthAnalysis:
 """
         result = analyzer._calculate_heading_length_analysis(text)
 
-        assert 'avg_length' in result
-        assert 'distribution' in result
-        assert 'score' in result
+        assert "avg_length" in result
+        assert "distribution" in result
+        assert "score" in result
         # AI headings tend to be longer
-        assert result['avg_length'] >= 6.0  # Relaxed threshold
+        assert result["avg_length"] >= 6.0  # Relaxed threshold
 
     def test_heading_length_human_pattern(self, analyzer):
         """Test heading length for human pattern (3-7 words)."""
@@ -518,7 +518,7 @@ class TestCalculateHeadingLengthAnalysis:
 """
         result = analyzer._calculate_heading_length_analysis(text)
 
-        assert result['avg_length'] <= 5.0
+        assert result["avg_length"] <= 5.0
 
     def test_heading_length_insufficient_data(self, analyzer):
         """Test heading length with <3 headings."""
@@ -529,7 +529,7 @@ class TestCalculateHeadingLengthAnalysis:
         result = analyzer._calculate_heading_length_analysis(text)
 
         # Should handle gracefully
-        assert 'avg_length' in result
+        assert "avg_length" in result
 
     def test_heading_length_distribution(self, analyzer):
         """Test heading length distribution calculation."""
@@ -541,11 +541,11 @@ class TestCalculateHeadingLengthAnalysis:
 """
         result = analyzer._calculate_heading_length_analysis(text)
 
-        assert 'distribution' in result
-        dist = result['distribution']
-        assert 'short' in dist
-        assert 'medium' in dist
-        assert 'long' in dist
+        assert "distribution" in result
+        dist = result["distribution"]
+        assert "short" in dist
+        assert "medium" in dist
+        assert "long" in dist
 
 
 class TestCalculateSubsectionAsymmetry:
@@ -572,10 +572,10 @@ class TestCalculateSubsectionAsymmetry:
 """
         result = analyzer._calculate_subsection_asymmetry(text)
 
-        assert 'cv' in result
-        assert 'score' in result
+        assert "cv" in result
+        assert "score" in result
         # AI has low CV (<0.3)
-        assert result['cv'] < 0.5
+        assert result["cv"] < 0.5
 
     def test_subsection_asymmetry_varied(self, analyzer):
         """Test varied subsection counts (human pattern)."""
@@ -598,7 +598,7 @@ class TestCalculateSubsectionAsymmetry:
         result = analyzer._calculate_subsection_asymmetry(text)
 
         # Human has high CV (≥0.6)
-        assert result['cv'] >= 0.3  # Relaxed for test
+        assert result["cv"] >= 0.3  # Relaxed for test
 
     def test_subsection_asymmetry_no_structure(self, analyzer):
         """Test subsection asymmetry with no H2/H3 structure."""
@@ -609,7 +609,7 @@ Regular text without subsections.
         result = analyzer._calculate_subsection_asymmetry(text)
 
         # Should handle gracefully
-        assert 'cv' in result
+        assert "cv" in result
 
 
 class TestCalculateH4SubsectionAsymmetry:
@@ -634,13 +634,13 @@ class TestCalculateH4SubsectionAsymmetry:
 """
         result = analyzer._calculate_h4_subsection_asymmetry(text)
 
-        assert 'cv' in result
-        assert 'h4_counts' in result
-        assert 'score' in result
-        assert 'assessment' in result
+        assert "cv" in result
+        assert "h4_counts" in result
+        assert "score" in result
+        assert "assessment" in result
         # AI has uniform H4 counts (2, 2, 2) -> low CV
-        assert result['cv'] < 0.3
-        assert result['h4_counts'] == [2, 2, 2]
+        assert result["cv"] < 0.3
+        assert result["h4_counts"] == [2, 2, 2]
 
     def test_h4_subsection_asymmetry_varied(self, analyzer):
         """Test varied H4 counts under H3 (human pattern)."""
@@ -667,9 +667,9 @@ No H4s here
         result = analyzer._calculate_h4_subsection_asymmetry(text)
 
         # Human has varied H4 counts (1, 5, 2, 0) -> high CV
-        assert result['cv'] >= 0.45
-        assert result['h4_counts'] == [1, 5, 2, 0]
-        assert result['assessment'] in ['EXCELLENT', 'GOOD']
+        assert result["cv"] >= 0.45
+        assert result["h4_counts"] == [1, 5, 2, 0]
+        assert result["assessment"] in ["EXCELLENT", "GOOD"]
 
     def test_h4_subsection_asymmetry_insufficient_data(self, analyzer):
         """Test H4 asymmetry with insufficient structure."""
@@ -682,8 +682,8 @@ No H4s here
         result = analyzer._calculate_h4_subsection_asymmetry(text)
 
         # Should return insufficient data assessment
-        assert result['assessment'] == 'INSUFFICIENT_DATA'
-        assert 'cv' in result
+        assert result["assessment"] == "INSUFFICIENT_DATA"
+        assert "cv" in result
 
     def test_h4_subsection_asymmetry_no_h4s(self, analyzer):
         """Test H4 asymmetry when no H4s present."""
@@ -702,8 +702,8 @@ Even more content
         result = analyzer._calculate_h4_subsection_asymmetry(text)
 
         # Should handle gracefully - insufficient data when all zeros
-        assert 'cv' in result
-        assert result['assessment'] == 'INSUFFICIENT_DATA'
+        assert "cv" in result
+        assert result["assessment"] == "INSUFFICIENT_DATA"
 
 
 class TestCalculateHeadingDepthVariance:
@@ -721,11 +721,11 @@ class TestCalculateHeadingDepthVariance:
 """
         result = analyzer._calculate_heading_depth_variance(text)
 
-        assert 'pattern' in result
-        assert 'has_lateral' in result
-        assert 'has_jumps' in result
+        assert "pattern" in result
+        assert "has_lateral" in result
+        assert "has_jumps" in result
         # Should be RIGID or SEQUENTIAL
-        assert result['pattern'] in ['RIGID', 'SEQUENTIAL', 'VARIED']
+        assert result["pattern"] in ["RIGID", "SEQUENTIAL", "VARIED"]
 
     def test_heading_depth_variance_varied(self, analyzer):
         """Test varied depth progression (human pattern)."""
@@ -740,7 +740,7 @@ class TestCalculateHeadingDepthVariance:
         result = analyzer._calculate_heading_depth_variance(text)
 
         # Should have varied pattern
-        assert 'has_jumps' in result or result['pattern'] == 'VARIED'
+        assert "has_jumps" in result or result["pattern"] == "VARIED"
 
     def test_heading_depth_variance_lateral(self, analyzer):
         """Test lateral moves (H2→H2, H3→H3)."""
@@ -753,7 +753,7 @@ class TestCalculateHeadingDepthVariance:
 """
         result = analyzer._calculate_heading_depth_variance(text)
 
-        assert result['has_lateral'] is not None  # Field exists
+        assert result["has_lateral"] is not None  # Field exists
 
 
 class TestAnalyzeCodeBlocks:
@@ -763,10 +763,10 @@ class TestAnalyzeCodeBlocks:
         """Test code block analysis."""
         result = analyzer._analyze_code_blocks(text_with_code_blocks)
 
-        assert 'total_blockquotes' in result or 'code_blocks' in result
-        assert 'code_with_lang' in result
-        assert 'code_comment_density' in result
-        assert result.get('total_blockquotes', result.get('code_blocks', 0)) >= 3
+        assert "total_blockquotes" in result or "code_blocks" in result
+        assert "code_with_lang" in result
+        assert "code_comment_density" in result
+        assert result.get("total_blockquotes", result.get("code_blocks", 0)) >= 3
 
     def test_code_blocks_language_consistency(self, analyzer):
         """Test language specification consistency."""
@@ -787,22 +787,22 @@ no language
         result = analyzer._analyze_code_blocks(text)
 
         # 2 out of 3 have language specified
-        assert result['code_with_lang'] == 2
+        assert result["code_with_lang"] == 2
 
     def test_code_blocks_comment_density(self, analyzer, text_with_code_blocks):
         """Test comment density calculation."""
         result = analyzer._analyze_code_blocks(text_with_code_blocks)
 
         # Should detect comments in code blocks
-        assert 'code_comment_density' in result
-        assert result['code_comment_density'] >= 0
+        assert "code_comment_density" in result
+        assert result["code_comment_density"] >= 0
 
     def test_code_blocks_none(self, analyzer):
         """Test code block analysis with no code blocks."""
         text = "# Title\n\nNo code here."
         result = analyzer._analyze_code_blocks(text)
 
-        assert result.get('total_blockquotes', result.get('code_blocks', 0)) == 0
+        assert result.get("total_blockquotes", result.get("code_blocks", 0)) == 0
 
 
 class TestAnalyzeHeadingHierarchyEnhanced:
@@ -819,11 +819,11 @@ class TestAnalyzeHeadingHierarchyEnhanced:
 """
         result = analyzer._analyze_heading_hierarchy_enhanced(text)
 
-        assert 'hierarchy_adherence' in result
-        assert 'hierarchy_skips' in result
+        assert "hierarchy_adherence" in result
+        assert "hierarchy_skips" in result
         # Perfect hierarchy has score near 1.0
-        assert result['hierarchy_adherence'] >= 0.8
-        assert result['hierarchy_skips'] == 0
+        assert result["hierarchy_adherence"] >= 0.8
+        assert result["hierarchy_skips"] == 0
 
     def test_hierarchy_enhanced_skips(self, analyzer):
         """Test hierarchy with skips (human pattern)."""
@@ -835,8 +835,8 @@ class TestAnalyzeHeadingHierarchyEnhanced:
         result = analyzer._analyze_heading_hierarchy_enhanced(text)
 
         # Should detect skips
-        assert result['hierarchy_skips'] > 0
-        assert result['hierarchy_adherence'] < 1.0
+        assert result["hierarchy_skips"] > 0
+        assert result["hierarchy_adherence"] < 1.0
 
     def test_hierarchy_enhanced_insufficient_headings(self, analyzer):
         """Test with <2 headings."""
@@ -844,7 +844,7 @@ class TestAnalyzeHeadingHierarchyEnhanced:
         result = analyzer._analyze_heading_hierarchy_enhanced(text)
 
         # Should handle gracefully
-        assert 'hierarchy_adherence' in result
+        assert "hierarchy_adherence" in result
 
 
 class TestAnalyzeBlockquotePatterns:
@@ -854,16 +854,16 @@ class TestAnalyzeBlockquotePatterns:
         """Test blockquote pattern analysis."""
         result = analyzer._analyze_blockquote_patterns(text_with_blockquotes, word_count=100)
 
-        assert 'total_blockquotes' in result or 'code_blocks' in result
-        assert 'per_page' in result
-        assert 'section_start_clustering' in result
-        assert result.get('total_blockquotes', 0) > 0
+        assert "total_blockquotes" in result or "code_blocks" in result
+        assert "per_page" in result
+        assert "section_start_clustering" in result
+        assert result.get("total_blockquotes", 0) > 0
 
     def test_blockquote_patterns_with_marko(self, analyzer, text_with_blockquotes):
         """Test blockquote analysis with marko (AST-based)."""
         # This test requires marko to be installed
         result = analyzer._analyze_blockquote_patterns(text_with_blockquotes, word_count=100)
-        assert result.get('total_blockquotes', 0) > 0
+        assert result.get("total_blockquotes", 0) > 0
 
     def test_blockquote_section_start_clustering(self, analyzer):
         """Test detection of blockquotes at section starts."""
@@ -884,7 +884,7 @@ Middle text.
         result = analyzer._analyze_blockquote_patterns(text, word_count=50)
 
         # Should detect section-start clustering
-        assert 'section_start_clustering' in result
+        assert "section_start_clustering" in result
 
 
 class TestAnalyzeLinkAnchorQuality:
@@ -894,10 +894,10 @@ class TestAnalyzeLinkAnchorQuality:
         """Test link anchor quality analysis."""
         result = analyzer._analyze_link_anchor_quality(text_with_links, word_count=50)
 
-        assert 'total_links' in result
-        assert 'generic_count' in result
-        assert 'score' in result
-        assert result['total_links'] > 0
+        assert "total_links" in result
+        assert "generic_count" in result
+        assert "score" in result
+        assert result["total_links"] > 0
 
     def test_link_anchor_quality_generic_detection(self, analyzer):
         """Test detection of generic link anchors."""
@@ -911,7 +911,7 @@ class TestAnalyzeLinkAnchorQuality:
         result = analyzer._analyze_link_anchor_quality(text, word_count=20)
 
         # Should detect generic anchors
-        assert result['generic_count'] >= 3
+        assert result["generic_count"] >= 3
 
     def test_link_anchor_quality_descriptive(self, analyzer):
         """Test descriptive link anchors."""
@@ -924,12 +924,12 @@ class TestAnalyzeLinkAnchorQuality:
         result = analyzer._analyze_link_anchor_quality(text, word_count=20)
 
         # Descriptive links should have few/no generic anchors
-        assert result['generic_count'] == 0
+        assert result["generic_count"] == 0
 
     def test_link_anchor_quality_with_marko(self, analyzer, text_with_links):
         """Test link analysis with marko (AST-based)."""
         result = analyzer._analyze_link_anchor_quality(text_with_links, word_count=50)
-        assert result['total_links'] > 0
+        assert result["total_links"] > 0
 
 
 class TestAnalyzeEnhancedListStructureAst:
@@ -939,10 +939,10 @@ class TestAnalyzeEnhancedListStructureAst:
         """Test enhanced list structure analysis."""
         result = analyzer._analyze_enhanced_list_structure_ast(text_with_lists)
 
-        assert 'ordered_count' in result
-        assert 'unordered_count' in result
-        assert 'symmetry_score' in result
-        assert 'has_mixed_types' in result
+        assert "ordered_count" in result
+        assert "unordered_count" in result
+        assert "symmetry_score" in result
+        assert "has_mixed_types" in result
 
     def test_enhanced_list_structure_mixing(self, analyzer):
         """Test detection of ordered/unordered list mixing."""
@@ -959,7 +959,7 @@ class TestAnalyzeEnhancedListStructureAst:
         result = analyzer._analyze_enhanced_list_structure_ast(text)
 
         # Should detect mixing
-        assert result['has_mixed_types'] is True or result['ordered_count'] > 0
+        assert result["has_mixed_types"] is True or result["ordered_count"] > 0
 
     def test_enhanced_list_structure_symmetry(self, analyzer):
         """Test symmetry scoring for uniform list items."""
@@ -973,7 +973,7 @@ class TestAnalyzeEnhancedListStructureAst:
         result = analyzer._analyze_enhanced_list_structure_ast(text)
 
         # Uniform items should have high symmetry (low CV)
-        assert 'symmetry_score' in result
+        assert "symmetry_score" in result
 
 
 class TestAnalyzeCodeBlockPatternsAst:
@@ -983,9 +983,9 @@ class TestAnalyzeCodeBlockPatternsAst:
         """Test code block pattern analysis."""
         result = analyzer._analyze_code_block_patterns_ast(text_with_code_blocks)
 
-        assert 'total_blocks' in result
-        assert 'language_declaration_ratio' in result
-        assert 'length_cv' in result
+        assert "total_blocks" in result
+        assert "language_declaration_ratio" in result
+        assert "length_cv" in result
 
     def test_code_block_patterns_ast_language_ratio(self, analyzer):
         """Test language declaration ratio calculation."""
@@ -1006,7 +1006,7 @@ no language
         result = analyzer._analyze_code_block_patterns_ast(text)
 
         # 2 out of 3 have language = 0.666...
-        assert result['language_declaration_ratio'] == pytest.approx(0.667, rel=0.01)
+        assert result["language_declaration_ratio"] == pytest.approx(0.667, rel=0.01)
 
     def test_code_block_patterns_ast_length_variance(self, analyzer):
         """Test code block length variance."""
@@ -1030,30 +1030,27 @@ block
         result = analyzer._analyze_code_block_patterns_ast(text)
 
         # Varied lengths should have some variance
-        assert result['length_cv'] >= 0
+        assert result["length_cv"] >= 0
 
 
 # ============================================================================
 # Helper Methods Tests
 # ============================================================================
 
+
 class TestHelperMethods:
     """Tests for helper methods."""
 
     def test_calculate_heading_parallelism(self, analyzer):
         """Test heading parallelism calculation."""
-        headings = [
-            "How to Do Task One",
-            "How to Do Task Two",
-            "How to Do Task Three"
-        ]
+        headings = ["How to Do Task One", "How to Do Task Two", "How to Do Task Three"]
 
         # This is a private method, testing through public analyze method
         text = "# Title\n" + "\n".join(f"## {h}" for h in headings)
         result = analyzer._analyze_headings(text)
 
         # Should detect "How to" pattern
-        assert result['parallelism_score'] > 0
+        assert result["parallelism_score"] > 0
 
     def test_has_common_pattern(self, analyzer):
         """Test common pattern detection in headings."""
@@ -1070,6 +1067,7 @@ class TestHelperMethods:
 # Integration Tests
 # ============================================================================
 
+
 class TestStructureAnalyzerIntegration:
     """Integration tests for full analyze method."""
 
@@ -1078,28 +1076,28 @@ class TestStructureAnalyzerIntegration:
         result = analyzer.analyze(sample_ai_text)
 
         # Should contain all expected keys
-        assert 'structure' in result
-        assert 'headings' in result
-        assert 'section_variance' in result
-        assert 'list_nesting' in result
+        assert "structure" in result
+        assert "headings" in result
+        assert "section_variance" in result
+        assert "list_nesting" in result
         # Phase 3
-        assert 'heading_length' in result
-        assert 'subsection_asymmetry' in result
-        assert 'heading_depth_variance' in result
-        assert 'code_blocks' in result
-        assert 'heading_hierarchy_enhanced' in result
-        assert 'blockquote_patterns' in result
-        assert 'link_anchor_quality' in result
-        assert 'enhanced_list_structure' in result
-        assert 'code_block_patterns' in result
+        assert "heading_length" in result
+        assert "subsection_asymmetry" in result
+        assert "heading_depth_variance" in result
+        assert "code_blocks" in result
+        assert "heading_hierarchy_enhanced" in result
+        assert "blockquote_patterns" in result
+        assert "link_anchor_quality" in result
+        assert "enhanced_list_structure" in result
+        assert "code_block_patterns" in result
 
     def test_analyze_with_word_count(self, analyzer, sample_ai_text):
         """Test that word_count is passed through kwargs."""
         result = analyzer.analyze(sample_ai_text, word_count=500)
 
         # Word count should be used in blockquote/link analysis
-        assert 'blockquote_patterns' in result
-        assert 'link_anchor_quality' in result
+        assert "blockquote_patterns" in result
+        assert "link_anchor_quality" in result
 
     def test_analyze_empty(self, analyzer):
         """Test analysis on empty document."""
@@ -1114,7 +1112,7 @@ class TestStructureAnalyzerIntegration:
             "# Title",
             "## Section",
             "#### Skipped H3",
-            "## Very Long Verbose Heading With Many Words"
+            "## Very Long Verbose Heading With Many Words",
         ]
 
         issues = analyzer.analyze_detailed(lines)
@@ -1127,6 +1125,7 @@ class TestStructureAnalyzerIntegration:
 # Edge Cases
 # ============================================================================
 
+
 class TestEdgeCases:
     """Test edge cases and boundary conditions."""
 
@@ -1138,13 +1137,13 @@ class TestEdgeCases:
     def test_no_structure(self, analyzer):
         """Test with plain text, no markdown structure."""
         result = analyzer.analyze("Just plain text without any markdown.")
-        assert result['headings']['total'] == 0
+        assert result["headings"]["total"] == 0
 
     def test_only_headings(self, analyzer):
         """Test with only headings, no content."""
         text = "# H1\n## H2\n### H3\n#### H4"
         result = analyzer.analyze(text)
-        assert result['headings']['total'] == 4
+        assert result["headings"]["total"] == 4
 
     def test_malformed_markdown(self, analyzer):
         """Test with malformed markdown."""
@@ -1156,7 +1155,7 @@ class TestEdgeCases:
         """Test with unicode characters."""
         text = "# Hello 世界 🌍\n\n## Привет мир"
         result = analyzer.analyze(text)
-        assert result['headings']['total'] == 2
+        assert result["headings"]["total"] == 2
 
     def test_very_long_document(self, analyzer):
         """Test with very long document."""
@@ -1169,16 +1168,17 @@ class TestEdgeCases:
 # Score Method Branch Coverage
 # ============================================================================
 
+
 class TestScoreMethodBranches:
     """Tests for score() method covering all threshold branches - Lines 111-136."""
 
     def test_score_depth_5_or_more(self, analyzer):
         """Test score with heading depth >= 5 - Line 111."""
         analysis_results = {
-            'heading_depth': 5,
-            'heading_parallelism_score': 0.0,
-            'total_headings': 10,
-            'verbose_headings_count': 0
+            "heading_depth": 5,
+            "heading_parallelism_score": 0.0,
+            "total_headings": 10,
+            "verbose_headings_count": 0,
         }
         score, label = analyzer.score(analysis_results)
         # issues += 2 from depth, so issues = 2, should be MEDIUM (7.0)
@@ -1188,10 +1188,10 @@ class TestScoreMethodBranches:
     def test_score_depth_4(self, analyzer):
         """Test score with heading depth == 4 - Line 113."""
         analysis_results = {
-            'heading_depth': 4,
-            'heading_parallelism_score': 0.0,
-            'total_headings': 10,
-            'verbose_headings_count': 0
+            "heading_depth": 4,
+            "heading_parallelism_score": 0.0,
+            "total_headings": 10,
+            "verbose_headings_count": 0,
         }
         score, label = analyzer.score(analysis_results)
         # issues += 1 from depth, so issues = 1, should be MEDIUM (7.0)
@@ -1201,10 +1201,10 @@ class TestScoreMethodBranches:
     def test_score_parallelism_high(self, analyzer):
         """Test score with high parallelism >= 0.7 - Line 118."""
         analysis_results = {
-            'heading_depth': 3,
-            'heading_parallelism_score': 0.7,
-            'total_headings': 10,
-            'verbose_headings_count': 0
+            "heading_depth": 3,
+            "heading_parallelism_score": 0.7,
+            "total_headings": 10,
+            "verbose_headings_count": 0,
         }
         score, label = analyzer.score(analysis_results)
         # issues += 2 from parallelism, so issues = 2, should be MEDIUM (7.0)
@@ -1214,10 +1214,10 @@ class TestScoreMethodBranches:
     def test_score_parallelism_medium(self, analyzer):
         """Test score with medium parallelism >= 0.4 - Line 120."""
         analysis_results = {
-            'heading_depth': 3,
-            'heading_parallelism_score': 0.4,
-            'total_headings': 10,
-            'verbose_headings_count': 0
+            "heading_depth": 3,
+            "heading_parallelism_score": 0.4,
+            "total_headings": 10,
+            "verbose_headings_count": 0,
         }
         score, label = analyzer.score(analysis_results)
         # issues += 1 from parallelism, so issues = 1, should be MEDIUM (7.0)
@@ -1227,10 +1227,10 @@ class TestScoreMethodBranches:
     def test_score_verbose_headings(self, analyzer):
         """Test score with excessive verbose headings - Line 126."""
         analysis_results = {
-            'heading_depth': 3,
-            'heading_parallelism_score': 0.0,
-            'total_headings': 10,
-            'verbose_headings_count': 4  # 40% > 30% threshold
+            "heading_depth": 3,
+            "heading_parallelism_score": 0.0,
+            "total_headings": 10,
+            "verbose_headings_count": 4,  # 40% > 30% threshold
         }
         score, label = analyzer.score(analysis_results)
         # issues += 1 from verbose, so issues = 1, should be MEDIUM (7.0)
@@ -1240,10 +1240,10 @@ class TestScoreMethodBranches:
     def test_score_no_issues_high(self, analyzer):
         """Test score with no issues returns HIGH - Line 130."""
         analysis_results = {
-            'heading_depth': 2,
-            'heading_parallelism_score': 0.0,
-            'total_headings': 10,
-            'verbose_headings_count': 0
+            "heading_depth": 2,
+            "heading_parallelism_score": 0.0,
+            "total_headings": 10,
+            "verbose_headings_count": 0,
         }
         score, label = analyzer.score(analysis_results)
         # issues = 0, should be HIGH (10.0)
@@ -1253,10 +1253,10 @@ class TestScoreMethodBranches:
     def test_score_medium_range(self, analyzer):
         """Test score with 1-2 issues returns MEDIUM - Line 132."""
         analysis_results = {
-            'heading_depth': 4,  # +1 issue
-            'heading_parallelism_score': 0.45,  # +1 issue
-            'total_headings': 10,
-            'verbose_headings_count': 0
+            "heading_depth": 4,  # +1 issue
+            "heading_parallelism_score": 0.45,  # +1 issue
+            "total_headings": 10,
+            "verbose_headings_count": 0,
         }
         score, label = analyzer.score(analysis_results)
         # issues = 2, should be MEDIUM (7.0)
@@ -1266,10 +1266,10 @@ class TestScoreMethodBranches:
     def test_score_low_range(self, analyzer):
         """Test score with 3-4 issues returns LOW - Line 134."""
         analysis_results = {
-            'heading_depth': 4,  # +1 issue
-            'heading_parallelism_score': 0.75,  # +2 issues
-            'total_headings': 10,
-            'verbose_headings_count': 4  # +1 issue (40% > 30%)
+            "heading_depth": 4,  # +1 issue
+            "heading_parallelism_score": 0.75,  # +2 issues
+            "total_headings": 10,
+            "verbose_headings_count": 4,  # +1 issue (40% > 30%)
         }
         score, label = analyzer.score(analysis_results)
         # issues = 4, should be LOW (4.0)
@@ -1279,10 +1279,10 @@ class TestScoreMethodBranches:
     def test_score_very_low_range(self, analyzer):
         """Test score with 5+ issues returns VERY LOW - Line 136."""
         analysis_results = {
-            'heading_depth': 5,  # +2 issues
-            'heading_parallelism_score': 0.75,  # +2 issues
-            'total_headings': 10,
-            'verbose_headings_count': 4  # +1 issue (40% > 30%)
+            "heading_depth": 5,  # +2 issues
+            "heading_parallelism_score": 0.75,  # +2 issues
+            "total_headings": 10,
+            "verbose_headings_count": 4,  # +1 issue (40% > 30%)
         }
         score, label = analyzer.score(analysis_results)
         # issues = 5, should be VERY LOW (2.0)
@@ -1294,47 +1294,31 @@ class TestScoreMethodBranches:
 # Additional Branch Coverage - Helper Methods
 # ============================================================================
 
+
 class TestHasCommonPattern:
     """Tests for _has_common_pattern() method - Lines 221, 240."""
 
     def test_has_common_pattern_understanding(self, analyzer):
         """Test detection of 'Understanding' pattern - Line 221."""
-        texts = [
-            "Understanding Python",
-            "Understanding Django",
-            "Understanding Flask"
-        ]
+        texts = ["Understanding Python", "Understanding Django", "Understanding Flask"]
         result = analyzer._has_common_pattern(texts)
         assert result is True  # Line 221, 240
 
     def test_has_common_pattern_how_to(self, analyzer):
         """Test detection of 'How to' pattern - Line 221."""
-        texts = [
-            "How to Install",
-            "How to Configure",
-            "How to Deploy"
-        ]
+        texts = ["How to Install", "How to Configure", "How to Deploy"]
         result = analyzer._has_common_pattern(texts)
         assert result is True
 
     def test_has_common_pattern_no_match(self, analyzer):
         """Test no pattern detected returns False - Line 240."""
-        texts = [
-            "Random Title One",
-            "Another Different Title",
-            "Yet Another Heading"
-        ]
+        texts = ["Random Title One", "Another Different Title", "Yet Another Heading"]
         result = analyzer._has_common_pattern(texts)
         assert result is False  # Line 240
 
     def test_has_common_pattern_below_threshold(self, analyzer):
         """Test pattern below 60% threshold returns False - Line 240."""
-        texts = [
-            "Understanding Python",
-            "Random Title",
-            "Another Title",
-            "Different Heading"
-        ]
+        texts = ["Understanding Python", "Random Title", "Another Title", "Different Heading"]
         result = analyzer._has_common_pattern(texts)
         assert result is False  # Only 25% match, below 60% threshold
 
@@ -1353,8 +1337,8 @@ class TestSectionVarianceEdgeCases:
 """
         result = analyzer._calculate_section_variance(text)
         # All sections have empty content, should return INSUFFICIENT_DATA
-        assert result['assessment'] == 'INSUFFICIENT_DATA'  # Line 284
-        assert result['section_count'] < 3
+        assert result["assessment"] == "INSUFFICIENT_DATA"  # Line 284
+        assert result["section_count"] < 3
 
     def test_section_variance_zero_words(self, analyzer):
         """Test section with zero word count handling - Line 280."""
@@ -1374,7 +1358,7 @@ More content.
 """
         result = analyzer._calculate_section_variance(text)
         # Sections with 0 words should be excluded (line 280)
-        assert 'variance_pct' in result
+        assert "variance_pct" in result
 
     def test_section_variance_insufficient_data(self, analyzer):
         """Test with fewer than 3 sections - Line 284."""
@@ -1387,35 +1371,45 @@ Some content here.
 More content.
 """
         result = analyzer._calculate_section_variance(text)
-        assert result['assessment'] == 'INSUFFICIENT_DATA'  # Line 284
-        assert result['variance_pct'] == 0.0
-        assert result['score'] == 8.0
-        assert result['section_count'] < 3
+        assert result["assessment"] == "INSUFFICIENT_DATA"  # Line 284
+        assert result["variance_pct"] == 0.0
+        assert result["score"] == 8.0
+        assert result["section_count"] < 3
 
     def test_section_variance_fair_range(self, analyzer):
         """Test variance in FAIR range (15-25%) - Line 306."""
         # Create sections with ~20% variance
-        text = """# Section One
+        text = (
+            """# Section One
 
-""" + ("word " * 100) + """
+"""
+            + ("word " * 100)
+            + """
 
 # Section Two
 
-""" + ("word " * 120) + """
+"""
+            + ("word " * 120)
+            + """
 
 # Section Three
 
-""" + ("word " * 110) + """
+"""
+            + ("word " * 110)
+            + """
 
 # Section Four
 
-""" + ("word " * 115) + """
 """
+            + ("word " * 115)
+            + """
+"""
+        )
         result = analyzer._calculate_section_variance(text)
         # Should fall in FAIR range (15-25% variance)
-        if 15 <= result['variance_pct'] < 25:
-            assert result['assessment'] == 'FAIR'  # Line 306
-            assert result['score'] == 3.0
+        if 15 <= result["variance_pct"] < 25:
+            assert result["assessment"] == "FAIR"  # Line 306
+            assert result["score"] == 3.0
 
 
 class TestListNestingDepthBranches:
@@ -1425,9 +1419,9 @@ class TestListNestingDepthBranches:
         """Test with no lists in text."""
         text = "# Title\n\nJust regular text without lists."
         result = analyzer._calculate_list_nesting_depth(text)
-        assert result['max_depth'] == 0
-        assert result['avg_depth'] == 0.0
-        assert result['assessment'] == 'NO_LISTS'
+        assert result["max_depth"] == 0
+        assert result["avg_depth"] == 0.0
+        assert result["assessment"] == "NO_LISTS"
 
     def test_list_nesting_single_level(self, analyzer):
         """Test with single-level lists only."""
@@ -1438,9 +1432,9 @@ class TestListNestingDepthBranches:
 - Item 3
 """
         result = analyzer._calculate_list_nesting_depth(text)
-        assert result['max_depth'] == 1
-        assert result['avg_depth'] == 1.0
-        assert result['assessment'] == 'EXCELLENT'
+        assert result["max_depth"] == 1
+        assert result["avg_depth"] == 1.0
+        assert result["assessment"] == "EXCELLENT"
 
     def test_list_nesting_depth_4_good(self, analyzer):
         """Test depth 4 returns GOOD - Line 366."""
@@ -1452,9 +1446,9 @@ class TestListNestingDepthBranches:
       - Level 4
 """
         result = analyzer._calculate_list_nesting_depth(text)
-        assert result['max_depth'] == 4
-        assert result['assessment'] == 'GOOD'  # Line 366
-        assert result['score'] == 4.0
+        assert result["max_depth"] == 4
+        assert result["assessment"] == "GOOD"  # Line 366
+        assert result["score"] == 4.0
 
     def test_list_nesting_depth_5_fair(self, analyzer):
         """Test depth 5-6 returns FAIR - Line 370."""
@@ -1467,6 +1461,6 @@ class TestListNestingDepthBranches:
         - Level 5
 """
         result = analyzer._calculate_list_nesting_depth(text)
-        assert result['max_depth'] == 5
-        assert result['assessment'] == 'FAIR'  # Line 370
-        assert result['score'] == 2.0
+        assert result["max_depth"] == 5
+        assert result["assessment"] == "FAIR"  # Line 370
+        assert result["score"] == 2.0

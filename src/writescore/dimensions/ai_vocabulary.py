@@ -22,68 +22,94 @@ from typing import Any, Dict, List, Optional
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import VocabInstance
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.utils.text_processing import count_words
 
 # Tier 1 - Extremely High AI Association (14 patterns, 3× weight)
 TIER_1_PATTERNS = [
-    'delve', 'robust', 'leverage', 'harness', 'underscore',
-    'holistic', 'myriad', 'plethora', 'quintessential',
-    'paramount', 'foster', 'realm', 'tapestry', 'embark'
+    "delve",
+    "robust",
+    "leverage",
+    "harness",
+    "underscore",
+    "holistic",
+    "myriad",
+    "plethora",
+    "quintessential",
+    "paramount",
+    "foster",
+    "realm",
+    "tapestry",
+    "embark",
 ]
 
 # Tier 2 - High AI Association (12 patterns, 2× weight)
 TIER_2_PATTERNS = [
-    'revolutionize', 'game-changing', 'cutting-edge', 'pivotal',
-    'intricate', 'nuanced', 'multifaceted', 'comprehensive',
-    'innovative', 'transformative', 'seamless', 'dynamic'
+    "revolutionize",
+    "game-changing",
+    "cutting-edge",
+    "pivotal",
+    "intricate",
+    "nuanced",
+    "multifaceted",
+    "comprehensive",
+    "innovative",
+    "transformative",
+    "seamless",
+    "dynamic",
 ]
 
 # Tier 3 - Moderate AI Association (8 patterns, 1× weight)
 TIER_3_PATTERNS = [
-    'optimize', 'streamline', 'facilitate', 'enhance',
-    'mitigate', 'navigate', 'ecosystem', 'landscape'
+    "optimize",
+    "streamline",
+    "facilitate",
+    "enhance",
+    "mitigate",
+    "navigate",
+    "ecosystem",
+    "landscape",
 ]
 
 # Human-friendly alternatives for each AI vocabulary word
 AI_VOCAB_ALTERNATIVES = {
     # Tier 1
-    'delve': ['explore', 'examine', 'investigate', 'look into'],
-    'robust': ['strong', 'reliable', 'sturdy', 'solid'],
-    'leverage': ['use', 'apply', 'employ', 'utilize'],
-    'harness': ['use', 'employ', 'channel', 'direct'],
-    'underscore': ['emphasize', 'highlight', 'stress', 'show'],
-    'holistic': ['comprehensive', 'complete', 'integrated', 'whole'],
-    'myriad': ['many', 'countless', 'numerous', 'various'],
-    'plethora': ['many', 'abundance', 'wealth', 'plenty'],
-    'quintessential': ['typical', 'classic', 'perfect example', 'ideal'],
-    'paramount': ['critical', 'essential', 'crucial', 'vital'],
-    'foster': ['encourage', 'promote', 'support', 'develop'],
-    'realm': ['area', 'field', 'domain', 'sphere'],
-    'tapestry': ['collection', 'mixture', 'blend', 'combination'],
-    'embark': ['start', 'begin', 'undertake', 'initiate'],
+    "delve": ["explore", "examine", "investigate", "look into"],
+    "robust": ["strong", "reliable", "sturdy", "solid"],
+    "leverage": ["use", "apply", "employ", "utilize"],
+    "harness": ["use", "employ", "channel", "direct"],
+    "underscore": ["emphasize", "highlight", "stress", "show"],
+    "holistic": ["comprehensive", "complete", "integrated", "whole"],
+    "myriad": ["many", "countless", "numerous", "various"],
+    "plethora": ["many", "abundance", "wealth", "plenty"],
+    "quintessential": ["typical", "classic", "perfect example", "ideal"],
+    "paramount": ["critical", "essential", "crucial", "vital"],
+    "foster": ["encourage", "promote", "support", "develop"],
+    "realm": ["area", "field", "domain", "sphere"],
+    "tapestry": ["collection", "mixture", "blend", "combination"],
+    "embark": ["start", "begin", "undertake", "initiate"],
     # Tier 2
-    'revolutionize': ['transform', 'change', 'improve', 'reshape'],
-    'game-changing': ['significant', 'major', 'important', 'transformative'],
-    'cutting-edge': ['advanced', 'modern', 'latest', 'new'],
-    'pivotal': ['key', 'crucial', 'important', 'critical'],
-    'intricate': ['complex', 'detailed', 'elaborate', 'complicated'],
-    'nuanced': ['subtle', 'refined', 'detailed', 'complex'],
-    'multifaceted': ['complex', 'varied', 'diverse', 'many-sided'],
-    'comprehensive': ['complete', 'thorough', 'full', 'extensive'],
-    'innovative': ['new', 'creative', 'novel', 'original'],
-    'transformative': ['significant', 'major', 'powerful', 'impactful'],
-    'seamless': ['smooth', 'easy', 'straightforward', 'effortless'],
-    'dynamic': ['changing', 'active', 'energetic', 'flexible'],
+    "revolutionize": ["transform", "change", "improve", "reshape"],
+    "game-changing": ["significant", "major", "important", "transformative"],
+    "cutting-edge": ["advanced", "modern", "latest", "new"],
+    "pivotal": ["key", "crucial", "important", "critical"],
+    "intricate": ["complex", "detailed", "elaborate", "complicated"],
+    "nuanced": ["subtle", "refined", "detailed", "complex"],
+    "multifaceted": ["complex", "varied", "diverse", "many-sided"],
+    "comprehensive": ["complete", "thorough", "full", "extensive"],
+    "innovative": ["new", "creative", "novel", "original"],
+    "transformative": ["significant", "major", "powerful", "impactful"],
+    "seamless": ["smooth", "easy", "straightforward", "effortless"],
+    "dynamic": ["changing", "active", "energetic", "flexible"],
     # Tier 3
-    'optimize': ['improve', 'enhance', 'fine-tune', 'refine'],
-    'streamline': ['simplify', 'improve', 'make efficient', 'refine'],
-    'facilitate': ['enable', 'help', 'make easier', 'support'],
-    'enhance': ['improve', 'strengthen', 'boost', 'increase'],
-    'mitigate': ['reduce', 'lessen', 'minimize', 'address'],
-    'navigate': ['move through', 'handle', 'deal with', 'manage'],
-    'ecosystem': ['environment', 'system', 'network', 'platform'],
-    'landscape': ['field', 'area', 'space', 'domain']
+    "optimize": ["improve", "enhance", "fine-tune", "refine"],
+    "streamline": ["simplify", "improve", "make efficient", "refine"],
+    "facilitate": ["enable", "help", "make easier", "support"],
+    "enhance": ["improve", "strengthen", "boost", "increase"],
+    "mitigate": ["reduce", "lessen", "minimize", "address"],
+    "navigate": ["move through", "handle", "deal with", "manage"],
+    "ecosystem": ["environment", "system", "network", "platform"],
+    "landscape": ["field", "area", "space", "domain"],
 }
 
 
@@ -123,9 +149,9 @@ class AiVocabularyDimension(DimensionStrategy):
         return 2.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "CORE"
+        return DimensionTier.CORE
 
     @property
     def description(self) -> str:
@@ -139,9 +165,9 @@ class AiVocabularyDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for AI vocabulary patterns with tier-weighted scoring.
@@ -185,12 +211,14 @@ class AiVocabularyDimension(DimensionStrategy):
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> Dict[str, Any]:
@@ -206,9 +234,7 @@ class AiVocabularyDimension(DimensionStrategy):
         """
         vocab_instances = self._analyze_ai_vocabulary_detailed(lines, html_comment_checker)
 
-        return {
-            'vocab_instances': vocab_instances
-        }
+        return {"vocab_instances": vocab_instances}
 
     # ========================================================================
     # SCORING METHODS - DimensionStrategy Contract
@@ -228,7 +254,7 @@ class AiVocabularyDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        weighted_per_1k = metrics.get('weighted_per_1k', 0.0)
+        weighted_per_1k = metrics.get("weighted_per_1k", 0.0)
 
         # Threshold-based scoring (Group C classification)
         # Expected ranges: Human 0.5-2.0, AI 5.0-15.0
@@ -260,13 +286,13 @@ class AiVocabularyDimension(DimensionStrategy):
             List of recommendation strings with tier-specific guidance
         """
         recommendations = []
-        weighted_per_1k = metrics.get('weighted_per_1k', 0.0)
+        weighted_per_1k = metrics.get("weighted_per_1k", 0.0)
 
         if weighted_per_1k >= 2.0:  # Above threshold
-            tier_breakdown = metrics.get('tier_breakdown', {})
-            tier1_count = tier_breakdown.get('tier1', {}).get('count', 0)
-            tier2_count = tier_breakdown.get('tier2', {}).get('count', 0)
-            tier3_count = tier_breakdown.get('tier3', {}).get('count', 0)
+            tier_breakdown = metrics.get("tier_breakdown", {})
+            tier1_count = tier_breakdown.get("tier1", {}).get("count", 0)
+            tier2_count = tier_breakdown.get("tier2", {}).get("count", 0)
+            tier3_count = tier_breakdown.get("tier3", {}).get("count", 0)
 
             # Overall recommendation
             recommendations.append(
@@ -276,13 +302,13 @@ class AiVocabularyDimension(DimensionStrategy):
 
             # Tier-specific recommendations
             if tier1_count > 0:
-                words = tier_breakdown.get('tier1', {}).get('words', [])[:3]
+                words = tier_breakdown.get("tier1", {}).get("words", [])[:3]
                 recommendations.append(
                     f"Priority: Replace {tier1_count} Tier-1 words (3× weight): {', '.join(words)}"
                 )
 
             if tier2_count > 2:
-                words = tier_breakdown.get('tier2', {}).get('words', [])[:3]
+                words = tier_breakdown.get("tier2", {}).get("words", [])[:3]
                 recommendations.append(
                     f"Replace {tier2_count} Tier-2 words (2× weight): {', '.join(words)}"
                 )
@@ -291,13 +317,13 @@ class AiVocabularyDimension(DimensionStrategy):
 
     def format_display(self, metrics: Dict[str, Any]) -> str:
         """Format AI vocabulary display for reports."""
-        total_count = metrics.get('total_count', 0)
-        weighted_per_1k = metrics.get('weighted_per_1k', 0.0)
-        tier_breakdown = metrics.get('tier_breakdown', {})
+        total_count = metrics.get("total_count", 0)
+        weighted_per_1k = metrics.get("weighted_per_1k", 0.0)
+        tier_breakdown = metrics.get("tier_breakdown", {})
 
-        t1 = tier_breakdown.get('tier1', {}).get('count', 0)
-        t2 = tier_breakdown.get('tier2', {}).get('count', 0)
-        t3 = tier_breakdown.get('tier3', {}).get('count', 0)
+        t1 = tier_breakdown.get("tier1", {}).get("count", 0)
+        t2 = tier_breakdown.get("tier2", {}).get("count", 0)
+        t3 = tier_breakdown.get("tier3", {}).get("count", 0)
 
         return f"(AI vocab: {total_count} words, {weighted_per_1k:.1f}/1k weighted | T1:{t1} T2:{t2} T3:{t3})"
 
@@ -309,10 +335,10 @@ class AiVocabularyDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -349,28 +375,16 @@ class AiVocabularyDimension(DimensionStrategy):
         total_per_1k = (total_count / word_count * 1000) if word_count > 0 else 0
 
         return {
-            'total_count': total_count,
-            'total_per_1k': round(total_per_1k, 2),
-            'weighted_count': weighted_count,
-            'weighted_per_1k': round(weighted_per_1k, 2),
-            'word_count': word_count,
-            'tier_breakdown': {
-                'tier1': {
-                    'count': tier1_count,
-                    'words': tier1_words[:10],
-                    'weight': 3
-                },
-                'tier2': {
-                    'count': tier2_count,
-                    'words': tier2_words[:10],
-                    'weight': 2
-                },
-                'tier3': {
-                    'count': tier3_count,
-                    'words': tier3_words[:10],
-                    'weight': 1
-                }
-            }
+            "total_count": total_count,
+            "total_per_1k": round(total_per_1k, 2),
+            "weighted_count": weighted_count,
+            "weighted_per_1k": round(weighted_per_1k, 2),
+            "word_count": word_count,
+            "tier_breakdown": {
+                "tier1": {"count": tier1_count, "words": tier1_words[:10], "weight": 3},
+                "tier2": {"count": tier2_count, "words": tier2_words[:10], "weight": 2},
+                "tier3": {"count": tier3_count, "words": tier3_words[:10], "weight": 1},
+            },
         }
 
     def _detect_tier_patterns(self, text: str, tier_patterns: List[str]) -> List[str]:
@@ -386,40 +400,40 @@ class AiVocabularyDimension(DimensionStrategy):
         """
         # Comprehensive pattern mappings for each base word
         pattern_mappings = {
-            'delve': r'\bdelv(e|es|ing)\b',
-            'robust': r'\brobust(ness)?\b',
-            'leverage': r'\bleverag(e|es|ing)\b',
-            'harness': r'\bharness(es|ing)?\b',
-            'underscore': r'\bunderscore[sd]?\b|\bunderscoring\b',
-            'holistic': r'\bholistic(ally)?\b',
-            'myriad': r'\bmyriad\b',
-            'plethora': r'\bplethora\b',
-            'quintessential': r'\bquintessential\b',
-            'paramount': r'\bparamount\b',
-            'foster': r'\bfoster(s|ed|ing)?\b',
-            'realm': r'\brealm(s)?\b',
-            'tapestry': r'\btapestr(y|ies)\b',
-            'embark': r'\bembark(s|ed|ing)?\b',
-            'revolutionize': r'\brevolutioniz(e|es|ed|ing)\b',
-            'game-changing': r'\bgame-changing\b',
-            'cutting-edge': r'\bcutting-edge\b',
-            'pivotal': r'\bpivotal\b',
-            'intricate': r'\bintricate(ly)?\b',
-            'nuanced': r'\bnuanced?\b',
-            'multifaceted': r'\bmultifaceted\b',
-            'comprehensive': r'\bcomprehensive(ly)?\b',
-            'innovative': r'\binnovative(ly)?\b',
-            'transformative': r'\btransformative(ly)?\b',
-            'seamless': r'\bseamless(ly)?\b',
-            'dynamic': r'\bdynamic(ally|s)?\b',
-            'optimize': r'\boptimiz(e|es|ation|ing)\b',
-            'streamline': r'\bstreamlin(e|ed|ing)\b',
-            'facilitate': r'\bfacilitate[sd]?\b|\bfacilitating\b',
-            'enhance': r'\benhance(s|d|ment|ing)?\b',
-            'mitigate': r'\bmitigat(e|es|ed|ing|ion)\b',
-            'navigate': r'\bnavigat(e|es|ed|ing|ion)\b',
-            'ecosystem': r'\becosystem(s)?\b',
-            'landscape': r'\blandscape(s)?\b'
+            "delve": r"\bdelv(e|es|ing)\b",
+            "robust": r"\brobust(ness)?\b",
+            "leverage": r"\bleverag(e|es|ing)\b",
+            "harness": r"\bharness(es|ing)?\b",
+            "underscore": r"\bunderscore[sd]?\b|\bunderscoring\b",
+            "holistic": r"\bholistic(ally)?\b",
+            "myriad": r"\bmyriad\b",
+            "plethora": r"\bplethora\b",
+            "quintessential": r"\bquintessential\b",
+            "paramount": r"\bparamount\b",
+            "foster": r"\bfoster(s|ed|ing)?\b",
+            "realm": r"\brealm(s)?\b",
+            "tapestry": r"\btapestr(y|ies)\b",
+            "embark": r"\bembark(s|ed|ing)?\b",
+            "revolutionize": r"\brevolutioniz(e|es|ed|ing)\b",
+            "game-changing": r"\bgame-changing\b",
+            "cutting-edge": r"\bcutting-edge\b",
+            "pivotal": r"\bpivotal\b",
+            "intricate": r"\bintricate(ly)?\b",
+            "nuanced": r"\bnuanced?\b",
+            "multifaceted": r"\bmultifaceted\b",
+            "comprehensive": r"\bcomprehensive(ly)?\b",
+            "innovative": r"\binnovative(ly)?\b",
+            "transformative": r"\btransformative(ly)?\b",
+            "seamless": r"\bseamless(ly)?\b",
+            "dynamic": r"\bdynamic(ally|s)?\b",
+            "optimize": r"\boptimiz(e|es|ation|ing)\b",
+            "streamline": r"\bstreamlin(e|ed|ing)\b",
+            "facilitate": r"\bfacilitate[sd]?\b|\bfacilitating\b",
+            "enhance": r"\benhance(s|d|ment|ing)?\b",
+            "mitigate": r"\bmitigat(e|es|ed|ing|ion)\b",
+            "navigate": r"\bnavigat(e|es|ed|ing|ion)\b",
+            "ecosystem": r"\becosystem(s)?\b",
+            "landscape": r"\blandscape(s)?\b",
         }
 
         words_found = []
@@ -427,7 +441,7 @@ class AiVocabularyDimension(DimensionStrategy):
         # Build regex patterns for tier words
         for word in tier_patterns:
             # Get comprehensive pattern or use simple fallback
-            pattern = pattern_mappings.get(word, rf'\b{word}(?:s|es|ed|ing)?\b')
+            pattern = pattern_mappings.get(word, rf"\b{word}(?:s|es|ed|ing)?\b")
             matches = re.finditer(pattern, text, re.IGNORECASE)
             words_found.extend([m.group() for m in matches])
 
@@ -445,27 +459,33 @@ class AiVocabularyDimension(DimensionStrategy):
         """
         if not sample_results:
             return {
-                'total_count': 0,
-                'total_per_1k': 0.0,
-                'weighted_count': 0,
-                'weighted_per_1k': 0.0,
-                'word_count': 0,
-                'tier_breakdown': {
-                    'tier1': {'count': 0, 'words': [], 'weight': 3},
-                    'tier2': {'count': 0, 'words': [], 'weight': 2},
-                    'tier3': {'count': 0, 'words': [], 'weight': 1}
-                }
+                "total_count": 0,
+                "total_per_1k": 0.0,
+                "weighted_count": 0,
+                "weighted_per_1k": 0.0,
+                "word_count": 0,
+                "tier_breakdown": {
+                    "tier1": {"count": 0, "words": [], "weight": 3},
+                    "tier2": {"count": 0, "words": [], "weight": 2},
+                    "tier3": {"count": 0, "words": [], "weight": 1},
+                },
             }
 
         # Sum counts across samples
-        total_count = sum(r.get('total_count', 0) for r in sample_results)
-        weighted_count = sum(r.get('weighted_count', 0) for r in sample_results)
-        word_count = sum(r.get('word_count', 0) for r in sample_results)
+        total_count = sum(r.get("total_count", 0) for r in sample_results)
+        weighted_count = sum(r.get("weighted_count", 0) for r in sample_results)
+        word_count = sum(r.get("word_count", 0) for r in sample_results)
 
         # Aggregate tier breakdowns
-        tier1_count = sum(r.get('tier_breakdown', {}).get('tier1', {}).get('count', 0) for r in sample_results)
-        tier2_count = sum(r.get('tier_breakdown', {}).get('tier2', {}).get('count', 0) for r in sample_results)
-        tier3_count = sum(r.get('tier_breakdown', {}).get('tier3', {}).get('count', 0) for r in sample_results)
+        tier1_count = sum(
+            r.get("tier_breakdown", {}).get("tier1", {}).get("count", 0) for r in sample_results
+        )
+        tier2_count = sum(
+            r.get("tier_breakdown", {}).get("tier2", {}).get("count", 0) for r in sample_results
+        )
+        tier3_count = sum(
+            r.get("tier_breakdown", {}).get("tier3", {}).get("count", 0) for r in sample_results
+        )
 
         # Collect words from all samples
         tier1_words = []
@@ -473,41 +493,31 @@ class AiVocabularyDimension(DimensionStrategy):
         tier3_words = []
 
         for r in sample_results:
-            tier_breakdown = r.get('tier_breakdown', {})
-            tier1_words.extend(tier_breakdown.get('tier1', {}).get('words', []))
-            tier2_words.extend(tier_breakdown.get('tier2', {}).get('words', []))
-            tier3_words.extend(tier_breakdown.get('tier3', {}).get('words', []))
+            tier_breakdown = r.get("tier_breakdown", {})
+            tier1_words.extend(tier_breakdown.get("tier1", {}).get("words", []))
+            tier2_words.extend(tier_breakdown.get("tier2", {}).get("words", []))
+            tier3_words.extend(tier_breakdown.get("tier3", {}).get("words", []))
 
         # Calculate normalized rates
         weighted_per_1k = (weighted_count / word_count * 1000) if word_count > 0 else 0
         total_per_1k = (total_count / word_count * 1000) if word_count > 0 else 0
 
         return {
-            'total_count': total_count,
-            'total_per_1k': round(total_per_1k, 2),
-            'weighted_count': weighted_count,
-            'weighted_per_1k': round(weighted_per_1k, 2),
-            'word_count': word_count,
-            'tier_breakdown': {
-                'tier1': {
-                    'count': tier1_count,
-                    'words': tier1_words[:10],
-                    'weight': 3
-                },
-                'tier2': {
-                    'count': tier2_count,
-                    'words': tier2_words[:10],
-                    'weight': 2
-                },
-                'tier3': {
-                    'count': tier3_count,
-                    'words': tier3_words[:10],
-                    'weight': 1
-                }
-            }
+            "total_count": total_count,
+            "total_per_1k": round(total_per_1k, 2),
+            "weighted_count": weighted_count,
+            "weighted_per_1k": round(weighted_per_1k, 2),
+            "word_count": word_count,
+            "tier_breakdown": {
+                "tier1": {"count": tier1_count, "words": tier1_words[:10], "weight": 3},
+                "tier2": {"count": tier2_count, "words": tier2_words[:10], "weight": 2},
+                "tier3": {"count": tier3_count, "words": tier3_words[:10], "weight": 1},
+            },
         }
 
-    def _analyze_ai_vocabulary_detailed(self, lines: List[str], html_comment_checker=None) -> List[VocabInstance]:
+    def _analyze_ai_vocabulary_detailed(
+        self, lines: List[str], html_comment_checker=None
+    ) -> List[VocabInstance]:
         """
         Detect AI vocabulary with line numbers, context, and tier classification.
 
@@ -524,13 +534,15 @@ class AiVocabularyDimension(DimensionStrategy):
             # Skip HTML comments, headings, and code blocks
             if html_comment_checker and html_comment_checker(line):
                 continue
-            if line.strip().startswith('#') or line.strip().startswith('```'):
+            if line.strip().startswith("#") or line.strip().startswith("```"):
                 continue
 
             # Check all tiers
-            for _tier_num, tier_patterns in enumerate([TIER_1_PATTERNS, TIER_2_PATTERNS, TIER_3_PATTERNS], 1):
+            for _tier_num, tier_patterns in enumerate(
+                [TIER_1_PATTERNS, TIER_2_PATTERNS, TIER_3_PATTERNS], 1
+            ):
                 for word in tier_patterns:
-                    pattern = rf'\b{word}(?:s|es|ed|ing)?\b'
+                    pattern = rf"\b{word}(?:s|es|ed|ing)?\b"
                     for match in re.finditer(pattern, line, re.IGNORECASE):
                         matched_word = match.group()
                         # Extract context (20 chars each side)
@@ -540,15 +552,19 @@ class AiVocabularyDimension(DimensionStrategy):
 
                         # Get base word for suggestions
                         base_word = word.lower()
-                        suggestions = AI_VOCAB_ALTERNATIVES.get(base_word, ['use simpler alternative'])
+                        suggestions = AI_VOCAB_ALTERNATIVES.get(
+                            base_word, ["use simpler alternative"]
+                        )
 
-                        instances.append(VocabInstance(
-                            line_number=line_num,
-                            word=matched_word,
-                            context=context,
-                            full_line=line.strip(),
-                            suggestions=suggestions[:5]  # Top 5 suggestions
-                        ))
+                        instances.append(
+                            VocabInstance(
+                                line_number=line_num,
+                                word=matched_word,
+                                context=context,
+                                full_line=line.strip(),
+                                suggestions=suggestions[:5],  # Top 5 suggestions
+                            )
+                        )
 
         return instances
 

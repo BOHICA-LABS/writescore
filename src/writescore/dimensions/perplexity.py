@@ -37,7 +37,7 @@ from transformers.utils import logging as transformers_logging
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 
 transformers_logging.set_verbosity_error()
 
@@ -93,9 +93,9 @@ class PerplexityDimension(DimensionStrategy):
         return 2.8
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "ADVANCED"
+        return DimensionTier.ADVANCED
 
     @property
     def description(self) -> str:
@@ -122,7 +122,7 @@ class PerplexityDimension(DimensionStrategy):
         global _perplexity_device
         if _perplexity_device is None:
             # Check for Apple Silicon MPS
-            if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+            if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
                 _perplexity_device = torch.device("mps")
             # Check for NVIDIA CUDA
             elif torch.cuda.is_available():
@@ -153,7 +153,10 @@ class PerplexityDimension(DimensionStrategy):
                 # Double-check after acquiring lock
                 if _perplexity_model is None:
                     device = cls._get_device()
-                    print("Loading GPT-2 model for perplexity calculation (one-time setup)...", file=sys.stderr)
+                    print(
+                        "Loading GPT-2 model for perplexity calculation (one-time setup)...",
+                        file=sys.stderr,
+                    )
                     print(f"Using device: {device}", file=sys.stderr)
 
                     _perplexity_model = AutoModelForCausalLM.from_pretrained("gpt2")
@@ -225,13 +228,13 @@ class PerplexityDimension(DimensionStrategy):
             raise ValueError("Text must be under 1MB")
 
         # Sanitize: Remove null bytes and control characters that could cause issues
-        text = ''.join(char for char in text if char.isprintable() or char.isspace())
+        text = "".join(char for char in text if char.isprintable() or char.isspace())
 
         if not text.strip():
             raise ValueError("Text must contain printable characters")
 
         tokenizer = self._get_tokenizer()
-        tokens = tokenizer.encode(text, return_tensors='pt')
+        tokens: torch.Tensor = tokenizer.encode(text, return_tensors="pt")
 
         # Validate token length (prevent memory exhaustion)
         if tokens.shape[1] > 50_000:  # ~200k chars, reasonable max
@@ -268,7 +271,7 @@ class PerplexityDimension(DimensionStrategy):
             target_id = target[0, 0].item()
             log_prob = log_probs[target_id].item()
 
-        return log_prob
+        return float(log_prob)
 
     def _calculate_perplexity(self, text: str) -> Tuple[float, float, int]:
         """
@@ -343,7 +346,7 @@ class PerplexityDimension(DimensionStrategy):
         Returns:
             Score from 0.0 to 100.0
         """
-        threshold_low = 25.0   # AI-like
+        threshold_low = 25.0  # AI-like
         threshold_high = 45.0  # Human-like
 
         if perplexity_value <= threshold_low:
@@ -385,9 +388,9 @@ class PerplexityDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text perplexity with configurable modes.
@@ -415,16 +418,16 @@ class PerplexityDimension(DimensionStrategy):
         # Handle empty text
         if not text or not text.strip():
             return {
-                'score': 50.0,  # Neutral
-                'raw_value': 0.0,
-                'perplexity': 0.0,
-                'token_count': 0,
-                'avg_log_prob': 0.0,
-                'threshold_low': 25.0,
-                'threshold_high': 45.0,
-                'interpretation': 'No text to analyze',
-                'available': False,
-                'analysis_mode': config.mode.value
+                "score": 50.0,  # Neutral
+                "raw_value": 0.0,
+                "perplexity": 0.0,
+                "token_count": 0,
+                "avg_log_prob": 0.0,
+                "threshold_low": 25.0,
+                "threshold_high": 45.0,
+                "interpretation": "No text to analyze",
+                "available": False,
+                "analysis_mode": config.mode.value,
             }
 
         try:
@@ -435,32 +438,32 @@ class PerplexityDimension(DimensionStrategy):
             score = self._score_perplexity(perplexity)
 
             return {
-                'score': score,
-                'raw_value': perplexity,
-                'perplexity': perplexity,
-                'token_count': token_count,
-                'avg_log_prob': avg_log_prob,
-                'threshold_low': 25.0,
-                'threshold_high': 45.0,
-                'interpretation': self._interpret_perplexity(perplexity),
-                'available': True,
-                'analysis_mode': config.mode.value
+                "score": score,
+                "raw_value": perplexity,
+                "perplexity": perplexity,
+                "token_count": token_count,
+                "avg_log_prob": avg_log_prob,
+                "threshold_low": 25.0,
+                "threshold_high": 45.0,
+                "interpretation": self._interpret_perplexity(perplexity),
+                "available": True,
+                "analysis_mode": config.mode.value,
             }
 
         except Exception as e:
             print(f"Warning: Perplexity calculation failed: {e}", file=sys.stderr)
             return {
-                'score': 50.0,  # Neutral
-                'raw_value': 0.0,
-                'perplexity': 0.0,
-                'token_count': 0,
-                'avg_log_prob': 0.0,
-                'threshold_low': 25.0,
-                'threshold_high': 45.0,
-                'interpretation': f'Error: {str(e)}',
-                'available': False,
-                'error': str(e),
-                'analysis_mode': config.mode.value
+                "score": 50.0,  # Neutral
+                "raw_value": 0.0,
+                "perplexity": 0.0,
+                "token_count": 0,
+                "avg_log_prob": 0.0,
+                "threshold_low": 25.0,
+                "threshold_high": 45.0,
+                "interpretation": f"Error: {str(e)}",
+                "available": False,
+                "error": str(e),
+                "analysis_mode": config.mode.value,
             }
 
     def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> Dict[str, Any]:
@@ -476,9 +479,7 @@ class PerplexityDimension(DimensionStrategy):
         Returns:
             Empty dict (perplexity not applicable to line-level analysis)
         """
-        return {
-            'note': 'Perplexity is a document-level metric'
-        }
+        return {"note": "Perplexity is a document-level metric"}
 
     # ========================================================================
     # SCORING METHODS - DimensionStrategy Contract
@@ -516,20 +517,17 @@ class PerplexityDimension(DimensionStrategy):
         Returns:
             Score from 0.0 (AI-like) to 100.0 (human-like)
         """
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             return 50.0  # Neutral score for unavailable data
 
         # Extract raw perplexity value
-        perplexity = metrics.get('perplexity', 0.0)
+        perplexity = metrics.get("perplexity", 0.0)
 
         # Monotonic scoring with research-based parameters
         # Threshold low=25.0, high=45.0, direction=increasing
         # _monotonic_score() returns 0-100 scale directly
         score = self._monotonic_score(
-            value=perplexity,
-            threshold_low=25.0,
-            threshold_high=45.0,
-            increasing=True
+            value=perplexity, threshold_low=25.0, threshold_high=45.0, increasing=True
         )
 
         self._validate_score(score)
@@ -548,13 +546,13 @@ class PerplexityDimension(DimensionStrategy):
         """
         recommendations = []
 
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             recommendations.append(
                 "Perplexity analysis unavailable. Install required dependencies: transformers, torch."
             )
             return recommendations
 
-        perplexity = metrics.get('perplexity', 0.0)
+        perplexity = metrics.get("perplexity", 0.0)
 
         if perplexity < 25.0:
             recommendations.append(
@@ -585,11 +583,11 @@ class PerplexityDimension(DimensionStrategy):
 
     def format_display(self, metrics: Dict[str, Any]) -> str:
         """Format perplexity display for reports."""
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             return "(unavailable)"
 
-        perplexity = metrics.get('perplexity', 0.0)
-        interpretation = metrics.get('interpretation', '')
+        perplexity = metrics.get("perplexity", 0.0)
+        interpretation = metrics.get("interpretation", "")
 
         return f"Perplexity: {perplexity:.1f} ({interpretation})"
 
@@ -601,10 +599,10 @@ class PerplexityDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -621,7 +619,7 @@ class PerplexityDimension(DimensionStrategy):
         Returns:
             Tuple of (score_value, score_label)
         """
-        perplexity = analysis_results.get('perplexity', 0.0)
+        perplexity = analysis_results.get("perplexity", 0.0)
         score = self._score_perplexity(perplexity)
 
         # Convert to 10-point scale for legacy compatibility

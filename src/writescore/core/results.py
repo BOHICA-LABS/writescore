@@ -12,18 +12,22 @@ from typing import Any, Dict, List, Optional, Tuple
 # EXCEPTIONS
 # ============================================================================
 
+
 class AnalysisError(Exception):
     """Base exception for analysis errors"""
+
     pass
 
 
 class EmptyFileError(AnalysisError):
     """Raised when file has no analyzable content"""
+
     pass
 
 
 class InsufficientDataError(AnalysisError):
     """Raised when not enough data for reliable analysis"""
+
     pass
 
 
@@ -31,9 +35,11 @@ class InsufficientDataError(AnalysisError):
 # DETAILED MODE DATACLASSES
 # ============================================================================
 
+
 @dataclass
 class VocabInstance:
     """Single AI vocabulary instance with location"""
+
     line_number: int
     word: str
     context: str
@@ -44,6 +50,7 @@ class VocabInstance:
 @dataclass
 class HeadingIssue:
     """Heading issue with location"""
+
     line_number: int
     level: int
     text: str
@@ -54,6 +61,7 @@ class HeadingIssue:
 @dataclass
 class UniformParagraph:
     """Paragraph with uniform sentence lengths"""
+
     start_line: int
     end_line: int
     sentence_count: int
@@ -67,6 +75,7 @@ class UniformParagraph:
 @dataclass
 class EmDashInstance:
     """Em-dash instance with location"""
+
     line_number: int
     context: str
     suggestion: str
@@ -76,6 +85,7 @@ class EmDashInstance:
 @dataclass
 class TransitionInstance:
     """Formulaic transition with location"""
+
     line_number: int
     transition: str
     context: str
@@ -85,6 +95,7 @@ class TransitionInstance:
 @dataclass
 class SentenceBurstinessIssue:
     """Sentence uniformity problem with location"""
+
     start_line: int
     end_line: int
     sentence_count: int
@@ -98,6 +109,7 @@ class SentenceBurstinessIssue:
 @dataclass
 class SyntacticIssue:
     """Syntactic complexity issue with location"""
+
     line_number: int
     sentence: str
     issue_type: str  # 'passive', 'shallow', 'subordination'
@@ -109,6 +121,7 @@ class SyntacticIssue:
 @dataclass
 class FormattingIssue:
     """Bold/italic overuse with location"""
+
     line_number: int
     issue_type: str  # 'bold_dense', 'italic_dense', 'consistent'
     context: str
@@ -120,6 +133,7 @@ class FormattingIssue:
 @dataclass
 class HighPredictabilitySegment:
     """High GLTR score (AI-like) section"""
+
     start_line: int
     end_line: int
     segment_preview: str
@@ -131,6 +145,7 @@ class HighPredictabilitySegment:
 @dataclass
 class DetailedAnalysis:
     """Comprehensive detailed analysis results"""
+
     file_path: str
     summary: Dict
     # Original detailed findings
@@ -150,9 +165,11 @@ class DetailedAnalysis:
 # ANALYSIS RESULTS
 # ============================================================================
 
+
 @dataclass
 class AnalysisResults:
     """Structured container for analysis results"""
+
     file_path: str
 
     # Basic metrics
@@ -307,20 +324,26 @@ class AnalysisResults:
     distilgpt2_perplexity: Optional[float] = None  # DistilGPT-2 perplexity (faster, modern)
 
     # ADVANCED: GLTR token ranking (optional - requires Transformers)
-    gltr_top10_percentage: Optional[float] = None  # % tokens in top-10 predictions (AI: >70%, Human: <55%)
+    gltr_top10_percentage: Optional[float] = (
+        None  # % tokens in top-10 predictions (AI: >70%, Human: <55%)
+    )
     gltr_top100_percentage: Optional[float] = None  # % tokens in top-100 predictions
     gltr_mean_rank: Optional[float] = None  # Average token rank in model distribution
     gltr_rank_variance: Optional[float] = None  # Variance in token ranks
     gltr_likelihood: Optional[float] = None  # AI likelihood from GLTR (0-1)
 
     # ADVANCED: Advanced lexical diversity (optional - requires scipy)
-    hdd_score: Optional[float] = None  # Hypergeometric Distribution D (most robust, AI: 0.40-0.55, Human: 0.65-0.85)
+    hdd_score: Optional[float] = (
+        None  # Hypergeometric Distribution D (most robust, AI: 0.40-0.55, Human: 0.65-0.85)
+    )
     yules_k: Optional[float] = None  # Yule's K vocabulary richness (AI: 100-150, Human: 60-90)
     maas_score: Optional[float] = None  # Maas length-corrected diversity
     vocab_concentration: Optional[float] = None  # Zipfian vocabulary concentration
 
     # Advanced lexical diversity - Textacy-based (optional - requires textacy+spacy)
-    mattr: Optional[float] = None  # Moving Average Type-Token Ratio (window=100, AI: <0.65, Human: ≥0.70)
+    mattr: Optional[float] = (
+        None  # Moving Average Type-Token Ratio (window=100, AI: <0.65, Human: ≥0.70)
+    )
     rttr: Optional[float] = None  # Root Type-Token Ratio (AI: <7.5, Human: ≥7.5)
     mattr_assessment: Optional[str] = None  # EXCELLENT/GOOD/FAIR/POOR
     rttr_assessment: Optional[str] = None  # EXCELLENT/GOOD/FAIR/POOR
@@ -333,8 +356,12 @@ class AnalysisResults:
 
     # Subsection asymmetry analysis
     subsection_counts: Optional[List[int]] = None  # H3 counts under each H2
-    subsection_cv: Optional[float] = None  # Coefficient of variation (CV <0.3 = AI-like, ≥0.6 = human)
-    subsection_uniform_count: Optional[int] = None  # Count of sections with 3-4 subsections (AI signature)
+    subsection_cv: Optional[float] = (
+        None  # Coefficient of variation (CV <0.3 = AI-like, ≥0.6 = human)
+    )
+    subsection_uniform_count: Optional[int] = (
+        None  # Count of sections with 3-4 subsections (AI signature)
+    )
     subsection_assessment: Optional[str] = None  # EXCELLENT/GOOD/FAIR/POOR
 
     # H4 subsection asymmetry analysis (H4 counts under each H3)
@@ -342,12 +369,16 @@ class AnalysisResults:
     h4_subsection_cv: Optional[float] = None  # Coefficient of variation for H4 distribution
     h4_uniform_count: Optional[int] = None  # Count of H3 sections with 2-3 H4s (AI signature)
     h4_assessment: Optional[str] = None  # EXCELLENT/GOOD/FAIR/POOR
-    h4_h3_sections_analyzed: Optional[int] = None  # Number of H3 sections analyzed for H4 distribution
+    h4_h3_sections_analyzed: Optional[int] = (
+        None  # Number of H3 sections analyzed for H4 distribution
+    )
 
     # Multi-level combined structure score (research-backed domain-specific analysis)
     combined_structure_score: Optional[float] = None  # Combined weighted score (0-24 max)
     combined_structure_assessment: Optional[str] = None  # Overall assessment
-    combined_structure_domain: Optional[str] = None  # Domain used for thresholds (academic/technical/etc)
+    combined_structure_domain: Optional[str] = (
+        None  # Domain used for thresholds (academic/technical/etc)
+    )
     combined_structure_prob_human: Optional[float] = None  # Probability of human authorship (0-1)
     combined_h2_score: Optional[float] = None  # H2 section length score
     combined_h2_assessment: Optional[str] = None  # H2 assessment
@@ -365,7 +396,9 @@ class AnalysisResults:
 
     # PHASE 3: AST-based structure analysis and advanced patterns (optional - requires marko)
     blockquote_total: Optional[int] = None  # Total blockquotes in document
-    blockquote_per_page: Optional[float] = None  # Blockquotes per 250-word page (AI: 4+, Human: 0-2)
+    blockquote_per_page: Optional[float] = (
+        None  # Blockquotes per 250-word page (AI: 4+, Human: 0-2)
+    )
     blockquote_avg_length: Optional[float] = None  # Average blockquote length in words
     blockquote_section_start_clustering: Optional[float] = None  # % at section starts (AI: >50%)
     blockquote_score: Optional[float] = None  # Quality score contribution (0-10)
@@ -380,7 +413,9 @@ class AnalysisResults:
     link_anchor_assessment: Optional[str] = None  # EXCELLENT/GOOD/FAIR/POOR
 
     punctuation_colon_cv: Optional[float] = None  # Colon spacing coefficient of variation
-    punctuation_primary_cv: Optional[float] = None  # Primary punctuation CV (AI: <0.35, Human: ≥0.7)
+    punctuation_primary_cv: Optional[float] = (
+        None  # Primary punctuation CV (AI: <0.35, Human: ≥0.7)
+    )
     punctuation_spacing_score: Optional[float] = None  # Quality score contribution (0-6)
     punctuation_spacing_assessment: Optional[str] = None  # EXCELLENT/GOOD/FAIR/POOR
 
@@ -398,7 +433,9 @@ class AnalysisResults:
 
     # ADVANCED: Enhanced syntactic analysis (optional - requires spaCy)
     avg_tree_depth: Optional[float] = None  # Dependency tree depth (AI: 2-3, Human: 4-6)
-    subordination_index: Optional[float] = None  # Subordinate clause frequency (AI: <0.1, Human: >0.15)
+    subordination_index: Optional[float] = (
+        None  # Subordinate clause frequency (AI: <0.1, Human: >0.15)
+    )
     passive_constructions: Optional[int] = None  # Passive voice count
     morphological_richness: Optional[int] = None  # Unique morphological forms
 
@@ -457,7 +494,9 @@ class AnalysisResults:
     figurative_sentiment_positive_pct: Optional[float] = None  # % positive sentiment idioms
     figurative_sentiment_negative_pct: Optional[float] = None  # % negative sentiment idioms
     figurative_sentiment_neutral_pct: Optional[float] = None  # % neutral sentiment idioms
-    figurative_sentiment_deviation: Optional[float] = None  # Deviation from optimal technical writing profile
+    figurative_sentiment_deviation: Optional[float] = (
+        None  # Deviation from optimal technical writing profile
+    )
 
     # Semantic coherence metrics (Story 2.3)
     semantic_coherence_score: str = ""  # NEW: Semantic coherence patterns
@@ -465,9 +504,11 @@ class AnalysisResults:
     semantic_topic_consistency: Optional[float] = None  # Topic consistency score (0-1)
     semantic_discourse_flow: Optional[float] = None  # Discourse flow score (0-1)
     semantic_conceptual_depth: Optional[float] = None  # Conceptual depth score (0-1)
-    semantic_low_cohesion_paragraphs: List[str] = None  # Evidence: Paragraphs with low cohesion
-    semantic_topic_shifts: List[str] = None  # Evidence: Locations of topic shifts
-    semantic_weak_transitions: List[str] = None  # Evidence: Weak paragraph transitions
+    semantic_low_cohesion_paragraphs: Optional[List[str]] = (
+        None  # Evidence: Paragraphs with low cohesion
+    )
+    semantic_topic_shifts: Optional[List[str]] = None  # Evidence: Locations of topic shifts
+    semantic_weak_transitions: Optional[List[str]] = None  # Evidence: Weak paragraph transitions
 
     # Legacy/derived scores
     technical_score: str = ""  # Derived from voice dimension
@@ -486,7 +527,9 @@ class AnalysisResults:
 
     # Story 1.10: Dynamic Reporting System fields
     # These fields are populated by the dynamic reporter and must reflect exactly 12 dimensions in v5.0.0
-    dimension_results: Dict[str, Dict[str, Any]] = field(default_factory=dict)  # Should have 12 keys
+    dimension_results: Dict[str, Dict[str, Any]] = field(
+        default_factory=dict
+    )  # Should have 12 keys
     overall_score: float = 0.0  # Numeric overall score (0-100)
     execution_time: float = 0.0  # Analysis execution time in seconds
     dimension_count: int = 0  # Number of dimensions analyzed - MUST be 12 in v5.0.0

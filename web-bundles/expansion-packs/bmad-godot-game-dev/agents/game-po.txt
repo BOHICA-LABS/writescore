@@ -781,12 +781,12 @@ sections:
 
   - id: story-header
     content: |
-      **Epic:** {{epic_name}}  
-      **Story ID:** {{story_id}}  
-      **Priority:** {{High|Medium|Low}}  
-      **Points:** {{story_points}}  
+      **Epic:** {{epic_name}}
+      **Story ID:** {{story_id}}
+      **Priority:** {{High|Medium|Low}}
+      **Points:** {{story_points}}
       **Status:** Draft
-      **Language:** {{GDScript|C#|Both}}  
+      **Language:** {{GDScript|C#|Both}}
       **Performance Target:** 60+ FPS
 
   - id: description
@@ -884,16 +884,16 @@ sections:
           public partial class {{ClassName}} : {{Node2D|Control|Node3D}}
           {
               [Export] public {{type}} {{PropertyName}} { get; set; }
-              
+
               [Signal]
               public delegate void {{SignalName}}EventHandler({{params}});
-              
+
               public override void _Ready()
               {
                   // TDD: Write GoDotTest tests first
                   // No LINQ in hot paths
               }
-              
+
               public override void _PhysicsProcess(double delta)
               {
                   // Optimize for 60+ FPS, no allocations

@@ -83,3 +83,6 @@ dmypy.json
 # OS
 .DS_Store
 Thumbs.db
+
+# uv lock file (library, not application)
+uv.lock

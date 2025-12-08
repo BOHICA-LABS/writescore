@@ -1085,7 +1085,7 @@ Common choices:
 
 task:
 id: create-ci-pipeline
-name: Create CI Pipeline  
+name: Create CI Pipeline
  description: Set up continuous integration pipeline to automatically test code on every commit
 persona_default: sample-code-maintainer
 inputs:

@@ -9,37 +9,37 @@ WriteScore is a writing quality scoring tool with AI pattern detection. It analy
 ## Build & Development Commands
 
 ```bash
-# Install in development mode
-pip install -e .
+# Install dependencies (creates/updates .venv automatically)
+uv sync
 
 # Install with dev dependencies
-pip install -e ".[dev]"
+uv sync --extra dev
 
 # Run all tests
-pytest
+uv run pytest
 
 # Run tests with coverage
-pytest --cov=src/writescore --cov-report=html
+uv run pytest --cov=src/writescore --cov-report=html
 
 # Run specific test file
-pytest tests/unit/dimensions/test_perplexity.py
+uv run pytest tests/unit/dimensions/test_perplexity.py
 
 # Run specific test
-pytest tests/unit/dimensions/test_perplexity.py::test_function_name -v
+uv run pytest tests/unit/dimensions/test_perplexity.py::test_function_name -v
 
 # Skip slow tests
-pytest -m "not slow"
+uv run pytest -m "not slow"
 
 # Run integration tests only
-pytest -m integration
+uv run pytest -m integration
 
 # Lint with ruff
-ruff check src/
+uv run ruff check src/
 
 # CLI usage
-writescore analyze document.md
-writescore analyze document.md --mode full --detailed
-writescore analyze document.md --mode adaptive --show-scores
+uv run writescore analyze document.md
+uv run writescore analyze document.md --mode full --detailed
+uv run writescore analyze document.md --mode adaptive --show-scores
 ```
 
 ## Architecture
@@ -225,11 +225,7 @@ Indicate with either:
 This project uses pre-commit hooks for code quality. Install them:
 
 ```bash
-# Using uv
 uv run pre-commit install && uv run pre-commit install --hook-type commit-msg
-
-# Or using pip
-pip install pre-commit && pre-commit install && pre-commit install --hook-type commit-msg
 ```
 
 **Hooks installed:**
@@ -321,3 +317,55 @@ curl -X POST "https://api.gitguardian.com/v1/incidents/secrets/{incident_id}/res
 Ignore reasons: `test_credential`, `false_positive`, `low_risk`
 
 Requires API key with `incidents:read` and `incidents:write` scopes.
+
+## GitHub Project Management
+
+### Repository
+
+- **Organization:** BOHICA-LABS
+- **Repo:** writescore
+
+### Milestones
+
+Use `gh api` for milestone operations (no `gh milestone` command exists):
+
+```bash
+# List milestones
+gh api repos/:owner/:repo/milestones --jq '.[] | "\(.number) | \(.title) | \(.open_issues) issues"'
+
+# Create milestone
+gh api repos/:owner/:repo/milestones -f title="v1.0.0" -f description="Initial release"
+
+# Update milestone
+gh api repos/:owner/:repo/milestones/1 -X PATCH -f title="v1.0.0 - Release"
+```
+
+### Label Convention
+
+| Prefix | Purpose | Examples |
+|--------|---------|----------|
+| `type:` | Commit type mapping | `type: bug`, `type: feature`, `type: docs`, `type: refactor`, `type: build`, `type: perf`, `type: test` |
+| `scope:` | Work scope | `scope: story`, `scope: epic`, `scope: spike`, `scope: tech-debt` |
+| `area:` | Code area | `area: cli`, `area: core`, `area: dimensions`, `area: scoring` |
+| `priority:` | Urgency | `priority: high`, `priority: medium`, `priority: low` |
+
+### Stories
+
+- **Location:** `docs/stories/`
+- **Format:** `{epic}.{story}.{title}.story.md` (e.g., `2.1.figurative-language-dimension.story.md`)
+- **Status values:** Done, Ready for Review, Ready for QA, Approved, Draft, Proposed, Blocked
+
+### Creating Issues from Stories
+
+```bash
+gh issue create \
+  --title "Story X.X: Title" \
+  --body "**Story:** docs/stories/X.X.story-name.story.md
+**Status:** Ready for Review
+
+Description here." \
+  --milestone "v7.0.0 - Foundation" \
+  --label "scope: story" \
+  --label "type: feature" \
+  --label "area: dimensions"
+```

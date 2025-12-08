@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
-from writescore.dimensions.base_strategy import DimensionStrategy
+from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 from writescore.scoring.dual_score import THRESHOLDS
 
 
@@ -64,9 +64,9 @@ class VoiceDimension(DimensionStrategy):
         return 4.6
 
     @property
-    def tier(self) -> str:
+    def tier(self) -> DimensionTier:
         """Return dimension tier."""
-        return "CORE"
+        return DimensionTier.CORE
 
     @property
     def description(self) -> str:
@@ -80,9 +80,9 @@ class VoiceDimension(DimensionStrategy):
     def analyze(
         self,
         text: str,
-        lines: List[str] = None,
+        lines: Optional[List[str]] = None,
         config: Optional[AnalysisConfig] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Analyze text for voice patterns.
@@ -110,10 +110,7 @@ class VoiceDimension(DimensionStrategy):
             for _position, sample_text in samples:
                 voice = self._analyze_voice(sample_text)
                 technical = self._analyze_technical_depth(sample_text)
-                sample_results.append({
-                    'voice': voice,
-                    'technical_depth': technical
-                })
+                sample_results.append({"voice": voice, "technical_depth": technical})
 
             # Aggregate metrics from all samples
             aggregated = self._aggregate_sampled_metrics(sample_results)
@@ -126,8 +123,8 @@ class VoiceDimension(DimensionStrategy):
             voice = self._analyze_voice(analyzed_text)
             technical = self._analyze_technical_depth(analyzed_text)
             aggregated = {
-                'voice': voice,
-                'technical_depth': technical,
+                "voice": voice,
+                "technical_depth": technical,
             }
             analyzed_length = len(analyzed_text)
             samples_analyzed = 1
@@ -135,12 +132,14 @@ class VoiceDimension(DimensionStrategy):
         # Add consistent metadata
         return {
             **aggregated,
-            'available': True,
-            'analysis_mode': config.mode.value,
-            'samples_analyzed': samples_analyzed,
-            'total_text_length': total_text_length,
-            'analyzed_text_length': analyzed_length,
-            'coverage_percentage': (analyzed_length / total_text_length * 100.0) if total_text_length > 0 else 0.0
+            "available": True,
+            "analysis_mode": config.mode.value,
+            "samples_analyzed": samples_analyzed,
+            "total_text_length": total_text_length,
+            "analyzed_text_length": analyzed_length,
+            "coverage_percentage": (analyzed_length / total_text_length * 100.0)
+            if total_text_length > 0
+            else 0.0,
         }
 
     def analyze_detailed(self, lines: List[str], html_comment_checker=None) -> Dict[str, Any]:
@@ -155,7 +154,7 @@ class VoiceDimension(DimensionStrategy):
             Dict with summary analysis
         """
         # Voice analysis is typically aggregate, not line-by-line
-        text = 'n'.join(lines)
+        text = "n".join(lines)
         return self.analyze(text, lines)
 
     def score(self, analysis_results: Dict[str, Any]) -> tuple:
@@ -175,10 +174,10 @@ class VoiceDimension(DimensionStrategy):
 
         markers = 0
 
-        first_person = analysis_results.get('first_person', 0)
-        direct_address = analysis_results.get('direct_address', 0)
-        contractions = analysis_results.get('contractions', 0)
-        total_words = analysis_results.get('total_words', 1)
+        first_person = analysis_results.get("first_person", 0)
+        direct_address = analysis_results.get("direct_address", 0)
+        contractions = analysis_results.get("contractions", 0)
+        total_words = analysis_results.get("total_words", 1)
 
         # First person or direct address
         if first_person > 0 or direct_address > 10:
@@ -242,14 +241,14 @@ class VoiceDimension(DimensionStrategy):
         """
         from writescore.utils.text_processing import safe_ratio
 
-        if not metrics.get('available', False):
+        if not metrics.get("available", False):
             return 50.0  # Neutral score for unavailable data
 
-        voice = metrics.get('voice', {})
-        contractions = voice.get('contractions', 0)
+        voice = metrics.get("voice", {})
+        contractions = voice.get("contractions", 0)
 
         # Use actual word count from analysis, fallback to estimation if not available
-        total_words = voice.get('total_words', max(contractions, 100))
+        total_words = voice.get("total_words", max(contractions, 100))
 
         # Calculate contraction ratio
         contraction_ratio = safe_ratio(contractions, total_words, 0)
@@ -257,10 +256,7 @@ class VoiceDimension(DimensionStrategy):
         # Monotonic increasing scoring: higher values = higher scores
         # threshold_low=0.005 (AI), threshold_high=0.015 (human)
         score = self._monotonic_score(
-            value=contraction_ratio,
-            threshold_low=0.005,
-            threshold_high=0.015,
-            increasing=True
+            value=contraction_ratio, threshold_low=0.005, threshold_high=0.015, increasing=True
         )
 
         self._validate_score(score)
@@ -281,13 +277,15 @@ class VoiceDimension(DimensionStrategy):
 
         recommendations = []
 
-        voice = metrics.get('voice', {})
-        first_person = voice.get('first_person', 0)
-        direct_address = voice.get('direct_address', 0)
-        contractions = voice.get('contractions', 0)
+        voice = metrics.get("voice", {})
+        first_person = voice.get("first_person", 0)
+        direct_address = voice.get("direct_address", 0)
+        contractions = voice.get("contractions", 0)
 
         # Use actual word count from analysis, fallback to estimation if not available
-        total_words = voice.get('total_words', max(first_person + direct_address + contractions, 100))
+        total_words = voice.get(
+            "total_words", max(first_person + direct_address + contractions, 100)
+        )
         contraction_ratio = safe_ratio(contractions, total_words, 0) * 100
 
         if first_person == 0 and direct_address < 10:
@@ -324,10 +322,10 @@ class VoiceDimension(DimensionStrategy):
             Dict mapping tier name to (min_score, max_score) tuple
         """
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
     # ========================================================================
@@ -336,31 +334,33 @@ class VoiceDimension(DimensionStrategy):
 
     def _analyze_voice(self, text: str) -> Dict:
         """Analyze voice and authenticity markers."""
-        first_person = len(re.findall(
-            r"\b(I|we|my|our|us|me|I've|I'm|we've|I'd|we're|I'll|we'll)\b",
-            text, re.IGNORECASE
-        ))
+        first_person = len(
+            re.findall(
+                r"\b(I|we|my|our|us|me|I've|I'm|we've|I'd|we're|I'll|we'll)\b", text, re.IGNORECASE
+            )
+        )
 
-        direct_address = len(re.findall(
-            r"\b(you|your|you're|you'll|you've|you'd)\b",
-            text, re.IGNORECASE
-        ))
+        direct_address = len(
+            re.findall(r"\b(you|your|you're|you'll|you've|you'd)\b", text, re.IGNORECASE)
+        )
 
         # Count contractions
-        contractions = len(re.findall(
-            r"\b\w+'\w+\b",  # Word with apostrophe (simplified)
-            text
-        ))
+        contractions = len(
+            re.findall(
+                r"\b\w+'\w+\b",  # Word with apostrophe (simplified)
+                text,
+            )
+        )
 
         # Calculate actual word count for accurate ratio calculation
-        words = re.findall(r'\b\w+\b', text)
+        words = re.findall(r"\b\w+\b", text)
         total_words = len(words)
 
         return {
-            'first_person': first_person,
-            'direct_address': direct_address,
-            'contractions': contractions,
-            'total_words': total_words
+            "first_person": first_person,
+            "direct_address": direct_address,
+            "contractions": contractions,
+            "total_words": total_words,
         }
 
     def _analyze_technical_depth(self, text: str) -> Dict:
@@ -371,8 +371,8 @@ class VoiceDimension(DimensionStrategy):
             terms_found.extend([m.group() for m in matches])
 
         return {
-            'count': len(terms_found),
-            'terms': terms_found[:20]  # Limit for readability
+            "count": len(terms_found),
+            "terms": terms_found[:20],  # Limit for readability
         }
 
 

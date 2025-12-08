@@ -1,10 +1,25 @@
 # WriteScore
 
-[![CI](https://github.com/BOHICA-LABS/writescore/actions/workflows/ci.yml/badge.svg)](https://github.com/BOHICA-LABS/writescore/actions/workflows/ci.yml)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+<p align="center">
+  <img src="docs/assets/logo.svg" alt="WriteScore Logo" width="200">
+</p>
+
+<!-- Project Info -->
+[![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-6.3.0-green.svg)](https://github.com/BOHICA-LABS/writescore/releases)
-[![Docs](https://img.shields.io/badge/docs-available-blue.svg)](docs/)
+
+<!-- CI/Build Status -->
+[![CI](https://github.com/BOHICA-LABS/writescore/actions/workflows/ci.yml/badge.svg)](https://github.com/BOHICA-LABS/writescore/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/BOHICA-LABS/writescore/actions/workflows/codeql.yml/badge.svg)](https://github.com/BOHICA-LABS/writescore/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/BOHICA-LABS/writescore/graph/badge.svg)](https://codecov.io/gh/BOHICA-LABS/writescore)
+
+<!-- Code Quality & Security -->
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+[![Security Policy](https://img.shields.io/badge/security-policy-blue.svg)](SECURITY.md)
+
+<!-- Maintenance -->
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 > **Identify AI patterns in your writing and get actionable feedback to sound more human.**
 
@@ -13,24 +28,107 @@
 ## Quick Start
 
 ```bash
-pip install -e .
-writescore analyze README.md
+uv sync
+uv run python -m spacy download en_core_web_sm
+uv run writescore analyze README.md
 ```
 
 That's it! You'll see a detailed analysis with scores and improvement suggestions.
 
-## Installation
+## Requirements
+
+| Resource | Minimum | Recommended |
+|----------|---------|-------------|
+| Python | 3.9 | 3.11+ |
+| RAM | 4 GB | 8 GB |
+| Disk | 2 GB | 3 GB |
+
+**Note:** First run downloads transformer models (~500MB) and spaCy model (~50MB). Subsequent runs use cached models.
+
+## Getting Started
+
+**Quickest path:** Install [Just](https://just.systems), then run `just setup`. See all options below.
+
+| Option | Local Install | CLI/IDE | Docker Required | Use WriteScore | Contribute |
+|--------|:-------------:|:-------:|:---------------:|----------------|------------|
+| ✓ **Native (Just)** | Yes | CLI | No | `just install` | `just setup` |
+| **Native (Just)** | Yes | IDE | No | `just install`, open in any IDE | `just setup`, open in any IDE |
+| Native (Manual) | Yes | CLI | No | [Instructions](#native-manual) | [Instructions](#native-manual) |
+| Native (Manual) | Yes | IDE | No | [Instructions](#native-manual), open in any IDE | [Instructions](#native-manual), open in any IDE |
+| Devcontainer | No | CLI | Yes | [Instructions](#devcontainer-cli) | [Instructions](#devcontainer-cli) |
+| Devcontainer | No | IDE | Yes | VS Code → "Reopen in Container" | Same |
+| Codespaces | No | CLI | No | [Instructions](#codespaces-cli) | [Instructions](#codespaces-cli) |
+| Codespaces | No | IDE | No | GitHub → Code → Create codespace | Same |
+
+After setup, run `just test` (or `uv run pytest` for manual installs) to verify.
+
+### Installing Just
+
+| OS | Command |
+|----|---------|
+| **Windows** | `winget install Casey.Just` (or `choco install just` / `scoop install just`) |
+| macOS | `brew install just` |
+| Ubuntu/Debian | `sudo apt install just` |
+| Fedora | `sudo dnf install just` |
+| Arch Linux | `sudo pacman -S just` |
+| Via Cargo | `cargo install just` |
+| Via Conda | `conda install -c conda-forge just` |
+
+> **Windows users:** All `just` commands work in PowerShell and CMD. With uv, use `uv run` prefix instead of activating the venv.
+
+### Native Manual
+
+For users who prefer not to install Just. Requires [uv](https://docs.astral.sh/uv/).
+
+**Use WriteScore:**
 
 ```bash
-# Basic installation
-pip install -e .
-
-# With development dependencies
-pip install -e ".[dev]"
-
-# Download required NLP model
-python -m spacy download en_core_web_sm
+uv sync
+uv run python -m spacy download en_core_web_sm
 ```
+
+**Contribute:**
+
+```bash
+uv sync --extra dev
+uv run python -m spacy download en_core_web_sm
+uv run pre-commit install
+uv run pre-commit install --hook-type commit-msg
+```
+
+### Devcontainer CLI
+
+```bash
+devcontainer up --workspace-folder "$(pwd)" && \
+devcontainer exec --workspace-folder "$(pwd)" just install
+```
+
+For contributors, replace `just install` with `just dev`.
+
+### Codespaces CLI
+
+```bash
+gh codespace create -r BOHICA-LABS/writescore && \
+gh codespace ssh
+```
+
+Then run `just install` (users) or `just setup` (contributors).
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `just` | List available commands |
+| `just install` | Install package with all dependencies |
+| `just setup` | Full dev setup (install + pre-commit hooks) |
+| `just test` | Run fast tests (excludes slow markers) |
+| `just test-all` | Run all tests including slow ones |
+| `just test-cov` | Run tests with coverage report |
+| `just lint` | Check code with ruff |
+| `just lint-fix` | Auto-fix linting and format code |
+| `just typecheck` | Run mypy type checking |
+| `just check` | Run all checks (lint + typecheck) |
+| `just clean` | Remove build artifacts and caches |
 
 ## Why WriteScore?
 
@@ -96,6 +194,84 @@ writescore analyze --batch docs/
 
 See the [Analysis Modes Guide](docs/analysis-modes-guide.md) for details.
 
+## Troubleshooting
+
+### Slow First Run
+
+**This is normal.** First analysis downloads transformer models (~500MB) and caches them. Subsequent runs are much faster.
+
+### Out of Memory
+
+**Quick fix:** Use `--mode fast` for lower memory usage:
+
+```bash
+writescore analyze document.md --mode fast
+```
+
+On macOS Apple Silicon, if you see MPS memory errors:
+
+```bash
+export PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0
+writescore analyze document.md
+```
+
+### ModuleNotFoundError / Command Not Found
+
+**Quick fix:** Use `uv run` prefix or activate the venv: `source .venv/bin/activate`
+
+**Diagnostic table:**
+
+| Where did you install? | Current terminal | Fix |
+|------------------------|------------------|-----|
+| uv (`.venv/`) | Not using `uv run` | Prefix with `uv run` or activate venv |
+| Devcontainer | Native terminal | Run inside container or install natively |
+| Codespaces | Local terminal | Install natively |
+| Unknown | — | Run diagnostic commands below |
+
+**Diagnostic commands:**
+
+```bash
+# Check if writescore is anywhere in PATH
+which writescore
+
+# Check if installed in current venv
+uv pip show writescore
+
+# Check common venv locations
+ls -la .venv/bin/writescore 2>/dev/null || echo "Not in .venv"
+```
+
+**Common fixes:**
+
+```bash
+# Use uv run prefix
+uv run writescore analyze README.md
+
+# Or activate venv directly
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+writescore analyze README.md
+
+# Run inside devcontainer (if installed there)
+devcontainer exec --workspace-folder "$(pwd)" writescore analyze README.md
+
+# Or reinstall natively
+just install  # or: uv sync && uv run python -m spacy download en_core_web_sm
+```
+
+### Can't find model 'en_core_web_sm'
+
+```bash
+python -m spacy download en_core_web_sm
+```
+
+### NLTK Data Missing
+
+If you see `LookupError` mentioning NLTK data:
+
+```bash
+python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptron_tagger')"
+```
+
 ## Documentation
 
 | Document | Description |
@@ -109,6 +285,11 @@ See the [Analysis Modes Guide](docs/analysis-modes-guide.md) for details.
 ## Contributing
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+**Quick links:**
+- [Label taxonomy](CONTRIBUTING.md#issue-and-pr-labels) — How we categorize issues and PRs
+- [Secret scanning setup](CONTRIBUTING.md#secret-scanning-ggshield) — Required before your first commit
+- [Code of Conduct](CODE_OF_CONDUCT.md) — Community guidelines
 
 ## License
 

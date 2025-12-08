@@ -59,15 +59,15 @@ class TestAnalyzeSyntacticPatterns:
         """Test basic syntactic analysis."""
         result = analyzer._analyze_syntactic_patterns(text_complex_syntax)
 
-        assert 'available' in result
-        assert result['available'] is True
-        assert 'syntactic_repetition_score' in result
-        assert 'pos_diversity' in result
-        assert 'avg_dependency_depth' in result
-        assert 'avg_tree_depth' in result
-        assert 'subordination_index' in result
-        assert 'passive_constructions' in result
-        assert 'morphological_richness' in result
+        assert "available" in result
+        assert result["available"] is True
+        assert "syntactic_repetition_score" in result
+        assert "pos_diversity" in result
+        assert "avg_dependency_depth" in result
+        assert "avg_tree_depth" in result
+        assert "subordination_index" in result
+        assert "passive_constructions" in result
+        assert "morphological_richness" in result
 
     def test_syntactic_patterns_complex_text(self, analyzer, text_complex_syntax):
         """Test complex syntax detection (human pattern)."""
@@ -77,9 +77,9 @@ class TestAnalyzeSyntacticPatterns:
         # - Higher dependency depth (4-6 for human)
         # - Higher subordination index (>0.15 for human)
         # - Lower syntactic repetition
-        assert result['avg_dependency_depth'] >= 3.0
-        assert result['subordination_index'] >= 0.1
-        assert result['syntactic_repetition_score'] < 0.8
+        assert result["avg_dependency_depth"] >= 3.0
+        assert result["subordination_index"] >= 0.1
+        assert result["syntactic_repetition_score"] < 0.8
 
     def test_syntactic_patterns_simple_text(self, analyzer, text_simple_syntax):
         """Test simple syntax detection (AI pattern)."""
@@ -88,15 +88,15 @@ class TestAnalyzeSyntacticPatterns:
         # Simple text should have:
         # - Lower dependency depth (2-3 for AI)
         # - Higher syntactic repetition
-        assert result['avg_dependency_depth'] < 5.0
-        assert result['syntactic_repetition_score'] > 0.0
+        assert result["avg_dependency_depth"] < 5.0
+        assert result["syntactic_repetition_score"] > 0.0
 
     def test_syntactic_patterns_passive_voice(self, analyzer, text_passive_voice):
         """Test passive voice detection."""
         result = analyzer._analyze_syntactic_patterns(text_passive_voice)
 
         # Should detect passive constructions
-        assert result['passive_constructions'] > 0
+        assert result["passive_constructions"] > 0
 
     def test_syntactic_patterns_excludes_code(self, analyzer):
         """Test that code blocks are excluded from analysis."""
@@ -113,27 +113,27 @@ More text after the code block."""
         result = analyzer._analyze_syntactic_patterns(text)
 
         # Should analyze non-code text
-        assert result['available'] is True
+        assert result["available"] is True
 
     def test_syntactic_patterns_empty_text(self, analyzer):
         """Test syntactic analysis on empty text."""
         result = analyzer._analyze_syntactic_patterns("")
 
-        assert result['available'] is False
+        assert result["available"] is False
 
     def test_syntactic_patterns_pos_diversity(self, analyzer, text_complex_syntax):
         """Test POS diversity calculation."""
         result = analyzer._analyze_syntactic_patterns(text_complex_syntax)
 
         # Should have POS diversity metric
-        assert 0 <= result['pos_diversity'] <= 1
+        assert 0 <= result["pos_diversity"] <= 1
 
     def test_syntactic_patterns_morphological_richness(self, analyzer, text_complex_syntax):
         """Test morphological richness calculation."""
         result = analyzer._analyze_syntactic_patterns(text_complex_syntax)
 
         # Should have morphological richness (unique lemmas)
-        assert result['morphological_richness'] > 0
+        assert result["morphological_richness"] > 0
 
 
 class TestAnalyzeSyntacticPatternsNoSpacy:
@@ -144,8 +144,8 @@ class TestAnalyzeSyntacticPatternsNoSpacy:
         """Test syntactic analysis without spaCy available."""
         result = analyzer._analyze_syntactic_patterns("Some text here.")
 
-        assert 'available' in result
-        assert result['available'] is False
+        assert "available" in result
+        assert result["available"] is False
 
 
 class TestAnalyzeSyntacticIssuesDetailed:
@@ -153,29 +153,27 @@ class TestAnalyzeSyntacticIssuesDetailed:
 
     def test_syntactic_issues_passive_detection(self, analyzer, text_passive_voice):
         """Test detection of passive voice constructions."""
-        lines = text_passive_voice.split('\n')
+        lines = text_passive_voice.split("\n")
         issues = analyzer._analyze_syntactic_issues_detailed(lines)
 
         assert isinstance(issues, list)
         # Should detect passive voice issues
-        passive_issues = [i for i in issues if i.issue_type == 'passive']
+        passive_issues = [i for i in issues if i.issue_type == "passive"]
         assert len(passive_issues) > 0
 
         # Check issue structure
         if passive_issues:
             issue = passive_issues[0]
-            assert hasattr(issue, 'line_number')
-            assert hasattr(issue, 'sentence')
-            assert hasattr(issue, 'issue_type')
-            assert hasattr(issue, 'metric_value')
-            assert hasattr(issue, 'problem')
-            assert hasattr(issue, 'suggestion')
+            assert hasattr(issue, "line_number")
+            assert hasattr(issue, "sentence")
+            assert hasattr(issue, "issue_type")
+            assert hasattr(issue, "metric_value")
+            assert hasattr(issue, "problem")
+            assert hasattr(issue, "suggestion")
 
     def test_syntactic_issues_shallow_detection(self, analyzer):
         """Test detection of shallow dependency trees."""
-        lines = [
-            "The cat sat. The dog ran. The bird flew. The fish swam."
-        ]
+        lines = ["The cat sat. The dog ran. The bird flew. The fish swam."]
         issues = analyzer._analyze_syntactic_issues_detailed(lines)
 
         # May detect shallow syntax in simple sentences
@@ -183,9 +181,7 @@ class TestAnalyzeSyntacticIssuesDetailed:
 
     def test_syntactic_issues_subordination_detection(self, analyzer):
         """Test detection of low subordination."""
-        lines = [
-            "The system works well. It provides good results. Users are satisfied."
-        ]
+        lines = ["The system works well. It provides good results. Users are satisfied."]
         issues = analyzer._analyze_syntactic_issues_detailed(lines)
 
         # May detect lack of subordinate clauses
@@ -195,7 +191,7 @@ class TestAnalyzeSyntacticIssuesDetailed:
         """Test that headings are skipped."""
         lines = [
             "# This is a heading with passive voice that was written",
-            "This sentence was written with passive voice."
+            "This sentence was written with passive voice.",
         ]
         issues = analyzer._analyze_syntactic_issues_detailed(lines)
 
@@ -209,7 +205,7 @@ class TestAnalyzeSyntacticIssuesDetailed:
             "```python",
             "def function():",
             "```",
-            "This sentence was written with passive voice."
+            "This sentence was written with passive voice.",
         ]
         issues = analyzer._analyze_syntactic_issues_detailed(lines)
 
@@ -221,11 +217,11 @@ class TestAnalyzeSyntacticIssuesDetailed:
         lines = [
             "<!-- This is a comment -->",
             "This sentence was written with passive voice.",
-            "<!-- Another comment -->"
+            "<!-- Another comment -->",
         ]
 
         def is_in_comment(line):
-            return line.strip().startswith('<!--')
+            return line.strip().startswith("<!--")
 
         issues = analyzer._analyze_syntactic_issues_detailed(lines, is_in_comment)
 
@@ -264,21 +260,21 @@ class TestAnalyze:
         """Test basic analyze method."""
         result = analyzer.analyze(text_complex_syntax)
 
-        assert 'syntactic' in result
-        assert isinstance(result['syntactic'], dict)
+        assert "syntactic" in result
+        assert isinstance(result["syntactic"], dict)
 
     def test_analyze_empty_text(self, analyzer):
         """Test analyze on empty text."""
         result = analyzer.analyze("")
 
-        assert result['syntactic']['available'] is False
+        assert result["syntactic"]["available"] is False
 
     @pytest.mark.skipif(HAS_SPACY, reason="Test requires spaCy to be unavailable")
     def test_analyze_no_spacy(self, analyzer):
         """Test analyze without spaCy available."""
         result = analyzer.analyze("Some text here.")
 
-        assert result['syntactic']['available'] is False
+        assert result["syntactic"]["available"] is False
 
 
 class TestAnalyzeDetailed:
@@ -286,7 +282,7 @@ class TestAnalyzeDetailed:
 
     def test_analyze_detailed_basic(self, analyzer, text_passive_voice):
         """Test detailed analysis method."""
-        lines = text_passive_voice.split('\n')
+        lines = text_passive_voice.split("\n")
         result = analyzer.analyze_detailed(lines)
 
         assert isinstance(result, list)
@@ -297,7 +293,7 @@ class TestScore:
 
     def test_score_high_variation(self, analyzer):
         """Test score for high syntactic variation (low repetition)."""
-        analysis = {'syntactic': True, 'syntactic_repetition_score': 0.2}  # <= 0.3 threshold
+        analysis = {"syntactic": True, "syntactic_repetition_score": 0.2}  # <= 0.3 threshold
         score, label = analyzer.score(analysis)
 
         assert score == 10.0
@@ -305,7 +301,7 @@ class TestScore:
 
     def test_score_medium_variation(self, analyzer):
         """Test score for medium syntactic variation."""
-        analysis = {'syntactic': True, 'syntactic_repetition_score': 0.4}  # <= 0.5 threshold
+        analysis = {"syntactic": True, "syntactic_repetition_score": 0.4}  # <= 0.5 threshold
         score, label = analyzer.score(analysis)
 
         assert score == 7.0
@@ -313,7 +309,7 @@ class TestScore:
 
     def test_score_low_variation(self, analyzer):
         """Test score for low syntactic variation."""
-        analysis = {'syntactic': True, 'syntactic_repetition_score': 0.6}  # <= 0.7 threshold
+        analysis = {"syntactic": True, "syntactic_repetition_score": 0.6}  # <= 0.7 threshold
         score, label = analyzer.score(analysis)
 
         assert score == 4.0
@@ -321,7 +317,7 @@ class TestScore:
 
     def test_score_very_low_variation(self, analyzer):
         """Test score for very low variation (high repetition - AI pattern)."""
-        analysis = {'syntactic': True, 'syntactic_repetition_score': 0.8}  # > 0.7 threshold
+        analysis = {"syntactic": True, "syntactic_repetition_score": 0.8}  # > 0.7 threshold
         score, label = analyzer.score(analysis)
 
         assert score == 2.0
@@ -342,9 +338,9 @@ class TestLogitGaussianScoring:
     def test_calculate_score_at_optimal(self, analyzer):
         """Test scoring at optimal repetition (≈0.27, logit ≈ -1.0)."""
         metrics = {
-            'syntactic': {
-                'syntactic_repetition_score': 0.27,  # Optimal (logit ≈ -1.0)
-                'available': True
+            "syntactic": {
+                "syntactic_repetition_score": 0.27,  # Optimal (logit ≈ -1.0)
+                "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -363,24 +359,20 @@ class TestLogitGaussianScoring:
         ]
 
         for ratio in test_cases:
-            metrics = {
-                'syntactic': {
-                    'syntactic_repetition_score': ratio,
-                    'available': True
-                }
-            }
+            metrics = {"syntactic": {"syntactic_repetition_score": ratio, "available": True}}
             score = analyzer.calculate_score(metrics)
 
             # Within 1σ should score 59-95 (allowing slight rounding)
-            assert 59.0 <= score <= 95.0, \
-                f"Ratio {ratio} scored {score}, expected 59-95 (within 1σ)"
+            assert (
+                59.0 <= score <= 95.0
+            ), f"Ratio {ratio} scored {score}, expected 59-95 (within 1σ)"
 
     def test_calculate_score_low_repetition(self, analyzer):
         """Test scoring with low repetition (good, human-like)."""
         metrics = {
-            'syntactic': {
-                'syntactic_repetition_score': 0.20,  # Low repetition (good)
-                'available': True
+            "syntactic": {
+                "syntactic_repetition_score": 0.20,  # Low repetition (good)
+                "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -391,9 +383,9 @@ class TestLogitGaussianScoring:
     def test_calculate_score_high_repetition(self, analyzer):
         """Test scoring with high repetition (bad, AI-like)."""
         metrics = {
-            'syntactic': {
-                'syntactic_repetition_score': 0.70,  # High repetition (bad)
-                'available': True
+            "syntactic": {
+                "syntactic_repetition_score": 0.70,  # High repetition (bad)
+                "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -404,9 +396,9 @@ class TestLogitGaussianScoring:
     def test_calculate_score_very_high_repetition(self, analyzer):
         """Test scoring with very high repetition (very bad, strong AI signal)."""
         metrics = {
-            'syntactic': {
-                'syntactic_repetition_score': 0.85,  # Very high repetition
-                'available': True
+            "syntactic": {
+                "syntactic_repetition_score": 0.85,  # Very high repetition
+                "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -417,9 +409,9 @@ class TestLogitGaussianScoring:
     def test_calculate_score_boundary_near_zero(self, analyzer):
         """Test scoring near lower boundary (ratio ≈ 0)."""
         metrics = {
-            'syntactic': {
-                'syntactic_repetition_score': 0.05,  # Near 0
-                'available': True
+            "syntactic": {
+                "syntactic_repetition_score": 0.05,  # Near 0
+                "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -430,9 +422,9 @@ class TestLogitGaussianScoring:
     def test_calculate_score_boundary_near_one(self, analyzer):
         """Test scoring near upper boundary (ratio ≈ 1)."""
         metrics = {
-            'syntactic': {
-                'syntactic_repetition_score': 0.95,  # Near 1
-                'available': True
+            "syntactic": {
+                "syntactic_repetition_score": 0.95,  # Near 1
+                "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
@@ -447,18 +439,14 @@ class TestLogitGaussianScoring:
         scores_above = []
 
         for ratio in ratios_above:
-            metrics = {
-                'syntactic': {
-                    'syntactic_repetition_score': ratio,
-                    'available': True
-                }
-            }
+            metrics = {"syntactic": {"syntactic_repetition_score": ratio, "available": True}}
             scores_above.append(analyzer.calculate_score(metrics))
 
         # Scores should decrease as we move away from optimal
         for i in range(len(scores_above) - 1):
-            assert scores_above[i] >= scores_above[i+1], \
-                f"Score should decrease as repetition increases: {scores_above[i]} >= {scores_above[i+1]} (ratio {ratios_above[i]} vs {ratios_above[i+1]})"
+            assert (
+                scores_above[i] >= scores_above[i + 1]
+            ), f"Score should decrease as repetition increases: {scores_above[i]} >= {scores_above[i+1]} (ratio {ratios_above[i]} vs {ratios_above[i+1]})"
 
     def test_calculate_score_monotonic_increasing_to_optimal(self, analyzer):
         """Test that score increases as repetition approaches optimal from below."""
@@ -467,40 +455,27 @@ class TestLogitGaussianScoring:
         scores_below = []
 
         for ratio in ratios_below:
-            metrics = {
-                'syntactic': {
-                    'syntactic_repetition_score': ratio,
-                    'available': True
-                }
-            }
+            metrics = {"syntactic": {"syntactic_repetition_score": ratio, "available": True}}
             scores_below.append(analyzer.calculate_score(metrics))
 
         # Scores should increase as we approach optimal
         for i in range(len(scores_below) - 1):
-            assert scores_below[i] <= scores_below[i+1], \
-                f"Score should increase toward optimal: {scores_below[i]} <= {scores_below[i+1]} (ratio {ratios_below[i]} vs {ratios_below[i+1]})"
+            assert (
+                scores_below[i] <= scores_below[i + 1]
+            ), f"Score should increase toward optimal: {scores_below[i]} <= {scores_below[i+1]} (ratio {ratios_below[i]} vs {ratios_below[i+1]})"
 
     def test_calculate_score_validates_range(self, analyzer):
         """Test that all scores are in valid 0-100 range."""
         test_ratios = [0.01, 0.10, 0.27, 0.50, 0.70, 0.90, 0.99]
 
         for ratio in test_ratios:
-            metrics = {
-                'syntactic': {
-                    'syntactic_repetition_score': ratio,
-                    'available': True
-                }
-            }
+            metrics = {"syntactic": {"syntactic_repetition_score": ratio, "available": True}}
             score = analyzer.calculate_score(metrics)
             assert 0.0 <= score <= 100.0, f"Score {score} for ratio={ratio} out of range"
 
     def test_calculate_score_unavailable_data(self, analyzer):
         """Test fallback score when syntactic data unavailable."""
-        metrics = {
-            'syntactic': {
-                'available': False
-            }
-        }
+        metrics = {"syntactic": {"available": False}}
         score = analyzer.calculate_score(metrics)
 
         # Should return neutral 50.0 when data unavailable
@@ -509,8 +484,8 @@ class TestLogitGaussianScoring:
     def test_calculate_score_missing_repetition(self, analyzer):
         """Test fallback when repetition score missing."""
         metrics = {
-            'syntactic': {
-                'available': True
+            "syntactic": {
+                "available": True
                 # Missing 'syntactic_repetition_score'
             }
         }
@@ -527,11 +502,11 @@ class TestIntegration:
         """Test complete analysis pipeline."""
         result = analyzer.analyze(text_complex_syntax)
 
-        assert result['syntactic']['available'] is True
-        assert result['syntactic']['syntactic_repetition_score'] >= 0
+        assert result["syntactic"]["available"] is True
+        assert result["syntactic"]["syntactic_repetition_score"] >= 0
 
         # Detailed analysis
-        lines = text_complex_syntax.split('\n')
+        lines = text_complex_syntax.split("\n")
         detailed = analyzer.analyze_detailed(lines)
 
         assert isinstance(detailed, list)
@@ -541,8 +516,8 @@ class TestIntegration:
         complex_result = analyzer.analyze(text_complex_syntax)
         simple_result = analyzer.analyze(text_simple_syntax)
 
-        complex_depth = complex_result['syntactic']['avg_dependency_depth']
-        simple_depth = simple_result['syntactic']['avg_dependency_depth']
+        complex_depth = complex_result["syntactic"]["avg_dependency_depth"]
+        simple_depth = simple_result["syntactic"]["avg_dependency_depth"]
 
         # Complex text should have deeper dependency trees
         assert complex_depth > simple_depth

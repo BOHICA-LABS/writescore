@@ -30,13 +30,14 @@ logger = logging.getLogger(__name__)
 
 # Score shift thresholds
 SHIFT_WARNING_THRESHOLD = 10.0  # Points - warn if shift > this
-SHIFT_ERROR_THRESHOLD = 15.0   # Points - error if shift > this
+SHIFT_ERROR_THRESHOLD = 15.0  # Points - error if shift > this
 MAX_ACCEPTABLE_MEAN_SHIFT = 5.0  # Average shift across all documents
 
 
 @dataclass
 class DocumentScoreShift:
     """Score shift analysis for a single document."""
+
     document_id: str
     old_scores: Dict[str, float]
     new_scores: Dict[str, float]
@@ -75,7 +76,8 @@ class DocumentScoreShift:
     def get_flagged_dimensions(self) -> List[Tuple[str, float]]:
         """Get dimensions with shifts above warning threshold."""
         return [
-            (dim, shift) for dim, shift in self.dimension_shifts.items()
+            (dim, shift)
+            for dim, shift in self.dimension_shifts.items()
             if abs(shift) > SHIFT_WARNING_THRESHOLD
         ]
 
@@ -83,6 +85,7 @@ class DocumentScoreShift:
 @dataclass
 class ScoreShiftReport:
     """Comprehensive score shift analysis report."""
+
     old_params_version: str
     new_params_version: str
     timestamp: str
@@ -103,7 +106,7 @@ class ScoreShiftReport:
                 "warning_count": 0,
                 "error_count": 0,
                 "dimension_mean_shifts": {},
-                "is_acceptable": True
+                "is_acceptable": True,
             }
             return
 
@@ -134,14 +137,14 @@ class ScoreShiftReport:
             "warning_percentage": warning_count / len(self.document_shifts) * 100,
             "error_percentage": error_count / len(self.document_shifts) * 100,
             "dimension_mean_shifts": dimension_mean_shifts,
-            "is_acceptable": mean_total_shift <= MAX_ACCEPTABLE_MEAN_SHIFT and error_count == 0
+            "is_acceptable": mean_total_shift <= MAX_ACCEPTABLE_MEAN_SHIFT and error_count == 0,
         }
 
     def is_acceptable(self) -> bool:
         """Check if the shift is within acceptable bounds."""
         if not self.summary_stats:
             self.calculate_summary()
-        return self.summary_stats.get("is_acceptable", False)
+        return bool(self.summary_stats.get("is_acceptable", False))
 
     def get_flagged_documents(self) -> List[DocumentScoreShift]:
         """Get documents with warning or error level shifts."""
@@ -169,7 +172,7 @@ class ScoreShiftReport:
             f"Documents with Errors: {self.summary_stats['error_count']} ({self.summary_stats.get('error_percentage', 0):.1f}%)",
             "",
             f"Acceptable: {'YES' if self.summary_stats['is_acceptable'] else 'NO'}",
-            ""
+            "",
         ]
 
         # Per-dimension shifts
@@ -217,16 +220,16 @@ class ScoreShiftReport:
                     "total_shift": d.total_shift,
                     "dimension_shifts": d.dimension_shifts,
                     "has_warning": d.has_warning_shift(),
-                    "has_error": d.has_error_shift()
+                    "has_error": d.has_error_shift(),
                 }
                 for d in self.document_shifts
-            ]
+            ],
         }
 
     def save(self, path: Path):
         """Save report to JSON file."""
         path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=2)
         logger.info(f"Saved score shift report to {path}")
 
@@ -253,8 +256,14 @@ class ParameterValidator:
 
         # Check for required dimensions
         required_dims = [
-            "burstiness", "lexical", "readability", "syntactic",
-            "sentiment", "voice", "structure", "formatting"
+            "burstiness",
+            "lexical",
+            "readability",
+            "syntactic",
+            "sentiment",
+            "voice",
+            "structure",
+            "formatting",
         ]
         for dim in required_dims:
             if dim not in params.dimensions:
@@ -311,9 +320,7 @@ class ParameterValidator:
         """Validate threshold-specific constraints."""
         # Check score monotonicity (higher categories should have higher scores)
         if params.scores != sorted(params.scores, reverse=True):
-            self.warnings.append(
-                f"{name}: Scores are not monotonically decreasing with threshold"
-            )
+            self.warnings.append(f"{name}: Scores are not monotonically decreasing with threshold")
 
     def get_report(self) -> str:
         """Get validation report as text."""
@@ -346,7 +353,7 @@ class ScoreShiftAnalyzer:
         old_scores: Dict[str, Dict[str, float]],
         new_scores: Dict[str, Dict[str, float]],
         old_version: str = "unknown",
-        new_version: str = "unknown"
+        new_version: str = "unknown",
     ) -> ScoreShiftReport:
         """
         Analyze score shift between two scoring runs.
@@ -363,7 +370,7 @@ class ScoreShiftAnalyzer:
         report = ScoreShiftReport(
             old_params_version=old_version,
             new_params_version=new_version,
-            timestamp=datetime.utcnow().isoformat() + "Z"
+            timestamp=datetime.utcnow().isoformat() + "Z",
         )
 
         # Analyze each document present in both
@@ -371,9 +378,7 @@ class ScoreShiftAnalyzer:
 
         for doc_id in sorted(common_docs):
             shift = DocumentScoreShift(
-                document_id=doc_id,
-                old_scores=old_scores[doc_id],
-                new_scores=new_scores[doc_id]
+                document_id=doc_id, old_scores=old_scores[doc_id], new_scores=new_scores[doc_id]
             )
             report.add_document_shift(shift)
 
@@ -390,11 +395,7 @@ class ScoreShiftAnalyzer:
 
         return report
 
-    def analyze_from_files(
-        self,
-        old_scores_path: Path,
-        new_scores_path: Path
-    ) -> ScoreShiftReport:
+    def analyze_from_files(self, old_scores_path: Path, new_scores_path: Path) -> ScoreShiftReport:
         """
         Analyze score shift from JSON score files.
 
@@ -424,7 +425,7 @@ class ScoreShiftAnalyzer:
 def validate_parameter_update(
     old_params: Optional[PercentileParameters],
     new_params: PercentileParameters,
-    test_scores: Optional[Dict[str, Dict[str, float]]] = None
+    test_scores: Optional[Dict[str, Dict[str, float]]] = None,
 ) -> Tuple[bool, str]:
     """
     Validate that a parameter update is safe.

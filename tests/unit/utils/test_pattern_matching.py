@@ -29,7 +29,7 @@ class TestPatternMatcherInitialization:
 
     def test_init_custom_domain_terms(self):
         """Test initialization with custom domain terms."""
-        custom_terms = [r'\bPython\b', r'\bDjango\b']
+        custom_terms = [r"\bPython\b", r"\bDjango\b"]
         matcher = PatternMatcher(domain_terms=custom_terms)
 
         assert matcher.domain_terms == custom_terms
@@ -203,7 +203,7 @@ class TestAIVocabularyMatching:
         patterns = matcher.get_ai_vocab_patterns()
 
         # Find the delve pattern
-        delve_pattern = [p for k, p in patterns.items() if 'delv' in k][0]
+        delve_pattern = [p for k, p in patterns.items() if "delv" in k][0]
 
         assert delve_pattern.search("Let's delve into this") is not None
         assert delve_pattern.search("delving deeper") is not None
@@ -215,7 +215,7 @@ class TestAIVocabularyMatching:
         patterns = matcher.get_ai_vocab_patterns()
 
         # Find the robust pattern
-        robust_pattern = [p for k, p in patterns.items() if 'robust' in k][0]
+        robust_pattern = [p for k, p in patterns.items() if "robust" in k][0]
 
         assert robust_pattern.search("A robust solution") is not None
         assert robust_pattern.search("robustness of the system") is not None
@@ -226,7 +226,7 @@ class TestAIVocabularyMatching:
         patterns = matcher.get_ai_vocab_patterns()
 
         # Find the leverage pattern
-        leverage_pattern = [p for k, p in patterns.items() if 'leverag' in k][0]
+        leverage_pattern = [p for k, p in patterns.items() if "leverag" in k][0]
 
         assert leverage_pattern.search("leverage the framework") is not None
         assert leverage_pattern.search("leveraging tools") is not None
@@ -238,7 +238,7 @@ class TestAIVocabularyMatching:
         patterns = matcher.get_ai_vocab_patterns()
 
         # Get a pattern (delve)
-        delve_pattern = [p for k, p in patterns.items() if 'delv' in k][0]
+        delve_pattern = [p for k, p in patterns.items() if "delv" in k][0]
 
         assert delve_pattern.search("DELVE into") is not None
         assert delve_pattern.search("Delve into") is not None
@@ -254,7 +254,7 @@ class TestFormuliaicTransitionMatching:
         patterns = matcher.get_transition_patterns()
 
         # Find Furthermore pattern
-        furthermore_pattern = [p for p in patterns if p.pattern == r'\bFurthermore,'][0]
+        furthermore_pattern = [p for p in patterns if p.pattern == r"\bFurthermore,"][0]
 
         assert furthermore_pattern.search("Furthermore, we can") is not None
         assert furthermore_pattern.search("Furthermore") is None  # Need comma
@@ -265,7 +265,7 @@ class TestFormuliaicTransitionMatching:
         patterns = matcher.get_transition_patterns()
 
         # Find Moreover pattern
-        moreover_pattern = [p for p in patterns if p.pattern == r'\bMoreover,'][0]
+        moreover_pattern = [p for p in patterns if p.pattern == r"\bMoreover,"][0]
 
         assert moreover_pattern.search("Moreover, this shows") is not None
 
@@ -275,7 +275,7 @@ class TestFormuliaicTransitionMatching:
         patterns = matcher.get_transition_patterns()
 
         # Find In conclusion pattern
-        conclusion_pattern = [p for p in patterns if 'conclusion' in p.pattern.lower()][0]
+        conclusion_pattern = [p for p in patterns if "conclusion" in p.pattern.lower()][0]
 
         assert conclusion_pattern.search("In conclusion, we see") is not None
 
@@ -293,7 +293,7 @@ class TestDomainTermMatching:
 
     def test_domain_terms_custom(self):
         """Test detection of custom domain terms."""
-        custom_terms = [r'\bPython\b', r'\bDjango\b']
+        custom_terms = [r"\bPython\b", r"\bDjango\b"]
         matcher = PatternMatcher(domain_terms=custom_terms)
         patterns = matcher.get_domain_patterns()
 
@@ -397,9 +397,9 @@ class TestConstants:
         assert len(AI_VOCABULARY) > 0
 
         # Check some key patterns exist
-        assert any('delv' in p for p in AI_VOCABULARY)
-        assert any('robust' in p for p in AI_VOCABULARY)
-        assert any('leverag' in p for p in AI_VOCABULARY)
+        assert any("delv" in p for p in AI_VOCABULARY)
+        assert any("robust" in p for p in AI_VOCABULARY)
+        assert any("leverag" in p for p in AI_VOCABULARY)
 
     def test_formulaic_transitions_list(self):
         """Test FORMULAIC_TRANSITIONS constant."""
@@ -407,9 +407,9 @@ class TestConstants:
         assert len(FORMULAIC_TRANSITIONS) > 0
 
         # Check some key patterns exist
-        assert any('Furthermore' in p for p in FORMULAIC_TRANSITIONS)
-        assert any('Moreover' in p for p in FORMULAIC_TRANSITIONS)
-        assert any('conclusion' in p for p in FORMULAIC_TRANSITIONS)
+        assert any("Furthermore" in p for p in FORMULAIC_TRANSITIONS)
+        assert any("Moreover" in p for p in FORMULAIC_TRANSITIONS)
+        assert any("conclusion" in p for p in FORMULAIC_TRANSITIONS)
 
     def test_domain_terms_default(self):
         """Test DOMAIN_TERMS_DEFAULT constant."""
@@ -422,13 +422,13 @@ class TestConstants:
         assert len(AI_VOCAB_REPLACEMENTS) > 0
 
         # Check some key replacements exist
-        assert 'delve' in AI_VOCAB_REPLACEMENTS
-        assert 'robust' in AI_VOCAB_REPLACEMENTS
-        assert 'leverage' in AI_VOCAB_REPLACEMENTS
+        assert "delve" in AI_VOCAB_REPLACEMENTS
+        assert "robust" in AI_VOCAB_REPLACEMENTS
+        assert "leverage" in AI_VOCAB_REPLACEMENTS
 
         # Check replacement values are lists
-        assert isinstance(AI_VOCAB_REPLACEMENTS['delve'], list)
-        assert len(AI_VOCAB_REPLACEMENTS['delve']) > 0
+        assert isinstance(AI_VOCAB_REPLACEMENTS["delve"], list)
+        assert len(AI_VOCAB_REPLACEMENTS["delve"]) > 0
 
 
 class TestIntegration:

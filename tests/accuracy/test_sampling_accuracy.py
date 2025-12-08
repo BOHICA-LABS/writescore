@@ -45,12 +45,15 @@ class TestDataHelpers:
     def _load_known_ai_text() -> str:
         """Known AI-generated text with expected GLTR ~0.70-0.75."""
         # Highly predictable, repetitive AI-like text
-        return """Artificial intelligence represents a transformative paradigm shift
+        return (
+            """Artificial intelligence represents a transformative paradigm shift
         in computational methodology. It is important to note that machine learning
         algorithms leverage statistical patterns to optimize predictive accuracy.
         Furthermore, deep learning architectures utilize hierarchical representations
         to extract meaningful features from complex datasets. In conclusion, AI systems
-        demonstrate remarkable capabilities across diverse application domains.""" * 100
+        demonstrate remarkable capabilities across diverse application domains."""
+            * 100
+        )
 
     @staticmethod
     def _load_known_human_text() -> str:
@@ -170,17 +173,18 @@ class TestSamplingAccuracy:
         # Full analysis
         full_config = AnalysisConfig(mode=AnalysisMode.FULL)
         full_result = dim.analyze(test_text, config=full_config)
-        full_score = full_result['gltr_top10_percentage']
+        full_score = full_result["gltr_top10_percentage"]
 
         # Sampled analysis
         sampled_config = AnalysisConfig(mode=AnalysisMode.SAMPLING, sampling_sections=5)
         sampled_result = dim.analyze(test_text, config=sampled_config)
-        sampled_score = sampled_result['gltr_top10_percentage']
+        sampled_score = sampled_result["gltr_top10_percentage"]
 
         # Verify within ±10%
         difference = abs(full_score - sampled_score)
-        assert difference <= 0.10, \
-            f"Sampled score {sampled_score:.3f} differs from full {full_score:.3f} by {difference:.3f} (>10%)"
+        assert (
+            difference <= 0.10
+        ), f"Sampled score {sampled_score:.3f} differs from full {full_score:.3f} by {difference:.3f} (>10%)"
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -196,17 +200,18 @@ class TestSamplingAccuracy:
         # Full analysis
         full_config = AnalysisConfig(mode=AnalysisMode.FULL)
         full_result = dim.analyze(test_text, config=full_config)
-        full_score = full_result['gltr_top10_percentage']
+        full_score = full_result["gltr_top10_percentage"]
 
         # ADAPTIVE analysis
         adaptive_config = AnalysisConfig(mode=AnalysisMode.ADAPTIVE)
         adaptive_result = dim.analyze(test_text, config=adaptive_config)
-        adaptive_score = adaptive_result['gltr_top10_percentage']
+        adaptive_score = adaptive_result["gltr_top10_percentage"]
 
         # Verify within ±10%
         difference = abs(full_score - adaptive_score)
-        assert difference <= 0.10, \
-            f"ADAPTIVE score {adaptive_score:.3f} differs from full {full_score:.3f} by {difference:.3f} (>10%)"
+        assert (
+            difference <= 0.10
+        ), f"ADAPTIVE score {adaptive_score:.3f} differs from full {full_score:.3f} by {difference:.3f} (>10%)"
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -223,8 +228,9 @@ class TestSamplingAccuracy:
         result = dim.analyze(ai_text, config=config)
 
         # AI text should have high top-10 percentage (>0.60)
-        assert result['gltr_top10_percentage'] > 0.60, \
-            f"AI text scored {result['gltr_top10_percentage']:.3f}, expected >0.60"
+        assert (
+            result["gltr_top10_percentage"] > 0.60
+        ), f"AI text scored {result['gltr_top10_percentage']:.3f}, expected >0.60"
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -242,8 +248,9 @@ class TestSamplingAccuracy:
 
         # Human text should have lower top-10 percentage (<0.62)
         # Note: Threshold raised slightly due to sample batching optimization
-        assert result['gltr_top10_percentage'] < 0.62, \
-            f"Human text scored {result['gltr_top10_percentage']:.3f}, expected <0.62"
+        assert (
+            result["gltr_top10_percentage"] < 0.62
+        ), f"Human text scored {result['gltr_top10_percentage']:.3f}, expected <0.62"
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -259,22 +266,23 @@ class TestSamplingAccuracy:
         # Full analysis (baseline)
         full_config = AnalysisConfig(mode=AnalysisMode.FULL)
         full_result = dim.analyze(test_text, config=full_config)
-        full_score = full_result['gltr_top10_percentage']
+        full_score = full_result["gltr_top10_percentage"]
 
         # 3 samples
         config_3 = AnalysisConfig(mode=AnalysisMode.SAMPLING, sampling_sections=3)
         result_3 = dim.analyze(test_text, config=config_3)
-        diff_3 = abs(result_3['gltr_top10_percentage'] - full_score)
+        diff_3 = abs(result_3["gltr_top10_percentage"] - full_score)
 
         # 10 samples
         config_10 = AnalysisConfig(mode=AnalysisMode.SAMPLING, sampling_sections=10)
         result_10 = dim.analyze(test_text, config=config_10)
-        diff_10 = abs(result_10['gltr_top10_percentage'] - full_score)
+        diff_10 = abs(result_10["gltr_top10_percentage"] - full_score)
 
         # More samples should be closer to full analysis
         # Allow some variance, but generally 10 samples should be better
-        assert diff_10 <= diff_3 * 1.5, \
-            f"10 samples (diff={diff_10:.3f}) not better than 3 samples (diff={diff_3:.3f})"
+        assert (
+            diff_10 <= diff_3 * 1.5
+        ), f"10 samples (diff={diff_10:.3f}) not better than 3 samples (diff={diff_3:.3f})"
 
     @pytest.mark.slow
     @pytest.mark.performance_local
@@ -292,8 +300,8 @@ class TestSamplingAccuracy:
         result2 = dim.analyze(text, config=config)
 
         # Results should be identical (deterministic)
-        assert result1['gltr_top10_percentage'] == result2['gltr_top10_percentage']
-        assert result1['gltr_mean_rank'] == result2['gltr_mean_rank']
+        assert result1["gltr_top10_percentage"] == result2["gltr_top10_percentage"]
+        assert result1["gltr_mean_rank"] == result2["gltr_mean_rank"]
 
     @pytest.mark.slow
     def test_sampling_across_document_positions(self, dim):
@@ -313,8 +321,8 @@ class TestSamplingAccuracy:
 
         # ADAPTIVE mode analyzes based on document size
         # For <200k chars, may do full analysis (samples_analyzed=1, coverage=100%)
-        assert result['samples_analyzed'] >= 1, \
-            "Expected at least one sample to be analyzed"
+        assert result["samples_analyzed"] >= 1, "Expected at least one sample to be analyzed"
         # Coverage should be reasonable (either full 100% or sampled >5%)
-        assert result['coverage_percentage'] > 5.0 or result['coverage_percentage'] == 100.0, \
-            "Expected reasonable coverage across document"
+        assert (
+            result["coverage_percentage"] > 5.0 or result["coverage_percentage"] == 100.0
+        ), "Expected reasonable coverage across document"

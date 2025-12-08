@@ -20,6 +20,7 @@ from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
 # MOCK DIMENSION FOR TESTING
 # ========================================================================
 
+
 class MockDimension(DimensionStrategy):
     """Minimal concrete implementation for testing helper methods."""
 
@@ -50,10 +51,10 @@ class MockDimension(DimensionStrategy):
 
     def get_tiers(self) -> dict:
         return {
-            'excellent': (90.0, 100.0),
-            'good': (75.0, 89.9),
-            'acceptable': (50.0, 74.9),
-            'poor': (0.0, 49.9)
+            "excellent": (90.0, 100.0),
+            "good": (75.0, 89.9),
+            "acceptable": (50.0, 74.9),
+            "poor": (0.0, 49.9),
         }
 
 
@@ -66,6 +67,7 @@ def dimension():
 # ========================================================================
 # GAUSSIAN SCORE TESTS
 # ========================================================================
+
 
 class TestGaussianScore:
     """Test suite for _gaussian_score() helper method."""
@@ -118,19 +120,22 @@ class TestGaussianScore:
         """Score should always be in range [0.0, 100.0]."""
         test_cases = [
             (10.0, 10.0, 2.0),  # Perfect match
-            (0.0, 10.0, 2.0),   # Far below
+            (0.0, 10.0, 2.0),  # Far below
             (100.0, 10.0, 2.0),  # Far above
             (-50.0, 10.0, 5.0),  # Very far negative
         ]
 
         for value, target, width in test_cases:
             score = dimension._gaussian_score(value, target, width)
-            assert 0.0 <= score <= 100.0, f"Score {score} out of range for {value}, {target}, {width}"
+            assert (
+                0.0 <= score <= 100.0
+            ), f"Score {score} out of range for {value}, {target}, {width}"
 
 
 # ========================================================================
 # MONOTONIC SCORE TESTS (INCREASING)
 # ========================================================================
+
 
 class TestMonotonicIncreasing:
     """Test suite for _monotonic_score() with increasing=True."""
@@ -196,6 +201,7 @@ class TestMonotonicIncreasing:
 # MONOTONIC SCORE TESTS (DECREASING)
 # ========================================================================
 
+
 class TestMonotonicDecreasing:
     """Test suite for _monotonic_score() with increasing=False."""
 
@@ -246,6 +252,7 @@ class TestMonotonicDecreasing:
 # MONOTONIC SCORE EDGE CASES
 # ========================================================================
 
+
 class TestMonotonicEdgeCases:
     """Test edge cases for _monotonic_score()."""
 
@@ -288,6 +295,7 @@ class TestMonotonicEdgeCases:
 # ========================================================================
 # LOGIT TRANSFORM TESTS
 # ========================================================================
+
 
 class TestLogitTransform:
     """Test suite for _logit_transform() helper method."""
@@ -352,6 +360,7 @@ class TestLogitTransform:
 # LOG TRANSFORM TESTS
 # ========================================================================
 
+
 class TestLogTransform:
     """Test suite for _log_transform() helper method."""
 
@@ -407,6 +416,7 @@ class TestLogTransform:
 # INTEGRATION TESTS
 # ========================================================================
 
+
 class TestScoringHelpersIntegration:
     """Integration tests verifying helpers work together correctly."""
 
@@ -437,14 +447,14 @@ class TestScoringHelpersIntegration:
 
     def test_all_helpers_accessible(self, dimension):
         """All helper methods should be accessible from dimension instance."""
-        assert hasattr(dimension, '_gaussian_score')
+        assert hasattr(dimension, "_gaussian_score")
         assert callable(dimension._gaussian_score)
 
-        assert hasattr(dimension, '_monotonic_score')
+        assert hasattr(dimension, "_monotonic_score")
         assert callable(dimension._monotonic_score)
 
-        assert hasattr(dimension, '_logit_transform')
+        assert hasattr(dimension, "_logit_transform")
         assert callable(dimension._logit_transform)
 
-        assert hasattr(dimension, '_log_transform')
+        assert hasattr(dimension, "_log_transform")
         assert callable(dimension._log_transform)

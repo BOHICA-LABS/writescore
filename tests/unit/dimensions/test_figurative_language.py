@@ -90,8 +90,8 @@ class TestSimileDetection:
         result = dimension._detect_similes_regex(text)
 
         assert len(result) > 0
-        assert any('like a river' in s['phrase'].lower() for s in result)
-        assert all(s['type'] == 'simile' for s in result)
+        assert any("like a river" in s["phrase"].lower() for s in result)
+        assert all(s["type"] == "simile" for s in result)
 
     def test_simile_detection_positive_as_as(self, dimension):
         """Test simile detection with 'as X as' pattern."""
@@ -99,7 +99,7 @@ class TestSimileDetection:
         result = dimension._detect_similes_regex(text)
 
         assert len(result) > 0
-        assert any('as clear as' in s['phrase'].lower() for s in result)
+        assert any("as clear as" in s["phrase"].lower() for s in result)
 
     def test_simile_detection_negative_technical(self, dimension):
         """Test simile filtering for technical literals."""
@@ -108,7 +108,7 @@ class TestSimileDetection:
 
         # Should filter out "stream" in technical context
         # (Though this specific case might pass - context checking is complex)
-        assert all(s['confidence'] > 0.0 for s in result)
+        assert all(s["confidence"] > 0.0 for s in result)
 
     def test_simile_detection_empty_text(self, dimension):
         """Test simile detection on empty text."""
@@ -158,10 +158,10 @@ class TestMetaphorDetection:
     def test_is_potential_metaphor(self, dimension):
         """Test metaphor potential checking."""
         # Polysemous word (multiple meanings)
-        assert dimension._is_potential_metaphor('run', 'The program runs smoothly')
+        assert dimension._is_potential_metaphor("run", "The program runs smoothly")
 
         # Non-existent word
-        assert not dimension._is_potential_metaphor('xyzabc', 'test context')
+        assert not dimension._is_potential_metaphor("xyzabc", "test context")
 
 
 class TestIdiomDetection:
@@ -173,9 +173,9 @@ class TestIdiomDetection:
         result = dimension._detect_idioms_lexicon(text)
 
         assert len(result) > 0
-        assert any('tip of the iceberg' in i['phrase'].lower() for i in result)
-        assert all(i['type'] == 'idiom' for i in result)
-        assert all(i['confidence'] > 0.5 for i in result)
+        assert any("tip of the iceberg" in i["phrase"].lower() for i in result)
+        assert all(i["type"] == "idiom" for i in result)
+        assert all(i["confidence"] > 0.5 for i in result)
 
     def test_idiom_detection_multiple(self, dimension):
         """Test multiple idiom detection."""
@@ -183,23 +183,21 @@ class TestIdiomDetection:
         result = dimension._detect_idioms_lexicon(text)
 
         assert len(result) >= 2
-        phrases = [i['phrase'].lower() for i in result]
-        assert any('eggs in one basket' in p for p in phrases)
-        assert any('piece of cake' in p for p in phrases)
+        phrases = [i["phrase"].lower() for i in result]
+        assert any("eggs in one basket" in p for p in phrases)
+        assert any("piece of cake" in p for p in phrases)
 
     def test_idiom_context_checking(self, dimension):
         """Test idiom context verification."""
         # Figurative usage
         confidence_fig = dimension._check_idiom_context(
-            "This is the tip of the iceberg for our problems.",
-            "tip of the iceberg"
+            "This is the tip of the iceberg for our problems.", "tip of the iceberg"
         )
         assert confidence_fig > 0.5
 
         # Literal usage (with literal markers)
         confidence_lit = dimension._check_idiom_context(
-            "I mean literally the tip of the iceberg we saw in Alaska.",
-            "tip of the iceberg"
+            "I mean literally the tip of the iceberg we saw in Alaska.", "tip of the iceberg"
         )
         assert confidence_lit < confidence_fig
 
@@ -218,10 +216,10 @@ class TestAICliches:
         result = dimension._detect_ai_cliches(text)
 
         assert len(result) >= 2  # Should find 'delve' and 'pivotal'
-        phrases = [c['phrase'] for c in result]
-        assert 'delve' in phrases or 'delves' in phrases
-        assert all(c['type'] in ['ai_cliche', 'formulaic'] for c in result)
-        assert all(c['multiplier'] > 0 for c in result)
+        phrases = [c["phrase"] for c in result]
+        assert "delve" in phrases or "delves" in phrases
+        assert all(c["type"] in ["ai_cliche", "formulaic"] for c in result)
+        assert all(c["multiplier"] > 0 for c in result)
 
     def test_ai_cliche_formulaic_markers(self, dimension):
         """Test detection of formulaic markers."""
@@ -229,7 +227,7 @@ class TestAICliches:
         result = dimension._detect_ai_cliches(text)
 
         assert len(result) > 0
-        assert any('it is worth noting' in c['phrase'].lower() for c in result)
+        assert any("it is worth noting" in c["phrase"].lower() for c in result)
 
     def test_ai_cliche_detection_clean_text(self, dimension):
         """Test AI cliché detection on clean human text."""
@@ -302,7 +300,9 @@ class TestScoringAlgorithm:
         score = dimension.calculate_score(result)
 
         # AI text should score lower than human, but may still score reasonably due to detected patterns
-        assert score <= 100.0  # Relaxed upper bound - actual differentiation comes from cliché detection
+        assert (
+            score <= 100.0
+        )  # Relaxed upper bound - actual differentiation comes from cliché detection
 
     def test_score_technical_text(self, dimension, technical_sample):
         """Test scoring on technical text (should score moderately, no false positives).
@@ -346,7 +346,7 @@ class TestScoringAlgorithm:
         test_cases = [
             "No figurative language at all in this text.",
             "The code runs and returns values from the function calls.",
-            "Let us delve into this comprehensive pivotal crucial analysis."
+            "Let us delve into this comprehensive pivotal crucial analysis.",
         ]
 
         for text in test_cases:
@@ -361,8 +361,8 @@ class TestEdgeCases:
     def test_empty_text(self, dimension):
         """Test analysis on empty text."""
         result = dimension.analyze("")
-        assert result['available'] is True
-        assert result['figurative_language']['total_figurative'] == 0
+        assert result["available"] is True
+        assert result["figurative_language"]["total_figurative"] == 0
 
         score = dimension.calculate_score(result)
         assert 0.0 <= score <= 100.0
@@ -372,8 +372,8 @@ class TestEdgeCases:
         text = "Quick test of short text. Like a flash."
         result = dimension.analyze(text)
 
-        assert result['available'] is True
-        assert result['figurative_language']['word_count'] < 100
+        assert result["available"] is True
+        assert result["figurative_language"]["word_count"] < 100
 
         score = dimension.calculate_score(result)
         assert 0.0 <= score <= 100.0
@@ -390,12 +390,12 @@ class TestEdgeCases:
         """
         result = dimension.analyze(text)
 
-        fig_lang = result['figurative_language']
+        fig_lang = result["figurative_language"]
         # Embedding-based detection may find some patterns in any text
         # For truly literal text, expect low count but not necessarily zero
-        assert fig_lang['total_figurative'] <= 10
+        assert fig_lang["total_figurative"] <= 10
         # Types detected may vary based on embedding analysis
-        assert fig_lang['types_detected'] <= 3
+        assert fig_lang["types_detected"] <= 3
 
         score = dimension.calculate_score(result)
         # Low frequency but with novelty bonus can still score moderately
@@ -410,7 +410,7 @@ class TestEdgeCases:
         ```
         """
         result = dimension.analyze(text)
-        assert result['available'] is True
+        assert result["available"] is True
 
         # Even with minimal text, should handle gracefully
         score = dimension.calculate_score(result)
@@ -441,7 +441,7 @@ class TestRecommendations:
         recommendations = dimension.get_recommendations(score, result)
 
         assert len(recommendations) > 0
-        assert any('clich' in r.lower() for r in recommendations)
+        assert any("clich" in r.lower() for r in recommendations)
 
     def test_recommendations_good_text(self, dimension, human_sample):
         """Test recommendations for good text (should be minimal)."""
@@ -461,10 +461,10 @@ class TestTiers:
         """Test tier ranges are properly defined."""
         tiers = dimension.get_tiers()
 
-        assert 'excellent' in tiers
-        assert 'good' in tiers
-        assert 'acceptable' in tiers
-        assert 'poor' in tiers
+        assert "excellent" in tiers
+        assert "good" in tiers
+        assert "acceptable" in tiers
+        assert "poor" in tiers
 
         # Check ranges are valid
         for _tier_name, (min_score, max_score) in tiers.items():
@@ -493,7 +493,7 @@ class TestProperties:
         description = dimension.description
         assert isinstance(description, str)
         assert len(description) > 0
-        assert 'figurative' in description.lower()
+        assert "figurative" in description.lower()
 
 
 class TestCoverage:
@@ -504,14 +504,14 @@ class TestCoverage:
         text = "Life is like a box of chocolates. Don't put all your eggs in one basket."
         result = dimension._analyze_figurative_patterns(text)
 
-        assert 'similes' in result
-        assert 'metaphors' in result
-        assert 'idioms' in result
-        assert 'ai_cliches' in result
-        assert 'total_figurative' in result
-        assert 'frequency_per_1k' in result
-        assert 'types_detected' in result
-        assert 'word_count' in result
+        assert "similes" in result
+        assert "metaphors" in result
+        assert "idioms" in result
+        assert "ai_cliches" in result
+        assert "total_figurative" in result
+        assert "frequency_per_1k" in result
+        assert "types_detected" in result
+        assert "word_count" in result
 
     def test_idiom_lexicon_loading(self, dimension):
         """Test idiom lexicon is loaded."""
@@ -526,17 +526,19 @@ class TestCoverage:
         assert len(dimension.idiom_lexicon) >= 90
 
         # If JSON lexicon loaded successfully, verify enhanced format
-        if hasattr(dimension, 'idiom_metadata') and len(dimension.idiom_metadata) > 1000:
+        if hasattr(dimension, "idiom_metadata") and len(dimension.idiom_metadata) > 1000:
             # Comprehensive JSON lexicon with SLIDE + EPIE + PIE + Domain (122)
             assert 5500 <= len(dimension.idiom_metadata) <= 7500  # ~7,217 with all variants as keys
-            assert 6000 <= len(dimension.idiom_lexicon) <= 7500   # ~7,416 idioms with all variants
+            assert 6000 <= len(dimension.idiom_lexicon) <= 7500  # ~7,416 idioms with all variants
 
             # Verify sentiment coverage from SLIDE
-            with_sentiment = sum(1 for m in dimension.idiom_metadata.values() if m.get('sentiment'))
+            with_sentiment = sum(1 for m in dimension.idiom_metadata.values() if m.get("sentiment"))
             assert with_sentiment >= 4000  # Should have ~4,993 with sentiment data (70%)
 
             # Verify domain-specific idioms are loaded
-            domain_idioms = sum(1 for m in dimension.idiom_metadata.values() if m.get('tier') == 'domain')
+            domain_idioms = sum(
+                1 for m in dimension.idiom_metadata.values() if m.get("tier") == "domain"
+            )
             assert domain_idioms >= 115  # Should have ~122 domain-specific idioms
         else:
             # Legacy txt format or defaults
@@ -545,7 +547,7 @@ class TestCoverage:
     def test_simile_patterns_compiled(self, dimension):
         """Test simile patterns are compiled."""
         assert len(dimension.simile_patterns) > 0
-        assert all(hasattr(p, 'finditer') for p in dimension.simile_patterns)
+        assert all(hasattr(p, "finditer") for p in dimension.simile_patterns)
 
 
 @pytest.mark.performance
@@ -562,7 +564,7 @@ class TestPerformance:
         elapsed = time.time() - start_time
 
         # Verify result is valid
-        assert result['available'] is True
+        assert result["available"] is True
 
         # Check performance target (< 45s relaxed for CI, target 6-15s locally)
         # Note: First run includes model loading overhead
@@ -592,13 +594,13 @@ class TestMonotonicScoringWithQualityAdjustments:
     def test_calculate_score_at_threshold_low(self, dimension):
         """Test base score at threshold_low (0.1 per 1k words, minimal adjustments)."""
         metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.1,
-                'types_detected': 0,
-                'total_figurative': 1,
-                'ai_cliches': []
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.1,
+                "types_detected": 0,
+                "total_figurative": 1,
+                "ai_cliches": [],
+            },
         }
         score = dimension.calculate_score(metrics)
 
@@ -608,13 +610,13 @@ class TestMonotonicScoringWithQualityAdjustments:
     def test_calculate_score_at_threshold_high(self, dimension):
         """Test base score at threshold_high (0.8 per 1k words, minimal adjustments)."""
         metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.8,
-                'types_detected': 0,
-                'total_figurative': 8,
-                'ai_cliches': []
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.8,
+                "types_detected": 0,
+                "total_figurative": 8,
+                "ai_cliches": [],
+            },
         }
         score = dimension.calculate_score(metrics)
 
@@ -625,25 +627,25 @@ class TestMonotonicScoringWithQualityAdjustments:
         """Test that variety bonus increases score."""
         # Base metrics
         base_metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.5,
-                'types_detected': 0,
-                'total_figurative': 5,
-                'ai_cliches': []
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.5,
+                "types_detected": 0,
+                "total_figurative": 5,
+                "ai_cliches": [],
+            },
         }
         base_score = dimension.calculate_score(base_metrics)
 
         # Metrics with variety (all 3 types detected)
         variety_metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.5,
-                'types_detected': 3,  # All types: similes, metaphors, idioms
-                'total_figurative': 5,
-                'ai_cliches': []
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.5,
+                "types_detected": 3,  # All types: similes, metaphors, idioms
+                "total_figurative": 5,
+                "ai_cliches": [],
+            },
         }
         variety_score = dimension.calculate_score(variety_metrics)
 
@@ -655,25 +657,25 @@ class TestMonotonicScoringWithQualityAdjustments:
         """Test that low cliché ratio increases score via novelty bonus."""
         # Metrics with no clichés (high novelty)
         novelty_metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.5,
-                'types_detected': 0,
-                'total_figurative': 10,
-                'ai_cliches': []  # No clichés = high novelty
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.5,
+                "types_detected": 0,
+                "total_figurative": 10,
+                "ai_cliches": [],  # No clichés = high novelty
+            },
         }
         novelty_score = dimension.calculate_score(novelty_metrics)
 
         # Metrics with clichés (low novelty)
         cliche_metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.5,
-                'types_detected': 0,
-                'total_figurative': 10,
-                'ai_cliches': ['delve'] * 10  # All clichés
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.5,
+                "types_detected": 0,
+                "total_figurative": 10,
+                "ai_cliches": ["delve"] * 10,  # All clichés
+            },
         }
         cliche_score = dimension.calculate_score(cliche_metrics)
 
@@ -684,25 +686,25 @@ class TestMonotonicScoringWithQualityAdjustments:
         """Test that AI clichés decrease score."""
         # Metrics with no clichés
         no_cliche_metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.5,
-                'types_detected': 0,
-                'total_figurative': 5,
-                'ai_cliches': []
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.5,
+                "types_detected": 0,
+                "total_figurative": 5,
+                "ai_cliches": [],
+            },
         }
         no_cliche_score = dimension.calculate_score(no_cliche_metrics)
 
         # Metrics with clichés (cliché penalty + reduced novelty bonus)
         cliche_metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.5,
-                'types_detected': 0,
-                'total_figurative': 5,
-                'ai_cliches': ['delve', 'underscores', 'showcasing', 'potential', 'crucial']
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.5,
+                "types_detected": 0,
+                "total_figurative": 5,
+                "ai_cliches": ["delve", "underscores", "showcasing", "potential", "crucial"],
+            },
         }
         cliche_score = dimension.calculate_score(cliche_metrics)
 
@@ -715,25 +717,25 @@ class TestMonotonicScoringWithQualityAdjustments:
         """Test score with all adjustments: variety bonus, novelty bonus, cliché penalty."""
         # Best case: high frequency, high variety, high novelty, no clichés
         best_metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 1.0,  # Above threshold_high
-                'types_detected': 3,  # All types
-                'total_figurative': 10,
-                'ai_cliches': []  # No clichés
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 1.0,  # Above threshold_high
+                "types_detected": 3,  # All types
+                "total_figurative": 10,
+                "ai_cliches": [],  # No clichés
+            },
         }
         best_score = dimension.calculate_score(best_metrics)
 
         # Worst case: low frequency, no variety, all clichés
         worst_metrics = {
-            'available': True,
-            'figurative_language': {
-                'frequency_per_1k': 0.0,  # Below threshold_low
-                'types_detected': 0,  # No variety
-                'total_figurative': 5,
-                'ai_cliches': ['delve'] * 5  # All clichés
-            }
+            "available": True,
+            "figurative_language": {
+                "frequency_per_1k": 0.0,  # Below threshold_low
+                "types_detected": 0,  # No variety
+                "total_figurative": 5,
+                "ai_cliches": ["delve"] * 5,  # All clichés
+            },
         }
         worst_score = dimension.calculate_score(worst_metrics)
 
@@ -748,13 +750,13 @@ class TestMonotonicScoringWithQualityAdjustments:
 
         for freq in human_freqs:
             metrics = {
-                'available': True,
-                'figurative_language': {
-                    'frequency_per_1k': freq,
-                    'types_detected': 2,  # Some variety
-                    'total_figurative': int(freq * 5),
-                    'ai_cliches': []  # No clichés
-                }
+                "available": True,
+                "figurative_language": {
+                    "frequency_per_1k": freq,
+                    "types_detected": 2,  # Some variety
+                    "total_figurative": int(freq * 5),
+                    "ai_cliches": [],  # No clichés
+                },
             }
             score = dimension.calculate_score(metrics)
 
@@ -767,13 +769,13 @@ class TestMonotonicScoringWithQualityAdjustments:
 
         for freq in ai_freqs:
             metrics = {
-                'available': True,
-                'figurative_language': {
-                    'frequency_per_1k': freq,
-                    'types_detected': 0,  # No variety
-                    'total_figurative': max(int(freq * 5), 1),
-                    'ai_cliches': ['delve', 'underscores']  # AI clichés
-                }
+                "available": True,
+                "figurative_language": {
+                    "frequency_per_1k": freq,
+                    "types_detected": 0,  # No variety
+                    "total_figurative": max(int(freq * 5), 1),
+                    "ai_cliches": ["delve", "underscores"],  # AI clichés
+                },
             }
             score = dimension.calculate_score(metrics)
 
@@ -784,22 +786,37 @@ class TestMonotonicScoringWithQualityAdjustments:
         """Test that all scores are clamped to valid 0-100 range."""
         test_cases = [
             # Extreme low
-            {'frequency_per_1k': 0.0, 'types_detected': 0, 'total_figurative': 5, 'ai_cliches': ['delve'] * 5},
+            {
+                "frequency_per_1k": 0.0,
+                "types_detected": 0,
+                "total_figurative": 5,
+                "ai_cliches": ["delve"] * 5,
+            },
             # Extreme high
-            {'frequency_per_1k': 5.0, 'types_detected': 3, 'total_figurative': 50, 'ai_cliches': []},
+            {
+                "frequency_per_1k": 5.0,
+                "types_detected": 3,
+                "total_figurative": 50,
+                "ai_cliches": [],
+            },
             # Mid range
-            {'frequency_per_1k': 0.5, 'types_detected': 1, 'total_figurative': 5, 'ai_cliches': ['delve']},
+            {
+                "frequency_per_1k": 0.5,
+                "types_detected": 1,
+                "total_figurative": 5,
+                "ai_cliches": ["delve"],
+            },
         ]
 
         for fig_lang in test_cases:
-            metrics = {'available': True, 'figurative_language': fig_lang}
+            metrics = {"available": True, "figurative_language": fig_lang}
             score = dimension.calculate_score(metrics)
 
             assert 0 <= score <= 100, f"Score {score} out of range for metrics {fig_lang}"
 
     def test_calculate_score_unavailable_data(self, dimension):
         """Test handling of unavailable data."""
-        metrics = {'available': False}
+        metrics = {"available": False}
         score = dimension.calculate_score(metrics)
 
         assert score == 50.0  # Neutral score for unavailable data
@@ -829,21 +846,21 @@ class TestIntegration:
         assert isinstance(tiers, dict)
 
         # Check result structure
-        assert 'figurative_language' in result
-        fig_lang = result['figurative_language']
-        assert 'similes' in fig_lang
-        assert 'metaphors' in fig_lang
-        assert 'idioms' in fig_lang
-        assert 'ai_cliches' in fig_lang
+        assert "figurative_language" in result
+        fig_lang = result["figurative_language"]
+        assert "similes" in fig_lang
+        assert "metaphors" in fig_lang
+        assert "idioms" in fig_lang
+        assert "ai_cliches" in fig_lang
 
     def test_registry_integration(self, dimension):
         """Test dimension registry integration."""
         from writescore.core.dimension_registry import DimensionRegistry
 
         # Verify dimension is registered
-        assert DimensionRegistry.has('figurative_language')
+        assert DimensionRegistry.has("figurative_language")
 
         # Get from registry
-        dim = DimensionRegistry.get('figurative_language')
-        assert dim.dimension_name == 'figurative_language'
+        dim = DimensionRegistry.get("figurative_language")
+        assert dim.dimension_name == "figurative_language"
         assert dim.weight == 2.8  # rebalanced to 100% total

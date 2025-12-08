@@ -76,26 +76,29 @@ class TestAnalyzeMethod:
 
     def test_analyze_returns_lexical_metrics_only(self, dimension):
         """Test analyze() collects ONLY advanced lexical metrics (no GLTR)."""
-        text = """
+        text = (
+            """
         The quick brown fox jumps over the lazy dog. This sentence demonstrates
         various words with different frequencies and patterns. Additional vocabulary
         provides examples for lexical diversity analysis.
-        """ * 10  # Repeat to ensure enough text
+        """
+            * 10
+        )  # Repeat to ensure enough text
 
         result = dimension.analyze(text)
 
         # Should contain advanced lexical metrics
-        assert 'hdd_score' in result
-        assert 'yules_k' in result
-        assert 'mattr' in result
-        assert 'rttr' in result
-        assert 'available' in result
+        assert "hdd_score" in result
+        assert "yules_k" in result
+        assert "mattr" in result
+        assert "rttr" in result
+        assert "available" in result
 
         # Should NOT contain GLTR metrics (those belong in PredictabilityDimension)
-        assert 'gltr_top10_percentage' not in result
-        assert 'gltr_top100_percentage' not in result
-        assert 'gltr_mean_rank' not in result
-        assert 'gltr_likelihood' not in result
+        assert "gltr_top10_percentage" not in result
+        assert "gltr_top100_percentage" not in result
+        assert "gltr_mean_rank" not in result
+        assert "gltr_likelihood" not in result
 
     def test_analyze_includes_maas_score(self, dimension):
         """Test analyze() includes Maas score (length-corrected TTR)."""
@@ -103,25 +106,25 @@ class TestAnalyzeMethod:
         result = dimension.analyze(text)
 
         # Maas comes from _calculate_advanced_lexical_diversity
-        assert 'maas_score' in result
+        assert "maas_score" in result
 
     def test_analyze_includes_vocab_concentration(self, dimension):
         """Test analyze() includes vocabulary concentration metric."""
         text = "word " * 100
         result = dimension.analyze(text)
 
-        assert 'vocab_concentration' in result
+        assert "vocab_concentration" in result
 
     def test_analyze_sets_available_flag(self, dimension):
         """Test analyze() sets 'available' flag."""
         result = dimension.analyze("Sample text for analysis.")
-        assert 'available' in result
-        assert result['available'] is True
+        assert "available" in result
+        assert result["available"] is True
 
     def test_analyze_handles_empty_text(self, dimension):
         """Test analyze() handles empty text gracefully."""
         result = dimension.analyze("")
-        assert 'available' in result
+        assert "available" in result
 
 
 class TestCalculateScoreMethod:
@@ -132,31 +135,21 @@ class TestCalculateScoreMethod:
 
     def test_score_handles_none_hdd(self, dimension):
         """Test score when HDD is None (text too short)."""
-        metrics = {
-            'available': True,
-            'hdd_score': None,
-            'yules_k': 100.0
-        }
+        metrics = {"available": True, "hdd_score": None, "yules_k": 100.0}
         score = dimension.calculate_score(metrics)
 
         assert 0.0 <= score <= 100.0  # Should use default value (0.5)
 
     def test_score_handles_none_yules_k(self, dimension):
         """Test score when Yule's K is None."""
-        metrics = {
-            'available': True,
-            'hdd_score': 0.5,
-            'yules_k': None
-        }
+        metrics = {"available": True, "hdd_score": 0.5, "yules_k": None}
         score = dimension.calculate_score(metrics)
 
         assert 0.0 <= score <= 100.0  # Should use default value (100.0)
 
     def test_score_unavailable_data(self, dimension):
         """Test score when data unavailable."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         score = dimension.calculate_score(metrics)
 
         assert score == 50.0  # Neutral score for unavailable data
@@ -164,13 +157,13 @@ class TestCalculateScoreMethod:
     def test_score_validates_range(self, dimension):
         """Test score is always in valid 0-100 range."""
         test_cases = [
-            {'hdd_score': 0.0, 'yules_k': 500.0},
-            {'hdd_score': 0.5, 'yules_k': 100.0},
-            {'hdd_score': 0.9, 'yules_k': 30.0},
+            {"hdd_score": 0.0, "yules_k": 500.0},
+            {"hdd_score": 0.5, "yules_k": 100.0},
+            {"hdd_score": 0.9, "yules_k": 30.0},
         ]
 
         for metrics_case in test_cases:
-            metrics = {'available': True, **metrics_case}
+            metrics = {"available": True, **metrics_case}
             score = dimension.calculate_score(metrics)
             assert 0.0 <= score <= 100.0
 
@@ -180,25 +173,15 @@ class TestGetRecommendations:
 
     def test_recommendations_for_low_hdd(self, dimension):
         """Test recommendations when HDD is low (<0.7)."""
-        metrics = {
-            'available': True,
-            'hdd_score': 0.5,
-            'yules_k': 80.0,
-            'mattr': 0.70
-        }
+        metrics = {"available": True, "hdd_score": 0.5, "yules_k": 80.0, "mattr": 0.70}
         recommendations = dimension.get_recommendations(75.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('hdd' in rec.lower() or 'diversity' in rec.lower() for rec in recommendations)
+        assert any("hdd" in rec.lower() or "diversity" in rec.lower() for rec in recommendations)
 
     def test_recommendations_for_high_yules_k(self, dimension):
         """Test recommendations when Yule's K is high (>50)."""
-        metrics = {
-            'available': True,
-            'hdd_score': 0.7,
-            'yules_k': 120.0,
-            'mattr': 0.70
-        }
+        metrics = {"available": True, "hdd_score": 0.7, "yules_k": 120.0, "mattr": 0.70}
         recommendations = dimension.get_recommendations(50.0, metrics)
 
         assert len(recommendations) > 0
@@ -206,39 +189,29 @@ class TestGetRecommendations:
 
     def test_recommendations_for_low_mattr(self, dimension):
         """Test recommendations when MATTR is low (<0.70)."""
-        metrics = {
-            'available': True,
-            'hdd_score': 0.7,
-            'yules_k': 40.0,
-            'mattr': 0.60
-        }
+        metrics = {"available": True, "hdd_score": 0.7, "yules_k": 40.0, "mattr": 0.60}
         recommendations = dimension.get_recommendations(75.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('mattr' in rec.lower() for rec in recommendations)
+        assert any("mattr" in rec.lower() for rec in recommendations)
 
     def test_recommendations_for_excellent_diversity(self, dimension):
         """Test recommendations when diversity is excellent."""
-        metrics = {
-            'available': True,
-            'hdd_score': 0.8,
-            'yules_k': 40.0,
-            'mattr': 0.75
-        }
+        metrics = {"available": True, "hdd_score": 0.8, "yules_k": 40.0, "mattr": 0.75}
         recommendations = dimension.get_recommendations(100.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('excellent' in rec.lower() for rec in recommendations)
+        assert any("excellent" in rec.lower() for rec in recommendations)
 
     def test_recommendations_unavailable_data(self, dimension):
         """Test recommendations when data unavailable."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         recommendations = dimension.get_recommendations(50.0, metrics)
 
         assert len(recommendations) > 0
-        assert any('unavailable' in rec.lower() or 'install' in rec.lower() for rec in recommendations)
+        assert any(
+            "unavailable" in rec.lower() or "install" in rec.lower() for rec in recommendations
+        )
 
 
 class TestGetTiers:
@@ -249,16 +222,16 @@ class TestGetTiers:
         tiers = dimension.get_tiers()
 
         assert isinstance(tiers, dict)
-        assert 'excellent' in tiers
-        assert 'good' in tiers
-        assert 'acceptable' in tiers
-        assert 'poor' in tiers
+        assert "excellent" in tiers
+        assert "good" in tiers
+        assert "acceptable" in tiers
+        assert "poor" in tiers
 
     def test_tier_ranges(self, dimension):
         """Test tier ranges are properly defined."""
         tiers = dimension.get_tiers()
 
-        excellent_min, excellent_max = tiers['excellent']
+        excellent_min, excellent_max = tiers["excellent"]
         assert excellent_min == 90.0
         assert excellent_max == 100.0
 
@@ -283,9 +256,9 @@ class TestAdvancedLexicalDiversityCalculation:
 
         result = dimension._calculate_advanced_lexical_diversity(text)
 
-        assert 'hdd_score' in result
-        if result.get('hdd_score') is not None:
-            assert 0.0 <= result['hdd_score'] <= 1.0
+        assert "hdd_score" in result
+        if result.get("hdd_score") is not None:
+            assert 0.0 <= result["hdd_score"] <= 1.0
 
     def test_yules_k_calculation(self, dimension):
         """Test Yule's K calculation."""
@@ -306,10 +279,10 @@ class TestAdvancedLexicalDiversityCalculation:
 
         result = dimension._calculate_advanced_lexical_diversity(text)
 
-        assert 'yules_k' in result
-        if result.get('yules_k') is not None:
+        assert "yules_k" in result
+        if result.get("yules_k") is not None:
             # Yule's K can be negative for perfect diversity, positive for typical text
-            assert isinstance(result['yules_k'], (int, float))
+            assert isinstance(result["yules_k"], (int, float))
 
     def test_maas_calculation(self, dimension):
         """Test Maas score calculation."""
@@ -326,7 +299,7 @@ class TestAdvancedLexicalDiversityCalculation:
 
         result = dimension._calculate_advanced_lexical_diversity(text)
 
-        assert 'maas_score' in result
+        assert "maas_score" in result
 
     def test_vocab_concentration_calculation(self, dimension):
         """Test vocabulary concentration calculation."""
@@ -343,9 +316,9 @@ class TestAdvancedLexicalDiversityCalculation:
 
         result = dimension._calculate_advanced_lexical_diversity(text)
 
-        assert 'vocab_concentration' in result
-        if result.get('vocab_concentration') is not None:
-            assert 0.0 <= result['vocab_concentration'] <= 1.0
+        assert "vocab_concentration" in result
+        if result.get("vocab_concentration") is not None:
+            assert 0.0 <= result["vocab_concentration"] <= 1.0
 
     def test_handles_short_text(self, dimension):
         """Test handling of text too short for reliable metrics (<50 words)."""
@@ -357,14 +330,17 @@ class TestAdvancedLexicalDiversityCalculation:
 
     def test_handles_code_blocks(self, dimension):
         """Test removal of code blocks before analysis."""
-        text_with_code = """
+        text_with_code = (
+            """
         Here is some text with variety.
         ```python
         def foo():
             pass
         ```
         More diverse content here.
-        """ * 10
+        """
+            * 10
+        )
 
         result = dimension._calculate_advanced_lexical_diversity(text_with_code)
         assert isinstance(result, dict)
@@ -373,7 +349,7 @@ class TestAdvancedLexicalDiversityCalculation:
 class TestTextacyLexicalDiversityCalculation:
     """Tests for _calculate_textacy_lexical_diversity() helper method."""
 
-    @patch('writescore.dimensions.advanced_lexical.nlp_spacy')
+    @patch("writescore.dimensions.advanced_lexical.nlp_spacy")
     def test_mattr_calculation(self, mock_nlp, dimension):
         """Test MATTR calculation."""
         # Mock spacy doc with iterable tokens for RTTR calculation
@@ -391,27 +367,29 @@ class TestTextacyLexicalDiversityCalculation:
         mock_doc.__iter__ = Mock(return_value=iter([mock_token1, mock_token2]))
         mock_nlp.return_value = mock_doc
 
-        with patch('writescore.dimensions.advanced_lexical.diversity.segmented_ttr', return_value=0.72):
+        with patch(
+            "writescore.dimensions.advanced_lexical.diversity.segmented_ttr", return_value=0.72
+        ):
             result = dimension._calculate_textacy_lexical_diversity("Sample text")
 
-            assert 'mattr' in result
-            assert result['mattr'] == 0.72
+            assert "mattr" in result
+            assert result["mattr"] == 0.72
 
     def test_rttr_calculation(self, dimension):
         """Test RTTR (Root Type-Token Ratio) calculation."""
         text = " ".join([f"word{i}" for i in range(100)])
         result = dimension._calculate_textacy_lexical_diversity(text)
 
-        assert 'rttr' in result
-        if result.get('rttr', 0) > 0:
-            assert result['rttr'] > 0
+        assert "rttr" in result
+        if result.get("rttr", 0) > 0:
+            assert result["rttr"] > 0
 
     def test_handles_errors_gracefully(self, dimension):
         """Test error handling when textacy fails."""
         result = dimension._calculate_textacy_lexical_diversity("")
 
-        assert 'available' in result
-        assert 'mattr' in result
+        assert "available" in result
+        assert "mattr" in result
 
 
 class TestLogitGaussianScoring:
@@ -420,8 +398,8 @@ class TestLogitGaussianScoring:
     def test_calculate_score_at_optimal(self, dimension):
         """Test scoring at optimal HDD (≈0.73, logit ≈ 1.0)."""
         metrics = {
-            'available': True,
-            'hdd_score': 0.73  # Optimal (logit ≈ 1.0)
+            "available": True,
+            "hdd_score": 0.73,  # Optimal (logit ≈ 1.0)
         }
         score = dimension.calculate_score(metrics)
 
@@ -439,21 +417,17 @@ class TestLogitGaussianScoring:
         ]
 
         for hdd in test_cases:
-            metrics = {
-                'available': True,
-                'hdd_score': hdd
-            }
+            metrics = {"available": True, "hdd_score": hdd}
             score = dimension.calculate_score(metrics)
 
             # Within 1σ should score 58-95 (allowing slight rounding)
-            assert 58.0 <= score <= 95.0, \
-                f"HDD {hdd} scored {score}, expected 58-95 (within 1σ)"
+            assert 58.0 <= score <= 95.0, f"HDD {hdd} scored {score}, expected 58-95 (within 1σ)"
 
     def test_calculate_score_high_diversity(self, dimension):
         """Test scoring with high HDD (human-like)."""
         metrics = {
-            'available': True,
-            'hdd_score': 0.80  # High diversity (human-like)
+            "available": True,
+            "hdd_score": 0.80,  # High diversity (human-like)
         }
         score = dimension.calculate_score(metrics)
 
@@ -463,8 +437,8 @@ class TestLogitGaussianScoring:
     def test_calculate_score_low_diversity(self, dimension):
         """Test scoring with low HDD (AI-like)."""
         metrics = {
-            'available': True,
-            'hdd_score': 0.45  # Low diversity (AI-like)
+            "available": True,
+            "hdd_score": 0.45,  # Low diversity (AI-like)
         }
         score = dimension.calculate_score(metrics)
 
@@ -474,8 +448,8 @@ class TestLogitGaussianScoring:
     def test_calculate_score_very_low_diversity(self, dimension):
         """Test scoring with very low HDD (strong AI signal)."""
         metrics = {
-            'available': True,
-            'hdd_score': 0.30  # Very low diversity
+            "available": True,
+            "hdd_score": 0.30,  # Very low diversity
         }
         score = dimension.calculate_score(metrics)
 
@@ -485,8 +459,8 @@ class TestLogitGaussianScoring:
     def test_calculate_score_boundary_near_zero(self, dimension):
         """Test scoring near lower boundary (HDD ≈ 0)."""
         metrics = {
-            'available': True,
-            'hdd_score': 0.05  # Near 0
+            "available": True,
+            "hdd_score": 0.05,  # Near 0
         }
         score = dimension.calculate_score(metrics)
 
@@ -496,8 +470,8 @@ class TestLogitGaussianScoring:
     def test_calculate_score_boundary_near_one(self, dimension):
         """Test scoring near upper boundary (HDD ≈ 1)."""
         metrics = {
-            'available': True,
-            'hdd_score': 0.95  # Near 1
+            "available": True,
+            "hdd_score": 0.95,  # Near 1
         }
         score = dimension.calculate_score(metrics)
 
@@ -510,16 +484,14 @@ class TestLogitGaussianScoring:
         scores = []
 
         for hdd in hdd_values:
-            metrics = {
-                'available': True,
-                'hdd_score': hdd
-            }
+            metrics = {"available": True, "hdd_score": hdd}
             scores.append(dimension.calculate_score(metrics))
 
         # Scores should increase as we approach optimal from below
         for i in range(len(scores) - 1):
-            assert scores[i] <= scores[i+1], \
-                f"Score should increase toward optimal: {scores[i]} <= {scores[i+1]} (HDD {hdd_values[i]} vs {hdd_values[i+1]})"
+            assert (
+                scores[i] <= scores[i + 1]
+            ), f"Score should increase toward optimal: {scores[i]} <= {scores[i+1]} (HDD {hdd_values[i]} vs {hdd_values[i+1]})"
 
     def test_calculate_score_monotonic_above_optimal(self, dimension):
         """Test that score decreases as HDD moves away from optimal above."""
@@ -527,34 +499,27 @@ class TestLogitGaussianScoring:
         scores = []
 
         for hdd in hdd_values:
-            metrics = {
-                'available': True,
-                'hdd_score': hdd
-            }
+            metrics = {"available": True, "hdd_score": hdd}
             scores.append(dimension.calculate_score(metrics))
 
         # Scores should decrease as we move away from optimal
         for i in range(len(scores) - 1):
-            assert scores[i] >= scores[i+1], \
-                f"Score should decrease from optimal: {scores[i]} >= {scores[i+1]} (HDD {hdd_values[i]} vs {hdd_values[i+1]})"
+            assert (
+                scores[i] >= scores[i + 1]
+            ), f"Score should decrease from optimal: {scores[i]} >= {scores[i+1]} (HDD {hdd_values[i]} vs {hdd_values[i+1]})"
 
     def test_calculate_score_validates_range(self, dimension):
         """Test that all scores are in valid 0-100 range."""
         test_hdds = [0.01, 0.20, 0.50, 0.73, 0.85, 0.95, 0.99]
 
         for hdd in test_hdds:
-            metrics = {
-                'available': True,
-                'hdd_score': hdd
-            }
+            metrics = {"available": True, "hdd_score": hdd}
             score = dimension.calculate_score(metrics)
             assert 0.0 <= score <= 100.0, f"Score {score} for HDD={hdd} out of range"
 
     def test_calculate_score_unavailable_data(self, dimension):
         """Test fallback score when data unavailable."""
-        metrics = {
-            'available': False
-        }
+        metrics = {"available": False}
         score = dimension.calculate_score(metrics)
 
         # Should return neutral 50.0 when data unavailable
@@ -563,8 +528,8 @@ class TestLogitGaussianScoring:
     def test_calculate_score_none_hdd(self, dimension):
         """Test fallback when HDD is None (text too short)."""
         metrics = {
-            'available': True,
-            'hdd_score': None  # Text too short for HDD calculation
+            "available": True,
+            "hdd_score": None,  # Text too short for HDD calculation
         }
         score = dimension.calculate_score(metrics)
 
