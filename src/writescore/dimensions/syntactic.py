@@ -20,15 +20,13 @@ import statistics
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
-# Required imports
-import spacy
-
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.core.results import SyntacticIssue
 from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
+from writescore.utils import load_spacy_model
 
-nlp_spacy = spacy.load("en_core_web_sm")
+nlp_spacy = load_spacy_model("en_core_web_sm")
 
 
 class SyntacticDimension(DimensionStrategy):

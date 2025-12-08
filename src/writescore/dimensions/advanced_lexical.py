@@ -23,15 +23,15 @@ import sys
 from collections import Counter
 from typing import Any, Dict, List, Optional, Tuple
 
-import spacy
 from scipy.stats import hypergeom
 from textacy.text_stats import diversity
 
 from writescore.core.analysis_config import DEFAULT_CONFIG, AnalysisConfig
 from writescore.core.dimension_registry import DimensionRegistry
 from writescore.dimensions.base_strategy import DimensionStrategy, DimensionTier
+from writescore.utils import load_spacy_model
 
-nlp_spacy = spacy.load("en_core_web_sm")
+nlp_spacy = load_spacy_model("en_core_web_sm")
 
 
 class AdvancedLexicalDimension(DimensionStrategy):
