@@ -28,8 +28,8 @@ class TestLoadSpacyModel:
         assert doc[0].text == "This"
 
     @patch("writescore.utils.spacy_loader.spacy.load")
-    @patch("writescore.utils.spacy_loader.subprocess.check_call")
-    def test_load_spacy_model_downloads_if_missing(self, mock_check_call, mock_load):
+    @patch("writescore.utils.spacy_loader.download")
+    def test_load_spacy_model_downloads_if_missing(self, mock_download, mock_load):
         """Test that the loader downloads the model if not found."""
         # First call raises OSError (model not found), second call succeeds
         mock_nlp = MagicMock()
@@ -39,29 +39,21 @@ class TestLoadSpacyModel:
 
         result = load_spacy_model("en_core_web_sm")
 
-        assert mock_check_call.called
+        mock_download.assert_called_once_with("en_core_web_sm")
         assert result == mock_nlp
         assert mock_load.call_count == 2
 
     @patch("writescore.utils.spacy_loader.spacy.load")
-    @patch("writescore.utils.spacy_loader.subprocess.check_call")
-    def test_load_spacy_model_download_command(self, mock_check_call, mock_load):
-        """Test that the download command uses correct arguments."""
-        import sys
-
+    @patch("writescore.utils.spacy_loader.download")
+    def test_load_spacy_model_download_calls_spacy_cli(self, mock_download, mock_load):
+        """Test that the download uses spacy.cli.download."""
         mock_load.side_effect = [OSError("Model not found"), MagicMock()]
 
         from writescore.utils.spacy_loader import load_spacy_model
 
         load_spacy_model("test_model")
 
-        mock_check_call.assert_called_once()
-        call_args = mock_check_call.call_args[0][0]
-        assert call_args[0] == sys.executable
-        assert call_args[1] == "-m"
-        assert call_args[2] == "spacy"
-        assert call_args[3] == "download"
-        assert call_args[4] == "test_model"
+        mock_download.assert_called_once_with("test_model")
 
     def test_load_spacy_model_default_model(self):
         """Test that the default model is en_core_web_sm."""

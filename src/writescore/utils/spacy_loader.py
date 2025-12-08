@@ -2,10 +2,8 @@
 Utility for loading spacy models with automatic download.
 """
 
-import subprocess
-import sys
-
 import spacy
+from spacy.cli import download
 
 
 def load_spacy_model(model_name: str = "en_core_web_sm"):
@@ -21,9 +19,5 @@ def load_spacy_model(model_name: str = "en_core_web_sm"):
     try:
         return spacy.load(model_name)
     except OSError:
-        subprocess.check_call(
-            [sys.executable, "-m", "spacy", "download", model_name],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
+        download(model_name)
         return spacy.load(model_name)
