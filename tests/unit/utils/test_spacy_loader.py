@@ -28,7 +28,7 @@ class TestLoadSpacyModel:
         assert doc[0].text == "This"
 
     @patch("writescore.utils.spacy_loader.spacy.load")
-    @patch("writescore.utils.spacy_loader.download")
+    @patch("writescore.utils.spacy_loader._download_model")
     def test_load_spacy_model_downloads_if_missing(self, mock_download, mock_load):
         """Test that the loader downloads the model if not found."""
         # First call raises OSError (model not found), second call succeeds
@@ -43,17 +43,39 @@ class TestLoadSpacyModel:
         assert result == mock_nlp
         assert mock_load.call_count == 2
 
-    @patch("writescore.utils.spacy_loader.spacy.load")
-    @patch("writescore.utils.spacy_loader.download")
-    def test_load_spacy_model_download_calls_spacy_cli(self, mock_download, mock_load):
-        """Test that the download uses spacy.cli.download."""
-        mock_load.side_effect = [OSError("Model not found"), MagicMock()]
+    @patch("writescore.utils.spacy_loader.subprocess.run")
+    @patch("writescore.utils.spacy_loader.shutil.which")
+    def test_download_model_uses_uv_when_available(self, mock_which, mock_run):
+        """Test that _download_model uses uv when available."""
+        mock_which.return_value = "/usr/bin/uv"
 
-        from writescore.utils.spacy_loader import load_spacy_model
+        from writescore.utils.spacy_loader import _download_model
 
-        load_spacy_model("test_model")
+        _download_model("test_model")
 
-        mock_download.assert_called_once_with("test_model")
+        mock_run.assert_called_once()
+        cmd = mock_run.call_args[0][0]
+        assert cmd[0] == "uv"
+        assert cmd[1] == "pip"
+        assert cmd[2] == "install"
+        assert cmd[3] == "test_model"
+
+    @patch("writescore.utils.spacy_loader.subprocess.run")
+    @patch("writescore.utils.spacy_loader.shutil.which")
+    def test_download_model_falls_back_to_pip(self, mock_which, mock_run):
+        """Test that _download_model falls back to pip when uv not available."""
+        mock_which.return_value = None
+
+        from writescore.utils.spacy_loader import _download_model
+
+        _download_model("test_model")
+
+        mock_run.assert_called_once()
+        cmd = mock_run.call_args[0][0]
+        assert cmd[1] == "-m"
+        assert cmd[2] == "pip"
+        assert cmd[3] == "install"
+        assert cmd[4] == "test_model"
 
     def test_load_spacy_model_default_model(self):
         """Test that the default model is en_core_web_sm."""

@@ -2,8 +2,11 @@
 Utility for loading spacy models with automatic download.
 """
 
+import shutil
+import subprocess
+import sys
+
 import spacy
-from spacy.cli import download
 
 
 def load_spacy_model(model_name: str = "en_core_web_sm"):
@@ -19,5 +22,23 @@ def load_spacy_model(model_name: str = "en_core_web_sm"):
     try:
         return spacy.load(model_name)
     except OSError:
-        download(model_name)
+        _download_model(model_name)
         return spacy.load(model_name)
+
+
+def _download_model(model_name: str) -> None:
+    """Download a spacy model using available tools (uv or pip)."""
+    # Try uv first (faster, works in uv environments)
+    if shutil.which("uv"):
+        subprocess.run(
+            ["uv", "pip", "install", model_name],
+            check=True,
+            capture_output=True,
+        )
+    else:
+        # Fall back to pip via spacy's CLI
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", model_name],
+            check=True,
+            capture_output=True,
+        )
