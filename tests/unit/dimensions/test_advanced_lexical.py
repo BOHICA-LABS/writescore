@@ -197,7 +197,8 @@ class TestGetRecommendations:
 
     def test_recommendations_for_excellent_diversity(self, dimension):
         """Test recommendations when diversity is excellent."""
-        metrics = {"available": True, "hdd_score": 0.8, "yules_k": 40.0, "mattr": 0.75}
+        # HDD > 0.85 and Yule's K < 50 triggers excellent recommendation
+        metrics = {"available": True, "hdd_score": 0.90, "yules_k": 40.0, "mattr": 0.75}
         recommendations = dimension.get_recommendations(100.0, metrics)
 
         assert len(recommendations) > 0
@@ -393,13 +394,18 @@ class TestTextacyLexicalDiversityCalculation:
 
 
 class TestLogitGaussianScoring:
-    """Tests for logit+Gaussian scoring migration (Story 2.4.1, AC6)."""
+    """Tests for logit+Gaussian scoring migration (Story 2.4.1, AC6).
+
+    Updated for corrected HDD formula (Story 2.4.1):
+    - Target μ=2.2 (logit space, corresponds to HDD ≈ 0.90)
+    - Width σ=0.8 (wider tolerance for natural variation)
+    """
 
     def test_calculate_score_at_optimal(self, dimension):
-        """Test scoring at optimal HDD (≈0.73, logit ≈ 1.0)."""
+        """Test scoring at optimal HDD (≈0.90, logit ≈ 2.2)."""
         metrics = {
             "available": True,
-            "hdd_score": 0.73,  # Optimal (logit ≈ 1.0)
+            "hdd_score": 0.90,  # Optimal (logit ≈ 2.2)
         }
         score = dimension.calculate_score(metrics)
 
@@ -407,32 +413,32 @@ class TestLogitGaussianScoring:
         assert 95.0 <= score <= 100.0
 
     def test_calculate_score_within_one_sigma(self, dimension):
-        """Test scoring within ±1σ of optimal (μ=1.0, σ=0.5)."""
-        # σ=0.5 in logit space
-        # μ-σ ≈ 0.5 → HDD ≈ 0.62
-        # μ+σ ≈ 1.5 → HDD ≈ 0.82
+        """Test scoring within ±1σ of optimal (μ=2.2, σ=0.8)."""
+        # σ=0.8 in logit space
+        # μ-σ = 1.4 → HDD ≈ 0.80
+        # μ+σ = 3.0 → HDD ≈ 0.95
         test_cases = [
-            0.62,  # μ-σ
-            0.82,  # μ+σ
+            0.80,  # μ-σ
+            0.95,  # μ+σ
         ]
 
         for hdd in test_cases:
             metrics = {"available": True, "hdd_score": hdd}
             score = dimension.calculate_score(metrics)
 
-            # Within 1σ should score 58-95 (allowing slight rounding)
-            assert 58.0 <= score <= 95.0, f"HDD {hdd} scored {score}, expected 58-95 (within 1σ)"
+            # Within 1σ should score reasonably high (58-100)
+            assert 58.0 <= score <= 100.0, f"HDD {hdd} scored {score}, expected 58-100 (within 1σ)"
 
     def test_calculate_score_high_diversity(self, dimension):
         """Test scoring with high HDD (human-like)."""
         metrics = {
             "available": True,
-            "hdd_score": 0.80,  # High diversity (human-like)
+            "hdd_score": 0.85,  # High diversity (human-like)
         }
         score = dimension.calculate_score(metrics)
 
-        # High HDD should score high (allowing slight rounding)
-        assert 74.0 <= score <= 100.0
+        # High HDD should score high
+        assert 70.0 <= score <= 100.0
 
     def test_calculate_score_low_diversity(self, dimension):
         """Test scoring with low HDD (AI-like)."""
@@ -475,12 +481,12 @@ class TestLogitGaussianScoring:
         }
         score = dimension.calculate_score(metrics)
 
-        # Near 1 is far above optimal (0.73), should score lower
-        assert 0.0 <= score <= 70.0
+        # Near 1 (logit ≈ 3.0) is within 1σ of optimal, should score well
+        assert 50.0 <= score <= 100.0
 
     def test_calculate_score_monotonic_below_optimal(self, dimension):
         """Test that score increases as HDD approaches optimal from below."""
-        hdd_values = [0.30, 0.45, 0.60, 0.73]
+        hdd_values = [0.30, 0.45, 0.60, 0.75, 0.90]
         scores = []
 
         for hdd in hdd_values:
@@ -495,7 +501,8 @@ class TestLogitGaussianScoring:
 
     def test_calculate_score_monotonic_above_optimal(self, dimension):
         """Test that score decreases as HDD moves away from optimal above."""
-        hdd_values = [0.73, 0.80, 0.90, 0.95]
+        # With optimal at 0.90, scores above should decrease
+        hdd_values = [0.90, 0.95, 0.98, 0.99]
         scores = []
 
         for hdd in hdd_values:
