@@ -37,11 +37,11 @@ test-cov:
 
 # Run specific test file
 test-file FILE:
-    uv run pytest {{FILE}} -v
+    uv run pytest {{ FILE }} -v
 
 # Run tests matching a pattern
 test-match PATTERN:
-    uv run pytest -k "{{PATTERN}}" -v
+    uv run pytest -k "{{ PATTERN }}" -v
 
 # === Linting & Formatting ===
 
@@ -76,21 +76,21 @@ pre-commit-update:
 
 # Analyze a file
 analyze FILE:
-    uv run writescore analyze {{FILE}}
+    uv run writescore analyze {{ FILE }}
 
 # Analyze with full mode and detailed output
 analyze-full FILE:
-    uv run writescore analyze {{FILE}} --mode full --detailed
+    uv run writescore analyze {{ FILE }} --mode full --detailed
 
 # Analyze with scores shown
 analyze-scores FILE:
-    uv run writescore analyze {{FILE}} --show-scores
+    uv run writescore analyze {{ FILE }} --show-scores
 
 # === Documentation ===
 
 # Shard a document using md-tree
 shard-doc DOC OUTPUT:
-    md-tree explode {{DOC}} {{OUTPUT}}
+    md-tree explode {{ DOC }} {{ OUTPUT }}
 
 # === Utilities ===
 
