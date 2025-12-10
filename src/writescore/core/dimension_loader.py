@@ -33,6 +33,7 @@ DIMENSION_MODULE_MAP = {
     "figurative_language": "writescore.dimensions.figurative_language",
     "semantic_coherence": "writescore.dimensions.semantic_coherence",
     "ai_vocabulary": "writescore.dimensions.ai_vocabulary",
+    "energy": "writescore.dimensions.energy",
 }
 
 # Built-in dimension profiles
