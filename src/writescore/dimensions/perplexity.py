@@ -89,8 +89,8 @@ class PerplexityDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (2.8% of total score)."""
-        return 2.8
+        """Return dimension weight (3.0% of total score)."""
+        return 3.0
 
     @property
     def tier(self) -> DimensionTier:

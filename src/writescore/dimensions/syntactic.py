@@ -59,8 +59,8 @@ class SyntacticDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (1.8% of total score)."""
-        return 1.8
+        """Return dimension weight (2.0% of total score)."""
+        return 2.0
 
     @property
     def tier(self) -> DimensionTier:

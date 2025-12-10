@@ -97,8 +97,8 @@ class TransitionMarkerDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (5.5% of total score)."""
-        return 5.5
+        """Return dimension weight (5.0% of total score)."""
+        return 5.0
 
     @property
     def tier(self) -> DimensionTier:
