@@ -17,6 +17,8 @@ Extension Points:
 import contextlib
 import os
 import sys
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as get_version
 from pathlib import Path
 
 import click
@@ -25,23 +27,32 @@ import click
 # (common with pytest, multiprocessing, or CLI usage)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-from writescore.cli.formatters import (
+from writescore.cli.formatters import (  # noqa: E402
     format_detailed_report,
     format_report,
 )
-from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
-from writescore.core.analyzer import AIPatternAnalyzer
-from writescore.core.deployment import (
+from writescore.core.analysis_config import AnalysisConfig, AnalysisMode  # noqa: E402
+from writescore.core.analyzer import AIPatternAnalyzer  # noqa: E402
+from writescore.core.deployment import (  # noqa: E402
     ParameterComparator,
     ParameterVersionManager,
     format_version_list,
     generate_deployment_checklist,
 )
-from writescore.core.interpretability import (
+from writescore.core.interpretability import (  # noqa: E402
     ScoreInterpretation,
     ScoreInterpreter,
     format_percentile_report,
 )
+
+
+def _get_version() -> str:
+    """Get version, with fallback for PyInstaller bundled executables."""
+    try:
+        return get_version("writescore")
+    except PackageNotFoundError:
+        # Fallback for PyInstaller - version not available in frozen apps
+        return "6.4.0"
 
 
 def parse_domain_terms(domain_terms_str: str):
@@ -696,7 +707,7 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
 
 # Click group for multiple commands
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
-@click.version_option(package_name="writescore", prog_name="writescore")
+@click.version_option(version=_get_version(), prog_name="writescore")
 def cli():
     """WriteScore - AI Pattern Analysis and Parameter Calibration.
 
