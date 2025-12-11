@@ -57,7 +57,7 @@ repos:
       - id: check-json
       - id: check-merge-conflict
       - id: check-added-large-files
-        args: ['--maxkb=1500']  # Increased for uv.lock (~1MB)
+        args: ['--maxkb=4000']  # Increased for uv.lock and lexicon data files
       # Git Flow: Prevent direct commits to main (must use PR)
       - id: no-commit-to-branch
         args: ['--branch', 'main']
