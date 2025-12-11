@@ -5,6 +5,7 @@
 import os
 import sys
 from pathlib import Path
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 # Find the package location
 import writescore
@@ -34,6 +35,10 @@ for path in nltk.data.path:
     if p.exists() and (p / 'tokenizers').exists():
         nltk_data_path = p
         break
+
+# Find textstat resources
+import textstat
+textstat_path = Path(textstat.__file__).parent
 
 block_cipher = None
 
@@ -73,6 +78,7 @@ hidden_imports = [
     'writescore.scoring',
     'writescore.scoring.dual_score',
     'writescore.scoring.dual_score_calculator',
+    'writescore.scoring.score_normalization',
     'writescore.utils',
     # ML dependencies
     'torch',
@@ -103,6 +109,9 @@ hidden_imports = [
     # Transformers internals
     'transformers.models',
     'transformers.models.distilbert',
+    # Image processing (for figurative_language)
+    'PIL',
+    'PIL.Image',
 ]
 
 # Data files to include
@@ -117,9 +126,13 @@ if pyproject_path.exists():
 # Add spacy package data
 datas.append((str(spacy_path), "spacy"))
 
-# Add spacy model if found
-if spacy_model_path and spacy_model_path.exists():
-    datas.append((str(spacy_model_path), f"en_core_web_sm"))
+# Add spacy model using PyInstaller's collect_data_files for proper bundling
+try:
+    datas += collect_data_files("en_core_web_sm")
+except Exception:
+    # Fallback to manual collection if collect_data_files fails
+    if spacy_model_path and spacy_model_path.exists():
+        datas.append((str(spacy_model_path), "en_core_web_sm"))
 
 # Add NLTK data if available
 if nltk_data_path and nltk_data_path.exists():
@@ -128,6 +141,15 @@ if nltk_data_path and nltk_data_path.exists():
 # Add package data
 if (package_path / "data").exists():
     datas.append((str(package_path / "data"), "writescore/data"))
+
+# Add scoring data (dimension_stats.json)
+scoring_path = package_path / "scoring"
+if scoring_path.exists():
+    datas.append((str(scoring_path), "writescore/scoring"))
+
+# Add textstat resources
+if (textstat_path / "resources").exists():
+    datas.append((str(textstat_path / "resources"), "textstat/resources"))
 
 a = Analysis(
     ['../../src/writescore/cli/main.py'],
@@ -141,7 +163,6 @@ a = Analysis(
     excludes=[
         'tkinter',
         'matplotlib',
-        'PIL',
         'IPython',
         'jupyter',
         'notebook',

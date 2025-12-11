@@ -39,10 +39,10 @@ def get_nlp():
     """Lazy load spaCy model."""
     global _nlp
     if _nlp is None:
-        import spacy
+        from writescore.utils.spacy_loader import load_spacy_model
 
         try:
-            _nlp = spacy.load("en_core_web_sm")
+            _nlp = load_spacy_model("en_core_web_sm")
         except OSError:
             # Model not installed, return None
             return None

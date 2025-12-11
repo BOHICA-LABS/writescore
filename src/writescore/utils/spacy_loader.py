@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 import urllib.request
+from pathlib import Path
 
 import spacy
 
@@ -23,11 +24,40 @@ def load_spacy_model(model_name: str = "en_core_web_sm"):
     Returns:
         Loaded spacy Language model
     """
+    # Check if running in PyInstaller bundle
+    if getattr(sys, "frozen", False):
+        return _load_frozen_model(model_name)
+
     try:
         return spacy.load(model_name)
     except OSError:
         _download_model(model_name)
         return spacy.load(model_name)
+
+
+def _load_frozen_model(model_name: str):
+    """Load spacy model from PyInstaller bundle."""
+    bundle_dir = Path(sys._MEIPASS)  # type: ignore[attr-defined]
+
+    # Try to load the model package directly
+    try:
+        return spacy.load(model_name)
+    except OSError:
+        pass
+
+    # Try to load from bundled path
+    model_path = bundle_dir / model_name
+    if model_path.exists():
+        # Look for the versioned model directory inside
+        for item in model_path.iterdir():
+            if item.is_dir() and item.name.startswith(model_name):
+                return spacy.load(str(item))
+        # Try loading the model_path directly
+        return spacy.load(str(model_path))
+
+    raise OSError(
+        f"[E050] Can't find model '{model_name}' in PyInstaller bundle. " f"Checked: {model_path}"
+    )
 
 
 def _get_model_url(model_name: str) -> str:
