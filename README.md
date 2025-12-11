@@ -52,6 +52,9 @@ That's it! You'll see a detailed analysis with scores and improvement suggestion
 | Option | Local Install | CLI/IDE | Docker Required | Use WriteScore | Contribute |
 |--------|:-------------:|:-------:|:---------------:|----------------|------------|
 | ✓ **Docker** | No | CLI | Yes | [Instructions](#docker) | N/A |
+| ✓ **pipx** | No | CLI | No | [Instructions](#pipx) | N/A |
+| ✓ **Homebrew** | No | CLI | No | [Instructions](#homebrew) | N/A |
+| ✓ **Standalone** | No | CLI | No | [Instructions](#standalone-executable) | N/A |
 | **Native (Just)** | Yes | CLI | No | `just install` | `just setup` |
 | Native (Just) | Yes | IDE | No | `just install`, open in any IDE | `just setup`, open in any IDE |
 | Native (Manual) | Yes | CLI | No | [Instructions](#native-manual) | [Instructions](#native-manual) |
@@ -102,6 +105,66 @@ writescore analyze document.md
 ```
 
 The wrapper auto-detects GPU (NVIDIA/AMD) and mounts files appropriately.
+
+### pipx
+
+Install WriteScore in an isolated environment using [pipx](https://pipx.pypa.io/). No virtual environment management required.
+
+```bash
+# Install pipx if you don't have it
+# macOS: brew install pipx && pipx ensurepath
+# Linux: python3 -m pip install --user pipx && pipx ensurepath
+
+# Install WriteScore
+pipx install writescore
+
+# Use immediately (spaCy model auto-downloads on first run)
+writescore analyze document.md
+```
+
+**Note:** First run downloads spaCy model (~50MB) and transformer models (~500MB). Subsequent runs are faster.
+
+### Homebrew
+
+Install WriteScore on macOS or Linux using [Homebrew](https://brew.sh/):
+
+```bash
+# Add the tap and install
+brew tap bohica-labs/writescore
+brew install writescore
+
+# Or install directly
+brew install bohica-labs/writescore/writescore
+
+# Use immediately
+writescore analyze document.md
+```
+
+The formula installs all dependencies including the spaCy language model.
+
+### Standalone Executable
+
+Download a pre-built executable from [GitHub Releases](https://github.com/BOHICA-LABS/writescore/releases) - no Python installation required.
+
+| Platform | Filename |
+|----------|----------|
+| Linux (x64) | `writescore-linux-amd64` |
+| macOS (Intel) | `writescore-darwin-amd64` |
+| macOS (Apple Silicon) | `writescore-darwin-arm64` |
+| Windows (x64) | `writescore-windows-amd64.exe` |
+
+```bash
+# Linux/macOS example
+curl -LO https://github.com/BOHICA-LABS/writescore/releases/latest/download/writescore-linux-amd64
+chmod +x writescore-linux-amd64
+./writescore-linux-amd64 analyze document.md
+
+# Move to PATH for easier access
+sudo mv writescore-linux-amd64 /usr/local/bin/writescore
+writescore analyze document.md
+```
+
+**Note:** Standalone executables are self-contained (~500MB) and include all models.
 
 ### Native Manual
 

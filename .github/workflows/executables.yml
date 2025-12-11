@@ -1,0 +1,102 @@
+name: Build Executables
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., v6.4.0)'
+        required: false
+        type: string
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: writescore-linux-amd64
+          - os: macos-latest
+            artifact: writescore-darwin-amd64
+          - os: macos-14
+            artifact: writescore-darwin-arm64
+          - os: windows-latest
+            artifact: writescore-windows-amd64.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install .
+          python -m spacy download en_core_web_sm
+
+      - name: Download NLTK data
+        run: |
+          python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('punkt_tab', quiet=True); nltk.download('averaged_perceptron_tagger', quiet=True); nltk.download('averaged_perceptron_tagger_eng', quiet=True)"
+
+      - name: Build executable
+        run: |
+          pyinstaller packaging/pyinstaller/writescore.spec --clean
+
+      - name: Rename artifact (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mv dist/writescore dist/${{ matrix.artifact }}
+
+      - name: Rename artifact (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          move dist\writescore.exe dist\${{ matrix.artifact }}
+
+      - name: Test executable (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x dist/${{ matrix.artifact }}
+          dist/${{ matrix.artifact }} --version
+          dist/${{ matrix.artifact }} --help
+
+      - name: Test executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          dist\${{ matrix.artifact }} --version
+          dist\${{ matrix.artifact }} --help
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/writescore-linux-amd64/writescore-linux-amd64
+            artifacts/writescore-darwin-amd64/writescore-darwin-amd64
+            artifacts/writescore-darwin-arm64/writescore-darwin-arm64
+            artifacts/writescore-windows-amd64.exe/writescore-windows-amd64.exe
