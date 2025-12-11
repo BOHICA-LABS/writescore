@@ -70,8 +70,8 @@ class SentimentDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (15.6% of total score)."""
-        return 15.6
+        """Return dimension weight (5.0% of total score)."""
+        return 5.0
 
     @property
     def tier(self) -> DimensionTier:
@@ -300,7 +300,7 @@ class SentimentDimension(DimensionStrategy):
         pipeline = get_sentiment_pipeline()
 
         # Split into paragraphs (more meaningful than sentences)
-        paragraphs = [p.strip() for p in text.split("nn") if len(p.strip()) > 20]
+        paragraphs = [p.strip() for p in text.split("\n\n") if len(p.strip()) > 20]
 
         if len(paragraphs) < 3:
             # Fallback to sentences if too few paragraphs

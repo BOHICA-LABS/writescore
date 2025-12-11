@@ -61,8 +61,8 @@ class StructureDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (3.7% of total score)."""
-        return 3.7
+        """Return dimension weight (5.0% of total score)."""
+        return 5.0
 
     @property
     def tier(self) -> DimensionTier:

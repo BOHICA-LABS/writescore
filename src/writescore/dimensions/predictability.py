@@ -91,8 +91,8 @@ class PredictabilityDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (18.1% of total score - highest single dimension)."""
-        return 18.1
+        """Return dimension weight (12.0% of total score - highest single dimension)."""
+        return 12.0
 
     @property
     def tier(self) -> DimensionTier:

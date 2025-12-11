@@ -291,6 +291,20 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 - [Secret scanning setup](CONTRIBUTING.md#secret-scanning-ggshield) — Required before your first commit
 - [Code of Conduct](CODE_OF_CONDUCT.md) — Community guidelines
 
+### Updating the Demo GIF
+
+The README demo GIF is generated using [VHS](https://github.com/charmbracelet/vhs). To regenerate after feature changes:
+
+```bash
+# Install VHS (macOS)
+brew install vhs
+
+# Generate new demo
+vhs docs/assets/demo.tape
+```
+
+The tape file is at `docs/assets/demo.tape`. Edit it to change the demo script.
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.

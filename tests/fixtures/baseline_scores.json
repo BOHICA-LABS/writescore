@@ -8,7 +8,7 @@
   "baselines": {
     "ai_sample_01": {
       "predictability": 74.0,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 37.5,
       "perplexity": 85.3,
@@ -23,7 +23,7 @@
     },
     "ai_sample_02": {
       "predictability": 82.1,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 100.0,
       "perplexity": 97.4,
@@ -38,7 +38,7 @@
     },
     "ai_sample_03": {
       "predictability": 44.7,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.1,
       "transition_marker": 62.5,
       "perplexity": 75.4,
@@ -53,7 +53,7 @@
     },
     "ai_sample_04": {
       "predictability": 68.0,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 100.0,
       "perplexity": 78.2,
@@ -68,7 +68,7 @@
     },
     "ai_sample_05": {
       "predictability": 83.9,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 62.5,
       "perplexity": 97.4,
@@ -83,7 +83,7 @@
     },
     "ai_sample_06": {
       "predictability": 90.0,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 100.0,
       "perplexity": 99.7,
@@ -98,7 +98,7 @@
     },
     "ai_sample_07": {
       "predictability": 82.1,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 87.5,
       "perplexity": 98.7,
@@ -113,7 +113,7 @@
     },
     "ai_sample_08": {
       "predictability": 64.0,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.2,
       "transition_marker": 62.5,
       "perplexity": 89.7,
@@ -128,7 +128,7 @@
     },
     "ai_sample_09": {
       "predictability": 88.8,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 50.0,
       "perplexity": 95.7,
@@ -143,7 +143,7 @@
     },
     "ai_sample_10": {
       "predictability": 86.7,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 100.0,
       "perplexity": 94.0,
@@ -158,7 +158,7 @@
     },
     "human_sample_01": {
       "predictability": 82.1,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 73.7,
       "transition_marker": 100.0,
       "perplexity": 88.6,
@@ -173,7 +173,7 @@
     },
     "human_sample_02": {
       "predictability": 88.8,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 6.4,
       "transition_marker": 100.0,
       "perplexity": 98.0,
@@ -188,7 +188,7 @@
     },
     "human_sample_03": {
       "predictability": 79.9,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 30.1,
       "transition_marker": 100.0,
       "perplexity": 78.9,
@@ -203,7 +203,7 @@
     },
     "human_sample_04": {
       "predictability": 31.7,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 37.8,
       "transition_marker": 100.0,
       "perplexity": 73.8,
@@ -218,7 +218,7 @@
     },
     "human_sample_05": {
       "predictability": 94.5,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 85.2,
       "transition_marker": 100.0,
       "perplexity": 99.9,
@@ -233,7 +233,7 @@
     },
     "human_sample_06": {
       "predictability": 90.8,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.6,
       "transition_marker": 100.0,
       "perplexity": 35.2,
@@ -248,7 +248,7 @@
     },
     "human_sample_07": {
       "predictability": 63.0,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 41.5,
       "transition_marker": 100.0,
       "perplexity": 86.2,
@@ -263,7 +263,7 @@
     },
     "human_sample_08": {
       "predictability": 88.0,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 18.9,
       "transition_marker": 100.0,
       "perplexity": 100.0,
@@ -278,7 +278,7 @@
     },
     "human_sample_09": {
       "predictability": 79.1,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 25.4,
       "transition_marker": 100.0,
       "perplexity": 94.0,
@@ -293,7 +293,7 @@
     },
     "human_sample_10": {
       "predictability": 52.0,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 20.1,
       "transition_marker": 100.0,
       "perplexity": 26.7,
@@ -308,7 +308,7 @@
     },
     "mixed_sample_01": {
       "predictability": 71.3,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 16.8,
       "transition_marker": 100.0,
       "perplexity": 89.4,
@@ -323,7 +323,7 @@
     },
     "mixed_sample_02": {
       "predictability": 84.3,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 25.8,
       "transition_marker": 100.0,
       "perplexity": 100.0,
@@ -338,7 +338,7 @@
     },
     "mixed_sample_03": {
       "predictability": 64.0,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.0,
       "transition_marker": 62.5,
       "perplexity": 92.0,
@@ -353,7 +353,7 @@
     },
     "edge_case_01": {
       "predictability": 51.0,
-      "advanced_lexical": 96.0,
+      "advanced_lexical": 98.0,
       "readability": 0.0,
       "transition_marker": 100.0,
       "perplexity": 38.7,
@@ -368,7 +368,7 @@
     },
     "edge_case_02": {
       "predictability": 77.2,
-      "advanced_lexical": 13.5,
+      "advanced_lexical": 2.3,
       "readability": 0.3,
       "transition_marker": 100.0,
       "perplexity": 37.9,
