@@ -80,6 +80,12 @@ hidden_imports = [
 # Data files to include
 datas = []
 
+# Add pyproject.toml for version info in frozen builds
+repo_root = package_path.parent.parent  # src/writescore -> src -> repo root
+pyproject_path = repo_root / "pyproject.toml"
+if pyproject_path.exists():
+    datas.append((str(pyproject_path), "."))
+
 # Add spacy package data
 datas.append((str(spacy_path), "spacy"))
 
