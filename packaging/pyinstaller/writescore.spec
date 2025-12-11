@@ -10,15 +10,30 @@ from pathlib import Path
 import writescore
 package_path = Path(writescore.__file__).parent
 
-# Find spacy and nltk data locations
+# Find spacy model location
 import spacy
-import nltk
-
 spacy_path = Path(spacy.__file__).parent
-nltk_data = Path(nltk.data.path[0]) if nltk.data.path else None
 
-# Find transformers cache
-transformers_cache = Path.home() / ".cache" / "huggingface"
+# Find the en_core_web_sm model
+try:
+    import en_core_web_sm
+    spacy_model_path = Path(en_core_web_sm.__file__).parent
+except ImportError:
+    # Try to find it in spacy's data directory
+    spacy_model_path = None
+    for data_path in spacy.util.get_data_path().iterdir():
+        if data_path.name.startswith('en_core_web_sm'):
+            spacy_model_path = data_path
+            break
+
+# Find NLTK data
+import nltk
+nltk_data_path = None
+for path in nltk.data.path:
+    p = Path(path)
+    if p.exists() and (p / 'tokenizers').exists():
+        nltk_data_path = p
+        break
 
 block_cipher = None
 
@@ -35,10 +50,16 @@ hidden_imports = [
     'torch',
     'transformers',
     'spacy',
+    'spacy.lang.en',
     'nltk',
     'scipy',
+    'scipy.special',
     'numpy',
     'sklearn',
+    'sklearn.utils._cython_blas',
+    'sklearn.neighbors._typedefs',
+    'sklearn.neighbors._quad_tree',
+    'sklearn.tree._utils',
     # Click and CLI
     'click',
     'rich',
@@ -46,24 +67,37 @@ hidden_imports = [
     'marko',
     'textstat',
     'textacy',
+    # SpaCy model
+    'en_core_web_sm',
+    # Thinc (spacy backend)
+    'thinc',
+    'thinc.backends',
+    # Transformers internals
+    'transformers.models',
+    'transformers.models.distilbert',
 ]
 
 # Data files to include
-datas = [
-    # SpaCy model (en_core_web_sm)
-    (str(spacy_path / "data"), "spacy/data"),
-]
+datas = []
+
+# Add spacy package data
+datas.append((str(spacy_path), "spacy"))
+
+# Add spacy model if found
+if spacy_model_path and spacy_model_path.exists():
+    datas.append((str(spacy_model_path), f"en_core_web_sm"))
 
 # Add NLTK data if available
-if nltk_data and nltk_data.exists():
-    datas.append((str(nltk_data), "nltk_data"))
+if nltk_data_path and nltk_data_path.exists():
+    datas.append((str(nltk_data_path), "nltk_data"))
 
 # Add package data
-datas.append((str(package_path / "data"), "writescore/data"))
+if (package_path / "data").exists():
+    datas.append((str(package_path / "data"), "writescore/data"))
 
 a = Analysis(
     ['../../src/writescore/cli/main.py'],
-    pathex=[],
+    pathex=['../../src'],
     binaries=[],
     datas=datas,
     hiddenimports=hidden_imports,
