@@ -25,19 +25,20 @@ import click
 # (common with pytest, multiprocessing, or CLI usage)
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-from writescore.cli.formatters import (
+from writescore.__version__ import __version__  # noqa: E402
+from writescore.cli.formatters import (  # noqa: E402
     format_detailed_report,
     format_report,
 )
-from writescore.core.analysis_config import AnalysisConfig, AnalysisMode
-from writescore.core.analyzer import AIPatternAnalyzer
-from writescore.core.deployment import (
+from writescore.core.analysis_config import AnalysisConfig, AnalysisMode  # noqa: E402
+from writescore.core.analyzer import AIPatternAnalyzer  # noqa: E402
+from writescore.core.deployment import (  # noqa: E402
     ParameterComparator,
     ParameterVersionManager,
     format_version_list,
     generate_deployment_checklist,
 )
-from writescore.core.interpretability import (
+from writescore.core.interpretability import (  # noqa: E402
     ScoreInterpretation,
     ScoreInterpreter,
     format_percentile_report,
@@ -696,7 +697,7 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
 
 # Click group for multiple commands
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
-@click.version_option(package_name="writescore", prog_name="writescore")
+@click.version_option(version=__version__, prog_name="writescore")
 def cli():
     """WriteScore - AI Pattern Analysis and Parameter Calibration.
 
