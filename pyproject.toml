@@ -46,6 +46,7 @@ dev = [
     "pre-commit>=3.5.0",
     "sentence-transformers>=2.0.0",  # Required for figurative_language tests
     "types-PyYAML>=6.0.0",  # Type stubs for PyYAML
+    "pyinstaller>=6.0.0",  # For building standalone executables
 ]
 semantic = [
     "sentence-transformers>=2.0.0",
