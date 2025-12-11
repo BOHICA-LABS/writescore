@@ -126,3 +126,15 @@ build: clean
 # Check package before upload
 check-package: build
     uv run twine check dist/*
+
+# === Executables ===
+
+# Build standalone executable with PyInstaller
+executable:
+    uv run pyinstaller packaging/pyinstaller/writescore.spec --clean
+    @echo "Executable built: dist/writescore"
+
+# Build and test executable
+executable-test: executable
+    ./dist/writescore --version
+    @echo "Executable test passed!"
