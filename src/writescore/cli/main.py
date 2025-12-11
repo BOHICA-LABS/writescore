@@ -696,6 +696,7 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
 
 # Click group for multiple commands
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.version_option(package_name="writescore", prog_name="writescore")
 def cli():
     """WriteScore - AI Pattern Analysis and Parameter Calibration.
 
