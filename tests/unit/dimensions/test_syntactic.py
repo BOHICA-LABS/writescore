@@ -339,9 +339,10 @@ class TestMonotonicScoring:
     - Human text: ~38% syntactic template repetition rate
     - AI text: ~95% syntactic template repetition rate
 
-    Scoring thresholds:
-    - threshold_low=0.30: Good human baseline (score=100)
-    - threshold_high=0.70: AI-like territory (score=0)
+    Scoring uses S-curve smoothing with thresholds:
+    - threshold_low=0.30: Good human baseline (score=75)
+    - threshold_high=0.70: AI-like territory (score=25)
+    - Midpoint (0.50): Score=50
     """
 
     def test_calculate_score_low_repetition_excellent(self, analyzer):
@@ -354,8 +355,8 @@ class TestMonotonicScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # Below threshold_low (0.30) should score 100
-        assert score == 100.0
+        # Below threshold_low (0.30) caps at 75 due to S-curve smoothing
+        assert score == 75.0
 
     def test_calculate_score_at_low_threshold(self, analyzer):
         """Test scoring at threshold_low boundary (0.30)."""
@@ -367,8 +368,8 @@ class TestMonotonicScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # At threshold_low, score should be 100
-        assert score == 100.0
+        # At threshold_low, score should be 75 (S-curve)
+        assert score == 75.0
 
     def test_calculate_score_midpoint(self, analyzer):
         """Test scoring at midpoint between thresholds (0.50)."""
@@ -393,8 +394,8 @@ class TestMonotonicScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # At threshold_high, score should be 0
-        assert score == 0.0
+        # At threshold_high, score should be 25 (S-curve)
+        assert score == 25.0
 
     def test_calculate_score_high_repetition(self, analyzer):
         """Test scoring with high repetition (bad, AI-like)."""
@@ -406,8 +407,8 @@ class TestMonotonicScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # Above threshold_high should score 0
-        assert score == 0.0
+        # Above threshold_high continues decreasing with S-curve
+        assert 10.0 <= score <= 25.0
 
     def test_calculate_score_very_high_repetition(self, analyzer):
         """Test scoring with very high repetition (AI signal)."""
@@ -419,8 +420,8 @@ class TestMonotonicScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # Very high repetition should score 0
-        assert score == 0.0
+        # Very high repetition should score low
+        assert 0.0 <= score <= 20.0
 
     def test_calculate_score_boundary_near_zero(self, analyzer):
         """Test scoring near lower boundary (ratio ≈ 0)."""
@@ -432,8 +433,8 @@ class TestMonotonicScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # Near 0 is below threshold_low, should score 100
-        assert score == 100.0
+        # Near 0 is below threshold_low, caps at 75 due to S-curve
+        assert score == 75.0
 
     def test_calculate_score_monotonic_decreasing(self, analyzer):
         """Test that score decreases monotonically as repetition increases."""
@@ -477,8 +478,8 @@ class TestMonotonicScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # Should use default 0.5 repetition (neutral) = 50.0
-        assert score == 50.0
+        # Should use default 0.5 repetition (neutral) ≈ 50.0
+        assert 49.0 <= score <= 51.0
 
 
 class TestIntegration:

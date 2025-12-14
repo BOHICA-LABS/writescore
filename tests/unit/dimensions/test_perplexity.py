@@ -55,7 +55,7 @@ class TestDimensionProperties:
 
     def test_weight_is_3_percent(self, dimension):
         """Test dimension weight is 2.8% (rebalanced to 100% total)."""
-        assert dimension.weight == 2.8
+        assert dimension.weight == 3.0
 
     def test_tier_is_advanced(self, dimension):
         """Test dimension tier is ADVANCED."""

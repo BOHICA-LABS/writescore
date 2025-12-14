@@ -174,7 +174,7 @@ class TestDynamicReporter:
     def test_partial_analysis_detection(self):
         """Test partial analysis is correctly detected (AC9)."""
         results = create_mock_analysis_results()
-        results.dimension_count = 3  # Only 3 of 12 loaded
+        results.dimension_count = 3  # Only 3 of 17 loaded
         reporter = DynamicReporter()
 
         report = reporter.generate_comprehensive_report(results)
@@ -182,8 +182,8 @@ class TestDynamicReporter:
 
         assert metadata["is_partial_analysis"] is True
         assert metadata["dimensions_loaded"] == 3
-        assert metadata["dimensions_available"] == 16
-        assert len(metadata["not_loaded_dimensions"]) == 13
+        assert metadata["dimensions_available"] == 17
+        assert len(metadata["not_loaded_dimensions"]) == 14
 
     def test_overall_summary_includes_grade(self):
         """Test overall summary includes grade calculation."""
@@ -326,7 +326,7 @@ class TestDynamicReporter:
         markdown = reporter.format_as_markdown(results)
 
         assert "partial analysis" in markdown.lower()
-        assert "3 of 16" in markdown
+        assert "3 of 17" in markdown
 
     def test_format_as_json(self):
         """Test JSON formatting."""

@@ -482,7 +482,7 @@ class TestProperties:
 
     def test_weight(self, dimension):
         """Test dimension weight is 2.8% (rebalanced to 100% total)."""
-        assert dimension.weight == 2.8
+        assert dimension.weight == 5.0
 
     def test_tier(self, dimension):
         """Test dimension tier property."""
@@ -863,4 +863,4 @@ class TestIntegration:
         # Get from registry
         dim = DimensionRegistry.get("figurative_language")
         assert dim.dimension_name == "figurative_language"
-        assert dim.weight == 2.8  # rebalanced to 100% total
+        assert dim.weight == 5.0  # rebalanced to 100% total

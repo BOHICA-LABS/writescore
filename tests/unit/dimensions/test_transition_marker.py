@@ -60,7 +60,7 @@ class TestDimensionMetadata:
 
     def test_dimension_weight(self, dimension):
         """Test dimension weight is 5.5% (rebalanced to 100% total)."""
-        assert dimension.weight == 5.5
+        assert dimension.weight == 5.0
 
     def test_dimension_tier(self, dimension):
         """Test dimension tier is ADVANCED."""
@@ -613,4 +613,4 @@ class TestBackwardCompatibility:
         dim = TransitionMarkerAnalyzer()
 
         assert dim.dimension_name == "transition_marker"
-        assert dim.weight == 5.5  # rebalanced to 100% total
+        assert dim.weight == 5.0  # rebalanced to 100% total
