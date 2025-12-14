@@ -332,95 +332,85 @@ class TestScore:
         assert label == "UNKNOWN"
 
 
-class TestLogitGaussianScoring:
-    """Tests for logit+Gaussian scoring migration (Story 2.4.1, AC6)."""
+class TestMonotonicScoring:
+    """Tests for monotonic scoring (lower repetition = higher score).
 
-    def test_calculate_score_at_optimal(self, analyzer):
-        """Test scoring at optimal repetition (≈0.27, logit ≈ -1.0)."""
+    Research basis (2024 literature review):
+    - Human text: ~38% syntactic template repetition rate
+    - AI text: ~95% syntactic template repetition rate
+
+    Scoring thresholds:
+    - threshold_low=0.30: Good human baseline (score=100)
+    - threshold_high=0.70: AI-like territory (score=0)
+    """
+
+    def test_calculate_score_low_repetition_excellent(self, analyzer):
+        """Test scoring with very low repetition (excellent, human-like)."""
         metrics = {
             "syntactic": {
-                "syntactic_repetition_score": 0.27,  # Optimal (logit ≈ -1.0)
+                "syntactic_repetition_score": 0.15,  # Very low (excellent)
                 "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
 
-        # At optimal, score should be near 100.0
-        assert 95.0 <= score <= 100.0
+        # Below threshold_low (0.30) should score 100
+        assert score == 100.0
 
-    def test_calculate_score_within_one_sigma(self, analyzer):
-        """Test scoring within ±1σ of optimal (μ=-1.0, σ=0.8)."""
-        # σ=0.8 in logit space
-        # μ-σ ≈ -1.8 → ratio ≈ 0.14
-        # μ+σ ≈ -0.2 → ratio ≈ 0.45
-        test_cases = [
-            0.14,  # μ-σ
-            0.45,  # μ+σ
-        ]
-
-        for ratio in test_cases:
-            metrics = {"syntactic": {"syntactic_repetition_score": ratio, "available": True}}
-            score = analyzer.calculate_score(metrics)
-
-            # Within 1σ should score 59-95 (allowing slight rounding)
-            assert (
-                59.0 <= score <= 95.0
-            ), f"Ratio {ratio} scored {score}, expected 59-95 (within 1σ)"
-
-    def test_calculate_score_low_repetition(self, analyzer):
-        """Test scoring with low repetition (good, human-like)."""
+    def test_calculate_score_at_low_threshold(self, analyzer):
+        """Test scoring at threshold_low boundary (0.30)."""
         metrics = {
             "syntactic": {
-                "syntactic_repetition_score": 0.20,  # Low repetition (good)
+                "syntactic_repetition_score": 0.30,  # At threshold_low
                 "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
 
-        # Low repetition should score high (near optimal 0.27)
-        assert 75.0 <= score <= 100.0
+        # At threshold_low, score should be 100
+        assert score == 100.0
+
+    def test_calculate_score_midpoint(self, analyzer):
+        """Test scoring at midpoint between thresholds (0.50)."""
+        metrics = {
+            "syntactic": {
+                "syntactic_repetition_score": 0.50,  # Midpoint
+                "available": True,
+            }
+        }
+        score = analyzer.calculate_score(metrics)
+
+        # At midpoint (0.50), score should be ~50
+        assert 45.0 <= score <= 55.0
+
+    def test_calculate_score_at_high_threshold(self, analyzer):
+        """Test scoring at threshold_high boundary (0.70)."""
+        metrics = {
+            "syntactic": {
+                "syntactic_repetition_score": 0.70,  # At threshold_high
+                "available": True,
+            }
+        }
+        score = analyzer.calculate_score(metrics)
+
+        # At threshold_high, score should be 0
+        assert score == 0.0
 
     def test_calculate_score_high_repetition(self, analyzer):
         """Test scoring with high repetition (bad, AI-like)."""
         metrics = {
             "syntactic": {
-                "syntactic_repetition_score": 0.70,  # High repetition (bad)
+                "syntactic_repetition_score": 0.85,  # Above threshold_high
                 "available": True,
             }
         }
         score = analyzer.calculate_score(metrics)
 
-        # High repetition should score low (far from optimal)
-        assert 0.0 <= score <= 50.0
+        # Above threshold_high should score 0
+        assert score == 0.0
 
     def test_calculate_score_very_high_repetition(self, analyzer):
-        """Test scoring with very high repetition (very bad, strong AI signal)."""
-        metrics = {
-            "syntactic": {
-                "syntactic_repetition_score": 0.85,  # Very high repetition
-                "available": True,
-            }
-        }
-        score = analyzer.calculate_score(metrics)
-
-        # Very high repetition should score very low
-        assert 0.0 <= score <= 30.0
-
-    def test_calculate_score_boundary_near_zero(self, analyzer):
-        """Test scoring near lower boundary (ratio ≈ 0)."""
-        metrics = {
-            "syntactic": {
-                "syntactic_repetition_score": 0.05,  # Near 0
-                "available": True,
-            }
-        }
-        score = analyzer.calculate_score(metrics)
-
-        # Near 0 is far from optimal (0.27), should score lower
-        assert 0.0 <= score <= 70.0
-
-    def test_calculate_score_boundary_near_one(self, analyzer):
-        """Test scoring near upper boundary (ratio ≈ 1)."""
+        """Test scoring with very high repetition (AI signal)."""
         metrics = {
             "syntactic": {
                 "syntactic_repetition_score": 0.95,  # Near 1
@@ -429,44 +419,40 @@ class TestLogitGaussianScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # Near 1 is very far from optimal, should score very low
-        assert 0.0 <= score <= 20.0
+        # Very high repetition should score 0
+        assert score == 0.0
+
+    def test_calculate_score_boundary_near_zero(self, analyzer):
+        """Test scoring near lower boundary (ratio ≈ 0)."""
+        metrics = {
+            "syntactic": {
+                "syntactic_repetition_score": 0.05,  # Near 0 (excellent)
+                "available": True,
+            }
+        }
+        score = analyzer.calculate_score(metrics)
+
+        # Near 0 is below threshold_low, should score 100
+        assert score == 100.0
 
     def test_calculate_score_monotonic_decreasing(self, analyzer):
-        """Test that score decreases as repetition increases from optimal."""
-        # Test values above optimal (0.27 → 0.85)
-        ratios_above = [0.27, 0.35, 0.50, 0.65, 0.85]
-        scores_above = []
+        """Test that score decreases monotonically as repetition increases."""
+        ratios = [0.10, 0.30, 0.40, 0.50, 0.60, 0.70, 0.85]
+        scores = []
 
-        for ratio in ratios_above:
+        for ratio in ratios:
             metrics = {"syntactic": {"syntactic_repetition_score": ratio, "available": True}}
-            scores_above.append(analyzer.calculate_score(metrics))
+            scores.append(analyzer.calculate_score(metrics))
 
-        # Scores should decrease as we move away from optimal
-        for i in range(len(scores_above) - 1):
+        # Scores should decrease monotonically
+        for i in range(len(scores) - 1):
             assert (
-                scores_above[i] >= scores_above[i + 1]
-            ), f"Score should decrease as repetition increases: {scores_above[i]} >= {scores_above[i+1]} (ratio {ratios_above[i]} vs {ratios_above[i+1]})"
-
-    def test_calculate_score_monotonic_increasing_to_optimal(self, analyzer):
-        """Test that score increases as repetition approaches optimal from below."""
-        # Test values below optimal (0.05 → 0.27)
-        ratios_below = [0.05, 0.10, 0.20, 0.27]
-        scores_below = []
-
-        for ratio in ratios_below:
-            metrics = {"syntactic": {"syntactic_repetition_score": ratio, "available": True}}
-            scores_below.append(analyzer.calculate_score(metrics))
-
-        # Scores should increase as we approach optimal
-        for i in range(len(scores_below) - 1):
-            assert (
-                scores_below[i] <= scores_below[i + 1]
-            ), f"Score should increase toward optimal: {scores_below[i]} <= {scores_below[i+1]} (ratio {ratios_below[i]} vs {ratios_below[i+1]})"
+                scores[i] >= scores[i + 1]
+            ), f"Score should decrease as repetition increases: {scores[i]} >= {scores[i+1]} (ratio {ratios[i]} vs {ratios[i+1]})"
 
     def test_calculate_score_validates_range(self, analyzer):
         """Test that all scores are in valid 0-100 range."""
-        test_ratios = [0.01, 0.10, 0.27, 0.50, 0.70, 0.90, 0.99]
+        test_ratios = [0.01, 0.10, 0.30, 0.50, 0.70, 0.90, 0.99]
 
         for ratio in test_ratios:
             metrics = {"syntactic": {"syntactic_repetition_score": ratio, "available": True}}
@@ -491,8 +477,8 @@ class TestLogitGaussianScoring:
         }
         score = analyzer.calculate_score(metrics)
 
-        # Should use default 0.5 repetition (neutral)
-        assert 0.0 <= score <= 100.0
+        # Should use default 0.5 repetition (neutral) = 50.0
+        assert score == 50.0
 
 
 class TestIntegration:
