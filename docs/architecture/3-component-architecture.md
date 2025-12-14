@@ -16,6 +16,9 @@
 ├──────────────────┴──────────────────┴───────────────────────────┤
 │                     Core Infrastructure                         │
 │        (registry, loader, config, results, exceptions)          │
+├─────────────────────────────────────────────────────────────────┤
+│                   Configuration System                          │
+│         (ConfigRegistry, Pydantic Schemas, YAML files)          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -81,6 +84,39 @@ class DimensionStrategy(ABC):
 | **ScoreHistory** | Score tracking dataclass |
 | **Trends** | Trend visualization, comparisons |
 
+### Configuration System (`config/`)
+
+| Component | Purpose |
+|-----------|---------|
+| **ConfigRegistry** | Thread-safe singleton for centralized configuration access |
+| **Pydantic Schemas** | Type-safe configuration validation (`schemas/*.py`) |
+| **YAML Files** | Declarative configuration (`base.yaml`, `{env}.yaml`) |
+
+**ConfigRegistry Interface:**
+```python
+class ConfigRegistry:
+    @classmethod
+    def initialize(cls, env: str = "default", config_dir: Path = None) -> None:
+        """Load configuration from YAML files."""
+    @classmethod
+    def get(cls, schema: Type[T]) -> T:
+        """Get typed configuration section."""
+    @classmethod
+    def reset(cls) -> None:
+        """Clear configuration (for testing)."""
+    @classmethod
+    def is_initialized(cls) -> bool:
+        """Check initialization status."""
+```
+
+**Key Schemas:**
+- `DimensionConfig` - Profiles, weights, parameters
+- `ScoringConfig` - Thresholds, categories
+- `ContentTypesConfig` - Content type weights and thresholds
+- `AnalysisConfig` - Analysis modes, sampling
+
+See [18. Configuration System](./18-configuration-system.md) for full details.
+
 ## 3.3 Component Interaction Diagram
 
 ```mermaid
@@ -95,9 +131,9 @@ graph TB
     end
 
     subgraph DIM["Dimension System"]
-        REG[DimensionRegistry]
+        DREG[DimensionRegistry]
         LOAD[DimensionLoader]
-        D1[16 Dimensions]
+        D1[17 Dimensions]
     end
 
     subgraph SCORE["Scoring System"]
@@ -109,17 +145,32 @@ graph TB
         TRACK[ScoreHistory]
     end
 
+    subgraph CONFIG["Configuration System"]
+        CREG[ConfigRegistry]
+        SCHEMA[Pydantic Schemas]
+        YAML[YAML Files]
+    end
+
     MAIN --> APA
     MAIN --> FMT
-    APA --> REG
+    MAIN --> CREG
+    APA --> DREG
     APA --> LOAD
     APA --> CALC
     APA --> TRACK
-    LOAD --> REG
-    REG --> D1
-    CALC --> REG
+    APA --> CREG
+    LOAD --> DREG
+    LOAD --> CREG
+    DREG --> D1
+    D1 --> CREG
+    CALC --> DREG
     CALC --> DS
+    CALC --> CREG
     FMT --> DS
+    CREG --> SCHEMA
+    SCHEMA --> YAML
+
+    style CREG fill:#f9f,stroke:#333,stroke-width:2px
 ```
 
 ## 3.4 Dimension Inventory

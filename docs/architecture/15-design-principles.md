@@ -40,3 +40,52 @@ class DimensionAnalyzer(ABC):
 - **History**: Score tracking over time
 - **Utils**: Shared helper functions
 - **CLI**: User interface layer
+- **Config**: Configuration loading and validation
+
+## 15.4 Configuration Over Code
+
+Behavioral parameters are externalized to declarative YAML configuration files rather than embedded in application logic.
+
+### Principles
+
+1. **Single Source of Truth**: All configurable values live in YAML files, not scattered through code
+2. **Type-Safe Access**: Pydantic schemas validate configuration at load time
+3. **Layered Overrides**: base.yaml -> environment.yaml -> environment variables
+4. **Graceful Degradation**: Fallback to defaults when ConfigRegistry not initialized
+
+### What Should Be Configuration
+
+- Scoring thresholds and category boundaries
+- Dimension profiles and weights
+- Content-type specific settings
+- Analysis mode parameters
+- Feature flags
+
+### What Should Remain Code
+
+- Core algorithms and business logic
+- Type definitions and interfaces
+- Error handling patterns
+- Test fixtures
+
+### Example Pattern
+
+```python
+# WRONG - Magic numbers in code
+if score >= 75:
+    return "human"
+
+# RIGHT - Value from configuration
+threshold = ConfigRegistry.get(ScoringConfig).categories.human.min_threshold
+if score >= threshold:
+    return "human"
+
+# With backward-compatible fallback
+def get_human_threshold() -> int:
+    try:
+        return ConfigRegistry.get(ScoringConfig).categories.human.min_threshold
+    except RuntimeError:
+        return 75  # Default when ConfigRegistry not initialized
+```
+
+See [18. Configuration System](./18-configuration-system.md) for implementation details.

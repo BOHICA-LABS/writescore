@@ -17,6 +17,7 @@ devLoadAlwaysFiles:
   - docs/architecture/9-coding-standards.md
   - docs/architecture/2-technology-stack.md
   - docs/architecture/7-source-code-organization.md
+  - docs/architecture/18-configuration-system.md
 devDebugLog: .ai/debug-log.md
 devStoryLocation: docs/stories
 slashPrefix: BMad
