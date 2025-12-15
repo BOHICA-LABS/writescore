@@ -1,8 +1,8 @@
 {
-  "version": "1.0",
-  "captured": "2025-11-25T15:40:32.525864Z",
+  "version": "1.1",
+  "captured": "2025-12-14T23:30:00Z",
   "model_versions": {
-    "writescore": "5.0.0",
+    "writescore": "6.4.1",
     "python": "3.11.7"
   },
   "baselines": {
@@ -18,7 +18,7 @@
       "voice": 25.0,
       "lexical": 71.3,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 96.8
     },
     "ai_sample_02": {
@@ -33,7 +33,7 @@
       "voice": 25.0,
       "lexical": 67.9,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "ai_sample_03": {
@@ -48,7 +48,7 @@
       "voice": 25.0,
       "lexical": 61.1,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "ai_sample_04": {
@@ -63,7 +63,7 @@
       "voice": 25.0,
       "lexical": 75.0,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "ai_sample_05": {
@@ -78,7 +78,7 @@
       "voice": 25.0,
       "lexical": 70.5,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "ai_sample_06": {
@@ -93,7 +93,7 @@
       "voice": 25.0,
       "lexical": 71.5,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "ai_sample_07": {
@@ -108,7 +108,7 @@
       "voice": 25.0,
       "lexical": 66.7,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "ai_sample_08": {
@@ -123,7 +123,7 @@
       "voice": 25.0,
       "lexical": 66.7,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "ai_sample_09": {
@@ -138,7 +138,7 @@
       "voice": 25.0,
       "lexical": 71.5,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "ai_sample_10": {
@@ -153,7 +153,7 @@
       "voice": 25.0,
       "lexical": 75.0,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_01": {
@@ -168,7 +168,7 @@
       "voice": 100.0,
       "lexical": 63.1,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_02": {
@@ -183,7 +183,7 @@
       "voice": 25.0,
       "lexical": 75.0,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_03": {
@@ -198,7 +198,7 @@
       "voice": 25.0,
       "lexical": 70.0,
       "sentiment": 0.4,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_04": {
@@ -213,7 +213,7 @@
       "voice": 99.2,
       "lexical": 68.4,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_05": {
@@ -228,7 +228,7 @@
       "voice": 95.5,
       "lexical": 75.0,
       "sentiment": 62.3,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_06": {
@@ -243,7 +243,7 @@
       "voice": 100.0,
       "lexical": 75.0,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_07": {
@@ -258,7 +258,7 @@
       "voice": 25.0,
       "lexical": 68.8,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_08": {
@@ -273,7 +273,7 @@
       "voice": 25.0,
       "lexical": 75.0,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_09": {
@@ -288,7 +288,7 @@
       "voice": 99.6,
       "lexical": 63.3,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "human_sample_10": {
@@ -303,7 +303,7 @@
       "voice": 99.9,
       "lexical": 60.6,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "mixed_sample_01": {
@@ -318,7 +318,7 @@
       "voice": 88.5,
       "lexical": 62.8,
       "sentiment": 11.2,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "mixed_sample_02": {
@@ -333,7 +333,7 @@
       "voice": 91.4,
       "lexical": 58.6,
       "sentiment": 24.9,
-      "syntactic": 89.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "mixed_sample_03": {
@@ -348,7 +348,7 @@
       "voice": 25.0,
       "lexical": 75.0,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "edge_case_01": {
@@ -363,7 +363,7 @@
       "voice": 25.0,
       "lexical": 86.5,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 100.0
     },
     "edge_case_02": {
@@ -378,7 +378,7 @@
       "voice": 25.0,
       "lexical": 75.0,
       "sentiment": 100.0,
-      "syntactic": 0.0,
+      "syntactic": 75.0,
       "figurative_language": 45.0
     }
   }

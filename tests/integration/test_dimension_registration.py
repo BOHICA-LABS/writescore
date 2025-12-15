@@ -26,7 +26,7 @@ class TestDimensionRegistration:
         registered = DimensionRegistry.get("perplexity")
 
         assert registered.dimension_name == "perplexity"
-        assert registered.weight == 2.8  # Weight after rebalancing to 100%
+        assert registered.weight == 3.0  # Weight after rebalancing to 100%
         assert registered.tier == "ADVANCED"  # ADVANCED tier (requires language model)
         assert dim is registered  # Same instance
 
@@ -43,7 +43,7 @@ class TestDimensionRegistration:
         registered = DimensionRegistry.get("burstiness")
 
         assert registered.dimension_name == "burstiness"
-        assert registered.weight == 5.5  # Weight after rebalancing to 100%
+        assert registered.weight == 8.0  # Weight after rebalancing to 100%
         assert registered.tier == "CORE"
         assert dim is registered  # Same instance
 
@@ -63,7 +63,7 @@ class TestDimensionRegistration:
 
         # Verify total weight
         total_weight = sum(d.weight for d in all_dims)
-        assert total_weight == 8.3  # 2.8 (perplexity) + 5.5 (burstiness)
+        assert total_weight == 11.0  # 3.0 (perplexity) + 8.0 (burstiness)
 
     def test_duplicate_registration_prevention(self):
         """Test that duplicate registration is idempotent (registry stores only one)."""
@@ -96,4 +96,4 @@ class TestDimensionRegistration:
         DimensionRegistry.clear()
         alias_instance = PerplexityAnalyzer()
         assert alias_instance.dimension_name == "perplexity"
-        assert alias_instance.weight == 2.8  # Weight after rebalancing to 100%
+        assert alias_instance.weight == 3.0  # Weight after rebalancing to 100%
