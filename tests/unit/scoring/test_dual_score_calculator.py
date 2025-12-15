@@ -264,6 +264,31 @@ def high_quality_results():
                 "however_per_1k": 1.0,
                 "score": 95.0,  # HIGH
             },
+            "pragmatic_markers": {
+                "hedging_density": 0.02,
+                "certainty_density": 0.01,
+                "score": 95.0,  # HIGH
+            },
+            "figurative_language": {
+                "metaphor_density": 0.015,
+                "simile_density": 0.01,
+                "score": 95.0,  # HIGH
+            },
+            "semantic_coherence": {
+                "mean_coherence": 0.75,
+                "coherence_variance": 0.1,
+                "score": 95.0,  # HIGH
+            },
+            "energy": {
+                "passive_ratio": 0.1,
+                "dynamic_verb_density": 0.08,
+                "score": 95.0,  # HIGH
+            },
+            "ai_vocabulary": {
+                "ai_vocab_density": 0.01,
+                "tier1_count": 0,
+                "score": 95.0,  # HIGH
+            },
         },
     )
 
@@ -558,9 +583,8 @@ class TestCalculateDualScoreDimensions:
     def test_gltr_dimension_high(self, high_quality_results):
         """Test GLTR dimension (predictability) scoring with HIGH score.
 
-        Note (Story 2.4.1, Task 10.6): After weight rescaling (109% → 100%),
-        predictability weight changed from 20.0 to 18.37 (20.0 * 100/109).
-        Fixture score increased from 90.0 to 95.0 to maintain quality_score > 80.
+        Note: Predictability weight is 12.0 (rebalanced to 100% total).
+        Fixture score is 95.0.
         """
         score = calculate_dual_score(high_quality_results)
 
@@ -568,58 +592,58 @@ class TestCalculateDualScoreDimensions:
         advanced_cat = next(cat for cat in score.categories if cat.name == "Advanced Detection")
         gltr_dim = next(dim for dim in advanced_cat.dimensions if "GLTR" in dim.name)
 
-        # Predictability weight is 18.1 (rebalanced to 100% total), high_quality has score=95.0
-        # normalized = (95.0 / 100.0) * 18.1 = 17.195
-        assert gltr_dim.score == pytest.approx(17.195, abs=0.01)
-        assert gltr_dim.max_score == pytest.approx(18.1, abs=0.01)
+        # Predictability weight is 12.0 (rebalanced to 100% total), high_quality has score=95.0
+        # normalized = (95.0 / 100.0) * 12.0 = 11.4
+        assert gltr_dim.score == pytest.approx(11.4, abs=0.01)
+        assert gltr_dim.max_score == pytest.approx(12.0, abs=0.01)
         assert gltr_dim.percentage == 95.0
 
     def test_gltr_dimension_low(self, low_quality_results):
         """Test GLTR dimension (predictability) scoring with LOW score.
 
-        Note: Predictability weight is 18.1 (rebalanced to 100% total).
+        Note: Predictability weight is 12.0 (rebalanced to 100% total).
         """
         score = calculate_dual_score(low_quality_results)
 
         advanced_cat = next(cat for cat in score.categories if cat.name == "Advanced Detection")
         gltr_dim = next(dim for dim in advanced_cat.dimensions if "GLTR" in dim.name)
 
-        # Predictability weight is 18.1 (rebalanced to 100% total), low_quality has score=25.0
-        # normalized = (25.0 / 100.0) * 18.1 = 4.525
-        assert gltr_dim.score == pytest.approx(4.525, abs=0.01)
-        assert gltr_dim.max_score == pytest.approx(18.1, abs=0.01)
-        assert gltr_dim.gap == pytest.approx(13.575, abs=0.01)
+        # Predictability weight is 12.0 (rebalanced to 100% total), low_quality has score=25.0
+        # normalized = (25.0 / 100.0) * 12.0 = 3.0
+        assert gltr_dim.score == pytest.approx(3.0, abs=0.01)
+        assert gltr_dim.max_score == pytest.approx(12.0, abs=0.01)
+        assert gltr_dim.gap == pytest.approx(9.0, abs=0.01)
 
     def test_mattr_dimension_excellent(self, high_quality_results):
         """Test advanced_lexical dimension (contains MATTR) with high score.
 
-        Note: Advanced_lexical weight is 12.8 (rebalanced to 100% total).
-        Fixture score increased from 90.0 to 95.0 to maintain quality_score > 80.
+        Note: Advanced_lexical weight is 8.0 (rebalanced to 100% total).
+        Fixture score is 95.0.
         """
         score = calculate_dual_score(high_quality_results)
 
         advanced_cat = next(cat for cat in score.categories if cat.name == "Advanced Detection")
         mattr_dim = next(dim for dim in advanced_cat.dimensions if "MATTR" in dim.name)
 
-        # Advanced_lexical weight is 12.8 (rebalanced to 100% total), high_quality has score=95.0
-        # normalized = (95.0 / 100.0) * 12.8 = 12.16
-        assert mattr_dim.score == pytest.approx(12.16, abs=0.01)
-        assert mattr_dim.max_score == pytest.approx(12.8, abs=0.01)
+        # Advanced_lexical weight is 8.0 (rebalanced to 100% total), high_quality has score=95.0
+        # normalized = (95.0 / 100.0) * 8.0 = 7.6
+        assert mattr_dim.score == pytest.approx(7.6, abs=0.01)
+        assert mattr_dim.max_score == pytest.approx(8.0, abs=0.01)
 
     def test_mattr_dimension_poor(self, low_quality_results):
         """Test advanced_lexical dimension (contains MATTR) with low score.
 
-        Note: Advanced_lexical weight is 12.8 (rebalanced to 100% total).
+        Note: Advanced_lexical weight is 8.0 (rebalanced to 100% total).
         """
         score = calculate_dual_score(low_quality_results)
 
         advanced_cat = next(cat for cat in score.categories if cat.name == "Advanced Detection")
         mattr_dim = next(dim for dim in advanced_cat.dimensions if "MATTR" in dim.name)
 
-        # Advanced_lexical weight is 12.8 (rebalanced to 100% total), low_quality has score=25.0
-        # normalized = (25.0 / 100.0) * 12.8 = 3.2
-        assert mattr_dim.score == pytest.approx(3.2, abs=0.05)
-        assert mattr_dim.max_score == pytest.approx(12.8, abs=0.01)
+        # Advanced_lexical weight is 8.0 (rebalanced to 100% total), low_quality has score=25.0
+        # normalized = (25.0 / 100.0) * 8.0 = 2.0
+        assert mattr_dim.score == pytest.approx(2.0, abs=0.05)
+        assert mattr_dim.max_score == pytest.approx(8.0, abs=0.01)
 
     # Multi-Model Perplexity tests removed - dimension no longer exists in registry
     # This was a hardcoded dimension in the old implementation that has been

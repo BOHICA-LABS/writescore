@@ -50,7 +50,7 @@ class TestDimensionMetadata:
 
     def test_dimension_weight(self, dimension):
         """Test dimension weight is 18.1% (highest single dimension, rebalanced to 100% total)."""
-        assert dimension.weight == 18.1
+        assert dimension.weight == 12.0
 
     def test_dimension_tier(self, dimension):
         """Test dimension tier is ADVANCED."""
@@ -343,7 +343,7 @@ class TestBackwardCompatibility:
         dim = PredictabilityAnalyzer()
 
         assert dim.dimension_name == "predictability"
-        assert dim.weight == 18.1  # rebalanced to 100% total
+        assert dim.weight == 12.0  # rebalanced to 100% total
 
 
 class TestTimeoutMechanism:

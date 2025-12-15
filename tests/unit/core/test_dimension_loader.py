@@ -57,11 +57,11 @@ class TestDimensionLoaderBasics:
         assert set(result["loaded"]) == expected
 
     def test_load_full_profile(self):
-        """Test loading full profile (16 dimensions)."""
+        """Test loading full profile (17 dimensions)."""
         loader = DimensionLoader()
         result = loader.load_from_profile("full")
 
-        assert len(result["loaded"]) == 16
+        assert len(result["loaded"]) == 17
         expected = set(BUILTIN_DIMENSION_PROFILES["full"])
         assert set(result["loaded"]) == expected
 
@@ -169,7 +169,7 @@ metrics for vocabulary richness assessment.
         config = AnalysisConfig(dimension_profile="full")
         analyzer = AIPatternAnalyzer(config=config)
 
-        assert len(analyzer.dimensions) == 16
+        assert len(analyzer.dimensions) == 17
 
     def test_analyzer_with_explicit_dimensions(self):
         """Test analyzer with explicit dimension list."""

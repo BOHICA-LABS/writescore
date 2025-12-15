@@ -260,7 +260,12 @@ class TestRegistration:
         assert registered is dim
 
     def test_backward_compat_alias(self):
-        """Test backward compatibility alias."""
-        from writescore.dimensions.energy import EnergyAnalyzer
+        """Test backward compatibility alias.
+
+        Import both in the test function to avoid module reload issues.
+        The DimensionLoader can reload modules after registry clear,
+        creating new class objects that break `is` comparisons.
+        """
+        from writescore.dimensions.energy import EnergyAnalyzer, EnergyDimension
 
         assert EnergyAnalyzer is EnergyDimension

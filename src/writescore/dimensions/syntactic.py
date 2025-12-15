@@ -199,22 +199,17 @@ class SyntacticDimension(DimensionStrategy):
 
     def calculate_score(self, metrics: Dict[str, Any]) -> float:
         """
-        Calculate 0-100 score based on syntactic repetition using logit transform + Gaussian scoring.
+        Calculate 0-100 score based on syntactic repetition using monotonic scoring.
 
-        Migrated to transform-then-score approach in Story 2.4.1 (Group D).
+        Research basis (2024 literature review):
+        - Human text: ~38% syntactic template repetition rate
+        - AI text: ~95% syntactic template repetition rate
+        - Source: ComplexDiscovery analysis of POS tag sequences
 
-        Research parameters (Story 2.4.0 literature review):
-        - Metric: Syntactic repetition ratio (bounded [0,1])
-        - Transform: Logit to handle bounded data
-        - Target (μ): -1.0 (post-transform, corresponds to ratio ≈ 0.27)
-        - Width (σ): 0.8 (moderate tolerance)
-        - Confidence: Medium
-        - Rationale: Low repetition (≈0.27) indicates natural syntactic variety
-
-        Algorithm:
-        1. Apply logit transformation: logit(ratio) = log(ratio / (1-ratio))
-        2. Apply Gaussian scoring on transformed value
-        3. Handle boundary cases (ratio=0 or 1) with epsilon
+        Scoring approach:
+        - Monotonic: Lower repetition = higher score (more human-like)
+        - threshold_low=0.30: Good human baseline (25th percentile)
+        - threshold_high=0.70: AI-like territory (75th percentile)
 
         Lower repetition = more varied syntax = higher score (human-like).
         Higher repetition = mechanical patterns = lower score (AI-like).
@@ -231,14 +226,14 @@ class SyntacticDimension(DimensionStrategy):
 
         repetition = syntactic.get("syntactic_repetition_score", 0.5)
 
-        # Apply logit transformation to bounded [0,1] metric
-        # This handles the constraint that repetition ratio must be in [0,1]
-        logit_repetition = self._logit_transform(repetition)
-
-        # Gaussian scoring on transformed value
-        # Target μ=-1.0 (corresponds to ratio ≈ 0.27 - low repetition optimal)
-        # Width σ=0.8 (Story 2.4.1, AC6)
-        score = self._gaussian_score(value=logit_repetition, target=-1.0, width=0.8)
+        # Monotonic scoring: lower repetition = higher score (more human-like)
+        # Research shows AI has ~95% template rate vs ~38% for humans
+        score = self._monotonic_score(
+            value=repetition,
+            threshold_low=0.30,  # Good human baseline
+            threshold_high=0.70,  # AI-like territory
+            increasing=False,  # Lower is better
+        )
 
         self._validate_score(score)
         return score

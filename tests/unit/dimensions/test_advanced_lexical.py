@@ -48,8 +48,8 @@ class TestDimensionMetadata:
         assert dimension.dimension_name == "advanced_lexical"
 
     def test_dimension_weight(self, dimension):
-        """Test dimension weight is 12.8% (rebalanced to 100% total)."""
-        assert dimension.weight == 12.8
+        """Test dimension weight is 8.0%."""
+        assert dimension.weight == 8.0
 
     def test_dimension_tier(self, dimension):
         """Test dimension tier is ADVANCED."""
@@ -555,4 +555,4 @@ class TestBackwardCompatibility:
         dim = AdvancedLexicalAnalyzer()
 
         assert dim.dimension_name == "advanced_lexical"
-        assert dim.weight == 12.8  # rebalanced to 100% total
+        assert dim.weight == 8.0  # rebalanced to 100% total
