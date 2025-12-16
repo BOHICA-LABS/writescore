@@ -89,7 +89,7 @@ jobs:
         run: uv run pytest tests/unit -v --tb=short
 
       - name: Run integration tests
-        run: uv run pytest tests/integration -v --tb=short
+        run: uv run pytest tests/integration -v --tb=short -m "not performance_local"
 
       - name: Run coverage
         if: matrix.python-version == '3.12'
