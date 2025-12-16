@@ -1,7 +1,7 @@
 """
 CLI main entry point using Click framework.
 
-This module provides the command-line interface for WriteScore (AI Pattern Analyzer).
+This module provides the command-line interface for WriteScore.
 After installation, it's accessible via the `writescore` command.
 
 Usage:
@@ -742,9 +742,9 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.version_option(version=__version__, prog_name="writescore")
 def cli():
-    """WriteScore - AI Pattern Analysis and Parameter Calibration.
+    """WriteScore - Writing Quality Analysis and Scoring.
 
-    Use 'analyze' to check documents for AI patterns.
+    Use 'analyze' to check documents for writing quality patterns.
     Use 'recalibrate' to derive scoring parameters from validation data.
     """
     pass
@@ -785,14 +785,14 @@ def cli():
 @click.option(
     "--show-scores",
     is_flag=True,
-    help="Calculate and display dual scores (Detection Risk + Quality Score) with optimization path",
+    help="Calculate and display dual scores (Pattern Risk + Quality Score) with improvement path",
 )
 @click.option(
     "--detection-target",
     type=float,
     default=_CLI_DEFAULTS["detection_target"],
     metavar="N",
-    help=f"Target detection risk score (0-100, lower=better, default: {_CLI_DEFAULTS['detection_target']})",
+    help=f"Target pattern risk score (0-100, lower=better, default: {_CLI_DEFAULTS['detection_target']})",
 )
 @click.option(
     "--quality-target",
@@ -801,9 +801,7 @@ def cli():
     metavar="N",
     help=f"Target quality score (0-100, higher=better, default: {_CLI_DEFAULTS['quality_target']})",
 )
-@click.option(
-    "--show-history", is_flag=True, help="Show aggregate score trends (quality/detection)"
-)
+@click.option("--show-history", is_flag=True, help="Show aggregate score trends over time")
 @click.option(
     "--show-history-full",
     is_flag=True,
@@ -836,7 +834,7 @@ def cli():
     type=str,
     default="",
     metavar="NOTES",
-    help='Add notes for this iteration (e.g., "Fixed AI vocabulary")',
+    help='Add notes for this iteration (e.g., "Improved vocabulary variety")',
 )
 @click.option("--no-score-summary", is_flag=True, help="Suppress score summary display in output")
 @click.option(
@@ -906,7 +904,7 @@ def cli():
 @click.option(
     "--show-percentiles",
     is_flag=True,
-    help="Show percentile-based interpretation (where scores fall in human/AI distributions)",
+    help="Show percentile-based interpretation (where scores fall in quality distributions)",
 )
 @click.option(
     "--help-modes",
@@ -948,7 +946,7 @@ def analyze_command(
     show_percentiles,
     no_track_history,
 ):
-    """Analyze manuscripts for AI-generated content patterns.
+    """Analyze documents for writing quality patterns.
 
     Examples:
 
@@ -1213,7 +1211,7 @@ def recalibrate_command(
 
     Derives optimal scoring parameters by analyzing distribution statistics
     from a validation dataset. Parameters are anchored to empirical percentiles
-    from human and AI-written samples.
+    from sample documents with varying quality levels.
 
     Examples:
 

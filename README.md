@@ -21,7 +21,7 @@
 <!-- Maintenance -->
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-> **Identify AI patterns in your writing and get actionable feedback to sound more human.**
+> **Analyze your writing quality and get actionable feedback to improve clarity, voice, and engagement.**
 
 ![WriteScore CLI demo showing terminal output with analysis scores and recommendations](https://raw.githubusercontent.com/BOHICA-LABS/writescore/main/docs/assets/demo.gif)
 
@@ -222,30 +222,31 @@ Then run `just install` (users) or `just setup` (contributors).
 
 ## Why WriteScore?
 
-**The Problem**: AI detection tools give binary "AI/human" verdicts without explaining why or how to improve.
+**The Problem**: Most writing feedback is vague ("needs improvement") or focuses only on grammar. Writers need specific, actionable guidance on what makes their writing feel mechanical, formulaic, or disengaging.
 
-**The Solution**: WriteScore analyzes 12+ writing dimensions to identify specific patterns that make text sound AI-generated, then provides actionable recommendations.
+**The Solution**: WriteScore analyzes 17 linguistic dimensions to identify specific patterns that weaken writing quality, then provides actionable recommendations to improve clarity, voice, and reader engagement.
 
 **Key Differentiators**:
-- **Actionable feedback** — Know exactly what to fix, not just "this seems AI-generated"
-- **Multi-dimensional analysis** — Examines vocabulary, sentence variety, formatting patterns, and more
-- **Quality-focused** — Treats writing improvement as the goal, not accusation
-- **Transparent scoring** — See how each dimension contributes to your score
+- **Actionable feedback** — Know exactly what to fix with specific recommendations
+- **Multi-dimensional analysis** — Examines vocabulary diversity, sentence variety, voice, structure, and more
+- **Quality-focused** — Treats writing improvement as the goal, regardless of how content was created
+- **Transparent scoring** — See how each dimension contributes to your overall score
 
 **When to use WriteScore**:
-- Polishing AI-assisted drafts to sound more natural
-- Identifying mechanical patterns in your own writing
-- Quality checks before publishing
+- Improving drafts before publishing or submission
+- Identifying mechanical or formulaic patterns in your writing
+- Getting objective feedback on writing quality
+- Polishing content for better reader engagement
 
-**When NOT to use**:
-- Academic integrity enforcement (use dedicated tools)
-- Legal proof of authorship
-- Detection of latest-generation models with high confidence
+**What WriteScore is NOT**:
+- Not an AI detection tool — it analyzes writing quality, not authorship
+- Not a grammar checker — use dedicated tools for spelling/grammar
+- Not a plagiarism detector — use academic integrity tools for that
 
 ## Features
 
-- **Dual Scoring** — Detection risk + quality score in one analysis
-- **17 Analysis Dimensions** — From vocabulary patterns to syntactic complexity
+- **Comprehensive Scoring** — Overall quality score with per-dimension breakdown
+- **17 Analysis Dimensions** — Vocabulary, sentence variety, voice, structure, readability, and more
 - **Content Type Presets** — Optimized analysis for academic, technical, creative, and 10 other content types
 - **Multiple Modes** — Fast checks to comprehensive analysis
 - **Actionable Insights** — Specific recommendations ranked by impact
@@ -262,7 +263,7 @@ writescore analyze document.md
 # Detailed findings with recommendations
 writescore analyze document.md --detailed
 
-# Show dual scores (detection risk + quality)
+# Show detailed scores breakdown
 writescore analyze document.md --show-scores
 
 # Fast mode for quick checks
