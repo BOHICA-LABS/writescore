@@ -857,7 +857,23 @@ def cli():
     "--content-type",
     "-c",
     "content_type",
-    type=click.Choice(["general", "technical", "academic", "creative", "social_media", "business"]),
+    type=click.Choice(
+        [
+            "general",
+            "academic",
+            "professional_bio",
+            "personal_statement",
+            "blog",
+            "technical_docs",
+            "technical_book",
+            "business",
+            "creative",
+            "creative_fiction",
+            "news",
+            "marketing",
+            "social_media",
+        ]
+    ),
     default=None,
     help="Content type preset for adjusted weights/thresholds (optional)",
 )
