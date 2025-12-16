@@ -245,11 +245,13 @@ Then run `just install` (users) or `just setup` (contributors).
 ## Features
 
 - **Dual Scoring** — Detection risk + quality score in one analysis
-- **12 Analysis Dimensions** — From vocabulary patterns to syntactic complexity
+- **17 Analysis Dimensions** — From vocabulary patterns to syntactic complexity
+- **Content Type Presets** — Optimized analysis for academic, technical, creative, and 10 other content types
 - **Multiple Modes** — Fast checks to comprehensive analysis
 - **Actionable Insights** — Specific recommendations ranked by impact
 - **Batch Processing** — Analyze entire directories
 - **Score History** — Track improvements over time
+- **Configurable** — YAML-based configuration with layered overrides
 
 ## Usage
 
@@ -269,8 +271,16 @@ writescore analyze document.md --mode fast
 # Full analysis for final review
 writescore analyze document.md --mode full
 
+# Analyze with content type (adjusts weights/thresholds)
+writescore analyze document.md --content-type academic
+writescore analyze document.md --content-type technical_book
+writescore analyze document.md --content-type creative_fiction
+
 # Batch process a directory
 writescore analyze --batch docs/
+
+# Validate your configuration
+writescore validate-config --verbose
 ```
 
 ## Analysis Modes
@@ -283,6 +293,75 @@ writescore analyze --batch docs/
 | **full** | Slowest | Final review, maximum accuracy |
 
 See the [Analysis Modes Guide](docs/analysis-modes-guide.md) for details.
+
+## Content Types
+
+Optimize analysis for your document type with `--content-type`:
+
+| Content Type | Description |
+|--------------|-------------|
+| `academic` | Research papers, scholarly articles |
+| `technical_book` | Technical books, accessible yet thorough |
+| `technical_docs` | API docs, technical documentation |
+| `blog` | Blog posts, articles |
+| `creative` | Creative writing, general |
+| `creative_fiction` | Fiction, stories |
+| `professional_bio` | LinkedIn profiles, professional bios |
+| `personal_statement` | Application essays, personal statements |
+| `business` | Business documents, reports |
+| `news` | News articles, journalism |
+| `marketing` | Marketing copy, promotional content |
+| `social_media` | Social posts, casual content |
+| `general` | Default settings |
+
+Each content type adjusts dimension weights and thresholds for more accurate analysis.
+
+## Configuration
+
+WriteScore uses YAML configuration files for customization without code changes.
+
+### Configuration Files
+
+```
+config/
+├── base.yaml           # Default configuration (do not edit)
+├── local.yaml          # Your overrides (git-ignored)
+├── local.yaml.example  # Template for local.yaml
+└── schema/             # JSON schema for validation
+```
+
+### Customizing Settings
+
+Create `config/local.yaml` to override defaults:
+
+```yaml
+# Adjust dimension weights
+dimensions:
+  formatting:
+    weight: 15.0  # Increase em-dash detection importance
+
+# Adjust scoring thresholds
+scoring:
+  thresholds:
+    ai_likely: 35  # More strict AI detection
+```
+
+### Environment Variables
+
+Override any setting via environment variables:
+
+```bash
+export WRITESCORE_DIMENSIONS_FORMATTING_WEIGHT=15
+export WRITESCORE_SCORING_THRESHOLDS_AI_LIKELY=35
+```
+
+### Validate Configuration
+
+```bash
+writescore validate-config --verbose
+```
+
+See the [Configuration System Guide](docs/architecture/18-configuration-system.md) for details.
 
 ## Troubleshooting
 
@@ -367,6 +446,7 @@ python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptr
 | Document | Description |
 |----------|-------------|
 | [Architecture](docs/architecture.md) | System design, components, patterns |
+| [Configuration System](docs/architecture/18-configuration-system.md) | YAML config, content types, customization |
 | [Analysis Modes Guide](docs/analysis-modes-guide.md) | Mode comparison and usage |
 | [Development History](docs/DEVELOPMENT-HISTORY.md) | Project evolution and roadmap |
 | [Migration Guide](MIGRATION-v6.0.0.md) | Upgrading from AI Pattern Analyzer |
