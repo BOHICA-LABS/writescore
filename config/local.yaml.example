@@ -1,0 +1,35 @@
+# WriteScore Local Configuration Example
+# Copy this file to local.yaml to override base.yaml settings
+# local.yaml is git-ignored - your overrides stay local
+
+# Override specific dimension weights
+dimensions:
+  # Example: Increase formatting weight for stricter em-dash detection
+  formatting:
+    weight: 12.0
+
+  # Example: Adjust readability for academic content
+  readability:
+    scoring:
+      target_grade: 12.0
+
+# Override scoring thresholds
+scoring:
+  thresholds:
+    # Example: Be more lenient with AI detection
+    ai_likely: 35
+
+# Override analysis defaults
+analysis:
+  defaults:
+    mode: full  # Always use full analysis
+
+# Add custom content type
+content_types:
+  my_custom_type:
+    description: "Custom settings for my specific use case"
+    weight_adjustments:
+      voice: 1.5
+    threshold_adjustments:
+      readability:
+        target_grade: 10.0

@@ -56,6 +56,37 @@ BUILTIN_DIMENSION_PROFILES = {
 _custom_profiles: Dict[str, List[str]] = {}
 
 
+def _get_profiles_from_config() -> Dict[str, List[str]]:
+    """
+    Get dimension profiles from ConfigRegistry if available.
+
+    Falls back to BUILTIN_DIMENSION_PROFILES if config unavailable.
+
+    Returns:
+        Dict mapping profile_name -> dimension list
+    """
+    try:
+        from writescore.core.config_registry import get_config_registry
+
+        registry = get_config_registry()
+        config = registry.get_config()
+
+        if config.profiles:
+            profiles = {}
+            for profile_name in ["all", "fast", "balanced", "advanced"]:
+                profile = config.profiles.get_profile(profile_name)
+                if profile:
+                    profiles[profile_name] = profile.dimensions
+            # Rename 'all' to 'full' for compatibility
+            if "all" in profiles:
+                profiles["full"] = profiles.pop("all")
+            return profiles
+    except Exception:
+        pass
+
+    return BUILTIN_DIMENSION_PROFILES
+
+
 class DimensionLoader:
     """
     Lazy loader for dimension modules based on configuration.
@@ -139,7 +170,7 @@ class DimensionLoader:
             dimensions: List of dimension names in this profile
 
         Raises:
-            ValueError: If trying to override built-in profile or invalid dimension names
+            ValueError: If trying to override config-based profile or invalid dimension names
 
         Example:
             >>> DimensionLoader.register_custom_profile(
@@ -147,10 +178,11 @@ class DimensionLoader:
             ...     ['perplexity', 'burstiness', 'voice']
             ... )
         """
-        if profile_name in BUILTIN_DIMENSION_PROFILES:
+        config_profiles = _get_profiles_from_config()
+        if profile_name in config_profiles:
             raise ValueError(
-                f"Cannot override built-in profile '{profile_name}'. "
-                f"Built-in profiles: {list(BUILTIN_DIMENSION_PROFILES.keys())}"
+                f"Cannot override config-based profile '{profile_name}'. "
+                f"Config profiles: {list(config_profiles.keys())}"
             )
 
         # Validate dimension names
@@ -163,7 +195,7 @@ class DimensionLoader:
     @classmethod
     def list_profiles(cls) -> Dict[str, List[str]]:
         """
-        Get all available profiles (built-in + custom).
+        Get all available profiles (config-based + custom).
 
         Returns:
             Dict mapping profile_name -> dimension_list
@@ -173,11 +205,12 @@ class DimensionLoader:
             >>> print(profiles.keys())
             dict_keys(['fast', 'balanced', 'full'])
         """
-        return {**BUILTIN_DIMENSION_PROFILES, **_custom_profiles}
+        config_profiles = _get_profiles_from_config()
+        return {**config_profiles, **_custom_profiles}
 
     def load_from_profile(self, profile_name: str) -> Dict[str, Any]:
         """
-        Load dimensions from a profile (built-in or custom).
+        Load dimensions from a profile (config-based or custom).
 
         Args:
             profile_name: Name of profile to load ('fast', 'balanced', 'full', or custom)
@@ -194,8 +227,11 @@ class DimensionLoader:
             >>> print(result['loaded'])
             ['perplexity', 'burstiness', 'structure', 'formatting', 'voice', 'lexical', 'readability', 'sentiment']
         """
-        if profile_name in BUILTIN_DIMENSION_PROFILES:
-            dimensions = BUILTIN_DIMENSION_PROFILES[profile_name]
+        # Get profiles from config (with fallback to built-in)
+        config_profiles = _get_profiles_from_config()
+
+        if profile_name in config_profiles:
+            dimensions = config_profiles[profile_name]
         elif profile_name in _custom_profiles:
             dimensions = _custom_profiles[profile_name]
         else:
