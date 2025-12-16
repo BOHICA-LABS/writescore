@@ -29,60 +29,75 @@ WriteScore uses a **Configuration over Code** pattern where behavioral parameter
 
 ## 18.3 Core Components
 
-### ConfigRegistry (`config/registry.py`)
+### ConfigRegistry (`src/writescore/core/config_registry.py`)
 
 Thread-safe singleton providing centralized configuration access:
 
 ```python
-class ConfigRegistry:
-    """Centralized configuration access point."""
+from writescore.core.config_registry import get_config_registry, ConfigRegistry
 
-    @classmethod
-    def initialize(cls, env: str = "default", config_dir: Path = None) -> None:
-        """Load configuration from YAML files."""
-        pass
+# Get the singleton registry
+registry = get_config_registry()
 
-    @classmethod
-    def get(cls, schema: Type[T]) -> T:
-        """Get typed configuration section."""
-        pass
+# Access configuration
+config = registry.get_config()  # Returns WriteScoreConfig
 
-    @classmethod
-    def reset(cls) -> None:
-        """Clear configuration (primarily for testing)."""
-        pass
+# Get dimension weight
+weight = registry.get_dimension_weight("formatting")  # Returns float
 
-    @classmethod
-    def is_initialized(cls) -> bool:
-        """Check if registry has been initialized."""
-        pass
+# Get enabled dimensions
+enabled = registry.get_enabled_dimensions()  # Returns List[str]
+
+# Get profile dimensions
+fast_dims = registry.get_profile_dimensions("fast")  # Returns List[str]
+
+# Set content type for weight adjustments
+registry.set_content_type("technical")
+registry.clear_content_type()
+
+# Reset for testing
+ConfigRegistry.reset()
 ```
 
-### Pydantic Schemas (`config/schemas/`)
+### Pydantic Schemas (`src/writescore/core/config_schema.py`)
 
 Type-safe configuration models with validation and defaults:
 
-| Schema | File | Purpose |
-|--------|------|---------|
-| **DimensionConfig** | `dimensions.py` | Dimension profiles, weights, parameters |
-| **ScoringConfig** | `scoring.py` | Score thresholds, categories, calibration |
-| **ContentTypesConfig** | `content_types.py` | Content type definitions, weights, thresholds |
-| **AnalysisConfig** | `analysis.py` | Analysis modes, sampling, timeouts |
+| Schema | Purpose |
+|--------|---------|
+| **WriteScoreConfig** | Root configuration aggregating all sections |
+| **DimensionsConfig** | Dimension settings (weight, tier, enabled) |
+| **DimensionConfig** | Individual dimension configuration |
+| **ProfilesConfig** | Dimension profiles (fast, balanced, full) |
+| **ScoringConfig** | Score thresholds and targets |
+| **AnalysisConfig** | Analysis modes, sampling, defaults |
+| **ContentTypesConfig** | Content type presets (technical, academic, etc.) |
 
-### Configuration Files (`config/`)
+### Configuration Files
 
 ```
-config/
-├── base.yaml           # Default configuration (checked into git)
-├── development.yaml    # Development overrides
-├── production.yaml     # Production overrides
-├── test.yaml           # Test environment config
-└── schemas/
-    ├── __init__.py
-    ├── dimensions.py
-    ├── scoring.py
-    ├── content_types.py
-    └── analysis.py
+src/writescore/core/
+├── config_schema.py    # Pydantic schemas
+├── config_loader.py    # YAML loading with layered merging
+├── config_registry.py  # Singleton registry
+└── config/
+    └── base.yaml       # Default configuration (packaged with library)
+```
+
+### CLI Commands
+
+```bash
+# Validate configuration
+writescore validate-config
+
+# Validate with verbose output
+writescore validate-config --verbose
+
+# Validate specific config directory
+writescore validate-config --config-dir /path/to/config
+
+# Analyze with content type preset
+writescore analyze document.md --content-type technical
 ```
 
 ## 18.4 Configuration Loading
@@ -192,36 +207,44 @@ content_types:
   types:
     - academic
     - professional_bio
+    - personal_statement
     - blog
+    - technical_docs
     - technical_book
-    - marketing
-    - news
-    - social_media
+    - business
+    - creative
     - creative_fiction
+    - news
+    - marketing
+    - social_media
 
   weights:
     technical_book:
-      readability: 0.15
-      burstiness: 0.12
-      structure: 0.12
-      voice: 0.08
-      lexical: 0.10
-      semantic_coherence: 0.12
-      predictability: 0.15
-      formatting: 0.06
-      transition_marker: 0.05
-      pragmatic_markers: 0.05
+      readability: 0.15       # CRITICAL - must be accessible
+      burstiness: 0.12        # HIGH - varied for engagement
+      advanced_lexical: 0.12  # HIGH - rich explanations
+      figurative_language: 0.12
+      perplexity: 0.10        # HIGH - avoid AI buzzwords
+      voice: 0.10
+      structure: 0.10
+      sentiment: 0.08
+      transition_marker: 0.08
+      syntactic: 0.03
+      # Sum: 1.00
 
     blog:
+      voice: 0.15             # CRITICAL - conversational required
+      sentiment: 0.12         # HIGH - emotional variation
+      burstiness: 0.12
       readability: 0.10
-      burstiness: 0.15
-      voice: 0.18
-      sentiment: 0.12
-      lexical: 0.08
+      perplexity: 0.10
       figurative_language: 0.10
-      energy: 0.12
-      formatting: 0.08
-      structure: 0.07
+      advanced_lexical: 0.08
+      transition_marker: 0.08
+      structure: 0.05         # LOW - informal OK
+      syntactic: 0.05
+      formatting: 0.05
+      # Sum: 1.00
 
   thresholds:
     academic:

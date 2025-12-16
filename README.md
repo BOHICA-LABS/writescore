@@ -21,7 +21,7 @@
 <!-- Maintenance -->
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-> **Identify AI patterns in your writing and get actionable feedback to sound more human.**
+> **Analyze your writing quality and get actionable feedback to improve clarity, voice, and engagement.**
 
 ![WriteScore CLI demo showing terminal output with analysis scores and recommendations](https://raw.githubusercontent.com/BOHICA-LABS/writescore/main/docs/assets/demo.gif)
 
@@ -222,34 +222,37 @@ Then run `just install` (users) or `just setup` (contributors).
 
 ## Why WriteScore?
 
-**The Problem**: AI detection tools give binary "AI/human" verdicts without explaining why or how to improve.
+**The Problem**: Most writing feedback is vague ("needs improvement") or focuses only on grammar. Writers need specific, actionable guidance on what makes their writing feel mechanical, formulaic, or disengaging.
 
-**The Solution**: WriteScore analyzes 12+ writing dimensions to identify specific patterns that make text sound AI-generated, then provides actionable recommendations.
+**The Solution**: WriteScore analyzes 17 linguistic dimensions to identify specific patterns that weaken writing quality, then provides actionable recommendations to improve clarity, voice, and reader engagement.
 
 **Key Differentiators**:
-- **Actionable feedback** — Know exactly what to fix, not just "this seems AI-generated"
-- **Multi-dimensional analysis** — Examines vocabulary, sentence variety, formatting patterns, and more
-- **Quality-focused** — Treats writing improvement as the goal, not accusation
-- **Transparent scoring** — See how each dimension contributes to your score
+- **Actionable feedback** — Know exactly what to fix with specific recommendations
+- **Multi-dimensional analysis** — Examines vocabulary diversity, sentence variety, voice, structure, and more
+- **Quality-focused** — Treats writing improvement as the goal, regardless of how content was created
+- **Transparent scoring** — See how each dimension contributes to your overall score
 
 **When to use WriteScore**:
-- Polishing AI-assisted drafts to sound more natural
-- Identifying mechanical patterns in your own writing
-- Quality checks before publishing
+- Improving drafts before publishing or submission
+- Identifying mechanical or formulaic patterns in your writing
+- Getting objective feedback on writing quality
+- Polishing content for better reader engagement
 
-**When NOT to use**:
-- Academic integrity enforcement (use dedicated tools)
-- Legal proof of authorship
-- Detection of latest-generation models with high confidence
+**What WriteScore is NOT**:
+- Not an AI detection tool — it analyzes writing quality, not authorship
+- Not a grammar checker — use dedicated tools for spelling/grammar
+- Not a plagiarism detector — use academic integrity tools for that
 
 ## Features
 
-- **Dual Scoring** — Detection risk + quality score in one analysis
-- **12 Analysis Dimensions** — From vocabulary patterns to syntactic complexity
+- **Comprehensive Scoring** — Overall quality score with per-dimension breakdown
+- **17 Analysis Dimensions** — Vocabulary, sentence variety, voice, structure, readability, and more
+- **Content Type Presets** — Optimized analysis for academic, technical, creative, and 10 other content types
 - **Multiple Modes** — Fast checks to comprehensive analysis
 - **Actionable Insights** — Specific recommendations ranked by impact
 - **Batch Processing** — Analyze entire directories
 - **Score History** — Track improvements over time
+- **Configurable** — YAML-based configuration with layered overrides
 
 ## Usage
 
@@ -260,7 +263,7 @@ writescore analyze document.md
 # Detailed findings with recommendations
 writescore analyze document.md --detailed
 
-# Show dual scores (detection risk + quality)
+# Show detailed scores breakdown
 writescore analyze document.md --show-scores
 
 # Fast mode for quick checks
@@ -269,8 +272,16 @@ writescore analyze document.md --mode fast
 # Full analysis for final review
 writescore analyze document.md --mode full
 
+# Analyze with content type (adjusts weights/thresholds)
+writescore analyze document.md --content-type academic
+writescore analyze document.md --content-type technical_book
+writescore analyze document.md --content-type creative_fiction
+
 # Batch process a directory
 writescore analyze --batch docs/
+
+# Validate your configuration
+writescore validate-config --verbose
 ```
 
 ## Analysis Modes
@@ -283,6 +294,75 @@ writescore analyze --batch docs/
 | **full** | Slowest | Final review, maximum accuracy |
 
 See the [Analysis Modes Guide](docs/analysis-modes-guide.md) for details.
+
+## Content Types
+
+Optimize analysis for your document type with `--content-type`:
+
+| Content Type | Description |
+|--------------|-------------|
+| `academic` | Research papers, scholarly articles |
+| `technical_book` | Technical books, accessible yet thorough |
+| `technical_docs` | API docs, technical documentation |
+| `blog` | Blog posts, articles |
+| `creative` | Creative writing, general |
+| `creative_fiction` | Fiction, stories |
+| `professional_bio` | LinkedIn profiles, professional bios |
+| `personal_statement` | Application essays, personal statements |
+| `business` | Business documents, reports |
+| `news` | News articles, journalism |
+| `marketing` | Marketing copy, promotional content |
+| `social_media` | Social posts, casual content |
+| `general` | Default settings |
+
+Each content type adjusts dimension weights and thresholds for more accurate analysis.
+
+## Configuration
+
+WriteScore uses YAML configuration files for customization without code changes.
+
+### Configuration Files
+
+```
+config/
+├── base.yaml           # Default configuration (do not edit)
+├── local.yaml          # Your overrides (git-ignored)
+├── local.yaml.example  # Template for local.yaml
+└── schema/             # JSON schema for validation
+```
+
+### Customizing Settings
+
+Create `config/local.yaml` to override defaults:
+
+```yaml
+# Adjust dimension weights
+dimensions:
+  formatting:
+    weight: 15.0  # Increase em-dash detection importance
+
+# Adjust scoring thresholds
+scoring:
+  thresholds:
+    ai_likely: 35  # More strict AI detection
+```
+
+### Environment Variables
+
+Override any setting via environment variables:
+
+```bash
+export WRITESCORE_DIMENSIONS_FORMATTING_WEIGHT=15
+export WRITESCORE_SCORING_THRESHOLDS_AI_LIKELY=35
+```
+
+### Validate Configuration
+
+```bash
+writescore validate-config --verbose
+```
+
+See the [Configuration System Guide](docs/architecture/18-configuration-system.md) for details.
 
 ## Troubleshooting
 
@@ -367,6 +447,7 @@ python -c "import nltk; nltk.download('punkt'); nltk.download('averaged_perceptr
 | Document | Description |
 |----------|-------------|
 | [Architecture](docs/architecture.md) | System design, components, patterns |
+| [Configuration System](docs/architecture/18-configuration-system.md) | YAML config, content types, customization |
 | [Analysis Modes Guide](docs/analysis-modes-guide.md) | Mode comparison and usage |
 | [Development History](docs/DEVELOPMENT-HISTORY.md) | Project evolution and roadmap |
 | [Migration Guide](MIGRATION-v6.0.0.md) | Upgrading from AI Pattern Analyzer |

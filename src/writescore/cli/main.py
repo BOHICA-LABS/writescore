@@ -1,7 +1,7 @@
 """
 CLI main entry point using Click framework.
 
-This module provides the command-line interface for WriteScore (AI Pattern Analyzer).
+This module provides the command-line interface for WriteScore.
 After installation, it's accessible via the `writescore` command.
 
 Usage:
@@ -11,6 +11,7 @@ Usage:
 Extension Points:
     - Refactored from argparse to Click for better UX (Story 1.4.10)
     - Converted to Click groups for multiple commands (Story 2.5 Task 5)
+    - Config-driven defaults via ConfigRegistry (Story 8.1)
     - BREAKING CHANGE: Users must now use 'analyze' subcommand
 """
 
@@ -43,6 +44,48 @@ from writescore.core.interpretability import (  # noqa: E402
     ScoreInterpreter,
     format_percentile_report,
 )
+
+
+def _get_cli_defaults():
+    """
+    Get CLI defaults from ConfigRegistry.
+
+    Returns dict with default values, falling back to hardcoded defaults
+    if config is unavailable.
+    """
+    defaults = {
+        "mode": "adaptive",
+        "profile": "balanced",
+        "detection_target": 30.0,
+        "quality_target": 85.0,
+        "sampling_sections": 5,
+    }
+
+    try:
+        from writescore.core.config_registry import get_config_registry
+
+        registry = get_config_registry()
+        config = registry.get_config()
+
+        # Get analysis defaults
+        if config.analysis and config.analysis.defaults:
+            defaults["mode"] = config.analysis.defaults.mode.value
+            defaults["sampling_sections"] = config.analysis.defaults.sampling_sections
+
+        # Get scoring thresholds (for targets)
+        if config.scoring and config.scoring.thresholds:
+            # Note: detection_target and quality_target could be derived from thresholds
+            pass
+
+    except Exception:
+        # Fall back to hardcoded defaults if config unavailable
+        pass
+
+    return defaults
+
+
+# Get CLI defaults from config
+_CLI_DEFAULTS = _get_cli_defaults()
 
 
 def parse_domain_terms(domain_terms_str: str):
@@ -699,9 +742,9 @@ def run_batch_analysis(batch_dir, mode, samples, sample_size, sample_strategy, p
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.version_option(version=__version__, prog_name="writescore")
 def cli():
-    """WriteScore - AI Pattern Analysis and Parameter Calibration.
+    """WriteScore - Writing Quality Analysis and Scoring.
 
-    Use 'analyze' to check documents for AI patterns.
+    Use 'analyze' to check documents for writing quality patterns.
     Use 'recalibrate' to derive scoring parameters from validation data.
     """
     pass
@@ -742,25 +785,23 @@ def cli():
 @click.option(
     "--show-scores",
     is_flag=True,
-    help="Calculate and display dual scores (Detection Risk + Quality Score) with optimization path",
+    help="Calculate and display dual scores (Pattern Risk + Quality Score) with improvement path",
 )
 @click.option(
     "--detection-target",
     type=float,
-    default=30.0,
+    default=_CLI_DEFAULTS["detection_target"],
     metavar="N",
-    help="Target detection risk score (0-100, lower=better, default: 30.0)",
+    help=f"Target pattern risk score (0-100, lower=better, default: {_CLI_DEFAULTS['detection_target']})",
 )
 @click.option(
     "--quality-target",
     type=float,
-    default=85.0,
+    default=_CLI_DEFAULTS["quality_target"],
     metavar="N",
-    help="Target quality score (0-100, higher=better, default: 85.0)",
+    help=f"Target quality score (0-100, higher=better, default: {_CLI_DEFAULTS['quality_target']})",
 )
-@click.option(
-    "--show-history", is_flag=True, help="Show aggregate score trends (quality/detection)"
-)
+@click.option("--show-history", is_flag=True, help="Show aggregate score trends over time")
 @click.option(
     "--show-history-full",
     is_flag=True,
@@ -793,29 +834,53 @@ def cli():
     type=str,
     default="",
     metavar="NOTES",
-    help='Add notes for this iteration (e.g., "Fixed AI vocabulary")',
+    help='Add notes for this iteration (e.g., "Improved vocabulary variety")',
 )
 @click.option("--no-score-summary", is_flag=True, help="Suppress score summary display in output")
 @click.option(
     "--mode",
     "-m",
     type=click.Choice(["fast", "adaptive", "sampling", "full"]),
-    default="adaptive",
+    default=_CLI_DEFAULTS["mode"],
     help="Analysis mode: fast (5-15s), adaptive (30-240s, RECOMMENDED), sampling (60-300s), full (5-20min)",
 )
 @click.option(
     "--profile",
     "-p",
     type=click.Choice(["fast", "balanced", "full"]),
-    default="balanced",
-    help="Dimension profile: fast (4 dims, ~100ms), balanced (8 dims, ~200ms, DEFAULT), full (12 dims, ~4-6s)",
+    default=_CLI_DEFAULTS["profile"],
+    help="Dimension profile: fast (core dims), balanced (core+key advanced), full (all 17 dims)",
+)
+@click.option(
+    "--content-type",
+    "-c",
+    "content_type",
+    type=click.Choice(
+        [
+            "general",
+            "academic",
+            "professional_bio",
+            "personal_statement",
+            "blog",
+            "technical_docs",
+            "technical_book",
+            "business",
+            "creative",
+            "creative_fiction",
+            "news",
+            "marketing",
+            "social_media",
+        ]
+    ),
+    default=None,
+    help="Content type preset for adjusted weights/thresholds (optional)",
 )
 @click.option(
     "--samples",
     type=click.IntRange(1, 20),
-    default=5,
+    default=_CLI_DEFAULTS["sampling_sections"],
     metavar="N",
-    help="Number of sections to sample (default: 5, range: 1-20)",
+    help=f"Number of sections to sample (default: {_CLI_DEFAULTS['sampling_sections']}, range: 1-20)",
 )
 @click.option(
     "--sample-size",
@@ -839,7 +904,7 @@ def cli():
 @click.option(
     "--show-percentiles",
     is_flag=True,
-    help="Show percentile-based interpretation (where scores fall in human/AI distributions)",
+    help="Show percentile-based interpretation (where scores fall in quality distributions)",
 )
 @click.option(
     "--help-modes",
@@ -872,6 +937,7 @@ def analyze_command(
     no_score_summary,
     mode,
     profile,
+    content_type,
     samples,
     sample_size,
     sample_strategy,
@@ -880,7 +946,7 @@ def analyze_command(
     show_percentiles,
     no_track_history,
 ):
-    """Analyze manuscripts for AI-generated content patterns.
+    """Analyze documents for writing quality patterns.
 
     Examples:
 
@@ -989,6 +1055,18 @@ def analyze_command(
 
     # Create config for analyzer (used by all modes)
     config = create_analysis_config(mode, samples, sample_size, sample_strategy, profile)
+
+    # Set content type in ConfigRegistry if specified
+    if content_type:
+        try:
+            from writescore.core.config_registry import get_config_registry
+
+            registry = get_config_registry()
+            registry.set_content_type(content_type)
+            if format == "text":
+                click.echo(f"Content type: {content_type}")
+        except Exception as e:
+            click.echo(f"Warning: Could not set content type: {e}", err=True)
 
     # Initialize analyzer
     analyzer = AIPatternAnalyzer(domain_terms=domain_patterns, config=config)
@@ -1133,7 +1211,7 @@ def recalibrate_command(
 
     Derives optimal scoring parameters by analyzing distribution statistics
     from a validation dataset. Parameters are anchored to empirical percentiles
-    from human and AI-written samples.
+    from sample documents with varying quality levels.
 
     Examples:
 
@@ -1618,6 +1696,92 @@ def deploy_command(params_file, params_dir, archive_dir, active_file, no_backup,
             click.echo(f"Previous version backed up to: {archive_dir}/")
     except Exception as e:
         click.echo(f"Deployment failed: {e}", err=True)
+        sys.exit(1)
+
+
+# Validate config command
+@cli.command(name="validate-config")
+@click.option(
+    "--config-dir",
+    type=click.Path(exists=True),
+    default=None,
+    help="Config directory (default: config/)",
+)
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed config information")
+def validate_config_command(config_dir, verbose):
+    """Validate WriteScore configuration files.
+
+    Loads and validates the configuration from YAML files using Pydantic schemas.
+    Exits with code 0 if valid, 1 if invalid.
+
+    Examples:
+
+      # Validate default config
+      writescore validate-config
+
+      # Validate with verbose output
+      writescore validate-config --verbose
+
+      # Validate specific config directory
+      writescore validate-config --config-dir /path/to/config
+    """
+    try:
+        from writescore.core.config_loader import ConfigLoader
+        from writescore.core.config_registry import ConfigRegistry
+
+        # Reset registry to ensure fresh load
+        ConfigRegistry.reset()
+
+        # Determine config path
+        if config_dir:
+            base_path = Path(config_dir) / "base.yaml"
+            local_path = Path(config_dir) / "local.yaml"
+        else:
+            # Default to package config
+            base_path = None
+            local_path = None
+
+        # Load and validate config
+        if base_path:
+            loader = ConfigLoader(base_path=base_path, local_path=local_path)
+            config = loader.load()
+        else:
+            # Use default config registry
+            from writescore.core.config_registry import get_config_registry
+
+            registry = get_config_registry()
+            config = registry.get_config()
+
+        click.echo("✓ Configuration is valid")
+
+        if verbose:
+            click.echo()
+            click.echo("Configuration Summary:")
+            click.echo(f"  Version: {config.version}")
+            # Count dimension configs (exclude internal fields)
+            dim_count = len([k for k in config.dimensions.__dict__ if not k.startswith("_")])
+            click.echo(f"  Dimensions configured: {dim_count}")
+
+            if config.profiles:
+                profiles = []
+                for name in ["fast", "balanced", "all", "advanced"]:
+                    profile = config.profiles.get_profile(name)
+                    if profile:
+                        profiles.append(f"{name} ({len(profile.dimensions)} dims)")
+                click.echo(f"  Profiles: {', '.join(profiles)}")
+
+            if config.analysis and config.analysis.defaults:
+                click.echo(f"  Default mode: {config.analysis.defaults.mode.value}")
+
+            if config.content_types:
+                types = getattr(config.content_types, "types", None)
+                if types:
+                    click.echo(f"  Content types: {len(types)}")
+
+        sys.exit(0)
+
+    except Exception as e:
+        click.echo(f"✗ Configuration validation failed: {e}", err=True)
         sys.exit(1)
 
 

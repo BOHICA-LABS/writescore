@@ -7,6 +7,8 @@ This test suite validates:
 - Custom profile registration
 - Analyzer integration with config
 - Performance characteristics
+
+Updated for Story 8.1: Config-driven profiles replace hardcoded BUILTIN_DIMENSION_PROFILES.
 """
 
 import tempfile
@@ -17,7 +19,7 @@ import pytest
 
 from writescore.core.analysis_config import AnalysisConfig
 from writescore.core.analyzer import AIPatternAnalyzer
-from writescore.core.dimension_loader import BUILTIN_DIMENSION_PROFILES, DimensionLoader
+from writescore.core.dimension_loader import DimensionLoader
 from writescore.core.dimension_registry import DimensionRegistry
 
 
@@ -38,31 +40,34 @@ class TestDimensionLoaderBasics:
         assert DimensionRegistry.has("perplexity")
 
     def test_load_fast_profile(self):
-        """Test loading fast profile (4 dimensions)."""
+        """Test loading fast profile (config-driven)."""
         loader = DimensionLoader()
+        profiles = DimensionLoader.list_profiles()
         result = loader.load_from_profile("fast")
 
-        assert len(result["loaded"]) == 4
-        expected = set(BUILTIN_DIMENSION_PROFILES["fast"])
+        # Config defines fast profile dimensions (7 in default config)
+        expected = set(profiles["fast"])
         assert set(result["loaded"]) == expected
         assert len(result["failed"]) == 0
 
     def test_load_balanced_profile(self):
-        """Test loading balanced profile (8 dimensions)."""
+        """Test loading balanced profile (config-driven)."""
         loader = DimensionLoader()
+        profiles = DimensionLoader.list_profiles()
         result = loader.load_from_profile("balanced")
 
-        assert len(result["loaded"]) == 8
-        expected = set(BUILTIN_DIMENSION_PROFILES["balanced"])
+        # Config defines balanced profile dimensions (11 in default config)
+        expected = set(profiles["balanced"])
         assert set(result["loaded"]) == expected
 
     def test_load_full_profile(self):
         """Test loading full profile (17 dimensions)."""
         loader = DimensionLoader()
+        profiles = DimensionLoader.list_profiles()
         result = loader.load_from_profile("full")
 
         assert len(result["loaded"]) == 17
-        expected = set(BUILTIN_DIMENSION_PROFILES["full"])
+        expected = set(profiles["full"])
         assert set(result["loaded"]) == expected
 
     def test_load_invalid_dimension(self):
@@ -93,8 +98,8 @@ class TestCustomProfiles:
         assert profiles["test_profile"] == ["perplexity", "burstiness"]
 
     def test_cannot_override_builtin_profile(self):
-        """Test that built-in profiles cannot be overridden."""
-        with pytest.raises(ValueError, match="Cannot override built-in profile"):
+        """Test that config-based profiles cannot be overridden."""
+        with pytest.raises(ValueError, match="Cannot override config-based profile"):
             DimensionLoader.register_custom_profile("fast", ["perplexity"])
 
     def test_register_invalid_dimensions(self):
@@ -147,22 +152,26 @@ metrics for vocabulary richness assessment.
         Path(self.temp_file_path).unlink(missing_ok=True)
 
     def test_analyzer_with_fast_profile(self):
-        """Test analyzer with fast profile config."""
+        """Test analyzer with fast profile config (config-driven)."""
         config = AnalysisConfig(dimension_profile="fast")
         analyzer = AIPatternAnalyzer(config=config)
+        profiles = DimensionLoader.list_profiles()
 
-        assert len(analyzer.dimensions) == 4
+        # Fast profile from config
+        assert len(analyzer.dimensions) == len(profiles["fast"])
         assert "perplexity" in analyzer.dimensions
-        assert "voice" not in analyzer.dimensions  # Not in fast profile
+        assert "formatting" in analyzer.dimensions
 
     def test_analyzer_with_balanced_profile(self):
-        """Test analyzer with balanced profile config."""
+        """Test analyzer with balanced profile config (config-driven)."""
         config = AnalysisConfig(dimension_profile="balanced")
         analyzer = AIPatternAnalyzer(config=config)
+        profiles = DimensionLoader.list_profiles()
 
-        assert len(analyzer.dimensions) == 8
+        # Balanced profile from config
+        assert len(analyzer.dimensions) == len(profiles["balanced"])
         assert "voice" in analyzer.dimensions
-        assert "predictability" not in analyzer.dimensions  # Not in balanced
+        assert "lexical" in analyzer.dimensions
 
     def test_analyzer_with_full_profile(self):
         """Test analyzer with full profile config."""
@@ -191,26 +200,38 @@ metrics for vocabulary richness assessment.
         assert len(analyzer.dimensions) == 3
 
     def test_analysis_with_fast_profile(self):
-        """Test full analysis with fast profile."""
+        """Test full analysis with fast profile (config-driven)."""
         config = AnalysisConfig(dimension_profile="fast")
         analyzer = AIPatternAnalyzer(config=config)
+        profiles = DimensionLoader.list_profiles()
         results = analyzer.analyze_file(self.temp_file_path)
 
         # Verify results object
         assert results.total_words > 0
         assert results.perplexity_score != ""
         assert results.burstiness_score != ""
-        assert results.voice_score == "UNKNOWN"  # Not loaded
+        # Check dimensions based on config-driven profile
+        if "voice" in profiles["fast"]:
+            assert results.voice_score != "UNKNOWN"
+        else:
+            assert results.voice_score == "UNKNOWN"
 
     def test_analysis_with_balanced_profile(self):
-        """Test full analysis with balanced profile."""
+        """Test full analysis with balanced profile (config-driven)."""
         config = AnalysisConfig(dimension_profile="balanced")
         analyzer = AIPatternAnalyzer(config=config)
+        profiles = DimensionLoader.list_profiles()
         results = analyzer.analyze_file(self.temp_file_path)
 
-        assert results.voice_score != "UNKNOWN"  # Should be loaded
-        assert results.lexical_score != "UNKNOWN"  # Should be loaded
-        assert results.predictability_score == "UNKNOWN"  # Not in balanced
+        # Check dimensions based on config-driven profile
+        if "voice" in profiles["balanced"]:
+            assert results.voice_score != "UNKNOWN"
+        if "lexical" in profiles["balanced"]:
+            assert results.lexical_score != "UNKNOWN"
+        if "predictability" not in profiles["balanced"]:
+            assert results.predictability_score == "UNKNOWN"
+        else:
+            assert results.predictability_score != "UNKNOWN"
 
 
 class TestPerformance:
@@ -239,18 +260,20 @@ provides comprehensive analysis.
         Path(self.temp_file_path).unlink(missing_ok=True)
 
     def test_fast_profile_performance(self):
-        """Verify fast profile loads quickly (<1s)."""
+        """Verify fast profile loads quickly (<5s)."""
         config = AnalysisConfig(dimension_profile="fast")
+        profiles = DimensionLoader.list_profiles()
 
         start = time.time()
         analyzer = AIPatternAnalyzer(config=config)
         analyzer.analyze_file(self.temp_file_path)
         elapsed = time.time() - start
 
-        # Fast profile should complete in < 1 second
+        # Fast profile should complete in < 5 seconds
         # (might be slower on first run due to imports, but should be fast after)
         assert elapsed < 5.0, f"Fast profile took {elapsed}s (expected < 5s)"
-        assert len(analyzer.dimensions) == 4
+        # Config-driven profile dimension count
+        assert len(analyzer.dimensions) == len(profiles["fast"])
 
     def test_balanced_faster_than_full(self):
         """Verify balanced profile is faster than full profile."""

@@ -483,3 +483,99 @@
 6. Mypy configuration added to `pyproject.toml`
 
 ---
+
+## 5.7 Epic 7: MCP Server & API Layer
+
+**Goal:** Expose WriteScore functionality via Model Context Protocol (MCP) for seamless IDE integration, enabling AI assistants to analyze writing quality directly within development environments.
+
+### Story 7.1: MCP Server Foundation
+
+**As a** developer using an AI-powered IDE,
+**I want** WriteScore exposed as an MCP server,
+**so that** I can analyze document quality without leaving my development environment.
+
+**Acceptance Criteria:**
+1. MCP server implementation in `src/writescore/mcp/`
+2. `analyze` tool exposed via MCP protocol
+3. Server starts via `writescore mcp serve` command
+4. Compatible with Claude Code and other MCP clients
+5. Returns structured analysis results
+
+---
+
+### Story 7.2: MCP Resources & Prompts
+
+**As a** developer,
+**I want** MCP resources and prompts for common analysis workflows,
+**so that** I can quickly access WriteScore capabilities.
+
+**Acceptance Criteria:**
+1. Resource exposing available dimension profiles
+2. Resource exposing current configuration
+3. Prompt templates for common analysis tasks
+4. Documentation for MCP integration
+
+---
+
+## 5.8 Epic 8: Configuration & Extensibility
+
+**Goal:** Externalize all tunable WriteScore parameters to declarative YAML configuration files, enabling dimension weights, scoring thresholds, analysis profiles, and model selections to be modified without code changes—supporting environment-specific behavior, operator tuning, and A/B testing of detection strategies.
+
+### Story 8.1: Configuration Over Code
+
+**As a** WriteScore developer or operator,
+**I want** to externalize all tunable parameters into declarative YAML configuration files,
+**so that** I can modify dimension weights, scoring thresholds, analysis profiles, and model selections without code changes, enabling easier tuning, environment-specific behavior, and non-developer adjustment of detection parameters.
+
+**Acceptance Criteria:**
+1. Config directory structure with `base.yaml` and environment-specific overrides
+2. Pydantic schemas for all config sections with validation
+3. Config loader with layered override support (base → environment → env vars)
+4. ConfigRegistry singleton for centralized access
+5. Dimension config externalized (weights, tiers, profiles)
+6. Scoring thresholds externalized
+7. Analysis mode parameters externalized
+8. Model selections externalized
+9. Environment-specific YAML files with layered merging
+10. Secret handling via `${ENV_VAR}` pattern
+11. Validation at load time with clear errors
+12. Backward compatibility with fallback to hardcoded defaults
+13. CLI integration with `--config-dir` flag
+14. Testing support with `ConfigRegistry.reset()`
+15. Documentation for config structure and customization
+16. Content-type list defined in config (foundation for Epic 3.1)
+17. Content-type dimension weights externalized (foundation for Epic 3.2)
+18. Content-type scoring thresholds externalized (foundation for Epic 3.3)
+19. Pydantic schemas for content-type configuration with validation
+
+---
+
+### Story 8.2: Custom Dimension Profiles
+
+**As a** WriteScore operator,
+**I want** to define custom dimension profiles in configuration,
+**so that** I can create specialized analysis profiles for different use cases.
+
+**Acceptance Criteria:**
+1. Custom profiles defined in YAML under `dimensions.profiles`
+2. Profiles can include any subset of available dimensions
+3. CLI accepts custom profile names via `--profile`
+4. Invalid dimension names in profiles raise clear errors
+5. Documentation for creating custom profiles
+
+---
+
+### Story 8.3: Runtime Configuration Reload
+
+**As a** WriteScore operator running long-lived processes,
+**I want** to reload configuration without restarting,
+**so that** I can adjust parameters in production without downtime.
+
+**Acceptance Criteria:**
+1. `ConfigRegistry.reload()` method for hot reload
+2. Signal handler (SIGHUP) triggers reload in MCP server
+3. Reload validates new config before applying
+4. Failed reload keeps previous config with warning
+5. Reload event logged with config diff summary
+
+---

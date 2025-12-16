@@ -55,6 +55,9 @@ hidden_imports = [
     'writescore.core.dimension_registry',
     'writescore.core.deployment',
     'writescore.core.interpretability',
+    'writescore.core.config_schema',
+    'writescore.core.config_loader',
+    'writescore.core.config_registry',
     'writescore.dimensions',
     'writescore.dimensions.base',
     'writescore.dimensions.base_strategy',
@@ -122,6 +125,18 @@ repo_root = package_path.parent.parent  # src/writescore -> src -> repo root
 pyproject_path = repo_root / "pyproject.toml"
 if pyproject_path.exists():
     datas.append((str(pyproject_path), "."))
+
+# Add configuration files (Story 8.1)
+config_path = repo_root / "config"
+if config_path.exists():
+    # Add base.yaml (required for config system)
+    base_config = config_path / "base.yaml"
+    if base_config.exists():
+        datas.append((str(base_config), "config"))
+    # Add schema if it exists
+    schema_path = config_path / "schema"
+    if schema_path.exists():
+        datas.append((str(schema_path), "config/schema"))
 
 # Add spacy package data
 datas.append((str(spacy_path), "spacy"))

@@ -86,3 +86,7 @@ Thumbs.db
 
 # uv lock file (library, not application)
 uv.lock
+
+# Local configuration overrides
+config/local.yaml
+config/local.yml
