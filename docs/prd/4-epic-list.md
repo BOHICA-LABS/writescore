@@ -8,5 +8,7 @@
 | **4** | Repository Extraction | Extract WriteScore into standalone GitHub repository with CI/CD |
 | **5** | README Modernization | Revamp README to follow 2025 best practices for user-centric documentation |
 | **6** | Developer Experience & Security | Streamline onboarding, enhance CI/CD, and leverage GitHub security features |
+| **7** | MCP Server & API Layer | Expose WriteScore functionality via MCP protocol for IDE integration |
+| **8** | Configuration & Extensibility | Externalize configuration to YAML with layered overrides for tuning without code changes |
 
 ---

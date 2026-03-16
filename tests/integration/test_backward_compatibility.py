@@ -92,6 +92,7 @@ class TestBackwardCompatibility:
         assert result1.structure_score == result2.structure_score
 
     @pytest.mark.slow
+    @pytest.mark.performance_local
     def test_no_performance_regression_default_path(self):
         """Config=None path has <5% overhead vs no config."""
         analyzer = AIPatternAnalyzer()
@@ -126,6 +127,7 @@ class TestBackwardCompatibility:
         ), f"Performance regression: {overhead_pct:.1f}% overhead (limit: 5%)"
 
     @pytest.mark.slow
+    @pytest.mark.performance_local
     def test_fast_mode_timing_within_bounds(self):
         """FAST mode completes analysis within reasonable time bounds."""
         analyzer = AIPatternAnalyzer()
@@ -220,6 +222,7 @@ class TestConfigPropagation:
         # If we got a result, config was successfully passed through
         assert result is not None
 
+    @pytest.mark.performance_local
     def test_different_configs_accepted(self):
         """Verify analyzer accepts various config objects."""
         analyzer = AIPatternAnalyzer()

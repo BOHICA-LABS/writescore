@@ -1,0 +1,477 @@
+# WriteScore Base Configuration
+# All default values extracted from source code
+# Override by creating config/local.yaml (git-ignored)
+# Schema: config/schema/writescore-config.schema.json
+
+version: "1.0.0"
+
+# ==============================================================================
+# DIMENSIONS - Weights and configuration for each analysis dimension
+# ==============================================================================
+dimensions:
+  # --- ADVANCED Tier (38% total) ---
+  predictability:
+    weight: 12.0
+    tier: ADVANCED
+    description: "GLTR token predictability analysis"
+    thresholds:
+      top_10_ai_threshold: 0.70
+      top_10_human_threshold: 0.55
+    timeout_seconds: 120
+
+  advanced_lexical:
+    weight: 8.0
+    tier: ADVANCED
+    description: "HDD, Yule's K, MATTR, RTTR, Maas metrics"
+    thresholds:
+      hdd_low: 0.7
+      yules_k_high: 50
+
+  transition_marker:
+    weight: 5.0
+    tier: ADVANCED
+    description: "Basic and formulaic transition patterns"
+    thresholds:
+      basic_excellent: 2.0
+      basic_good: 4.0
+      basic_concerning: 8.0
+      formulaic_excellent: 1
+      formulaic_good: 2
+      formulaic_concerning: 4
+    composite_weights:
+      basic: 0.50
+      formulaic: 0.50
+
+  pragmatic_markers:
+    weight: 5.0
+    tier: ADVANCED
+    description: "Epistemic hedging, certainty, speech acts"
+    thresholds:
+      hedge_excellent: 5.0
+      hedge_good: 9.0
+      hedge_concerning: 12.0
+      certainty_excellent: 2.0
+      certainty_good: 5.0
+      certainty_concerning: 8.0
+
+  syntactic:
+    weight: 2.0
+    tier: ADVANCED
+    description: "Dependency depth, subordination, POS diversity"
+    thresholds:
+      depth_ai: 3
+      depth_human_min: 4
+      depth_human_max: 6
+      subordination_ai: 0.1
+      subordination_human: 0.15
+      repetition_threshold_low: 0.30
+      repetition_threshold_high: 0.50
+
+  # --- CORE Tier (48% total) ---
+  formatting:
+    weight: 10.0
+    tier: CORE
+    description: "Em-dash patterns (strongest AI signal)"
+    thresholds:
+      em_dash_count_high: 3
+      em_dash_count_very_high: 5
+      sentence_em_dash_ratio_high: 0.15
+
+  burstiness:
+    weight: 8.0
+    tier: CORE
+    description: "Sentence and paragraph length variation"
+    thresholds:
+      sentence_stdev_low: 3.0
+      sentence_stdev_medium: 5.0
+      sentence_stdev_high: 10.0
+      paragraph_cv_low: 0.2
+      paragraph_cv_high: 0.5
+
+  voice:
+    weight: 7.0
+    tier: CORE
+    description: "First-person usage, contractions, authenticity"
+    thresholds:
+      first_person_min: 2
+      contraction_min: 1
+      opinion_min: 1
+
+  structure:
+    weight: 5.0
+    tier: CORE
+    description: "Heading structure, sections, list patterns"
+    thresholds:
+      heading_depth_concerning: 4
+      heading_depth_severe: 5
+      heading_parallelism_medium: 0.6
+      heading_parallelism_high: 0.8
+      heading_verbose_ratio: 0.3
+      section_variance_excellent: 40
+      section_variance_good: 25
+      section_variance_fair: 15
+      list_nesting_excellent: 3
+      list_nesting_good: 4
+      list_nesting_fair: 6
+
+  readability:
+    weight: 5.0
+    tier: CORE
+    description: "Flesch-Kincaid metrics"
+    scoring:
+      target_grade: 9.0
+      target_width: 2.5
+    thresholds:
+      flesch_extreme_low: 30
+      flesch_extreme_high: 90
+      flesch_ai_range_low: 60
+      flesch_ai_range_high: 70
+
+  ai_vocabulary:
+    weight: 5.0
+    tier: CORE
+    description: "AI-characteristic vocabulary patterns"
+    tier_weights:
+      tier_1: 3.0
+      tier_2: 2.0
+      tier_3: 1.0
+    thresholds:
+      weighted_density_excellent: 0.5
+      weighted_density_good: 1.0
+      weighted_density_concerning: 2.0
+
+  perplexity:
+    weight: 3.0
+    tier: CORE
+    description: "Mathematical perplexity calculation"
+    scoring:
+      threshold_low: 50.0
+      threshold_high: 200.0
+      direction: increasing
+    model: "gpt2"
+
+  # --- SUPPORTING Tier (14% total) ---
+  lexical:
+    weight: 5.0
+    tier: SUPPORTING
+    description: "TTR and MTLD diversity metrics"
+    scoring:
+      mtld_threshold_low: 60.0
+      mtld_threshold_high: 100.0
+    thresholds:
+      ttr_excellent: 0.60
+      ttr_good: 0.45
+      ttr_concerning: 0.30
+
+  sentiment:
+    weight: 5.0
+    tier: SUPPORTING
+    description: "Emotional variation patterns"
+    scoring:
+      target_polarity: 0.0
+      target_width: 0.3
+    thresholds:
+      variance_excellent: 0.20
+      variance_good: 0.15
+      variance_concerning: 0.10
+      variance_poor: 0.05
+
+  semantic_coherence:
+    weight: 5.0
+    tier: SUPPORTING
+    description: "Cross-sentence semantic coherence"
+    thresholds:
+      paragraph_cohesion_excellent: 0.55
+      paragraph_cohesion_good: 0.45
+      paragraph_cohesion_acceptable: 0.35
+      topic_consistency_excellent: 0.72
+      topic_consistency_good: 0.65
+      topic_consistency_acceptable: 0.55
+    optimization:
+      max_sentences_before_sampling: 500
+      sample_size: 50
+      batch_size: 32
+
+  energy:
+    weight: 5.0
+    tier: SUPPORTING
+    description: "Active voice, verb strength, concrete language"
+    thresholds:
+      active_voice_excellent: 0.70
+      active_voice_good: 0.50
+      verb_dynamism_excellent: 0.40
+      verb_dynamism_good: 0.25
+      concreteness_excellent: 0.60
+      concreteness_good: 0.45
+
+  figurative_language:
+    weight: 5.0
+    tier: SUPPORTING
+    description: "Metaphors, similes, idioms detection"
+    thresholds:
+      diversity_excellent: 0.6
+      diversity_good: 0.4
+      cliche_ratio_excellent: 0.2
+      cliche_ratio_concerning: 0.5
+
+# ==============================================================================
+# SCORING - Dual score thresholds and calculation parameters
+# ==============================================================================
+scoring:
+  thresholds:
+    # AI Likelihood thresholds (lower = more AI-like)
+    ai_very_likely: 25
+    ai_likely: 40
+    ai_possibly: 55
+    mixed_content: 70
+    human_likely: 85
+
+    # Quality thresholds
+    quality_excellent: 85
+    quality_good: 70
+    quality_acceptable: 55
+    quality_poor: 40
+
+    # Dimension-specific thresholds
+    heading_parallelism_high: 0.8
+    heading_parallelism_medium: 0.6
+    heading_verbose_ratio: 0.3
+    sentence_stdev_low: 3.0
+
+  calibration:
+    # Weights for composite scoring
+    ai_detection_weight: 0.6
+    quality_weight: 0.4
+
+# ==============================================================================
+# ANALYSIS - Analysis mode configurations
+# ==============================================================================
+analysis:
+  modes:
+    fast:
+      max_chars: 2000
+      description: "Quick checks, truncates text"
+    adaptive:
+      description: "Default, scales with document size"
+      sampling_threshold: 100000
+    sampling:
+      sections: 5
+      description: "Configurable N-section sampling"
+    full:
+      description: "Complete analysis, most accurate"
+
+  defaults:
+    mode: adaptive
+    sampling_sections: 5
+
+# ==============================================================================
+# PROFILES - Dimension loading profiles
+# ==============================================================================
+profiles:
+  all:
+    description: "All 17 dimensions"
+    dimensions:
+      - perplexity
+      - burstiness
+      - formatting
+      - voice
+      - structure
+      - lexical
+      - sentiment
+      - readability
+      - syntactic
+      - predictability
+      - ai_vocabulary
+      - semantic_coherence
+      - energy
+      - figurative_language
+      - pragmatic_markers
+      - transition_marker
+      - advanced_lexical
+
+  fast:
+    description: "Core dimensions only (faster analysis)"
+    dimensions:
+      - formatting
+      - burstiness
+      - voice
+      - structure
+      - readability
+      - ai_vocabulary
+      - perplexity
+
+  balanced:
+    description: "Core + key advanced dimensions"
+    dimensions:
+      - formatting
+      - burstiness
+      - voice
+      - structure
+      - readability
+      - ai_vocabulary
+      - perplexity
+      - predictability
+      - transition_marker
+      - lexical
+      - sentiment
+
+  advanced:
+    description: "All dimensions except ML-heavy"
+    dimensions:
+      - perplexity
+      - burstiness
+      - formatting
+      - voice
+      - structure
+      - lexical
+      - sentiment
+      - readability
+      - syntactic
+      - ai_vocabulary
+      - energy
+      - pragmatic_markers
+      - transition_marker
+      - advanced_lexical
+
+# ==============================================================================
+# CONTENT TYPES - Presets for different document types (Story 8.1 AC 16-19)
+# ==============================================================================
+content_types:
+  # Valid content types list (Story 8.1 AC 16)
+  types:
+    - academic
+    - professional_bio
+    - personal_statement
+    - blog
+    - technical_docs
+    - technical_book
+    - business
+    - creative
+    - creative_fiction
+    - news
+    - marketing
+    - social_media
+    - general
+
+  general:
+    description: "Default settings for general content"
+    weight_adjustments: {}
+    threshold_adjustments: {}
+
+  technical:
+    description: "Technical documentation, code-heavy"
+    weight_adjustments:
+      structure: 1.2
+      readability: 0.8
+      figurative_language: 0.5
+    threshold_adjustments:
+      readability:
+        target_grade: 11.0
+
+  technical_docs:
+    description: "Technical documentation"
+    weight_adjustments:
+      structure: 1.2
+      readability: 0.9
+      figurative_language: 0.5
+
+  technical_book:
+    description: "Technical books - accessible yet thorough"
+    weight_adjustments:
+      readability: 1.2
+      burstiness: 1.1
+      advanced_lexical: 1.1
+      figurative_language: 1.1
+      perplexity: 1.0
+
+  academic:
+    description: "Academic papers, research content"
+    weight_adjustments:
+      lexical: 1.3
+      semantic_coherence: 1.2
+      pragmatic_markers: 1.1
+      syntactic: 1.2
+    threshold_adjustments:
+      readability:
+        target_grade: 12.0
+      lexical:
+        mtld_threshold_high: 120.0
+
+  professional_bio:
+    description: "Professional biographies, LinkedIn profiles"
+    weight_adjustments:
+      voice: 1.2
+      structure: 1.1
+
+  personal_statement:
+    description: "Personal statements, application essays"
+    weight_adjustments:
+      voice: 1.3
+      sentiment: 1.2
+      energy: 1.1
+
+  blog:
+    description: "Blog posts, articles"
+    weight_adjustments:
+      voice: 1.3
+      sentiment: 1.1
+      burstiness: 1.1
+      readability: 1.0
+      figurative_language: 1.1
+    threshold_adjustments:
+      readability:
+        target_grade: 8.0
+
+  creative:
+    description: "Creative writing, general"
+    weight_adjustments:
+      voice: 1.3
+      figurative_language: 1.5
+      energy: 1.2
+      sentiment: 1.2
+    threshold_adjustments:
+      sentiment:
+        target_width: 0.4
+
+  creative_fiction:
+    description: "Fiction writing, stories"
+    weight_adjustments:
+      voice: 1.4
+      figurative_language: 1.5
+      energy: 1.3
+      sentiment: 1.3
+      burstiness: 1.2
+
+  news:
+    description: "News articles, journalism"
+    weight_adjustments:
+      structure: 1.2
+      readability: 1.1
+      voice: 0.9
+
+  marketing:
+    description: "Marketing copy, promotional content"
+    weight_adjustments:
+      energy: 1.3
+      sentiment: 1.2
+      voice: 1.1
+
+  social_media:
+    description: "Social media posts, casual content"
+    weight_adjustments:
+      voice: 1.2
+      readability: 1.1
+      structure: 0.7
+    threshold_adjustments:
+      readability:
+        target_grade: 7.0
+
+  business:
+    description: "Business documents, reports"
+    weight_adjustments:
+      structure: 1.2
+      transition_marker: 1.1
+      pragmatic_markers: 1.1
+    threshold_adjustments:
+      readability:
+        target_grade: 10.0

@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# WriteScore Docker Wrapper
+# Runs WriteScore in a container with access to host files
+#
+# Installation:
+#   sudo cp scripts/writescore-docker /usr/local/bin/writescore
+#   sudo chmod +x /usr/local/bin/writescore
+#
+# Or add alias to ~/.bashrc or ~/.zshrc:
+#   alias writescore='docker run --rm -v "$(pwd):/work" -w /work ghcr.io/bohica-labs/writescore:latest'
+#
+# Environment variables:
+#   WRITESCORE_IMAGE - Override container image (default: ghcr.io/bohica-labs/writescore:latest)
+#   WRITESCORE_GPU   - Enable GPU support: "nvidia", "amd", or "auto" (default: auto-detect)
+
+set -euo pipefail
+
+# Container image - can be overridden with WRITESCORE_IMAGE env var
+IMAGE="${WRITESCORE_IMAGE:-ghcr.io/bohica-labs/writescore:latest}"
+
+# GPU support detection
+GPU_FLAGS=()
+GPU_MODE="${WRITESCORE_GPU:-auto}"
+
+detect_gpu() {
+    if [[ "$GPU_MODE" == "nvidia" ]] || { [[ "$GPU_MODE" == "auto" ]] && command -v nvidia-smi &>/dev/null; }; then
+        # NVIDIA GPU - use nvidia-docker runtime
+        GPU_FLAGS=("--gpus" "all")
+    elif [[ "$GPU_MODE" == "amd" ]] || { [[ "$GPU_MODE" == "auto" ]] && [[ -d /dev/dri ]]; }; then
+        # AMD GPU - use ROCm device passthrough
+        GPU_FLAGS=("--device" "/dev/kfd" "--device" "/dev/dri")
+    fi
+    # No GPU flags for CPU-only or macOS (MPS not supported in Docker)
+}
+
+detect_gpu
+
+# Determine mount strategy based on arguments
+# If analyzing a file with absolute path, mount its parent directory
+# Otherwise, mount current working directory
+
+MOUNT_PATH="$(pwd)"
+WORK_DIR="/work"
+ARGS=("$@")
+
+# Check if first non-flag argument is an absolute path
+for arg in "$@"; do
+    # Skip flags
+    [[ "$arg" == -* ]] && continue
+    # Skip subcommands
+    [[ "$arg" == "analyze" || "$arg" == "recalibrate" ]] && continue
+
+    # If it's an absolute path to a file
+    if [[ "$arg" == /* && -f "$arg" ]]; then
+        FILE_DIR="$(dirname "$arg")"
+        FILE_NAME="$(basename "$arg")"
+        MOUNT_PATH="$FILE_DIR"
+        WORK_DIR="/work"
+        # Rewrite the argument to use container path
+        ARGS=("${ARGS[@]/$arg//work/$FILE_NAME}")
+        break
+    fi
+done
+
+# Run container with appropriate mounts and GPU support
+exec docker run --rm \
+    "${GPU_FLAGS[@]}" \
+    -v "$MOUNT_PATH:$WORK_DIR" \
+    -w "$WORK_DIR" \
+    -e TERM="${TERM:-xterm-256color}" \
+    "$IMAGE" \
+    "${ARGS[@]}"

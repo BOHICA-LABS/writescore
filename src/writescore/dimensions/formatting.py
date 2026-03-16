@@ -55,8 +55,8 @@ class FormattingDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (3.7% of total score)."""
-        return 3.7
+        """Return dimension weight (10.0% of total score)."""
+        return 10.0
 
     @property
     def tier(self) -> DimensionTier:

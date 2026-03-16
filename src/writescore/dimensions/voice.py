@@ -60,8 +60,8 @@ class VoiceDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (4.6% of total score)."""
-        return 4.6
+        """Return dimension weight (7.0% of total score)."""
+        return 7.0
 
     @property
     def tier(self) -> DimensionTier:

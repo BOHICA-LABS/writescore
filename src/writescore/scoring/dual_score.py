@@ -120,6 +120,36 @@ class ScoringThresholds:
 THRESHOLDS = ScoringThresholds()
 
 
+def get_thresholds_from_config() -> ScoringThresholds:
+    """
+    Get ScoringThresholds populated from ConfigRegistry if available.
+
+    Falls back to default ScoringThresholds if config is not available.
+
+    Returns:
+        ScoringThresholds instance with values from config or defaults
+    """
+    try:
+        from writescore.core.config_registry import get_config_registry
+
+        registry = get_config_registry()
+        config = registry.get_config()
+
+        if config.scoring and config.scoring.thresholds:
+            thresholds = config.scoring.thresholds
+            return ScoringThresholds(
+                SENTENCE_STDEV_LOW=getattr(thresholds, "sentence_stdev_low", 3.0),
+                HEADING_PARALLELISM_HIGH=getattr(thresholds, "heading_parallelism_high", 0.8),
+                HEADING_PARALLELISM_MEDIUM=getattr(thresholds, "heading_parallelism_medium", 0.6),
+                HEADING_VERBOSE_RATIO=getattr(thresholds, "heading_verbose_ratio", 0.3),
+            )
+    except Exception:
+        # Fall back to defaults if config unavailable
+        pass
+
+    return ScoringThresholds()
+
+
 # ============================================================================
 # DUAL SCORING SYSTEM
 # ============================================================================

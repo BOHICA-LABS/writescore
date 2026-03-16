@@ -1,10 +1,10 @@
 """
 Integration test for dimension weight distribution verification.
 
-Verifies that all 16 dimensions have correct weights as specified
+Verifies that all 17 dimensions have correct weights as specified
 after rebalancing to sum to 100%.
 
-Total dimensions: 16
+Total dimensions: 17
 Total weight: 100%
 """
 
@@ -14,11 +14,12 @@ from writescore.core.dimension_registry import DimensionRegistry
 from writescore.dimensions.advanced_lexical import AdvancedLexicalDimension
 from writescore.dimensions.ai_vocabulary import AiVocabularyDimension
 from writescore.dimensions.burstiness import BurstinessDimension
+from writescore.dimensions.energy import EnergyDimension
 from writescore.dimensions.figurative_language import FigurativeLanguageDimension
 from writescore.dimensions.formatting import FormattingDimension
 from writescore.dimensions.lexical import LexicalDimension
 
-# Import all 16 dimensions
+# Import all 17 dimensions
 from writescore.dimensions.perplexity import PerplexityDimension
 from writescore.dimensions.pragmatic_markers import PragmaticMarkersDimension
 from writescore.dimensions.predictability import PredictabilityDimension
@@ -30,27 +31,28 @@ from writescore.dimensions.syntactic import SyntacticDimension
 from writescore.dimensions.transition_marker import TransitionMarkerDimension
 from writescore.dimensions.voice import VoiceDimension
 
-# Expected weights after rebalancing (16 dimensions = 100%)
+# Expected weights after rebalancing (17 dimensions = 100%)
 EXPECTED_WEIGHTS = {
-    # ADVANCED tier
-    "predictability": 18.1,  # Highest weight - GLTR token analysis
-    "advanced_lexical": 12.8,  # HDD, Yule's K, MATTR diversity
-    "transition_marker": 5.5,  # Basic + formulaic transitions
-    "pragmatic_markers": 3.7,  # Hedging, boosting, evidentiality
-    "perplexity": 2.8,  # True perplexity estimation
-    "syntactic": 1.8,  # Dependency depth, subordination
-    # SUPPORTING tier
-    "sentiment": 15.6,  # Emotional variation patterns
-    "semantic_coherence": 4.6,  # Paragraph/topic coherence
-    "lexical": 2.8,  # Basic TTR, MTLD diversity
-    "figurative_language": 2.8,  # Metaphors, similes, idioms
-    # CORE tier
-    "readability": 9.2,  # Flesch-Kincaid metrics
-    "burstiness": 5.5,  # Sentence/paragraph variation
-    "voice": 4.6,  # First-person, contractions
-    "formatting": 3.7,  # Em-dash, bold/italic patterns
-    "structure": 3.7,  # Heading depth, list patterns
-    "ai_vocabulary": 2.8,  # AI-characteristic word patterns
+    # ADVANCED tier (6 dimensions)
+    "predictability": 12.0,  # Highest weight - GLTR token analysis
+    "advanced_lexical": 8.0,  # HDD, Yule's K, MATTR diversity
+    "transition_marker": 5.0,  # Basic + formulaic transitions
+    "pragmatic_markers": 5.0,  # Hedging, boosting, evidentiality
+    "perplexity": 3.0,  # True perplexity estimation
+    "syntactic": 2.0,  # Dependency depth, subordination
+    # SUPPORTING tier (5 dimensions)
+    "sentiment": 5.0,  # Emotional variation patterns
+    "semantic_coherence": 5.0,  # Paragraph/topic coherence
+    "lexical": 5.0,  # Basic TTR, MTLD diversity
+    "figurative_language": 5.0,  # Metaphors, similes, idioms
+    "energy": 5.0,  # Writing dynamism and engagement
+    # CORE tier (6 dimensions)
+    "formatting": 10.0,  # Em-dash, bold/italic patterns (strongest AI signal)
+    "burstiness": 8.0,  # Sentence/paragraph variation
+    "voice": 7.0,  # First-person, contractions
+    "readability": 5.0,  # Flesch-Kincaid metrics
+    "structure": 5.0,  # Heading depth, list patterns
+    "ai_vocabulary": 5.0,  # AI-characteristic word patterns
 }
 
 # Expected tiers
@@ -62,11 +64,12 @@ EXPECTED_TIERS = {
     "pragmatic_markers": "ADVANCED",
     "perplexity": "ADVANCED",
     "syntactic": "ADVANCED",
-    # SUPPORTING tier (4 dimensions)
+    # SUPPORTING tier (5 dimensions)
     "sentiment": "SUPPORTING",
     "semantic_coherence": "SUPPORTING",
     "lexical": "SUPPORTING",
     "figurative_language": "SUPPORTING",
+    "energy": "SUPPORTING",
     # CORE tier (6 dimensions)
     "readability": "CORE",
     "burstiness": "CORE",
@@ -78,7 +81,7 @@ EXPECTED_TIERS = {
 
 
 def instantiate_all_dimensions():
-    """Helper to instantiate all 16 dimensions."""
+    """Helper to instantiate all 17 dimensions."""
     return [
         PredictabilityDimension(),
         AdvancedLexicalDimension(),
@@ -96,6 +99,7 @@ def instantiate_all_dimensions():
         FormattingDimension(),
         StructureDimension(),
         AiVocabularyDimension(),
+        EnergyDimension(),
     ]
 
 
@@ -115,7 +119,7 @@ class TestWeightDistribution:
         instantiate_all_dimensions()
 
         all_dimensions = DimensionRegistry.get_all()
-        assert len(all_dimensions) == 16, f"Expected 16 dimensions, got {len(all_dimensions)}"
+        assert len(all_dimensions) == 17, f"Expected 17 dimensions, got {len(all_dimensions)}"
 
     def test_individual_dimension_weights(self):
         """Test that each dimension has the correct weight."""
@@ -170,7 +174,7 @@ class TestWeightDistribution:
             ), f"Dimension '{dimension.dimension_name}' has invalid weight {weight} (must be 0-100)"
 
     def test_tier_categorization(self):
-        """Test dimension tier distribution: CORE=6, SUPPORTING=4, ADVANCED=6."""
+        """Test dimension tier distribution: CORE=6, SUPPORTING=5, ADVANCED=6."""
         instantiate_all_dimensions()
 
         tier_counts = {}
@@ -183,8 +187,8 @@ class TestWeightDistribution:
             tier_counts.get("CORE", 0) == 6
         ), f"Expected 6 CORE dimensions, got {tier_counts.get('CORE', 0)}"
         assert (
-            tier_counts.get("SUPPORTING", 0) == 4
-        ), f"Expected 4 SUPPORTING dimensions, got {tier_counts.get('SUPPORTING', 0)}"
+            tier_counts.get("SUPPORTING", 0) == 5
+        ), f"Expected 5 SUPPORTING dimensions, got {tier_counts.get('SUPPORTING', 0)}"
         assert (
             tier_counts.get("ADVANCED", 0) == 6
         ), f"Expected 6 ADVANCED dimensions, got {tier_counts.get('ADVANCED', 0)}"

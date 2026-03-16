@@ -65,8 +65,8 @@ class ReadabilityDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Return dimension weight (9.2% of total score)."""
-        return 9.2
+        """Return dimension weight (5.0% of total score)."""
+        return 5.0
 
     @property
     def tier(self) -> DimensionTier:

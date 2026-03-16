@@ -97,7 +97,7 @@ class TestDimensionMetadata:
 
     def test_dimension_weight(self, dimension):
         """Test dimension weight is 4.6% (rebalanced to 100% total)."""
-        assert dimension.weight == 4.6
+        assert dimension.weight == 5.0
 
     def test_dimension_tier(self, dimension):
         """Test dimension tier is SUPPORTING."""
@@ -811,11 +811,12 @@ class TestRecommendations:
 
     def test_get_recommendations_provides_metric_specific_advice(self, dimension):
         """Test recommendations address specific low metrics."""
+        # paragraph_cohesion must be < 0.35 to trigger cohesion recommendation
         metrics = {
             "method": "semantic",
             "available": True,
             "metrics": {
-                "paragraph_cohesion": 0.40,  # Low
+                "paragraph_cohesion": 0.30,  # Low (below 0.35 threshold)
                 "topic_consistency": 0.80,  # Good
                 "discourse_flow": 0.80,  # Good
                 "conceptual_depth": 0.80,  # Good
@@ -1336,7 +1337,8 @@ class TestMonotonicScoringWithDomainAwareness:
         score = dimension.calculate_score(metrics)
 
         # Average coherence = 0.69, should score reasonably well in creative domain
-        assert 50 <= score <= 80, f"Creative domain score {score} unexpected for avg coherence 0.69"
+        # With adjusted thresholds (Story 2.4.2), this scores higher than before
+        assert 50 <= score <= 90, f"Creative domain score {score} unexpected for avg coherence 0.69"
 
     def test_calculate_score_academic_domain(self, dimension):
         """Test score calculation for academic domain (stricter thresholds)."""

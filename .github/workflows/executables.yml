@@ -1,0 +1,175 @@
+name: Build Executables
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to attach binaries to (e.g., v6.4.0)'
+        required: false
+        type: string
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: writescore-linux-amd64
+          - os: macos-latest
+            artifact: writescore-darwin-amd64
+          - os: macos-14
+            artifact: writescore-darwin-arm64
+          - os: windows-latest
+            artifact: writescore-windows-amd64.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Free up disk space (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          # Remove unnecessary tools to free up disk space for large PyInstaller builds
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache/CodeQL
+          df -h
+
+      - name: Free up disk space (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          # Remove unnecessary tools to free up disk space
+          sudo rm -rf /usr/local/share/powershell || true
+          sudo rm -rf /usr/local/lib/node_modules || true
+          df -h
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies (Linux - CPU-only torch)
+        if: runner.os == 'Linux'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          # Use CPU-only torch to keep executable under GitHub's 2GB release asset limit
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install .
+          python -m spacy download en_core_web_sm
+
+      - name: Install dependencies (macOS/Windows)
+        if: runner.os != 'Linux'
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install .
+          python -m spacy download en_core_web_sm
+
+      - name: Download NLTK data
+        run: |
+          python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('punkt_tab', quiet=True); nltk.download('averaged_perceptron_tagger', quiet=True); nltk.download('averaged_perceptron_tagger_eng', quiet=True)"
+
+      - name: Build executable
+        run: |
+          pyinstaller packaging/pyinstaller/writescore.spec --clean
+
+      - name: Rename artifact (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mv dist/writescore dist/${{ matrix.artifact }}
+
+      - name: Rename artifact (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          move dist\writescore.exe dist\${{ matrix.artifact }}
+
+      - name: Test executable (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x dist/${{ matrix.artifact }}
+          dist/${{ matrix.artifact }} --version
+          dist/${{ matrix.artifact }} --help
+
+      - name: Test executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          dist\${{ matrix.artifact }} --version
+          dist\${{ matrix.artifact }} --help
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: dist/${{ matrix.artifact }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.event.inputs.version != ''
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List artifacts
+        run: find artifacts -type f
+
+      - name: Upload to release (on release event)
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          append_body: true
+          body: |
+
+            ## Standalone Executables
+
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | Linux x64 | `writescore-linux-amd64` | CPU-only (due to GitHub's 2GB asset limit) |
+            | macOS Intel | `writescore-darwin-amd64` | Full GPU support |
+            | macOS Apple Silicon | `writescore-darwin-arm64` | Full GPU support |
+            | Windows x64 | `writescore-windows-amd64.exe` | Full GPU support |
+
+            > **Note:** The Linux executable uses CPU-only PyTorch due to GitHub's 2GB release asset size limit.
+            > For GPU acceleration on Linux, install via `pip install writescore` or `pipx install writescore`.
+          files: |
+            artifacts/writescore-linux-amd64/writescore-linux-amd64
+            artifacts/writescore-darwin-amd64/writescore-darwin-amd64
+            artifacts/writescore-darwin-arm64/writescore-darwin-arm64
+            artifacts/writescore-windows-amd64.exe/writescore-windows-amd64.exe
+
+      - name: Upload to release (manual dispatch)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          append_body: true
+          body: |
+
+            ## Standalone Executables
+
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | Linux x64 | `writescore-linux-amd64` | CPU-only (due to GitHub's 2GB asset limit) |
+            | macOS Intel | `writescore-darwin-amd64` | Full GPU support |
+            | macOS Apple Silicon | `writescore-darwin-arm64` | Full GPU support |
+            | Windows x64 | `writescore-windows-amd64.exe` | Full GPU support |
+
+            > **Note:** The Linux executable uses CPU-only PyTorch due to GitHub's 2GB release asset size limit.
+            > For GPU acceleration on Linux, install via `pip install writescore` or `pipx install writescore`.
+          files: |
+            artifacts/writescore-linux-amd64/writescore-linux-amd64
+            artifacts/writescore-darwin-amd64/writescore-darwin-amd64
+            artifacts/writescore-darwin-arm64/writescore-darwin-arm64
+            artifacts/writescore-windows-amd64.exe/writescore-windows-amd64.exe

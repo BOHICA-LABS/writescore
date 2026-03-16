@@ -114,7 +114,7 @@ class TestDimensionMetadata:
 
     def test_dimension_weight(self, dimension):
         """Test dimension weight is 3.7% (rebalanced to 100% total)."""
-        assert dimension.weight == 3.7
+        assert dimension.weight == 5.0
 
     def test_dimension_tier(self, dimension):
         """Test dimension tier is ADVANCED."""

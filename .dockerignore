@@ -1,0 +1,64 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*.so
+.Python
+.venv
+venv
+*.egg-info
+.eggs
+dist
+build
+*.egg
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+.tox
+.nox
+
+# Cache
+.mypy_cache
+.ruff_cache
+.cache
+
+# Documentation build
+docs/_build
+
+# Development
+*.md
+!README.md
+Justfile
+Makefile
+.pre-commit-config.yaml
+.gitguardian.yaml
+
+# CI/CD
+.github
+
+# Tests (not needed in runtime image)
+tests
+
+# Devcontainer
+.devcontainer
+
+# Stories
+docs/stories
+
+# Temp files
+*.log
+*.tmp
+temp.md

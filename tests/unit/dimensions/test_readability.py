@@ -58,7 +58,7 @@ class TestDimensionMetadata:
 
     def test_dimension_weight(self, dimension):
         """Test dimension weight is 9.2% (rebalanced to 100% total)."""
-        assert dimension.weight == 9.2
+        assert dimension.weight == 5.0
 
     def test_dimension_tier(self, dimension):
         """Test dimension tier is CORE (promoted from ADVANCED)."""
@@ -401,7 +401,7 @@ class TestBackwardCompatibility:
         dim = ReadabilityAnalyzer()
 
         assert dim.dimension_name == "readability"
-        assert dim.weight == 9.2  # rebalanced to 100% total
+        assert dim.weight == 5.0  # rebalanced to 100% total
 
 
 class TestGaussianScoring:

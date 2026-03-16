@@ -1,0 +1,219 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://writescore.dev/schemas/writescore-config.schema.json",
+  "title": "WriteScore Configuration Schema",
+  "description": "Schema for validating WriteScore configuration files",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Configuration schema version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "dimensions": {
+      "type": "object",
+      "description": "Configuration for each analysis dimension",
+      "additionalProperties": {
+        "$ref": "#/definitions/dimensionConfig"
+      }
+    },
+    "scoring": {
+      "$ref": "#/definitions/scoringConfig"
+    },
+    "analysis": {
+      "$ref": "#/definitions/analysisConfig"
+    },
+    "profiles": {
+      "type": "object",
+      "description": "Dimension loading profiles",
+      "additionalProperties": {
+        "$ref": "#/definitions/profileConfig"
+      }
+    },
+    "content_types": {
+      "type": "object",
+      "description": "Content type presets",
+      "additionalProperties": {
+        "$ref": "#/definitions/contentTypeConfig"
+      }
+    }
+  },
+  "required": ["version"],
+  "additionalProperties": false,
+  "definitions": {
+    "dimensionConfig": {
+      "type": "object",
+      "properties": {
+        "weight": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentage weight (0-100)"
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["ADVANCED", "CORE", "SUPPORTING", "STRUCTURAL"],
+          "description": "Dimension tier classification"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether dimension is enabled"
+        },
+        "thresholds": {
+          "type": "object",
+          "description": "Dimension-specific thresholds",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "scoring": {
+          "type": "object",
+          "description": "Scoring parameters",
+          "additionalProperties": true
+        },
+        "tier_weights": {
+          "type": "object",
+          "description": "Sub-tier weights (for ai_vocabulary)",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "composite_weights": {
+          "type": "object",
+          "description": "Composite scoring weights",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "optimization": {
+          "type": "object",
+          "description": "Performance optimization settings",
+          "additionalProperties": true
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Timeout for dimension analysis"
+        },
+        "model": {
+          "type": "string",
+          "description": "Model name for ML-based dimensions"
+        }
+      },
+      "additionalProperties": false
+    },
+    "scoringConfig": {
+      "type": "object",
+      "properties": {
+        "thresholds": {
+          "type": "object",
+          "description": "Scoring thresholds",
+          "properties": {
+            "ai_very_likely": {"type": "number"},
+            "ai_likely": {"type": "number"},
+            "ai_possibly": {"type": "number"},
+            "mixed_content": {"type": "number"},
+            "human_likely": {"type": "number"},
+            "quality_excellent": {"type": "number"},
+            "quality_good": {"type": "number"},
+            "quality_acceptable": {"type": "number"},
+            "quality_poor": {"type": "number"},
+            "heading_parallelism_high": {"type": "number"},
+            "heading_parallelism_medium": {"type": "number"},
+            "heading_verbose_ratio": {"type": "number"},
+            "sentence_stdev_low": {"type": "number"}
+          },
+          "additionalProperties": {"type": "number"}
+        },
+        "calibration": {
+          "type": "object",
+          "description": "Calibration weights",
+          "properties": {
+            "ai_detection_weight": {"type": "number"},
+            "quality_weight": {"type": "number"}
+          },
+          "additionalProperties": {"type": "number"}
+        }
+      },
+      "additionalProperties": false
+    },
+    "analysisConfig": {
+      "type": "object",
+      "properties": {
+        "modes": {
+          "type": "object",
+          "description": "Analysis mode configurations",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "max_chars": {"type": "integer"},
+              "description": {"type": "string"},
+              "sampling_threshold": {"type": "integer"},
+              "sections": {"type": "integer"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "defaults": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["fast", "adaptive", "sampling", "full"]
+            },
+            "sampling_sections": {"type": "integer"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "profileConfig": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Profile description"
+        },
+        "dimensions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of dimension names to include"
+        }
+      },
+      "required": ["dimensions"],
+      "additionalProperties": false
+    },
+    "contentTypeConfig": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Content type description"
+        },
+        "weight_adjustments": {
+          "type": "object",
+          "description": "Multipliers for dimension weights",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "threshold_adjustments": {
+          "type": "object",
+          "description": "Override threshold values",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

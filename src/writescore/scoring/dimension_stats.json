@@ -119,6 +119,13 @@
       "min": 0.0,
       "max": 100.0,
       "n_samples": 0
+    },
+    "energy": {
+      "mean": 50.0,
+      "stdev": 15.0,
+      "min": 0.0,
+      "max": 100.0,
+      "n_samples": 0
     }
   }
 }

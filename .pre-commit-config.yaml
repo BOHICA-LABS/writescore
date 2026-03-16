@@ -54,10 +54,11 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+        exclude: 'packaging/conda-forge/meta\.yaml$'  # Uses Jinja2 templating
       - id: check-json
       - id: check-merge-conflict
       - id: check-added-large-files
-        args: ['--maxkb=1000']
+        args: ['--maxkb=4000']  # Increased for uv.lock and lexicon data files
       # Git Flow: Prevent direct commits to main (must use PR)
       - id: no-commit-to-branch
         args: ['--branch', 'main']

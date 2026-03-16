@@ -75,14 +75,15 @@ class SemanticCoherenceDimension(DimensionStrategy):
     SAMPLE_SIZE = 50
     BATCH_SIZE = 32
 
-    # Coherence thresholds (literature-based, pending empirical validation)
-    # These are working defaults; adjust based on domain-specific validation
+    # Coherence thresholds (calibrated based on sentence-transformer research)
+    # Research shows typical human writing has 0.40-0.60 sentence similarity within paragraphs
+    # Adjusted from original 0.60-0.78 thresholds which were too high (Story 2.4.2)
     THRESHOLDS = {
         "general": {
             "paragraph_cohesion": {
-                "excellent": 0.78,  # High within-paragraph similarity
-                "good": 0.70,
-                "acceptable": 0.60,
+                "excellent": 0.55,  # Well-connected ideas (research: 0.50-0.60 typical)
+                "good": 0.45,
+                "acceptable": 0.35,  # Typical human writing baseline
             },
             "topic_consistency": {
                 "excellent": 0.72,
@@ -90,11 +91,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
                 "acceptable": 0.55,
             },
             "discourse_flow": {
-                "ideal_min": 0.60,  # Ideal transition range
-                "ideal_max": 0.75,
-                "excellent": 0.75,
-                "good": 0.65,
-                "acceptable": 0.50,
+                "ideal_min": 0.45,  # Ideal transition range (adjusted for realistic embeddings)
+                "ideal_max": 0.65,
+                "excellent": 0.65,
+                "good": 0.55,
+                "acceptable": 0.45,
             },
             "conceptual_depth": {
                 "excellent": 0.68,
@@ -105,9 +106,9 @@ class SemanticCoherenceDimension(DimensionStrategy):
         "technical": {
             # Technical writing: More lenient (technical terms may reduce similarity)
             "paragraph_cohesion": {
-                "excellent": 0.72,  # Lower threshold for technical content
-                "good": 0.64,
-                "acceptable": 0.54,
+                "excellent": 0.50,  # Technical content has varied terminology
+                "good": 0.40,
+                "acceptable": 0.30,
             },
             "topic_consistency": {
                 "excellent": 0.68,
@@ -115,11 +116,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
                 "acceptable": 0.50,
             },
             "discourse_flow": {
-                "ideal_min": 0.55,
-                "ideal_max": 0.70,
-                "excellent": 0.70,
-                "good": 0.60,
-                "acceptable": 0.45,
+                "ideal_min": 0.40,  # Technical writing has more varied transitions
+                "ideal_max": 0.60,
+                "excellent": 0.60,
+                "good": 0.50,
+                "acceptable": 0.40,
             },
             "conceptual_depth": {
                 "excellent": 0.64,
@@ -128,11 +129,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
             },
         },
         "creative": {
-            # Creative writing: Stricter (expect higher coherence variation)
+            # Creative writing: Lower thresholds (purposeful variation is normal)
             "paragraph_cohesion": {
-                "excellent": 0.75,
-                "good": 0.67,
-                "acceptable": 0.57,
+                "excellent": 0.50,  # Creative prose varies more
+                "good": 0.40,
+                "acceptable": 0.30,
             },
             "topic_consistency": {
                 "excellent": 0.70,
@@ -140,11 +141,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
                 "acceptable": 0.52,
             },
             "discourse_flow": {
-                "ideal_min": 0.58,
-                "ideal_max": 0.73,
-                "excellent": 0.73,
-                "good": 0.63,
-                "acceptable": 0.48,
+                "ideal_min": 0.40,  # Creative writing varies significantly
+                "ideal_max": 0.60,
+                "excellent": 0.60,
+                "good": 0.50,
+                "acceptable": 0.40,
             },
             "conceptual_depth": {
                 "excellent": 0.66,
@@ -153,11 +154,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
             },
         },
         "academic": {
-            # Academic writing: Similar to general with slight adjustments
+            # Academic writing: Slightly higher than general (formal structure)
             "paragraph_cohesion": {
-                "excellent": 0.76,
-                "good": 0.68,
-                "acceptable": 0.58,
+                "excellent": 0.58,  # Academic writing is more structured
+                "good": 0.48,
+                "acceptable": 0.38,
             },
             "topic_consistency": {
                 "excellent": 0.73,
@@ -165,11 +166,11 @@ class SemanticCoherenceDimension(DimensionStrategy):
                 "acceptable": 0.56,
             },
             "discourse_flow": {
-                "ideal_min": 0.60,
-                "ideal_max": 0.75,
-                "excellent": 0.75,
-                "good": 0.66,
-                "acceptable": 0.51,
+                "ideal_min": 0.45,  # Academic writing similar to general
+                "ideal_max": 0.65,
+                "excellent": 0.65,
+                "good": 0.55,
+                "acceptable": 0.45,
             },
             "conceptual_depth": {
                 "excellent": 0.69,
@@ -200,8 +201,8 @@ class SemanticCoherenceDimension(DimensionStrategy):
 
     @property
     def weight(self) -> float:
-        """Contribution weight (4.6% of total score)."""
-        return 4.6
+        """Contribution weight (5.0% of total score)."""
+        return 5.0
 
     @property
     def tier(self) -> DimensionTier:
@@ -581,8 +582,9 @@ class SemanticCoherenceDimension(DimensionStrategy):
             "weak_transitions": [],
         }
 
-        # Collect low cohesion paragraphs (paragraph_cohesion < 0.60)
-        if paragraph_cohesion < 0.60:
+        # Collect low cohesion paragraphs (paragraph_cohesion < 0.35)
+        # Threshold adjusted based on research showing 0.40-0.60 is typical for human writing
+        if paragraph_cohesion < 0.35:
             # Calculate per-paragraph cohesion scores
             # For simplicity, just collect first few paragraphs as examples
             # In production, would calculate individual paragraph cohesion scores
@@ -924,7 +926,7 @@ class SemanticCoherenceDimension(DimensionStrategy):
         # Provide metric-specific recommendations
         coherence_metrics = metrics.get("metrics", {})
 
-        if coherence_metrics.get("paragraph_cohesion", 1.0) < 0.60:
+        if coherence_metrics.get("paragraph_cohesion", 1.0) < 0.35:
             recommendations.append(
                 "Improve paragraph cohesion: Ensure sentences within each paragraph "
                 "relate to a single topic or theme"
